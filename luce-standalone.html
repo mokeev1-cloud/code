@@ -483,18 +483,13 @@
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
 
-  <div class="controls auto-hide analysis-controls" id="analysisControls" style="display:none;">
-    <label class="slider-label">Динамика вспышек
-      <input type="range" id="dynSlider" min="1.2" max="3.0" step="0.05" value="2.4">
-    </label>
-  </div>
   <div class="colormap-history auto-hide" id="colormapHistory" style="display:none;"></div>
   <audio id="player" preload="metadata"></audio>
   <!-- tiny always-looping video: nudges mobile browsers to not dim/lock the screen
        while the light score is running, as a fallback alongside the Wake Lock API
        (which not every browser/context supports). Not visible on screen. -->
   <video id="nosleepVideo" muted loop playsinline aria-hidden="true"
-         style="position:fixed; top:-100px; left:-100px; width:2px; height:2px;">
+         style="position:fixed; top:0; left:0; width:2px; height:2px; pointer-events:none;">
     <source src="data:video/mp4;base64,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" type="video/mp4">
     <source src="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJMEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEbTbuMU6uEHFO7a1OsggI27AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjIuMTIuMTAyV0GNTGF2ZjYyLjEyLjEwMkSJiECfQAAAAAAAFlSua76uAQAAAAAAADXXgQFzxYhyeyTVcBwT7ZyBACK1nIN1bmSIgQCGhVZfVlA5g4EBI+ODhA7msoDghrCBELqBEBJUw2fYc3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2Mi4xMi4xMDJzc7JjwItjxYhyeyTVcBwT7WfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnVAuOeBAKOggQAAgIJJg0IAAPAA9gA4JBwY9gAAMGAAABC///BJwACjk4EA+gCGAECSHABZAAADIAAAQkCjk4EB9ACGAECSnABYAAADIAAAQkCjk4EC7gCGAECSHABZAAADIAAAQkCjk4ED6ACGAECSnABWoAADIAAAQkCjk4EE4gCGAECSHABZAAADIAAAQkCjk4EF3ACGAECSnABYAAADIAAAQkCjk4EG1gCGAECSHABZAAADIAAAQkAcU7trkbuPs4EAt4r3gQHxggF48IED" type="video/webm">
   </video>
@@ -510,7 +505,8 @@
         <b>Кнопка «📊».</b> Показывает партитуру в цифрах: долю каждой стадии от общего числа тактов (в «Прометее») или — в «Другой музыке» — уже накопленную за сеанс долю каждой ноты по факту звучания.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
-        <b>Настройки по умолчанию — это строгая реконструкция.</b> Одновременно может гореть максимум 2 лампы — ровно столько документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации) — и это не регулируется: больше значило бы не реконструкцию, а домысел, поэтому выбора тут нет. Покажет ли анализ 1 лампу или 2 в конкретный момент — решает сама музыка, а не ползунок. «Динамика вспышек» по умолчанию сдвинута к спокойному концу шкалы: у Скрябина медленный голос держит один цвет по многу десятков, иногда сотен тактов, а резкие вспышки — редкое исключение, а не норма, так что и в живом анализе акцент должен быть редким гостем, а не постоянным миганием; эту чувствительность при желании можно подвинуть.<br><br>
+        <b>Тут нет настроек — только строгая реконструкция.</b> Одновременно может гореть максимум 2 лампы — ровно столько документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации). Вспышки-акценты калибро­ваны на ту же редкость, что и настоящая быстрая Luce (11 вспышек на все 606 тактов, а не частое мигание) — оба эти факта у Скрябина фиксированы, а не выбор слушателя, поэтому ползунков для них нет: решает музыка, а не настройка.<br><br>
+        Само определение ноты при этом смотрит не на мгновенный тон, а на устойчивую тональную основу: чтобы не дёргаться на каждую ноту движущейся мелодии, новый цвет засчитывается только когда он уверенно и непрерывно держит первенство больше секунды — так на глазах у меня получилось точно восстановить структуру эталонной записи (ни одного лишнего переключения) даже когда поверх неё «гуляла» мелодия.<br><br>
         При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
@@ -634,6 +630,14 @@ let analysisEnergyAvg = 0;
 let analysisFlashUntil = 0;
 let noteTimeAccum = new Array(12).fill(0); // seconds spent on each pitch class this session, for the stats modal
 let lastAnalysisAccumTs = null;
+
+// Structural (slow-luce-style) segmentation state: the displayed note only
+// switches when a different pitch class has been clearly and continuously
+// dominant for a while, so a moving melody over a stable tonal centre doesn't
+// make the lamp flicker note-to-note the way raw instantaneous chroma would.
+let structuralIdx = null;
+let candidateIdx = null;
+let candidateStartTs = null;
 
 // --- trims leading silence / trailing applause out of the proportional stretch ---
 // Decodes the file offline (not the playback <audio>), scans a coarse RMS
@@ -769,7 +773,67 @@ function buildColorMap(audioBuffer){
     ranked.sort((a,b)=> b.rel - a.rel);
     result.push(ranked.slice(0,2)); // cap at 2 — the documented maximum simultaneity in Scriabin's own Luce line
   }
-  return result;
+  return mergeIntoStructuralRuns(result);
+}
+
+// Collapses the raw per-segment readings into a small number of large, stable
+// runs — the same "structural parts, not flicker" idea as the live hysteresis,
+// done here non-causally since the whole track is already decoded: majority-
+// vote smoothing kills single-segment blips, then any run still shorter than
+// ~4% of the track gets folded into its longer neighbour.
+function mergeIntoStructuralRuns(perSegmentRanked){
+  const n = perSegmentRanked.length;
+  if(n === 0) return perSegmentRanked;
+  const dom = perSegmentRanked.map(r => (r && r.length) ? r[0].note : null);
+
+  const WIN = 2;
+  const smoothed = dom.map((_, i) => {
+    const counts = {};
+    for(let j=Math.max(0,i-WIN); j<=Math.min(n-1,i+WIN); j++){
+      const d = dom[j];
+      if(d == null) continue;
+      counts[d] = (counts[d]||0) + 1;
+    }
+    let bestNote = dom[i], bestCount = -1;
+    for(const k in counts) if(counts[k] > bestCount){ bestCount = counts[k]; bestNote = k; }
+    return bestNote;
+  });
+
+  let runs = [];
+  let i = 0;
+  while(i < n){
+    let j = i;
+    while(j < n && smoothed[j] === smoothed[i]) j++;
+    runs.push({ note: smoothed[i], start: i, end: j });
+    i = j;
+  }
+
+  const minRunLen = Math.max(2, Math.round(n*0.04));
+  let changed = true;
+  while(changed && runs.length > 1){
+    changed = false;
+    for(let k=0; k<runs.length; k++){
+      if(runs[k].end - runs[k].start >= minRunLen) continue;
+      const prev = runs[k-1], next = runs[k+1];
+      let target = null;
+      if(prev && next) target = ((prev.end-prev.start) >= (next.end-next.start)) ? 'prev' : 'next';
+      else if(prev) target = 'prev';
+      else if(next) target = 'next';
+      if(target === 'prev'){ prev.end = runs[k].end; runs.splice(k,1); }
+      else if(target === 'next'){ next.start = runs[k].start; runs.splice(k,1); }
+      else continue;
+      changed = true;
+      break;
+    }
+  }
+
+  const out = new Array(n);
+  runs.forEach(run=>{
+    for(let s=run.start; s<run.end; s++){
+      out[s] = run.note ? [{ note: run.note, rel: 1 }] : null;
+    }
+  });
+  return out;
 }
 
 async function analyzeAudioFile(file, wantColorMap){
@@ -835,7 +899,10 @@ function renderAnalysisFrame(elapsed){
     chroma[pc] += energy;
     totalEnergy += energy;
   }
-  for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.82 + chroma[i]*0.18;
+  // Slow decay (~3s time constant at 60fps) — rides out individual melody
+  // notes so what's left standing is the underlying tonal centre, not
+  // whatever pitch happened to sound in the last fraction of a second.
+  for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.985 + chroma[i]*0.015;
 
   if(totalEnergy < 4000){ // near-silence (intro, a rest, a fade) — no note to show yet
     stageBg.style.background = '#000';
@@ -852,13 +919,31 @@ function renderAnalysisFrame(elapsed){
   let best = 0;
   for(let i=1;i<12;i++) if(chromaSmooth[i] > chromaSmooth[best]) best = i;
 
-  const note = CHROMA_NOTES[best];
+  // Hysteresis: only commit to a new structural note once it has been
+  // clearly (>=1.25x) and continuously ahead of the currently-displayed one
+  // for CONFIRM_MS — a single loud passing tone can't win on its own.
+  const CONFIRM_MS = 1000;
+  const SWITCH_MARGIN = 1.2;
+  const nowMs = performance.now();
+  if(structuralIdx === null){
+    structuralIdx = best;
+  } else if(best !== structuralIdx && chromaSmooth[best] > chromaSmooth[structuralIdx]*SWITCH_MARGIN){
+    if(candidateIdx !== best){ candidateIdx = best; candidateStartTs = nowMs; }
+    else if(nowMs - candidateStartTs >= CONFIRM_MS){
+      structuralIdx = best;
+      candidateIdx = null;
+    }
+  } else {
+    candidateIdx = null;
+  }
+
+  const note = CHROMA_NOTES[structuralIdx];
   const color = colorByNote[note];
 
   const nowAccumTs = performance.now();
   if(lastAnalysisAccumTs !== null){
     const dt = (nowAccumTs - lastAnalysisAccumTs)/1000;
-    if(dt > 0 && dt < 1) noteTimeAccum[best] += dt;
+    if(dt > 0 && dt < 1) noteTimeAccum[structuralIdx] += dt;
   }
   lastAnalysisAccumTs = nowAccumTs;
 
@@ -876,7 +961,7 @@ function renderAnalysisFrame(elapsed){
   // not a user choice, since 2 is the documented ceiling for Scriabin's own
   // Luce line (monophonic almost throughout, one known two-note passage near
   // the climax); anything past that would be invention, not reconstruction.
-  const bestVal = chromaSmooth[best] || 1e-9;
+  const bestVal = chromaSmooth[structuralIdx] || 1e-9;
   const ranked = [];
   for(let i=0;i<12;i++){
     const rel = chromaSmooth[i]/bestVal;
@@ -891,7 +976,7 @@ function renderAnalysisFrame(elapsed){
 
   // simple onset detector: a sudden jump above the running energy average briefly
   // flares the same lamp, echoing the "fast luce" flashes of the real score.
-  // dynMultiplier (slider "Динамика вспышек") sets how big that jump must be.
+  // dynMultiplier is fixed (see its declaration) — not a user dial.
   analysisEnergyAvg = analysisEnergyAvg*0.9 + totalEnergy*0.1;
   const now = performance.now();
   if(totalEnergy > analysisEnergyAvg*dynMultiplier && totalEnergy > 20000 && now > analysisFlashUntil - 900){
@@ -936,7 +1021,6 @@ const player = document.getElementById('player');
 const nosleepVideo = document.getElementById('nosleepVideo');
 const stageMetaNormal = document.getElementById('stageMetaNormal');
 const stageMetaAnalysis = document.getElementById('stageMetaAnalysis');
-const analysisControls = document.getElementById('analysisControls');
 const colormapHistory = document.getElementById('colormapHistory');
 
 function addColorMapRow(name, segments){
@@ -963,14 +1047,16 @@ function addColorMapRow(name, segments){
   colormapHistory.insertBefore(row, colormapHistory.firstChild);
   colormapHistory.style.display = '';
 }
-const dynSlider = document.getElementById('dynSlider');
 // Fixed, not user-adjustable: 2 simultaneous notes is the documented ceiling for
 // Scriabin's own Luce line (mono almost throughout, one known two-voice passage
 // near the climax). Whether 1 or 2 lamps actually show still depends on the
 // music itself (see the rel>=0.15 threshold below) — only the cap is fixed.
 const multiCount = 2;
-let dynMultiplier = parseFloat(dynSlider.value);
-dynSlider.addEventListener('input', ()=>{ dynMultiplier = parseFloat(dynSlider.value); });
+// Also fixed: the real "fast luce" is a rare accent (11 flashes across all 606
+// measures) riding on top of colours that hold for dozens/hundreds of measures,
+// not a tunable sensitivity — so there's no slider here either, just a threshold
+// calibrated to stay that rare (see the onset check in renderAnalysisFrame).
+const dynMultiplier = 3.0;
 
 function loadTrack(f, mode){
   if(!f) return;
@@ -990,12 +1076,14 @@ function loadTrack(f, mode){
     trackName.textContent = baseTrackName;
     stageMetaNormal.style.display = 'none';
     stageMetaAnalysis.style.display = '';
-    analysisControls.style.display = '';
     ticksEl.innerHTML = '';
     chromaSmooth = new Array(12).fill(0);
     analysisEnergyAvg = 0;
     noteTimeAccum = new Array(12).fill(0);
     lastAnalysisAccumTs = null;
+    structuralIdx = null;
+    candidateIdx = null;
+    candidateStartTs = null;
     setLampFlash(null);
     ensureAnalyser();
   } else {
@@ -1003,7 +1091,6 @@ function loadTrack(f, mode){
     trackName.textContent = baseTrackName;
     stageMetaNormal.style.display = '';
     stageMetaAnalysis.style.display = 'none';
-    analysisControls.style.display = 'none';
   }
 
   // shared silence/applause detection: trims the Prometheus measure stretch and,
@@ -1150,7 +1237,10 @@ function releaseWakeLock(){
   if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
 }
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible' && playing) requestWakeLock();
+  if(document.visibilityState === 'visible' && playing){
+    requestWakeLock();
+    nosleepVideo.play().catch(()=>{});
+  }
 });
 
 // --- immersive mode: hide everything but the photo after 20s of no input ---

@@ -484,10 +484,6 @@
   <div class="track-name auto-hide" id="trackName"></div>
 
   <div class="controls auto-hide analysis-controls" id="analysisControls" style="display:none;">
-    <label class="slider-label">Многоогоньковость
-      <input type="range" id="multiSlider" min="1" max="2" step="1" value="1">
-      <span id="multiVal">1</span>
-    </label>
     <label class="slider-label">Динамика вспышек
       <input type="range" id="dynSlider" min="1.2" max="3.0" step="0.05" value="2.4">
     </label>
@@ -514,7 +510,7 @@
         <b>Кнопка «📊».</b> Показывает партитуру в цифрах: долю каждой стадии от общего числа тактов (в «Прометее») или — в «Другой музыке» — уже накопленную за сеанс долю каждой ноты по факту звучания.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
-        <b>Настройки по умолчанию — это строгая реконструкция.</b> «Многоогоньковость» стоит на 1 и не поднимается выше 2 — ровно столько одновременных нот документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации); больше — уже не реконструкция, а домысел, поэтому ползунок такого не предлагает. «Динамика вспышек» по умолчанию сдвинута к спокойному концу шкалы: у Скрябина медленный голос держит один цвет по многу десятков, иногда сотен тактов, а резкие вспышки — редкое исключение, а не норма, так что и в живом анализе акцент должен быть редким гостем, а не постоянным миганием.<br><br>
+        <b>Настройки по умолчанию — это строгая реконструкция.</b> Одновременно может гореть максимум 2 лампы — ровно столько документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации) — и это не регулируется: больше значило бы не реконструкцию, а домысел, поэтому выбора тут нет. Покажет ли анализ 1 лампу или 2 в конкретный момент — решает сама музыка, а не ползунок. «Динамика вспышек» по умолчанию сдвинута к спокойному концу шкалы: у Скрябина медленный голос держит один цвет по многу десятков, иногда сотен тактов, а резкие вспышки — редкое исключение, а не норма, так что и в живом анализе акцент должен быть редким гостем, а не постоянным миганием; эту чувствительность при желании можно подвинуть.<br><br>
         При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
@@ -873,13 +869,13 @@ function renderAnalysisFrame(elapsed){
   discHolder.classList.add('glow');
 
   // "многоогоньковость": besides the single dominant note driving the big
-  // colour wash above, up to multiCount of the next-strongest pitch classes
-  // (by smoothed chroma energy, relative to the dominant one) get their own
-  // lamp lit too, at a dimmer intensity. Defaults are a strict reconstruction:
-  // Scriabin's own Luce line is monophonic almost throughout, with the one
-  // documented exception being a two-note passage near the climax — so the
-  // slider defaults to 1 and caps at 2, matching that documented maximum.
-  // Higher values would be pure invention, so the control simply doesn't offer them.
+  // colour wash above, up to multiCount (fixed at 2, see above) of the next-
+  // strongest pitch classes (by smoothed chroma energy, relative to the
+  // dominant one) get their own lamp lit too, at a dimmer intensity. Whether
+  // a second lamp actually appears depends entirely on the music — this is
+  // not a user choice, since 2 is the documented ceiling for Scriabin's own
+  // Luce line (monophonic almost throughout, one known two-note passage near
+  // the climax); anything past that would be invention, not reconstruction.
   const bestVal = chromaSmooth[best] || 1e-9;
   const ranked = [];
   for(let i=0;i<12;i++){
@@ -967,15 +963,13 @@ function addColorMapRow(name, segments){
   colormapHistory.insertBefore(row, colormapHistory.firstChild);
   colormapHistory.style.display = '';
 }
-const multiSlider = document.getElementById('multiSlider');
-const multiVal = document.getElementById('multiVal');
 const dynSlider = document.getElementById('dynSlider');
-let multiCount = parseInt(multiSlider.value, 10);
+// Fixed, not user-adjustable: 2 simultaneous notes is the documented ceiling for
+// Scriabin's own Luce line (mono almost throughout, one known two-voice passage
+// near the climax). Whether 1 or 2 lamps actually show still depends on the
+// music itself (see the rel>=0.15 threshold below) — only the cap is fixed.
+const multiCount = 2;
 let dynMultiplier = parseFloat(dynSlider.value);
-multiSlider.addEventListener('input', ()=>{
-  multiCount = parseInt(multiSlider.value, 10);
-  multiVal.textContent = multiCount;
-});
 dynSlider.addEventListener('input', ()=>{ dynMultiplier = parseFloat(dynSlider.value); });
 
 function loadTrack(f, mode){

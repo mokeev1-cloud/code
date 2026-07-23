@@ -271,6 +271,30 @@
   }
   .slider-label span{ color:var(--ink); min-width:1em; text-align:center; }
 
+  .colormap-history{
+    width:100%; max-width:560px;
+    max-height:150px;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:8px;
+    margin: 2px 0 14px;
+    padding-right:4px;
+  }
+  .colormap-row .colormap-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.64rem;
+    color:var(--ink-dim);
+    margin-bottom:3px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .colormap-strip{
+    display:flex;
+    width:100%; height:18px;
+    border-radius:5px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.12);
+  }
+  .colormap-strip > div{ flex:1 0 0; height:100%; }
+
   .note{
     max-width:560px;
     font-family:'JetBrains Mono', monospace;
@@ -468,6 +492,7 @@
       <input type="range" id="dynSlider" min="1.2" max="3.0" step="0.05" value="1.6">
     </label>
   </div>
+  <div class="colormap-history auto-hide" id="colormapHistory" style="display:none;"></div>
   <audio id="player" preload="metadata"></audio>
   <!-- tiny always-looping video: nudges mobile browsers to not dim/lock the screen
        while the light score is running, as a fallback alongside the Wake Lock API
@@ -489,6 +514,7 @@
         <b>Кнопка «📊».</b> Показывает партитуру в цифрах: долю каждой стадии от общего числа тактов (в «Прометее») или — в «Другой музыке» — уже накопленную за сеанс долю каждой ноты по факту звучания.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
+        При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две-три ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
         Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).
@@ -676,14 +702,90 @@ function computeContentWindow(audioBuffer){
   return { start, end };
 }
 
-async function detectContentWindow(file){
+// Single-frequency DFT (Goertzel) — cheap way to test a handful of exact target
+// frequencies against a block of samples without running a full FFT.
+function goertzelMag(samples, sampleRate, targetFreq){
+  const N = samples.length;
+  const k = Math.round(N * targetFreq / sampleRate);
+  const w = (2*Math.PI/N) * k;
+  const cosW = Math.cos(w), coeff = 2*cosW, sinW = Math.sin(w);
+  let s1 = 0, s2 = 0;
+  for(let i=0;i<N;i++){
+    const s0 = samples[i] + coeff*s1 - s2;
+    s2 = s1; s1 = s0;
+  }
+  const real = s1 - s2*cosW;
+  const imag = s2*sinW;
+  return real*real + imag*imag;
+}
+
+// Quick whole-track "colour map": splits the piece into ~3s segments and, for
+// each, estimates the 1-3 dominant pitch classes over two octaves via Goertzel
+// (decimated first so it stays fast even on a 20+ minute recording). Used to
+// draw the little colour-history strips for "Другая музыка" loads.
+function buildColorMap(audioBuffer){
+  const duration = audioBuffer.duration;
+  const channels = [];
+  for(let c=0;c<audioBuffer.numberOfChannels;c++) channels.push(audioBuffer.getChannelData(c));
+  const sr = audioBuffer.sampleRate;
+
+  const segCount = Math.min(180, Math.max(40, Math.round(duration/3)));
+  const segLen = Math.floor(audioBuffer.length/segCount) || 1;
+  // decimate to a fixed *rate* (not a fixed sample count) so the Nyquist limit
+  // stays well above our highest target frequency regardless of segment length
+  const TARGET_EFFECTIVE_SR = 2600;
+  const stride = Math.max(1, Math.round(sr/TARGET_EFFECTIVE_SR));
+
+  const targetFreqs = [];
+  for(let oct=0; oct<4; oct++){
+    for(let i=0;i<12;i++){
+      const midi = 36 + oct*12 + i; // C2 (~65Hz) through B5 (~988Hz)
+      targetFreqs.push(440*Math.pow(2, (midi-69)/12));
+    }
+  }
+
+  const result = [];
+  for(let s=0; s<segCount; s++){
+    const start = s*segLen;
+    const end = Math.min(audioBuffer.length, start+segLen);
+    const samples = [];
+    for(let i=start;i<end;i+=stride){
+      let v = 0;
+      for(let c=0;c<channels.length;c++) v += channels[c][i];
+      samples.push(v/channels.length);
+    }
+    if(samples.length < 8){ result.push(null); continue; }
+    const effSr = sr/stride;
+    const chroma = new Array(12).fill(0);
+    for(let f=0; f<targetFreqs.length; f++){
+      if(targetFreqs[f] >= effSr/2) continue;
+      chroma[f%12] += goertzelMag(samples, effSr, targetFreqs[f]);
+    }
+    let best = 0;
+    for(let i=1;i<12;i++) if(chroma[i] > chroma[best]) best = i;
+    const bestVal = chroma[best] || 1e-9;
+    const ranked = [];
+    for(let i=0;i<12;i++){
+      const rel = chroma[i]/bestVal;
+      if(rel >= 0.35) ranked.push({ note:CHROMA_NOTES[i], rel });
+    }
+    ranked.sort((a,b)=> b.rel - a.rel);
+    result.push(ranked.slice(0,3));
+  }
+  return result;
+}
+
+async function analyzeAudioFile(file, wantColorMap){
   if(file.size > CONTENT_ANALYSIS_MAX_BYTES) return null; // too large to decode safely
   let decodeCtx = null;
   try {
     const arrayBuf = await file.arrayBuffer();
     decodeCtx = new (window.AudioContext || window.webkitAudioContext)();
     const audioBuffer = await decodeCtx.decodeAudioData(arrayBuf);
-    return computeContentWindow(audioBuffer);
+    return {
+      win: computeContentWindow(audioBuffer),
+      colorMap: wantColorMap ? buildColorMap(audioBuffer) : null,
+    };
   } catch(e){
     return null;
   } finally {
@@ -836,6 +938,32 @@ const nosleepVideo = document.getElementById('nosleepVideo');
 const stageMetaNormal = document.getElementById('stageMetaNormal');
 const stageMetaAnalysis = document.getElementById('stageMetaAnalysis');
 const analysisControls = document.getElementById('analysisControls');
+const colormapHistory = document.getElementById('colormapHistory');
+
+function addColorMapRow(name, segments){
+  const row = document.createElement('div');
+  row.className = 'colormap-row';
+  const label = document.createElement('div');
+  label.className = 'colormap-label';
+  label.textContent = '🎵 ' + name;
+  const strip = document.createElement('div');
+  strip.className = 'colormap-strip';
+  segments.forEach(seg=>{
+    const div = document.createElement('div');
+    if(!seg || !seg.length){
+      div.style.background = '#15121c';
+    } else if(seg.length === 1){
+      div.style.background = colorByNote[seg[0].note];
+    } else {
+      div.style.background = 'linear-gradient(90deg, ' + seg.map(s=>colorByNote[s.note]).join(', ') + ')';
+    }
+    strip.appendChild(div);
+  });
+  row.appendChild(label);
+  row.appendChild(strip);
+  colormapHistory.insertBefore(row, colormapHistory.firstChild);
+  colormapHistory.style.display = '';
+}
 const multiSlider = document.getElementById('multiSlider');
 const multiVal = document.getElementById('multiVal');
 const dynSlider = document.getElementById('dynSlider');
@@ -883,13 +1011,19 @@ function loadTrack(f, mode){
 
   // shared silence/applause detection: trims the Prometheus measure stretch and,
   // in either mode, turns the lamps off once elapsed passes the detected end
-  // (see render()/renderAnalysisFrame()'s contentEndSec check).
-  detectContentWindow(f).then(result=>{
+  // (see render()/renderAnalysisFrame()'s contentEndSec check). In analysis
+  // mode this same decode also produces a quick whole-track colour map.
+  analyzeAudioFile(f, analysisMode).then(result=>{
     if(!result) return;
-    contentStartSec = result.start;
-    contentEndSec = result.end;
-    if(!analysisMode){ buildTicks(); render(posSec); }
-    trackName.textContent = baseTrackName + ' · муз. ' + fmtTime(result.start) + '–' + fmtTime(result.end);
+    if(result.win){
+      contentStartSec = result.win.start;
+      contentEndSec = result.win.end;
+      if(!analysisMode){ buildTicks(); render(posSec); }
+      trackName.textContent = baseTrackName + ' · муз. ' + fmtTime(result.win.start) + '–' + fmtTime(result.win.end);
+    }
+    if(analysisMode && result.colorMap){
+      addColorMapRow(f.name, result.colorMap);
+    }
   });
 }
 

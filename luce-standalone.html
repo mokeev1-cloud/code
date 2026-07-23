@@ -364,12 +364,12 @@
     <div class="lamp-spots" id="lampSpots"></div>
   </div>
 
-  <div class="readout auto-hide">
+  <div class="readout">
     <div class="stage-name" id="stageName">Fis</div>
     <div class="stage-meta">такт <em id="measureNow">1</em> / 606 &nbsp;·&nbsp; стадия <em id="stageIdx">I</em> из VII</div>
   </div>
 
-  <div class="timeline-block auto-hide">
+  <div class="timeline-block">
     <div class="timeline" id="timeline">
       <div class="timeline-track">
         <div class="timeline-fill" id="fill"></div>
@@ -392,6 +392,14 @@
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
   <audio id="player" preload="metadata"></audio>
+  <!-- tiny always-looping video: nudges mobile browsers to not dim/lock the screen
+       while the light score is running, as a fallback alongside the Wake Lock API
+       (which not every browser/context supports). Not visible on screen. -->
+  <video id="nosleepVideo" muted loop playsinline aria-hidden="true"
+         style="position:fixed; top:-100px; left:-100px; width:2px; height:2px;">
+    <source src="data:video/mp4;base64,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" type="video/mp4">
+    <source src="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJMEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEbTbuMU6uEHFO7a1OsggI27AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjIuMTIuMTAyV0GNTGF2ZjYyLjEyLjEwMkSJiECfQAAAAAAAFlSua76uAQAAAAAAADXXgQFzxYhyeyTVcBwT7ZyBACK1nIN1bmSIgQCGhVZfVlA5g4EBI+ODhA7msoDghrCBELqBEBJUw2fYc3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2Mi4xMi4xMDJzc7JjwItjxYhyeyTVcBwT7WfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnVAuOeBAKOggQAAgIJJg0IAAPAA9gA4JBwY9gAAMGAAABC///BJwACjk4EA+gCGAECSHABZAAADIAAAQkCjk4EB9ACGAECSnABYAAADIAAAQkCjk4EC7gCGAECSHABZAAADIAAAQkCjk4ED6ACGAECSnABWoAADIAAAQkCjk4EE4gCGAECSHABZAAADIAAAQkCjk4EF3ACGAECSnABYAAADIAAAQkCjk4EG1gCGAECSHABZAAADIAAAQkAcU7trkbuPs4EAt4r3gQHxggF48IED" type="video/webm">
+  </video>
 
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" role="dialog" aria-modal="true" aria-label="Информация о проекте">
@@ -509,6 +517,7 @@ const loadBtn = document.getElementById('loadBtn');
 const fileInput = document.getElementById('fileInput');
 const trackName = document.getElementById('trackName');
 const player = document.getElementById('player');
+const nosleepVideo = document.getElementById('nosleepVideo');
 
 loadBtn.addEventListener('click', ()=> fileInput.click());
 fileInput.addEventListener('change', ()=>{
@@ -697,6 +706,7 @@ function startPlayback(){
   }
   rafId = requestAnimationFrame(tick);
   requestWakeLock();
+  nosleepVideo.play().catch(()=>{});
 }
 
 function stopPlayback(){
@@ -705,6 +715,7 @@ function stopPlayback(){
   cancelAnimationFrame(rafId);
   if(audioMode) player.pause();
   releaseWakeLock();
+  nosleepVideo.pause();
 }
 
 playBtn.addEventListener('click', ()=>{

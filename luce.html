@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luce — световая партия «Прометея»</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink: #e8ddc2;
+    --ink-dim: #a89d84;
+    --brass: #9c7a3f;
+    --brass-light:#c9a563;
+    --panel: #14121c;
+    --wood: #2a2016;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:#07060b;
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    overflow-x:hidden;
+  }
+
+  .stage{
+    position:fixed; inset:0;
+    transition: background 1.4s ease;
+    z-index:0;
+  }
+
+  .vignette{
+    position:fixed; inset:0; z-index:1;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.55) 78%, rgba(0,0,0,0.88) 100%);
+    pointer-events:none;
+  }
+
+  .wrap{
+    position:relative; z-index:2;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 34px 22px 60px;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  h1{
+    font-family:'PT Serif', serif;
+    font-weight:700;
+    font-style:italic;
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+    letter-spacing:0.02em;
+    text-align:center;
+    margin: 6px 0 2px;
+    color:var(--ink);
+    text-shadow: 0 0 24px rgba(255,255,255,0.08);
+  }
+  .mini-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    opacity:0.55;
+    text-align:center;
+    margin: 2px 0 10px;
+  }
+  .sub{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    text-align:center;
+    margin-bottom:28px;
+  }
+
+  /* --- the instrument: real photo, lit by colour overlays --- */
+  .disc-holder{
+    position:relative;
+    width:min(84vw, 380px);
+    margin: 6px auto 18px;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:
+      0 22px 60px rgba(0,0,0,0.65),
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 0 0 8px #100c07;
+    transition: box-shadow 0.6s ease;
+  }
+  .disc-holder.glow{
+    box-shadow:
+      0 22px 60px rgba(0,0,0,0.65),
+      0 0 40px 6px var(--stage-color, transparent),
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 0 0 8px #100c07;
+  }
+  .photo{
+    display:block;
+    width:100%;
+    height:auto;
+    filter: saturate(0.85) brightness(0.92);
+  }
+  .tint-slow{
+    position:absolute; inset:0;
+    mix-blend-mode: color;
+    opacity:0.62;
+    background: var(--stage-color, transparent);
+    transition: background 1.2s ease;
+    pointer-events:none;
+  }
+  .tint-wash{
+    position:absolute; inset:0;
+    mix-blend-mode: soft-light;
+    opacity:0.4;
+    background: var(--stage-color, transparent);
+    transition: background 1.2s ease;
+    pointer-events:none;
+  }
+  .tint-flash{
+    position:absolute; inset:0;
+    mix-blend-mode: screen;
+    opacity:0;
+    background: radial-gradient(circle at 50% 45%, var(--flash-color, transparent) 0%, transparent 68%);
+    transition: opacity 0.22s ease;
+    pointer-events:none;
+  }
+  .tint-flash.on{ opacity:0.85; }
+
+  .lamp-spots{ position:absolute; inset:0; pointer-events:none; }
+  .lamp-spot{
+    position:absolute;
+    width:24%; aspect-ratio:1/1;
+    transform: translate(-50%,-50%);
+    border-radius:50%;
+    background: radial-gradient(circle, #ffffff 0%, #ffffff 26%, var(--sc,#fff) 50%, var(--sc,#fff) 68%, transparent 84%);
+    opacity:0;
+    filter: blur(1px);
+    mix-blend-mode: plus-lighter;
+    box-shadow: 0 0 0 0 transparent;
+    transition: opacity 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  }
+  .lamp-spot.ambient{
+    opacity:0.85;
+    filter: blur(2px);
+    box-shadow: 0 0 10vw 3vw var(--sc,#fff);
+  }
+  .lamp-spot.flash{
+    opacity:1;
+    filter: blur(0px);
+    box-shadow: 0 0 18vw 7vw var(--sc,#fff);
+  }
+
+  /* --- readout --- */
+  .readout{
+    text-align:center;
+    margin: 4px 0 22px;
+  }
+  .stage-name{
+    font-family:'PT Serif', serif;
+    font-size: clamp(1.3rem, 4.2vw, 1.7rem);
+    font-weight:700;
+    color: var(--stage-color, #fff);
+    text-shadow: 0 0 22px var(--stage-color, transparent);
+  }
+  .stage-meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    color:var(--ink-dim);
+    margin-top:4px;
+  }
+  .stage-meta em{ color:var(--ink); font-style:normal; }
+
+  /* --- timeline --- */
+  .timeline-block{ width:100%; max-width:560px; }
+  .timeline{
+    position:relative;
+    width:100%; height:34px;
+    margin: 6px 0 6px;
+    cursor:pointer;
+  }
+  .timeline-track{
+    position:absolute; top:14px; left:0; right:0; height:6px;
+    border-radius:3px;
+    background: rgba(255,255,255,0.08);
+    overflow:hidden;
+  }
+  .timeline-fill{
+    position:absolute; top:0; left:0; bottom:0;
+    background: linear-gradient(90deg, var(--brass), var(--brass-light));
+  }
+  .stage-tick{
+    position:absolute; top:6px; width:1px; height:22px;
+    background: rgba(255,255,255,0.28);
+  }
+  .stage-tick.approx{ background: repeating-linear-gradient(180deg, rgba(255,255,255,0.28) 0 3px, transparent 3px 6px); }
+  .flash-tick{
+    position:absolute; top:22px; width:3px; height:8px;
+    border-radius:50%;
+    background: var(--brass-light);
+    opacity:0.85;
+  }
+  .scrub-head{
+    position:absolute; top:9px; width:16px; height:16px;
+    margin-left:-8px;
+    border-radius:50%;
+    background: var(--brass-light);
+    box-shadow: 0 0 10px rgba(0,0,0,0.6), 0 0 8px var(--brass-light);
+  }
+
+  .time-row{
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem; color:var(--ink-dim);
+    margin-bottom:18px;
+  }
+
+  /* --- controls --- */
+  .controls{
+    display:flex; align-items:center; gap:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:10px;
+  }
+  button{
+    font-family:'PT Serif', serif;
+    font-size:0.95rem;
+    background: linear-gradient(180deg, #2a2118, #171208);
+    color: var(--ink);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:999px;
+    padding:9px 22px;
+    cursor:pointer;
+    transition: border-color 0.2s ease, transform 0.15s ease;
+  }
+  button:hover{ border-color:var(--brass-light); }
+  button:active{ transform: scale(0.96); }
+  button:focus-visible{ outline:2px solid var(--brass-light); outline-offset:2px; }
+
+  .track-name{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    color:var(--brass-light);
+    text-align:center;
+    margin-top:-4px;
+    margin-bottom:8px;
+    min-height:1em;
+  }
+
+  .note{
+    max-width:560px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    line-height:1.75;
+    color:var(--ink-dim);
+    text-align:left;
+    margin-top:18px;
+  }
+  .note b{ color:var(--ink); }
+
+  /* --- info button + modal --- */
+  #infoBtn{
+    position:fixed;
+    top:max(14px, env(safe-area-inset-top));
+    right:max(14px, env(safe-area-inset-right));
+    z-index:20;
+    width:34px; height:34px;
+    border-radius:50%;
+    padding:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'PT Serif', serif;
+    font-size:1rem;
+    line-height:1;
+    background: rgba(20,18,28,0.55);
+    color: var(--ink-dim);
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(4px);
+    cursor:pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  #infoBtn:hover{ border-color:var(--brass-light); color:var(--ink); }
+  #infoBtn:active{ transform:scale(0.92); }
+
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:30;
+    background: rgba(4,3,7,0.72);
+    backdrop-filter: blur(2px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .modal-backdrop.open{ display:flex; }
+  .modal{
+    position:relative;
+    width:100%;
+    max-width:520px;
+    max-height:min(82vh, 720px);
+    overflow-y:auto;
+    background: linear-gradient(180deg, #17141f, #0f0d15);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:16px;
+    padding:28px 26px 30px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .modal h1{ margin-top:0; }
+  .modal-close{
+    position:sticky;
+    float:right;
+    top:0;
+    width:30px; height:30px;
+    margin-left:12px;
+    border-radius:50%;
+    padding:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem;
+    background: rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.15);
+    color:var(--ink-dim);
+  }
+  .modal-close:hover{ border-color:var(--brass-light); color:var(--ink); }
+
+  @media (max-width:520px){
+    .modal-backdrop{ padding:0; align-items:flex-end; }
+    .modal{
+      max-width:none;
+      width:100%;
+      max-height:86vh;
+      border-radius:18px 18px 0 0;
+      padding:22px 20px calc(24px + env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stageBg"></div>
+<div class="vignette"></div>
+
+<button id="infoBtn" aria-label="Информация" title="Информация">?</button>
+
+<div class="wrap">
+  <div class="mini-title">Luce · A. Скрябин, Op. 60</div>
+  <div class="disc-holder" id="discHolder">
+    <img class="photo" id="lampPhoto" src="luce-photo.jpg" alt="Стеклянные лампы светомузыкального круга А. Н. Скрябина">
+    <div class="tint-wash"></div>
+    <div class="tint-slow"></div>
+    <div class="tint-flash" id="tintFlash"></div>
+    <div class="lamp-spots" id="lampSpots"></div>
+  </div>
+
+  <div class="readout">
+    <div class="stage-name" id="stageName">Fis</div>
+    <div class="stage-meta">такт <em id="measureNow">1</em> / 606 &nbsp;·&nbsp; стадия <em id="stageIdx">I</em> из VII</div>
+  </div>
+
+  <div class="timeline-block">
+    <div class="timeline" id="timeline">
+      <div class="timeline-track">
+        <div class="timeline-fill" id="fill"></div>
+      </div>
+      <div id="ticks"></div>
+      <div class="scrub-head" id="scrubHead"></div>
+    </div>
+    <div class="time-row">
+      <span id="tCur">0:00</span>
+      <span id="tTotal">24:00</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="playBtn">▶ Пуск</button>
+    <button id="resetBtn">⟲ Начало</button>
+    <button id="loadBtn" type="button">♪ Загрузить mp3</button>
+    <input type="file" id="fileInput" accept="audio/*" style="display:none">
+  </div>
+  <div class="track-name" id="trackName"></div>
+  <audio id="player" preload="metadata"></audio>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Информация о проекте">
+      <button class="modal-close" id="modalClose" aria-label="Закрыть">✕</button>
+      <h1>Luce — световая партия «Прометея»</h1>
+      <div class="sub">A. Скрябин · Op. 60 · безмолвная реконструкция цветовой строки</div>
+      <div class="note">
+        <b>Как пользоваться:</b> нажмите «Загрузить mp3» и выберите запись «Прометея» — длительность считывается прямо из файла, свет идёт синхронно с реальным воспроизведением. Без файла показ идёт по шаблонной длительности 24:00.<br><br>
+        Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
+        <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
+        <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
+        Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL_MEASURES = 606;
+
+// Documented (or reasonably interpolated) macro "slow luce" stage boundaries.
+// approx: true => boundary is interpolated, not directly sourced.
+const stages = [
+  { name:"Fis", label:"Fis / Ges", color:"#2542a8", start:1,   approxStart:false, desc:"синий, глубокий, к фиолетовому" },
+  { name:"As",  label:"As",        color:"#7a2e86", start:26,  approxStart:false, desc:"лиловый, красноватый" },
+  { name:"B",   label:"B",         color:"#6b7280", start:90,  approxStart:true,  desc:"металлический, серый, свинцовый" },
+  { name:"C",   label:"C",         color:"#b7291e", start:168, approxStart:false, desc:"красный" },
+  { name:"D",   label:"D",         color:"#d6a725", start:307, approxStart:false, desc:"жёлтый, солнечный" },
+  { name:"E",   label:"E",         color:"#3f6873", start:406, approxStart:true,  desc:"синий, зеленоватый, голубой" },
+  { name:"Fis2",label:"Fis (возврат)", color:"#2542a8", start:467, approxStart:false, desc:"синий, глубокий — кульминация, вступление хора" },
+];
+const pieceEnd = TOTAL_MEASURES;
+
+// Documented "fast luce" flash events: [measure, hex color, short note label]
+const flashes = [
+  [13, "#43587a", "Es"],
+  [20, "#b7291e", "C"],
+  [67, "#2542a8", "Fis"],
+  [78, "#b7291e", "C"],
+  [149,"#6b7280", "B"],
+  [161,"#3a6fd6", "H"],
+  [168,"#b7291e", "C"],
+  [305,"#5a2e8c", "Des"],
+  [307,"#7a1f16", "F"],
+  [309,"#5aa832", "A"],
+  [467,"#2542a8", "Fis"],
+];
+
+const discHolder = document.getElementById('discHolder');
+const tintFlash = document.getElementById('tintFlash');
+
+// Real bulb positions on the uploaded photo, measured directly on the pixels of the photo
+// (not an idealised geometric circle) so each glow lands on its own physical bulb. The
+// circle-of-fifths colour order (C-G-D-A-E-H-Fis-Des-As-Es-B-F) matches the photographed
+// bulbs exactly where the colour is unambiguous (C red, G orange, D yellow, A green).
+const lampSpotsData = [
+  { note:"C",   fx:0.782, fy:0.426, c:"#b7291e" },
+  { note:"G",   fx:0.739, fy:0.560, c:"#d97a3a" },
+  { note:"D",   fx:0.567, fy:0.641, c:"#d6a725" },
+  { note:"A",   fx:0.404, fy:0.634, c:"#5aa832" },
+  { note:"E",   fx:0.257, fy:0.587, c:"#3f6873" },
+  { note:"H",   fx:0.145, fy:0.535, c:"#3a6fd6" },
+  { note:"Fis", fx:0.135, fy:0.393, c:"#2542a8" },
+  { note:"Des", fx:0.206, fy:0.306, c:"#5a2e8c" },
+  { note:"As",  fx:0.292, fy:0.265, c:"#7a2e86" },
+  { note:"Es",  fx:0.455, fy:0.266, c:"#43587a" },
+  { note:"B",   fx:0.619, fy:0.254, c:"#6b7280" },
+  { note:"F",   fx:0.722, fy:0.316, c:"#7a1f16" },
+];
+const lampSpotsEl = document.getElementById('lampSpots');
+const lampSpotEls = [];
+lampSpotsData.forEach(s=>{
+  const el = document.createElement('div');
+  el.className = 'lamp-spot';
+  el.style.left = (s.fx*100)+'%';
+  el.style.top = (s.fy*100)+'%';
+  el.style.setProperty('--sc', s.c);
+  lampSpotsEl.appendChild(el);
+  lampSpotEls.push({el, note:s.note});
+});
+function setLampAmbient(noteBase){
+  lampSpotEls.forEach(s=>{
+    s.el.classList.toggle('ambient', s.note === noteBase);
+  });
+}
+function setLampFlash(noteBase){
+  lampSpotEls.forEach(s=>{
+    s.el.classList.toggle('flash', noteBase && s.note === noteBase);
+  });
+}
+
+const DEFAULT_DURATION = 24*60;
+let durationSec = DEFAULT_DURATION;
+let playing = false;
+let posSec = 0;         // current playback position, seconds
+let rafStartTs = null;  // rAF timestamp when the current run began (silent/no-audio mode)
+let rafStartPos = 0;    // posSec value at that moment
+let rafId = null;
+let audioMode = false;
+
+const stageBg = document.getElementById('stageBg');
+const stageName = document.getElementById('stageName');
+const stageIdx = document.getElementById('stageIdx');
+const measureNow = document.getElementById('measureNow');
+const fillEl = document.getElementById('fill');
+const scrubHead = document.getElementById('scrubHead');
+const tCur = document.getElementById('tCur');
+const tTotal = document.getElementById('tTotal');
+const ticksEl = document.getElementById('ticks');
+const timeline = document.getElementById('timeline');
+const playBtn = document.getElementById('playBtn');
+const resetBtn = document.getElementById('resetBtn');
+const loadBtn = document.getElementById('loadBtn');
+const fileInput = document.getElementById('fileInput');
+const trackName = document.getElementById('trackName');
+const player = document.getElementById('player');
+
+loadBtn.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', ()=>{
+  const f = fileInput.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  player.src = url;
+  player.load();
+  trackName.textContent = '♪ ' + f.name;
+  audioMode = true;
+  stopPlayback();
+  posSec = 0;
+});
+player.addEventListener('loadedmetadata', ()=>{
+  if(isFinite(player.duration) && player.duration > 0){
+    durationSec = player.duration;
+    tTotal.textContent = fmtTime(durationSec);
+    buildTicks();
+    render(0);
+  }
+});
+player.addEventListener('ended', ()=>{
+  posSec = durationSec;
+  stopPlayback();
+  render(durationSec);
+});
+
+const infoBtn = document.getElementById('infoBtn');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalClose = document.getElementById('modalClose');
+infoBtn.addEventListener('click', ()=> modalBackdrop.classList.add('open'));
+modalClose.addEventListener('click', ()=> modalBackdrop.classList.remove('open'));
+modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) modalBackdrop.classList.remove('open'); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modalBackdrop.classList.remove('open'); });
+
+const romanStage = ["I","II","III","IV","V","VI","VII"];
+
+function fmtTime(s){
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return m + ':' + String(sec).padStart(2,'0');
+}
+
+function measureAtFraction(frac){
+  return 1 + frac * (TOTAL_MEASURES - 1);
+}
+function fractionAtMeasure(m){
+  return (m - 1) / (TOTAL_MEASURES - 1);
+}
+
+function currentStageForMeasure(m){
+  let idx = 0;
+  for(let i=0;i<stages.length;i++){
+    if(m >= stages[i].start) idx = i;
+  }
+  return idx;
+}
+
+function buildTicks(){
+  ticksEl.innerHTML = '';
+  stages.forEach(s=>{
+    const frac = fractionAtMeasure(s.start);
+    const tick = document.createElement('div');
+    tick.className = 'stage-tick' + (s.approxStart ? ' approx' : '');
+    tick.style.left = (frac*100) + '%';
+    ticksEl.appendChild(tick);
+  });
+  flashes.forEach(f=>{
+    const frac = fractionAtMeasure(f[0]);
+    const tick = document.createElement('div');
+    tick.className = 'flash-tick';
+    tick.style.left = (frac*100) + '%';
+    ticksEl.appendChild(tick);
+  });
+}
+
+function render(elapsed){
+  const frac = Math.min(1, Math.max(0, elapsed / durationSec));
+  const m = measureAtFraction(frac);
+  const sIdx = currentStageForMeasure(m);
+  const stage = stages[sIdx];
+
+  stageBg.style.background = stage.color;
+  stageName.style.setProperty('--stage-color', stage.color);
+  stageName.textContent = stage.label;
+  stageIdx.textContent = romanStage[Math.min(sIdx, romanStage.length-1)];
+  measureNow.textContent = Math.round(m);
+
+  discHolder.style.setProperty('--stage-color', stage.color);
+  discHolder.classList.add('glow');
+
+  const stageNoteBase = stage.name.replace(/\d+$/,'');
+  setLampAmbient(stageNoteBase);
+
+  fillEl.style.width = (frac*100) + '%';
+  scrubHead.style.left = (frac*100) + '%';
+  tCur.textContent = fmtTime(elapsed);
+
+  // documented "fast luce" moments: briefly flare the matching real bulb on the photo
+  let flashColor = null;
+  let flashNote = null;
+  for(let i=0;i<flashes.length;i++){
+    const evM = flashes[i][0];
+    const evFrac = fractionAtMeasure(evM);
+    const within = Math.abs(frac - evFrac) < (0.9 / durationSec); // ~0.9s window
+    if(within){ flashColor = flashes[i][1]; flashNote = flashes[i][2]; break; }
+  }
+  setLampFlash(flashNote);
+  if(flashColor){
+    tintFlash.style.setProperty('--flash-color', flashColor);
+    tintFlash.classList.add('on');
+  } else {
+    tintFlash.classList.remove('on');
+  }
+}
+
+function tick(ts){
+  if(!playing) return;
+  if(audioMode){
+    posSec = player.currentTime;
+  } else {
+    if(rafStartTs === null) rafStartTs = ts;
+    posSec = rafStartPos + (ts - rafStartTs)/1000;
+  }
+  if(posSec >= durationSec){
+    posSec = durationSec;
+    render(posSec);
+    stopPlayback();
+    return;
+  }
+  render(posSec);
+  rafId = requestAnimationFrame(tick);
+}
+
+function startPlayback(){
+  if(posSec >= durationSec) posSec = 0;
+  playing = true;
+  playBtn.textContent = '⏸ Пауза';
+  if(audioMode){
+    player.currentTime = posSec;
+    player.play();
+  } else {
+    rafStartTs = null;
+    rafStartPos = posSec;
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+function stopPlayback(){
+  playing = false;
+  playBtn.textContent = '▶ Пуск';
+  cancelAnimationFrame(rafId);
+  if(audioMode) player.pause();
+}
+
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlayback(); else startPlayback();
+});
+
+resetBtn.addEventListener('click', ()=>{
+  stopPlayback();
+  posSec = 0;
+  if(audioMode) player.currentTime = 0;
+  render(0);
+});
+
+timeline.addEventListener('pointerdown', (e)=>{
+  const rect = timeline.getBoundingClientRect();
+  const frac = Math.min(1, Math.max(0, (e.clientX - rect.left)/rect.width));
+  posSec = frac * durationSec;
+  rafStartTs = null;
+  rafStartPos = posSec;
+  if(audioMode) player.currentTime = posSec;
+  render(posSec);
+});
+
+buildTicks();
+tTotal.textContent = fmtTime(durationSec);
+render(0);
+</script>
+
+</body>
+</html>

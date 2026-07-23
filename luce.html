@@ -340,6 +340,11 @@
   @media (prefers-reduced-motion: reduce){
     *{ transition-duration: 0.01ms !important; }
   }
+
+  /* --- immersive mode: everything but the photo fades after idle --- */
+  .auto-hide{ transition: opacity 1s ease; }
+  body.idle .auto-hide{ opacity:0; pointer-events:none; }
+  body.idle{ cursor:none; }
 </style>
 </head>
 <body>
@@ -347,10 +352,10 @@
 <div class="stage" id="stageBg"></div>
 <div class="vignette"></div>
 
-<button id="infoBtn" aria-label="Информация" title="Информация">?</button>
+<button id="infoBtn" class="auto-hide" aria-label="Информация" title="Информация">?</button>
 
 <div class="wrap">
-  <div class="mini-title">Luce · A. Скрябин, Op. 60</div>
+  <div class="mini-title auto-hide">Luce · A. Скрябин, Op. 60</div>
   <div class="disc-holder" id="discHolder">
     <img class="photo" id="lampPhoto" src="luce-photo.jpg" alt="Стеклянные лампы светомузыкального круга А. Н. Скрябина">
     <div class="tint-wash"></div>
@@ -359,12 +364,12 @@
     <div class="lamp-spots" id="lampSpots"></div>
   </div>
 
-  <div class="readout">
+  <div class="readout auto-hide">
     <div class="stage-name" id="stageName">Fis</div>
     <div class="stage-meta">такт <em id="measureNow">1</em> / 606 &nbsp;·&nbsp; стадия <em id="stageIdx">I</em> из VII</div>
   </div>
 
-  <div class="timeline-block">
+  <div class="timeline-block auto-hide">
     <div class="timeline" id="timeline">
       <div class="timeline-track">
         <div class="timeline-fill" id="fill"></div>
@@ -378,13 +383,14 @@
     </div>
   </div>
 
-  <div class="controls">
+  <div class="controls auto-hide">
     <button id="playBtn">▶ Пуск</button>
     <button id="resetBtn">⟲ Начало</button>
     <button id="loadBtn" type="button">♪ Загрузить mp3</button>
     <input type="file" id="fileInput" accept="audio/*" style="display:none">
+    <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
-  <div class="track-name" id="trackName"></div>
+  <div class="track-name auto-hide" id="trackName"></div>
   <audio id="player" preload="metadata"></audio>
 
   <div class="modal-backdrop" id="modalBackdrop">
@@ -538,6 +544,46 @@ modalClose.addEventListener('click', ()=> modalBackdrop.classList.remove('open')
 modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) modalBackdrop.classList.remove('open'); });
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modalBackdrop.classList.remove('open'); });
 
+// --- fullscreen ---
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+fullscreenBtn.addEventListener('click', ()=>{
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen().catch(()=>{});
+  }
+});
+document.addEventListener('fullscreenchange', ()=>{
+  fullscreenBtn.textContent = document.fullscreenElement ? '⛶ Свернуть' : '⛶ Экран';
+});
+
+// --- keep the screen from sleeping while the piece is running ---
+let wakeLock = null;
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{
+    wakeLock = await navigator.wakeLock.request('screen');
+  }catch(e){ /* denied or unsupported — not fatal */ }
+}
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && playing) requestWakeLock();
+});
+
+// --- immersive mode: hide everything but the photo after 20s of no input ---
+let idleTimer = null;
+function scheduleIdle(){
+  document.body.classList.remove('idle');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=> document.body.classList.add('idle'), 20000);
+}
+['pointermove','pointerdown','touchstart','keydown','wheel'].forEach(evt=>{
+  document.addEventListener(evt, scheduleIdle, {passive:true});
+});
+scheduleIdle();
+
 const romanStage = ["I","II","III","IV","V","VI","VII"];
 
 function fmtTime(s){
@@ -650,6 +696,7 @@ function startPlayback(){
     rafStartPos = posSec;
   }
   rafId = requestAnimationFrame(tick);
+  requestWakeLock();
 }
 
 function stopPlayback(){
@@ -657,6 +704,7 @@ function stopPlayback(){
   playBtn.textContent = '▶ Пуск';
   cancelAnimationFrame(rafId);
   if(audioMode) player.pause();
+  releaseWakeLock();
 }
 
 playBtn.addEventListener('click', ()=>{

@@ -366,7 +366,8 @@
 
   <div class="readout">
     <div class="stage-name" id="stageName">Fis</div>
-    <div class="stage-meta">такт <em id="measureNow">1</em> / 606 &nbsp;·&nbsp; стадия <em id="stageIdx">I</em> из VII</div>
+    <div class="stage-meta" id="stageMetaNormal">такт <em id="measureNow">1</em> / 606 &nbsp;·&nbsp; стадия <em id="stageIdx">I</em> из VII</div>
+    <div class="stage-meta" id="stageMetaAnalysis" style="display:none;">живой анализ высоты тона &nbsp;·&nbsp; по кругу Скрябина</div>
   </div>
 
   <div class="timeline-block">
@@ -386,8 +387,10 @@
   <div class="controls auto-hide">
     <button id="playBtn">▶ Пуск</button>
     <button id="resetBtn">⟲ Начало</button>
-    <button id="loadBtn" type="button">♪ Загрузить аудио</button>
+    <button id="loadBtn" type="button">♪ Загрузить «Прометея»</button>
     <input type="file" id="fileInput" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" style="display:none">
+    <button id="loadOtherBtn" type="button">🎵 Другая музыка</button>
+    <input type="file" id="fileInputOther" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" style="display:none">
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
@@ -407,8 +410,9 @@
       <h1>Luce — световая партия «Прометея»</h1>
       <div class="sub">A. Скрябин · Op. 60 · безмолвная реконструкция цветовой строки</div>
       <div class="note">
-        <b>Как пользоваться:</b> нажмите «Загрузить аудио» и выберите запись «Прометея» (mp3, FLAC, wav, m4a, ogg) — длительность считывается прямо из файла, свет идёт синхронно с реальным воспроизведением. Без файла показ идёт по шаблонной длительности 24:00.<br><br>
+        <b>Как пользоваться:</b> нажмите «Загрузить «Прометея»» и выберите запись именно этого сочинения (mp3, FLAC, wav, m4a, ogg) — длительность считывается прямо из файла, свет идёт синхронно с реальным воспроизведением по заранее размеченной партитуре. Без файла показ идёт по шаблонной длительности 24:00.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
+        <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
         Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).
@@ -492,6 +496,84 @@ function setLampFlash(noteBase){
   });
 }
 
+// --- "other music" mode: live pitch-class (chroma) analysis mapped through
+// Scriabin's own colour circle, for any track that isn't a recording of Prometheus itself ---
+const colorByNote = {};
+lampSpotsData.forEach(s=>{ colorByNote[s.note] = s.c; });
+const CHROMA_NOTES = ["C","Des","D","Es","E","F","Fis","G","As","A","B","H"]; // chromatic index 0..11
+
+let analysisMode = false;
+let audioCtx = null;
+let analyserNode = null;
+let freqData = null;
+let mediaSrcNode = null;
+let chromaSmooth = new Array(12).fill(0);
+let analysisEnergyAvg = 0;
+let analysisFlashUntil = 0;
+
+function ensureAnalyser(){
+  if(analyserNode) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  mediaSrcNode = audioCtx.createMediaElementSource(player);
+  analyserNode = audioCtx.createAnalyser();
+  analyserNode.fftSize = 8192;
+  analyserNode.smoothingTimeConstant = 0.4;
+  mediaSrcNode.connect(analyserNode);
+  analyserNode.connect(audioCtx.destination);
+  freqData = new Uint8Array(analyserNode.frequencyBinCount);
+}
+
+function renderAnalysisFrame(elapsed){
+  updateTransportUI(elapsed);
+  if(!analyserNode) return;
+
+  analyserNode.getByteFrequencyData(freqData);
+  const binHz = audioCtx.sampleRate / analyserNode.fftSize;
+  const minBin = Math.max(1, Math.floor(55 / binHz));   // ~A1
+  const maxBin = Math.min(freqData.length - 1, Math.ceil(4000 / binHz));
+
+  const chroma = new Array(12).fill(0);
+  let totalEnergy = 0;
+  for(let i=minBin; i<=maxBin; i++){
+    const mag = freqData[i];
+    if(mag < 8) continue; // ignore noise floor
+    const freq = i * binHz;
+    const midi = 69 + 12 * Math.log2(freq/440);
+    let pc = Math.round(midi) % 12; if(pc < 0) pc += 12;
+    const energy = mag*mag;
+    chroma[pc] += energy;
+    totalEnergy += energy;
+  }
+  for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.82 + chroma[i]*0.18;
+  let best = 0;
+  for(let i=1;i<12;i++) if(chromaSmooth[i] > chromaSmooth[best]) best = i;
+
+  const note = CHROMA_NOTES[best];
+  const color = colorByNote[note];
+
+  stageBg.style.background = color;
+  stageName.style.setProperty('--stage-color', color);
+  stageName.textContent = note;
+  discHolder.style.setProperty('--stage-color', color);
+  discHolder.classList.add('glow');
+  setLampAmbient(note);
+
+  // simple onset detector: a sudden jump above the running energy average briefly
+  // flares the same lamp, echoing the "fast luce" flashes of the real score.
+  analysisEnergyAvg = analysisEnergyAvg*0.9 + totalEnergy*0.1;
+  const now = performance.now();
+  if(totalEnergy > analysisEnergyAvg*1.6 && totalEnergy > 20000 && now > analysisFlashUntil - 900){
+    tintFlash.style.setProperty('--flash-color', color);
+    tintFlash.classList.add('on');
+    setLampFlash(note);
+    analysisFlashUntil = now + 260;
+  }
+  if(now > analysisFlashUntil){
+    tintFlash.classList.remove('on');
+    setLampFlash(null);
+  }
+}
+
 const DEFAULT_DURATION = 24*60;
 let durationSec = DEFAULT_DURATION;
 let playing = false;
@@ -515,34 +597,62 @@ const playBtn = document.getElementById('playBtn');
 const resetBtn = document.getElementById('resetBtn');
 const loadBtn = document.getElementById('loadBtn');
 const fileInput = document.getElementById('fileInput');
+const loadOtherBtn = document.getElementById('loadOtherBtn');
+const fileInputOther = document.getElementById('fileInputOther');
 const trackName = document.getElementById('trackName');
 const player = document.getElementById('player');
 const nosleepVideo = document.getElementById('nosleepVideo');
+const stageMetaNormal = document.getElementById('stageMetaNormal');
+const stageMetaAnalysis = document.getElementById('stageMetaAnalysis');
 
-loadBtn.addEventListener('click', ()=> fileInput.click());
-fileInput.addEventListener('change', ()=>{
-  const f = fileInput.files[0];
+function loadTrack(f, mode){
   if(!f) return;
   const url = URL.createObjectURL(f);
   player.src = url;
   player.load();
-  trackName.textContent = '♪ ' + f.name;
   audioMode = true;
+  analysisMode = (mode === 'analysis');
   stopPlayback();
   posSec = 0;
-});
+  if(analysisMode){
+    trackName.textContent = '🎵 ' + f.name + ' · живой анализ по Скрябину';
+    stageMetaNormal.style.display = 'none';
+    stageMetaAnalysis.style.display = '';
+    ticksEl.innerHTML = '';
+    chromaSmooth = new Array(12).fill(0);
+    analysisEnergyAvg = 0;
+    setLampFlash(null);
+    ensureAnalyser();
+  } else {
+    trackName.textContent = '♪ ' + f.name;
+    stageMetaNormal.style.display = '';
+    stageMetaAnalysis.style.display = 'none';
+  }
+}
+
+loadBtn.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', ()=> loadTrack(fileInput.files[0], 'prometheus'));
+
+loadOtherBtn.addEventListener('click', ()=> fileInputOther.click());
+fileInputOther.addEventListener('change', ()=> loadTrack(fileInputOther.files[0], 'analysis'));
+
 player.addEventListener('loadedmetadata', ()=>{
   if(isFinite(player.duration) && player.duration > 0){
     durationSec = player.duration;
     tTotal.textContent = fmtTime(durationSec);
-    buildTicks();
-    render(0);
+    if(analysisMode){
+      ticksEl.innerHTML = '';
+      updateTransportUI(0);
+    } else {
+      buildTicks();
+      render(0);
+    }
   }
 });
 player.addEventListener('ended', ()=>{
   posSec = durationSec;
   stopPlayback();
-  render(durationSec);
+  if(analysisMode) updateTransportUI(durationSec); else render(durationSec);
 });
 
 const infoBtn = document.getElementById('infoBtn');
@@ -635,8 +745,16 @@ function buildTicks(){
   });
 }
 
-function render(elapsed){
+function updateTransportUI(elapsed){
   const frac = Math.min(1, Math.max(0, elapsed / durationSec));
+  fillEl.style.width = (frac*100) + '%';
+  scrubHead.style.left = (frac*100) + '%';
+  tCur.textContent = fmtTime(elapsed);
+  return frac;
+}
+
+function render(elapsed){
+  const frac = updateTransportUI(elapsed);
   const m = measureAtFraction(frac);
   const sIdx = currentStageForMeasure(m);
   const stage = stages[sIdx];
@@ -652,10 +770,6 @@ function render(elapsed){
 
   const stageNoteBase = stage.name.replace(/\d+$/,'');
   setLampAmbient(stageNoteBase);
-
-  fillEl.style.width = (frac*100) + '%';
-  scrubHead.style.left = (frac*100) + '%';
-  tCur.textContent = fmtTime(elapsed);
 
   // documented "fast luce" moments: briefly flare the matching real bulb on the photo
   let flashColor = null;
@@ -685,11 +799,11 @@ function tick(ts){
   }
   if(posSec >= durationSec){
     posSec = durationSec;
-    render(posSec);
+    if(analysisMode) renderAnalysisFrame(posSec); else render(posSec);
     stopPlayback();
     return;
   }
-  render(posSec);
+  if(analysisMode) renderAnalysisFrame(posSec); else render(posSec);
   rafId = requestAnimationFrame(tick);
 }
 
@@ -700,6 +814,7 @@ function startPlayback(){
   if(audioMode){
     player.currentTime = posSec;
     player.play();
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   } else {
     rafStartTs = null;
     rafStartPos = posSec;

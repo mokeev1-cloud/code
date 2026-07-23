@@ -146,7 +146,7 @@
     transition: opacity 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
   }
   .lamp-spot.ambient{
-    opacity:0.85;
+    opacity: var(--amb-intensity, 0.85);
     filter: blur(2px);
     box-shadow: 0 0 10vw 3vw var(--sc,#fff);
   }
@@ -252,6 +252,19 @@
     margin-bottom:8px;
     min-height:1em;
   }
+
+  .analysis-controls{ margin-top:-4px; }
+  .slider-label{
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-dim);
+  }
+  .slider-label input[type=range]{
+    accent-color: var(--brass-light);
+    width:110px;
+  }
+  .slider-label span{ color:var(--ink); min-width:1em; text-align:center; }
 
   .note{
     max-width:560px;
@@ -394,6 +407,16 @@
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
+
+  <div class="controls auto-hide analysis-controls" id="analysisControls" style="display:none;">
+    <label class="slider-label">Многоогоньковость
+      <input type="range" id="multiSlider" min="1" max="4" step="1" value="2">
+      <span id="multiVal">2</span>
+    </label>
+    <label class="slider-label">Динамика вспышек
+      <input type="range" id="dynSlider" min="1.2" max="3.0" step="0.05" value="1.6">
+    </label>
+  </div>
   <audio id="player" preload="metadata"></audio>
   <!-- tiny always-looping video: nudges mobile browsers to not dim/lock the screen
        while the light score is running, as a fallback alongside the Wake Lock API
@@ -411,6 +434,7 @@
       <div class="sub">A. Скрябин · Op. 60 · безмолвная реконструкция цветовой строки</div>
       <div class="note">
         <b>Как пользоваться:</b> нажмите «Загрузить «Прометея»» и выберите запись именно этого сочинения (mp3, FLAC, wav, m4a, ogg) — длительность считывается прямо из файла, свет идёт синхронно с реальным воспроизведением по заранее размеченной партитуре. Без файла показ идёт по шаблонной длительности 24:00.<br><br>
+        Запись при этом тихо анализируется в фоне: тишина в начале и аплодисменты в конце определяются по громкости и не входят в пропорциональное растягивание — 606 тактов растягиваются только на реальное звучание музыки, а не на весь файл целиком. Это эвристика (ищет паузу перед всплеском шума в конце записи), поэтому для нетипичных записей может сработать не идеально — тогда просто ничего не подрезается.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
@@ -495,6 +519,20 @@ function setLampFlash(noteBase){
     s.el.classList.toggle('flash', noteBase && s.note === noteBase);
   });
 }
+function setLampAmbientMulti(entries){ // entries: [{note, intensity}]
+  const byNote = {};
+  entries.forEach(e=>{ byNote[e.note] = e.intensity; });
+  lampSpotEls.forEach(s=>{
+    const inten = byNote[s.note];
+    if(inten){
+      s.el.classList.add('ambient');
+      s.el.style.setProperty('--amb-intensity', inten.toFixed(2));
+    } else {
+      s.el.classList.remove('ambient');
+      s.el.style.removeProperty('--amb-intensity');
+    }
+  });
+}
 
 // --- "other music" mode: live pitch-class (chroma) analysis mapped through
 // Scriabin's own colour circle, for any track that isn't a recording of Prometheus itself ---
@@ -510,6 +548,85 @@ let mediaSrcNode = null;
 let chromaSmooth = new Array(12).fill(0);
 let analysisEnergyAvg = 0;
 let analysisFlashUntil = 0;
+
+// --- trims leading silence / trailing applause out of the proportional stretch ---
+// Decodes the file offline (not the playback <audio>), scans a coarse RMS
+// envelope, and returns { start, end } marking where the actual performance
+// runs. Heuristic and best-effort: skipped for very large files, and falls
+// back to "no trim" (null) whenever nothing clear is found.
+const CONTENT_ANALYSIS_MAX_BYTES = 250 * 1024 * 1024;
+
+function computeContentWindow(audioBuffer){
+  const winSec = 0.05;
+  const winSize = Math.max(1, Math.round(audioBuffer.sampleRate * winSec));
+  const numWindows = Math.floor(audioBuffer.length / winSize);
+  if(numWindows < 4) return null;
+
+  const channels = [];
+  for(let c=0; c<audioBuffer.numberOfChannels; c++) channels.push(audioBuffer.getChannelData(c));
+
+  const rms = new Float32Array(numWindows);
+  let peak = 0;
+  for(let w=0; w<numWindows; w++){
+    let sum = 0, n = 0;
+    const base = w*winSize;
+    for(let c=0;c<channels.length;c++){
+      const arr = channels[c];
+      const end = Math.min(base+winSize, arr.length);
+      for(let i=base;i<end;i++){ sum += arr[i]*arr[i]; n++; }
+    }
+    const v = n ? Math.sqrt(sum/n) : 0;
+    rms[w] = v;
+    if(v > peak) peak = v;
+  }
+  if(peak <= 0) return null;
+
+  const QUIET = peak * 0.02; // ~ -34dB below the loudest window
+  const minRun = (sec)=> Math.max(1, Math.ceil(sec/winSec));
+
+  // leading silence: first sustained run of real signal
+  let startWin = 0;
+  { let run = 0;
+    for(let w=0; w<numWindows; w++){
+      if(rms[w] > QUIET){ run++; if(run >= minRun(0.3)){ startWin = w-run+1; break; } }
+      else run = 0;
+    }
+  }
+
+  // trailing applause: the LAST sustained quiet gap in the closing part of the
+  // file marks the pause between the final chord and the audience — use its
+  // start as the true end of the music.
+  let endWin = numWindows;
+  { const searchFrom = Math.floor(numWindows*0.6);
+    let run = 0, lastGapStart = null;
+    for(let w=searchFrom; w<numWindows; w++){
+      if(rms[w] <= QUIET){ run++; }
+      else { if(run >= minRun(0.4)) lastGapStart = w-run; run = 0; }
+    }
+    if(run >= minRun(0.4)) lastGapStart = numWindows-run;
+    if(lastGapStart !== null) endWin = lastGapStart;
+  }
+
+  const start = startWin*winSec;
+  const end = endWin*winSec;
+  if(!(end > start + 10)) return null; // sanity guard: keep at least ~10s of "music"
+  return { start, end };
+}
+
+async function detectContentWindow(file){
+  if(file.size > CONTENT_ANALYSIS_MAX_BYTES) return null; // too large to decode safely
+  let decodeCtx = null;
+  try {
+    const arrayBuf = await file.arrayBuffer();
+    decodeCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await decodeCtx.decodeAudioData(arrayBuf);
+    return computeContentWindow(audioBuffer);
+  } catch(e){
+    return null;
+  } finally {
+    if(decodeCtx) decodeCtx.close().catch(()=>{});
+  }
+}
 
 function ensureAnalyser(){
   if(analyserNode) return;
@@ -556,13 +673,32 @@ function renderAnalysisFrame(elapsed){
   stageName.textContent = note;
   discHolder.style.setProperty('--stage-color', color);
   discHolder.classList.add('glow');
-  setLampAmbient(note);
+
+  // "многоогоньковость": besides the single dominant note driving the big
+  // colour wash above, up to multiCount of the next-strongest pitch classes
+  // (by smoothed chroma energy, relative to the dominant one) get their own
+  // lamp lit too, at a dimmer intensity — Scriabin's own Luce line is mostly
+  // one voice with the odd two-note passage near the climax, hence the
+  // slider defaulting to 2 rather than a strict 1.
+  const bestVal = chromaSmooth[best] || 1e-9;
+  const ranked = [];
+  for(let i=0;i<12;i++){
+    const rel = chromaSmooth[i]/bestVal;
+    if(rel >= 0.15) ranked.push({ note:CHROMA_NOTES[i], rel });
+  }
+  ranked.sort((a,b)=> b.rel - a.rel);
+  const ambientEntries = ranked.slice(0, multiCount).map(r=>({
+    note: r.note,
+    intensity: Math.min(1, 0.3 + 0.65*r.rel)
+  }));
+  setLampAmbientMulti(ambientEntries);
 
   // simple onset detector: a sudden jump above the running energy average briefly
   // flares the same lamp, echoing the "fast luce" flashes of the real score.
+  // dynMultiplier (slider "Динамика вспышек") sets how big that jump must be.
   analysisEnergyAvg = analysisEnergyAvg*0.9 + totalEnergy*0.1;
   const now = performance.now();
-  if(totalEnergy > analysisEnergyAvg*1.6 && totalEnergy > 20000 && now > analysisFlashUntil - 900){
+  if(totalEnergy > analysisEnergyAvg*dynMultiplier && totalEnergy > 20000 && now > analysisFlashUntil - 900){
     tintFlash.style.setProperty('--flash-color', color);
     tintFlash.classList.add('on');
     setLampFlash(note);
@@ -604,6 +740,17 @@ const player = document.getElementById('player');
 const nosleepVideo = document.getElementById('nosleepVideo');
 const stageMetaNormal = document.getElementById('stageMetaNormal');
 const stageMetaAnalysis = document.getElementById('stageMetaAnalysis');
+const analysisControls = document.getElementById('analysisControls');
+const multiSlider = document.getElementById('multiSlider');
+const multiVal = document.getElementById('multiVal');
+const dynSlider = document.getElementById('dynSlider');
+let multiCount = parseInt(multiSlider.value, 10);
+let dynMultiplier = parseFloat(dynSlider.value);
+multiSlider.addEventListener('input', ()=>{
+  multiCount = parseInt(multiSlider.value, 10);
+  multiVal.textContent = multiCount;
+});
+dynSlider.addEventListener('input', ()=>{ dynMultiplier = parseFloat(dynSlider.value); });
 
 function loadTrack(f, mode){
   if(!f) return;
@@ -618,6 +765,7 @@ function loadTrack(f, mode){
     trackName.textContent = '🎵 ' + f.name + ' · живой анализ по Скрябину';
     stageMetaNormal.style.display = 'none';
     stageMetaAnalysis.style.display = '';
+    analysisControls.style.display = '';
     ticksEl.innerHTML = '';
     chromaSmooth = new Array(12).fill(0);
     analysisEnergyAvg = 0;
@@ -627,6 +775,17 @@ function loadTrack(f, mode){
     trackName.textContent = '♪ ' + f.name;
     stageMetaNormal.style.display = '';
     stageMetaAnalysis.style.display = 'none';
+    analysisControls.style.display = 'none';
+    contentStartSec = 0;
+    contentEndSec = null;
+    detectContentWindow(f).then(result=>{
+      if(!result) return;
+      contentStartSec = result.start;
+      contentEndSec = result.end;
+      buildTicks();
+      render(posSec);
+      trackName.textContent = '♪ ' + f.name + ' · муз. ' + fmtTime(result.start) + '–' + fmtTime(result.end);
+    });
   }
 }
 
@@ -712,11 +871,28 @@ function fmtTime(s){
   return m + ':' + String(sec).padStart(2,'0');
 }
 
+// The proportional measure <-> time mapping normally spans the whole file, but a
+// real concert recording usually has some silence before the music starts and
+// applause after it ends — left uncorrected, that stretches the stage/measure
+// timing off. contentStartSec/contentEndSec (detected in detectContentWindow)
+// mark where the actual performance runs; frac==0/1 outside stays clamped to
+// measure 1 / 606 instead of racing ahead through the silence or applause.
+let contentStartSec = 0;
+let contentEndSec = null; // null = not analysed yet / no file loaded -> use full duration
+
 function measureAtFraction(frac){
-  return 1 + frac * (TOTAL_MEASURES - 1);
+  const elapsed = frac * durationSec;
+  const cs = contentStartSec;
+  const ce = contentEndSec !== null ? contentEndSec : durationSec;
+  const cf = (ce > cs) ? Math.min(1, Math.max(0, (elapsed - cs) / (ce - cs))) : Math.min(1, Math.max(0, frac));
+  return 1 + cf * (TOTAL_MEASURES - 1);
 }
 function fractionAtMeasure(m){
-  return (m - 1) / (TOTAL_MEASURES - 1);
+  const cf = (m - 1) / (TOTAL_MEASURES - 1);
+  const cs = contentStartSec;
+  const ce = contentEndSec !== null ? contentEndSec : durationSec;
+  const elapsed = cs + cf * (ce - cs);
+  return durationSec > 0 ? elapsed / durationSec : 0;
 }
 
 function currentStageForMeasure(m){

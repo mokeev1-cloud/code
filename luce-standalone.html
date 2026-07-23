@@ -149,6 +149,11 @@
     opacity: var(--amb-intensity, 0.85);
     filter: blur(2px);
     box-shadow: 0 0 10vw 3vw var(--sc,#fff);
+    animation: lampBreathe 7s ease-in-out infinite;
+  }
+  @keyframes lampBreathe{
+    0%, 100% { box-shadow: 0 0 9vw 2.6vw var(--sc,#fff); }
+    50%      { box-shadow: 0 0 11vw 3.6vw var(--sc,#fff); }
   }
   .lamp-spot.flash{
     opacity:1;
@@ -300,6 +305,50 @@
   #infoBtn:hover{ border-color:var(--brass-light); color:var(--ink); }
   #infoBtn:active{ transform:scale(0.92); }
 
+  #statsBtn{
+    position:fixed;
+    top:max(14px, env(safe-area-inset-top));
+    left:max(14px, env(safe-area-inset-left));
+    z-index:20;
+    width:34px; height:34px;
+    border-radius:50%;
+    padding:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.95rem;
+    line-height:1;
+    background: rgba(20,18,28,0.55);
+    color: var(--ink-dim);
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(4px);
+    cursor:pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  #statsBtn:hover{ border-color:var(--brass-light); color:var(--ink); }
+  #statsBtn:active{ transform:scale(0.92); }
+
+  .color-bar{
+    display:flex;
+    width:100%; height:26px;
+    border-radius:8px;
+    overflow:hidden;
+    margin: 4px 0 16px;
+    border:1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.04);
+  }
+  .color-bar-seg{ height:100%; }
+  .stats-row{
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    line-height:1.9;
+    color: var(--ink-dim);
+  }
+  .stats-row .swatch{
+    display:inline-block; width:0.8em; height:0.8em; border-radius:50%;
+    flex:none;
+  }
+  .stats-row b{ color:var(--ink); font-weight:500; }
+
   .modal-backdrop{
     position:fixed; inset:0; z-index:30;
     background: rgba(4,3,7,0.72);
@@ -352,6 +401,7 @@
 
   @media (prefers-reduced-motion: reduce){
     *{ transition-duration: 0.01ms !important; }
+    .lamp-spot.ambient{ animation:none; }
   }
 
   /* --- immersive mode: everything but the photo fades after idle --- */
@@ -366,6 +416,7 @@
 <div class="vignette"></div>
 
 <button id="infoBtn" class="auto-hide" aria-label="Информация" title="Информация">?</button>
+<button id="statsBtn" class="auto-hide" aria-label="Статистика" title="Статистика">📊</button>
 
 <div class="wrap">
   <div class="mini-title auto-hide">Luce · A. Скрябин, Op. 60</div>
@@ -434,13 +485,23 @@
       <div class="sub">A. Скрябин · Op. 60 · безмолвная реконструкция цветовой строки</div>
       <div class="note">
         <b>Как пользоваться:</b> нажмите «Загрузить «Прометея»» и выберите запись именно этого сочинения (mp3, FLAC, wav, m4a, ogg) — длительность считывается прямо из файла, свет идёт синхронно с реальным воспроизведением по заранее размеченной партитуре. Без файла показ идёт по шаблонной длительности 24:00.<br><br>
-        Запись при этом тихо анализируется в фоне: тишина в начале и аплодисменты в конце определяются по громкости и не входят в пропорциональное растягивание — 606 тактов растягиваются только на реальное звучание музыки, а не на весь файл целиком. Это эвристика (ищет паузу перед всплеском шума в конце записи), поэтому для нетипичных записей может сработать не идеально — тогда просто ничего не подрезается.<br><br>
+        Запись при этом тихо анализируется в фоне: тишина в начале и аплодисменты в конце определяются по громкости и не входят в пропорциональное растягивание — 606 тактов растягиваются только на реальное звучание музыки, а не на весь файл целиком. Как только запись доходит до определённого конца музыки, лампы гаснут — то же самое в режиме «Другая музыка». Это эвристика (ищет паузу перед всплеском шума в конце записи), поэтому для нетипичных записей может сработать не идеально — тогда просто ничего не подрезается и не гаснет.<br><br>
+        <b>Кнопка «📊».</b> Показывает партитуру в цифрах: долю каждой стадии от общего числа тактов (в «Прометее») или — в «Другой музыке» — уже накопленную за сеанс долю каждой ноты по факту звучания.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
         Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).
       </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="statsBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Статистика">
+      <button class="modal-close" id="statsClose" aria-label="Закрыть">✕</button>
+      <h1 id="statsTitle">Партитура и доли цветов</h1>
+      <div class="color-bar" id="colorBar"></div>
+      <div id="statsList"></div>
     </div>
   </div>
 
@@ -548,6 +609,8 @@ let mediaSrcNode = null;
 let chromaSmooth = new Array(12).fill(0);
 let analysisEnergyAvg = 0;
 let analysisFlashUntil = 0;
+let noteTimeAccum = new Array(12).fill(0); // seconds spent on each pitch class this session, for the stats modal
+let lastAnalysisAccumTs = null;
 
 // --- trims leading silence / trailing applause out of the proportional stretch ---
 // Decodes the file offline (not the playback <audio>), scans a coarse RMS
@@ -644,6 +707,18 @@ function renderAnalysisFrame(elapsed){
   updateTransportUI(elapsed);
   if(!analyserNode) return;
 
+  if(contentEndSec !== null && elapsed > contentEndSec){
+    stageBg.style.background = '#000';
+    stageName.style.removeProperty('--stage-color');
+    stageName.textContent = 'аплодисменты';
+    discHolder.classList.remove('glow');
+    setLampAmbientMulti([]);
+    setLampFlash(null);
+    tintFlash.classList.remove('on');
+    lastAnalysisAccumTs = null;
+    return;
+  }
+
   analyserNode.getByteFrequencyData(freqData);
   const binHz = audioCtx.sampleRate / analyserNode.fftSize;
   const minBin = Math.max(1, Math.floor(55 / binHz));   // ~A1
@@ -662,11 +737,31 @@ function renderAnalysisFrame(elapsed){
     totalEnergy += energy;
   }
   for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.82 + chroma[i]*0.18;
+
+  if(totalEnergy < 4000){ // near-silence (intro, a rest, a fade) — no note to show yet
+    stageBg.style.background = '#000';
+    stageName.style.removeProperty('--stage-color');
+    stageName.textContent = '…';
+    discHolder.classList.remove('glow');
+    setLampAmbientMulti([]);
+    setLampFlash(null);
+    tintFlash.classList.remove('on');
+    lastAnalysisAccumTs = null; // don't count this gap towards any note's time
+    return;
+  }
+
   let best = 0;
   for(let i=1;i<12;i++) if(chromaSmooth[i] > chromaSmooth[best]) best = i;
 
   const note = CHROMA_NOTES[best];
   const color = colorByNote[note];
+
+  const nowAccumTs = performance.now();
+  if(lastAnalysisAccumTs !== null){
+    const dt = (nowAccumTs - lastAnalysisAccumTs)/1000;
+    if(dt > 0 && dt < 1) noteTimeAccum[best] += dt;
+  }
+  lastAnalysisAccumTs = nowAccumTs;
 
   stageBg.style.background = color;
   stageName.style.setProperty('--stage-color', color);
@@ -761,32 +856,41 @@ function loadTrack(f, mode){
   analysisMode = (mode === 'analysis');
   stopPlayback();
   posSec = 0;
+  contentStartSec = 0;
+  contentEndSec = null;
+
+  let baseTrackName;
   if(analysisMode){
-    trackName.textContent = '🎵 ' + f.name + ' · живой анализ по Скрябину';
+    baseTrackName = '🎵 ' + f.name + ' · живой анализ по Скрябину';
+    trackName.textContent = baseTrackName;
     stageMetaNormal.style.display = 'none';
     stageMetaAnalysis.style.display = '';
     analysisControls.style.display = '';
     ticksEl.innerHTML = '';
     chromaSmooth = new Array(12).fill(0);
     analysisEnergyAvg = 0;
+    noteTimeAccum = new Array(12).fill(0);
+    lastAnalysisAccumTs = null;
     setLampFlash(null);
     ensureAnalyser();
   } else {
-    trackName.textContent = '♪ ' + f.name;
+    baseTrackName = '♪ ' + f.name;
+    trackName.textContent = baseTrackName;
     stageMetaNormal.style.display = '';
     stageMetaAnalysis.style.display = 'none';
     analysisControls.style.display = 'none';
-    contentStartSec = 0;
-    contentEndSec = null;
-    detectContentWindow(f).then(result=>{
-      if(!result) return;
-      contentStartSec = result.start;
-      contentEndSec = result.end;
-      buildTicks();
-      render(posSec);
-      trackName.textContent = '♪ ' + f.name + ' · муз. ' + fmtTime(result.start) + '–' + fmtTime(result.end);
-    });
   }
+
+  // shared silence/applause detection: trims the Prometheus measure stretch and,
+  // in either mode, turns the lamps off once elapsed passes the detected end
+  // (see render()/renderAnalysisFrame()'s contentEndSec check).
+  detectContentWindow(f).then(result=>{
+    if(!result) return;
+    contentStartSec = result.start;
+    contentEndSec = result.end;
+    if(!analysisMode){ buildTicks(); render(posSec); }
+    trackName.textContent = baseTrackName + ' · муз. ' + fmtTime(result.start) + '–' + fmtTime(result.end);
+  });
 }
 
 loadBtn.addEventListener('click', ()=> fileInput.click());
@@ -820,7 +924,75 @@ const modalClose = document.getElementById('modalClose');
 infoBtn.addEventListener('click', ()=> modalBackdrop.classList.add('open'));
 modalClose.addEventListener('click', ()=> modalBackdrop.classList.remove('open'));
 modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) modalBackdrop.classList.remove('open'); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modalBackdrop.classList.remove('open'); });
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    modalBackdrop.classList.remove('open');
+    statsBackdrop.classList.remove('open');
+  }
+});
+
+// --- statistics: score breakdown (Prometheus) or live-accumulated colour shares (analysis mode) ---
+const statsBtn = document.getElementById('statsBtn');
+const statsBackdrop = document.getElementById('statsBackdrop');
+const statsClose = document.getElementById('statsClose');
+const statsTitle = document.getElementById('statsTitle');
+const colorBar = document.getElementById('colorBar');
+const statsList = document.getElementById('statsList');
+
+function renderColorShareBar(items){
+  colorBar.innerHTML = '';
+  statsList.innerHTML = '';
+  if(!items || !items.length){
+    statsList.innerHTML = '<div class="stats-row">Пока недостаточно данных.</div>';
+    return;
+  }
+  items.forEach(it=>{
+    if(it.frac > 0.001){
+      const seg = document.createElement('div');
+      seg.className = 'color-bar-seg';
+      seg.style.width = (it.frac*100) + '%';
+      seg.style.background = it.color;
+      seg.title = it.label + ' — ' + (it.frac*100).toFixed(1) + '%';
+      colorBar.appendChild(seg);
+    }
+  });
+  items.forEach(it=>{
+    const row = document.createElement('div');
+    row.className = 'stats-row';
+    row.innerHTML = '<span class="swatch" style="background:'+it.color+'"></span> <b>'+it.label+'</b> — '
+      + (it.frac*100).toFixed(1) + '%' + (it.extra ? (' · ' + it.extra) : '');
+    statsList.appendChild(row);
+  });
+}
+
+function buildPrometheusStats(){
+  return stages.map((s,i)=>{
+    const nextStart = (i+1 < stages.length) ? stages[i+1].start : (TOTAL_MEASURES+1);
+    const count = nextStart - s.start;
+    return { label: s.label, color: s.color, frac: count/TOTAL_MEASURES, extra: count+' такт.' };
+  });
+}
+
+function buildAnalysisStats(){
+  const total = noteTimeAccum.reduce((a,b)=>a+b, 0);
+  if(total <= 0) return null;
+  return CHROMA_NOTES.map((n,i)=>({ label:n, color:colorByNote[n], frac:noteTimeAccum[i]/total, extra:fmtTime(noteTimeAccum[i]) }))
+    .filter(it=>it.frac > 0)
+    .sort((a,b)=> b.frac - a.frac);
+}
+
+statsBtn.addEventListener('click', ()=>{
+  if(analysisMode){
+    statsTitle.textContent = 'Живой анализ — накопленные доли цветов';
+    renderColorShareBar(buildAnalysisStats());
+  } else {
+    statsTitle.textContent = 'Партитура «Прометея» — доли цветов по тактам';
+    renderColorShareBar(buildPrometheusStats());
+  }
+  statsBackdrop.classList.add('open');
+});
+statsClose.addEventListener('click', ()=> statsBackdrop.classList.remove('open'));
+statsBackdrop.addEventListener('click', (e)=>{ if(e.target===statsBackdrop) statsBackdrop.classList.remove('open'); });
 
 // --- fullscreen ---
 const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -931,6 +1103,20 @@ function updateTransportUI(elapsed){
 
 function render(elapsed){
   const frac = updateTransportUI(elapsed);
+
+  if(contentEndSec !== null && elapsed > contentEndSec){
+    stageBg.style.background = '#000';
+    stageName.style.removeProperty('--stage-color');
+    stageName.textContent = 'аплодисменты';
+    stageIdx.textContent = romanStage[romanStage.length-1];
+    measureNow.textContent = TOTAL_MEASURES;
+    discHolder.classList.remove('glow');
+    setLampAmbient(null);
+    setLampFlash(null);
+    tintFlash.classList.remove('on');
+    return;
+  }
+
   const m = measureAtFraction(frac);
   const sIdx = currentStageForMeasure(m);
   const stage = stages[sIdx];

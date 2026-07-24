@@ -363,6 +363,26 @@
   #statsBtn:hover{ border-color:var(--brass-light); color:var(--ink); }
   #statsBtn:active{ transform:scale(0.92); }
 
+  .color-model-picker{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.78rem;
+    margin: 4px 0 14px;
+  }
+  .color-model-picker select{
+    font-family:inherit; font-size:inherit;
+    background: rgba(255,255,255,0.06);
+    color:inherit;
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:6px;
+    padding:3px 6px;
+  }
+  .color-model-source{
+    width:100%;
+    opacity:0.6;
+    font-size:0.7rem;
+    line-height:1.4;
+  }
   .color-bar{
     display:flex;
     width:100%; height:26px;
@@ -538,6 +558,11 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label="Статистика">
       <button class="modal-close" id="statsClose" aria-label="Закрыть">✕</button>
       <h1 id="statsTitle">Партитура и доли цветов</h1>
+      <div class="color-model-picker" id="colorModelPicker" style="display:none;">
+        <label for="colorModelSelect">Цветовая модель</label>
+        <select id="colorModelSelect"></select>
+        <div class="color-model-source" id="colorModelSource"></div>
+      </div>
       <div class="color-bar" id="colorBar"></div>
       <div id="statsList"></div>
     </div>
@@ -634,9 +659,88 @@ function setLampAmbientMulti(entries){ // entries: [{note, intensity}]
 }
 
 // --- "other music" mode: live pitch-class (chroma) analysis mapped through
-// Scriabin's own colour circle, for any track that isn't a recording of Prometheus itself ---
+// a chosen historical colour-hearing system, for any track that isn't a
+// recording of Prometheus itself. Prometheus mode's own stages/flashes keep
+// Scriabin's authored colours always, regardless of this selector — this
+// only affects the "Другая музыка" lens, never the reconstruction itself.
+//
+// Every model below is a real, sourced historical colour-key system, not
+// invented for this project. Hex values ARE our own interpretation of each
+// source's colour *name* (no 1908 source gives hex codes) - the note/colour
+// pairing itself is sourced, the exact shade is our best-effort reading of
+// the described colour. Researched and cross-checked (not from memory
+// alone) before adding — see CLAUDE.md for the full source list and the
+// systems that were found but deliberately left out (Rimington - only a
+// "C=red, spectral order" principle confirmed, no complete table found
+// anywhere; Kandinsky - his synesthesia maps colour to instrument timbre,
+// not to pitch, so it doesn't fit this per-note model at all).
+const COLOR_MODELS = {
+  scriabin: {
+    label: 'Скрябин (партитура «Прометея»)',
+    source: 'lampSpotsData — измерено по реальному фото ламп музея, см. выше',
+    colors: null, // filled in below from lampSpotsData - the real photo IS the source
+  },
+  rimskyKorsakov: {
+    label: 'Римский-Корсаков',
+    source: 'Yastrebtsev 1908, via Galeyev & Vanechkina (2000) "Was Scriabin a Synesthete?", Leonardo; cross-checked against Sabaneyev\'s independently published table (C=white, G=brownish-gold match)',
+    colors: {
+      C:'#f5f0e6', Des:'#5c3a2e', D:'#d4a017', Es:'#3a4552', E:'#1e5fa8',
+      F:'#4a9c3f', Fis:'#5aab4a', G:'#b8925a', As:'#7a6a8c', A:'#e8a0b4',
+      B:'#4a4340', H:'#2e3b52',
+    },
+  },
+  castel: {
+    label: 'Кастель (Clavecin oculaire, 1740)',
+    source: "L'Optique des couleurs — ut/bleu, ut#/céladon, ré/vert, ré#/olive, mi/jaune, fa/aurore, fa#/orange, sol/rouge, sol#/cramoisi, la/violet, la#/agate, si/indigo",
+    colors: {
+      C:'#2255cc', Des:'#ace1af', D:'#2e8b3d', Es:'#6b6b1f', E:'#e8d426',
+      F:'#ffcb60', Fis:'#e8791e', G:'#cc2222', As:'#b31942', A:'#7a3a9c',
+      B:'#8a8570', H:'#3b2e7a',
+    },
+  },
+  newton: {
+    label: 'Ньютон (Opticks, 1704) — только 7 диатонических нот',
+    source: 'Opticks — спектр от D (не синестезия, а математическая аналогия с диатоническим ладом); 5 хроматических нот Ньютон не определял вообще — интерполированы нами между соседями, это НЕ его данные',
+    colors: {
+      D:'#cc2222', E:'#e8791e', F:'#e8d426', G:'#2e8b3d', A:'#2255cc', H:'#3b2e7a', C:'#7a3a9c',
+      Des:'#9c2e52', // interpolated: between C(violet) and D(red), not Newton's
+      Es:'#d8501f',  // interpolated: between D(red) and E(orange), not Newton's
+      Fis:'#a8b02f', // interpolated: between F(yellow) and G(green), not Newton's
+      As:'#2e6e6e',  // interpolated: between G(green) and A(blue), not Newton's
+      B:'#2e3ea0',   // interpolated: between A(blue) and H(indigo), not Newton's
+    },
+  },
+};
+COLOR_MODELS.scriabin.colors = {};
+lampSpotsData.forEach(s=>{ COLOR_MODELS.scriabin.colors[s.note] = s.c; });
+
+let activeColorModelKey = 'scriabin';
 const colorByNote = {};
-lampSpotsData.forEach(s=>{ colorByNote[s.note] = s.c; });
+function refreshLampSpotColors(){
+  // lamp glow colour is a CSS custom property set per-element, not read live
+  // from colorByNote by CSS itself - has to be pushed on every model change.
+  if(typeof lampSpotEls === 'undefined') return; // not built yet on first call
+  lampSpotEls.forEach(s=>{ s.el.style.setProperty('--sc', colorByNote[s.note]); });
+}
+function applyColorModel(key){
+  const model = COLOR_MODELS[key] || COLOR_MODELS.scriabin;
+  activeColorModelKey = COLOR_MODELS[key] ? key : 'scriabin';
+  for(const k in colorByNote) delete colorByNote[k];
+  Object.assign(colorByNote, model.colors);
+  refreshLampSpotColors();
+  // live-repaint whatever's already on screen so switching models is
+  // immediately visible, not just on the next loaded track
+  if(analysisMode){
+    if(typeof activeColorMap !== 'undefined' && activeColorMap) paintTimelineFromColorMap(activeColorMap);
+    if(typeof renderCurrent === 'function' && typeof posSec === 'number') renderCurrent(posSec);
+  }
+}
+// Direct init, NOT applyColorModel('scriabin') - this runs before analysisMode/
+// activeColorMap/renderCurrent are declared further down (TDZ: reading them
+// here would throw ReferenceError before the page ever renders). The full
+// applyColorModel() path is only used later, from user interaction, by which
+// point the whole script has finished initializing.
+Object.assign(colorByNote, COLOR_MODELS.scriabin.colors);
 const CHROMA_NOTES = ["C","Des","D","Es","E","F","Fis","G","As","A","B","H"]; // chromatic index 0..11
 
 let analysisMode = false;
@@ -1189,6 +1293,23 @@ const statsClose = document.getElementById('statsClose');
 const statsTitle = document.getElementById('statsTitle');
 const colorBar = document.getElementById('colorBar');
 const statsList = document.getElementById('statsList');
+const colorModelPicker = document.getElementById('colorModelPicker');
+const colorModelSelect = document.getElementById('colorModelSelect');
+const colorModelSource = document.getElementById('colorModelSource');
+
+for(const key in COLOR_MODELS){
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = COLOR_MODELS[key].label;
+  colorModelSelect.appendChild(opt);
+}
+colorModelSelect.value = activeColorModelKey;
+colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
+colorModelSelect.addEventListener('change', ()=>{
+  applyColorModel(colorModelSelect.value);
+  colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
+  if(analysisMode) renderColorShareBar(buildAnalysisStats());
+});
 
 function renderColorShareBar(items){
   colorBar.innerHTML = '';
@@ -1236,9 +1357,13 @@ statsBtn.addEventListener('click', ()=>{
   if(analysisMode){
     statsTitle.textContent = 'Живой анализ — накопленные доли цветов';
     renderColorShareBar(buildAnalysisStats());
+    colorModelPicker.style.display = '';
   } else {
     statsTitle.textContent = 'Партитура «Прометея» — доли цветов по тактам';
     renderColorShareBar(buildPrometheusStats());
+    // hidden in Prometheus mode: its stages/flashes keep Scriabin's authored
+    // colours always, switching the model here would do nothing visible
+    colorModelPicker.style.display = 'none';
   }
   statsBackdrop.classList.add('open');
 });

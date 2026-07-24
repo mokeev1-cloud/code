@@ -632,7 +632,7 @@ const CHROMA_NOTES = ["C","Des","D","Es","E","F","Fis","G","As","A","B","H"]; //
 let analysisMode = false;
 let audioCtx = null;
 let analyserNode = null;
-let freqData = null;
+let timeData = null;
 let mediaSrcNode = null;
 let chromaSmooth = new Array(12).fill(0);
 let analysisEnergyAvg = 0;
@@ -714,6 +714,18 @@ function computeContentWindow(audioBuffer){
 
 // Single-frequency DFT (Goertzel) — cheap way to test a handful of exact target
 // frequencies against a block of samples without running a full FFT.
+// Shared by the offline whole-track colour map AND the live analysis below —
+// using the exact same target frequencies (not just "a similar range") for
+// both is what makes the live lamp and the colour map agree with each other,
+// rather than merely being tuned to roughly resemble one another.
+const CHROMA_TARGET_FREQS = [];
+for(let oct=0; oct<4; oct++){
+  for(let i=0;i<12;i++){
+    const midi = 36 + oct*12 + i; // C2 (~65Hz) through B5 (~988Hz)
+    CHROMA_TARGET_FREQS.push(440*Math.pow(2, (midi-69)/12));
+  }
+}
+
 function goertzelMag(samples, sampleRate, targetFreq){
   const N = samples.length;
   const k = Math.round(N * targetFreq / sampleRate);
@@ -746,13 +758,7 @@ function buildColorMap(audioBuffer){
   const TARGET_EFFECTIVE_SR = 2600;
   const stride = Math.max(1, Math.round(sr/TARGET_EFFECTIVE_SR));
 
-  const targetFreqs = [];
-  for(let oct=0; oct<4; oct++){
-    for(let i=0;i<12;i++){
-      const midi = 36 + oct*12 + i; // C2 (~65Hz) through B5 (~988Hz)
-      targetFreqs.push(440*Math.pow(2, (midi-69)/12));
-    }
-  }
+  const targetFreqs = CHROMA_TARGET_FREQS;
 
   const result = [];
   for(let s=0; s<segCount; s++){
@@ -872,7 +878,7 @@ function ensureAnalyser(){
   analyserNode.smoothingTimeConstant = 0.4;
   mediaSrcNode.connect(analyserNode);
   analyserNode.connect(audioCtx.destination);
-  freqData = new Uint8Array(analyserNode.frequencyBinCount);
+  timeData = new Float32Array(analyserNode.fftSize);
 }
 
 function renderAnalysisFrame(elapsed){
@@ -891,32 +897,26 @@ function renderAnalysisFrame(elapsed){
     return;
   }
 
-  analyserNode.getByteFrequencyData(freqData);
-  const binHz = audioCtx.sampleRate / analyserNode.fftSize;
-  // Starts above ~100Hz, not ~55Hz: room rumble, mic/stand handling noise,
-  // mains hum and its harmonics all live below there, and a per-frequency
-  // weighting that favours bass (tried previously) let exactly that kind of
-  // non-musical low-end noise dominate the whole reading — the "stuck on one
-  // colour for 99% of the piece" failure. No bass weighting any more either;
-  // every bin in range counts equally. Upper bound narrowed to ~1050Hz (was
-  // 4000) to match the range buildColorMap's Goertzel pass uses (C2-B5, four
-  // octaves) — that offline analysis of the very same kind of recording came
-  // back with real colour variety, so mirroring its register here rather
-  // than also chasing shimmering high overtones should behave the same way.
-  const minBin = Math.max(1, Math.floor(100 / binHz));
-  const maxBin = Math.min(freqData.length - 1, Math.ceil(1050 / binHz));
+  // Same Goertzel-over-CHROMA_TARGET_FREQS method as the offline colour map
+  // (not an FFT-bin sweep) — the two disagreeing even after their frequency
+  // ranges were aligned was because they were still fundamentally different
+  // analyses. Using the identical method (down to the same decimation) is
+  // what actually makes the live lamp track the colour map instead of just
+  // roughly resembling it.
+  analyserNode.getFloatTimeDomainData(timeData);
+  const sr = audioCtx.sampleRate;
+  const stride = Math.max(1, Math.round(sr/2600));
+  const effSr = sr/stride;
+  const samples = [];
+  for(let i=0;i<timeData.length;i+=stride) samples.push(timeData[i]);
 
   const chroma = new Array(12).fill(0);
   let totalEnergy = 0;
-  for(let i=minBin; i<=maxBin; i++){
-    const mag = freqData[i];
-    if(mag < 8) continue; // ignore noise floor
-    const freq = i * binHz;
-    const midi = 69 + 12 * Math.log2(freq/440);
-    let pc = Math.round(midi) % 12; if(pc < 0) pc += 12;
-    const energy = mag*mag;
-    chroma[pc] += energy;
-    totalEnergy += energy;
+  for(let f=0; f<CHROMA_TARGET_FREQS.length; f++){
+    if(CHROMA_TARGET_FREQS[f] >= effSr/2) continue;
+    const mag = goertzelMag(samples, effSr, CHROMA_TARGET_FREQS[f]);
+    chroma[f%12] += mag;
+    totalEnergy += mag;
   }
   // Slow decay (~11s time constant at 60fps) — rides out individual melody
   // notes so what's left standing is the underlying tonal centre, not
@@ -926,7 +926,7 @@ function renderAnalysisFrame(elapsed){
   // stand in for, so this errs firmly on the side of stability over speed.
   for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.9985 + chroma[i]*0.0015;
 
-  if(totalEnergy < 4000){ // near-silence (intro, a rest, a fade) — no note to show yet
+  if(totalEnergy < 8){ // near-silence (intro, a rest, a fade) — no note to show yet; scale matches Goertzel-on-float-samples, not the old byte-FFT energy
     stageBg.style.background = '#000';
     stageName.style.removeProperty('--stage-color');
     stageName.textContent = '…';
@@ -993,7 +993,7 @@ function renderAnalysisFrame(elapsed){
   // different note than the current slow-luce stage.
   analysisEnergyAvg = analysisEnergyAvg*0.9 + totalEnergy*0.1;
   const now = performance.now();
-  if(totalEnergy > analysisEnergyAvg*dynMultiplier && totalEnergy > 20000 && now > analysisFlashUntil - 900){
+  if(totalEnergy > analysisEnergyAvg*dynMultiplier && totalEnergy > 50 && now > analysisFlashUntil - 900){
     let flashIdx = structuralIdx, flashBestVal = chroma[structuralIdx] || 0;
     for(let i=0;i<12;i++){
       if(i !== structuralIdx && chroma[i] > flashBestVal){ flashIdx = i; flashBestVal = chroma[i]; }
@@ -1122,7 +1122,9 @@ function loadTrack(f, mode){
       trackName.textContent = baseTrackName + ' · муз. ' + fmtTime(result.win.start) + '–' + fmtTime(result.win.end);
     }
     if(analysisMode && result.colorMap){
-      addColorMapRow(f.name, result.colorMap);
+      // the currently-playing track's map is the timeline itself now — no
+      // need for a duplicate strip; the history list is reserved for any
+      // *other* files picked alongside it (see fileInputOther below)
       paintTimelineFromColorMap(result.colorMap);
     }
   });

@@ -528,6 +528,7 @@
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
+  <div class="track-name auto-hide" id="lucePlusStatus" style="opacity:0.7;"></div>
 
   <div class="colormap-history auto-hide" id="colormapHistory" style="display:none;"></div>
   <audio id="player" preload="metadata"></audio>
@@ -13833,7 +13834,64 @@ fileInputOther.addEventListener('change', ()=>{
       if(result && result.colorMap) addColorMapRow(f.name, result.colorMap);
     });
   }
+  runLucePlusProbe(files[0]);
 });
+
+// --- TEMPORARY speed-test hook, not the real feature ---
+// Re-decodes the file independently of loadTrack/analyzeAudioFile (wasteful,
+// but simplest to bolt on without touching the working existing path while
+// we don't even know yet if the underlying model is fast enough to use at
+// all - see CLAUDE.md "КРИТИЧЕСКАЯ находка"). Only job: let the user trigger
+// a real Basic Pitch run through the normal UI and see how long it actually
+// takes on their own hardware, instead of only my own automated-browser
+// measurement. Not wired to any visualisation - deliberately, until the
+// speed question has a real answer.
+const lucePlusStatus = document.getElementById('lucePlusStatus');
+async function runLucePlusProbe(file){
+  if(!window.LucePlusEngine){ lucePlusStatus.textContent = 'luce-plus: движок не загрузился'; return; }
+  try {
+    lucePlusStatus.textContent = 'luce-plus: декодирую...';
+    const arrayBuf = await file.arrayBuffer();
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await ctx.decodeAudioData(arrayBuf);
+    await ctx.close();
+
+    // first 20s only for this probe - full-track timing is a simple
+    // multiply-out from this, no need to make the user wait for the whole
+    // track just to answer "is this fast enough at all"
+    const probeSeconds = Math.min(20, decoded.duration);
+    const targetSr = 22050;
+    const offlineCtx = new OfflineAudioContext(1, Math.ceil(probeSeconds*targetSr), targetSr);
+    const srcNode = offlineCtx.createBufferSource();
+    const shortBuf = offlineCtx.createBuffer(decoded.numberOfChannels, Math.floor(probeSeconds*decoded.sampleRate), decoded.sampleRate);
+    for(let c=0;c<decoded.numberOfChannels;c++) shortBuf.getChannelData(c).set(decoded.getChannelData(c).subarray(0, shortBuf.length));
+    srcNode.buffer = shortBuf;
+    srcNode.connect(offlineCtx.destination);
+    srcNode.start();
+    const resampled = await offlineCtx.startRendering();
+
+    lucePlusStatus.textContent = 'luce-plus: анализирую ' + probeSeconds.toFixed(0) + ' сек через Basic Pitch...';
+    const { BasicPitch, outputToNotesPoly, addPitchBendsToNoteEvents, noteFramesToTime } = window.LucePlusEngine;
+    const basicPitch = new BasicPitch('./model/model.json');
+    const frames = [], onsets = [], contours = [];
+    const t0 = performance.now();
+    await basicPitch.evaluateModel(resampled,
+      (f,o,c)=>{ frames.push(...f); onsets.push(...o); contours.push(...c); },
+      (p)=>{ lucePlusStatus.textContent = 'luce-plus: анализирую... ' + Math.round(p*100) + '%'; }
+    );
+    const elapsedMs = performance.now() - t0;
+    const notes = noteFramesToTime(addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.25, 0.25, 5)));
+    const ratio = elapsedMs/1000/probeSeconds;
+    const fullTrackEstMin = (ratio * decoded.duration / 60).toFixed(1);
+    lucePlusStatus.textContent = 'luce-plus: ' + probeSeconds.toFixed(0) + 'с аудио -> ' + (elapsedMs/1000).toFixed(1) + 'с обработки ('
+      + ratio.toFixed(1) + 'x реального времени), ' + notes.length + ' нот. Оценка на весь трек ('
+      + Math.round(decoded.duration) + 'с): ~' + fullTrackEstMin + ' мин.';
+    console.log('[luce-plus] notes sample:', notes.slice(0,10));
+  } catch(e){
+    lucePlusStatus.textContent = 'luce-plus: ошибка — ' + e.message;
+    console.error('[luce-plus] probe failed', e);
+  }
+}
 
 player.addEventListener('loadedmetadata', ()=>{
   if(isFinite(player.duration) && player.duration > 0){

@@ -437,6 +437,17 @@
 <body>
 
 <div class="stage" id="stageBg"></div>
+  <!-- Always-looping video: nudges mobile browsers to not dim/lock the screen while
+       the light score is running, alongside the Wake Lock API and the Media Session
+       API (neither of which every browser/context supports/respects). Sized to the
+       full viewport and stacked behind .stage (z-index 0) so it's entirely covered
+       and never actually seen — a 2x2px dot turned out too small for at least one
+       Android browser's "is real video visibly playing" heuristic to count it. -->
+  <video id="nosleepVideo" muted loop playsinline aria-hidden="true"
+         style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; pointer-events:none;">
+    <source src="data:video/mp4;base64,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" type="video/mp4">
+    <source src="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJMEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEbTbuMU6uEHFO7a1OsggI27AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjIuMTIuMTAyV0GNTGF2ZjYyLjEyLjEwMkSJiECfQAAAAAAAFlSua76uAQAAAAAAADXXgQFzxYhyeyTVcBwT7ZyBACK1nIN1bmSIgQCGhVZfVlA5g4EBI+ODhA7msoDghrCBELqBEBJUw2fYc3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2Mi4xMi4xMDJzc7JjwItjxYhyeyTVcBwT7WfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnVAuOeBAKOggQAAgIJJg0IAAPAA9gA4JBwY9gAAMGAAABC///BJwACjk4EA+gCGAECSHABZAAADIAAAQkCjk4EB9ACGAECSnABYAAADIAAAQkCjk4EC7gCGAECSHABZAAADIAAAQkCjk4ED6ACGAECSnABWoAADIAAAQkCjk4EE4gCGAECSHABZAAADIAAAQkCjk4EF3ACGAECSnABYAAADIAAAQkCjk4EG1gCGAECSHABZAAADIAAAQkAcU7trkbuPs4EAt4r3gQHxggF48IED" type="video/webm">
+  </video>
 <div class="vignette"></div>
 
 <button id="infoBtn" class="auto-hide" aria-label="Информация" title="Информация">?</button>
@@ -478,26 +489,15 @@
     <button id="playBtn">▶ Пуск</button>
     <button id="resetBtn">⟲ Начало</button>
     <button id="loadBtn" type="button">♪ Загрузить «Прометея»</button>
-    <input type="file" id="fileInput" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" style="display:none">
+    <input type="file" id="fileInput" accept="audio/*" style="display:none">
     <button id="loadOtherBtn" type="button">🎵 Другая музыка</button>
-    <input type="file" id="fileInputOther" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" multiple style="display:none">
+    <input type="file" id="fileInputOther" accept="audio/*" multiple style="display:none">
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
 
   <div class="colormap-history auto-hide" id="colormapHistory" style="display:none;"></div>
   <audio id="player" preload="metadata"></audio>
-  <!-- Always-looping video: nudges mobile browsers to not dim/lock the screen while
-       the light score is running, alongside the Wake Lock API and the Media Session
-       API (neither of which every browser/context supports/respects). Sized to the
-       full viewport and stacked behind .stage (z-index 0) so it's entirely covered
-       and never actually seen — a 2x2px dot turned out too small for at least one
-       Android browser's "is real video visibly playing" heuristic to count it. -->
-  <video id="nosleepVideo" muted loop playsinline aria-hidden="true"
-         style="position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; pointer-events:none;">
-    <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAp5tZGF0AAACRQYF//9B3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NSAtIEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjUgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25zOiBjYWJhYz0wIHJlZj0xIGRlYmxvY2s9MDowOjAgYW5hbHlzZT0wOjAgbWU9ZGlhIHN1Ym1lPTAgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MCBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTAgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9MCB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0wIHdlaWdodHA9MCBrZXlpbnQ9MjUwIGtleWludF9taW49NCBzY2VuZWN1dD0wIGludHJhX3JlZnJlc2g9MCByYz1jcmYgbWJ0cmVlPTAgY3JmPTQwLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MACAAAAACmWIhDomKAAIGOAAAAAFQZogEKUAAAAFQZpAEKUAAAAFQZpgEKUAAAAFQZqAEaUAAAAFQZqgEaUAAAAFQZrAEaUAAAAFQZrgEaUAAAMxbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAlt0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHTbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAgABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABfm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAT5zdGJsAAAApnN0c2QAAAAAAAAAAQAAAJZhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGP//AAAALGF2Y0MBQsAK/+EAFGdCwAraehAAAAMAEAAAAwCA8SJqAQAFaM4DnIAAAAAUYnRydAAAAAAAAApYAAAAAAAAABhzdHRzAAAAAAAAAAEAAAAIAAAQAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAHHN0c2MAAAAAAAAAAQAAAAEAAAAIAAAAAQAAADRzdHN6AAAAAAAAAAAAAAAIAAACVwAAAAkAAAAJAAAACQAAAAkAAAAJAAAACQAAAAkAAAAUc3RjbwAAAAAAAAABAAAAMAAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNjIuMTIuMTAy" type="video/mp4">
-    <source src="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJMEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEbTbuMU6uEHFO7a1OsggI27AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjIuMTIuMTAyV0GNTGF2ZjYyLjEyLjEwMkSJiECfQAAAAAAAFlSua76uAQAAAAAAADXXgQFzxYhyeyTVcBwT7ZyBACK1nIN1bmSIgQCGhVZfVlA5g4EBI+ODhA7msoDghrCBELqBEBJUw2fYc3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2Mi4xMi4xMDJzc7JjwItjxYhyeyTVcBwT7WfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnVAuOeBAKOggQAAgIJJg0IAAPAA9gA4JBwY9gAAMGAAABC///BJwACjk4EA+gCGAECSHABZAAADIAAAQkCjk4EB9ACGAECSnABYAAADIAAAQkCjk4EC7gCGAECSHABZAAADIAAAQkCjk4ED6ACGAECSnABWoAADIAAAQkCjk4EE4gCGAECSHABZAAADIAAAQkCjk4EF3ACGAECSnABYAAADIAAAQkCjk4EG1gCGAECSHABZAAADIAAAQkAcU7trkbuPs4EAt4r3gQHxggF48IED" type="video/webm">
-  </video>
 
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" role="dialog" aria-modal="true" aria-label="Информация о проекте">
@@ -890,8 +890,18 @@ function renderAnalysisFrame(elapsed){
 
   analyserNode.getByteFrequencyData(freqData);
   const binHz = audioCtx.sampleRate / analyserNode.fftSize;
-  const minBin = Math.max(1, Math.floor(55 / binHz));   // ~A1
-  const maxBin = Math.min(freqData.length - 1, Math.ceil(4000 / binHz));
+  // Starts above ~100Hz, not ~55Hz: room rumble, mic/stand handling noise,
+  // mains hum and its harmonics all live below there, and a per-frequency
+  // weighting that favours bass (tried previously) let exactly that kind of
+  // non-musical low-end noise dominate the whole reading — the "stuck on one
+  // colour for 99% of the piece" failure. No bass weighting any more either;
+  // every bin in range counts equally. Upper bound narrowed to ~1050Hz (was
+  // 4000) to match the range buildColorMap's Goertzel pass uses (C2-B5, four
+  // octaves) — that offline analysis of the very same kind of recording came
+  // back with real colour variety, so mirroring its register here rather
+  // than also chasing shimmering high overtones should behave the same way.
+  const minBin = Math.max(1, Math.floor(100 / binHz));
+  const maxBin = Math.min(freqData.length - 1, Math.ceil(1050 / binHz));
 
   const chroma = new Array(12).fill(0);
   let totalEnergy = 0;
@@ -901,12 +911,7 @@ function renderAnalysisFrame(elapsed){
     const freq = i * binHz;
     const midi = 69 + 12 * Math.log2(freq/440);
     let pc = Math.round(midi) % 12; if(pc < 0) pc += 12;
-    // bass/fundamental content tracks a piece's tonal centre far more
-    // reliably than shimmering high overtones (a real orchestra has plenty
-    // of bright treble that has nothing to do with the harmonic root) —
-    // weight lower frequencies up and taper off towards the top of the range
-    const freqWeight = 200 / Math.max(80, freq);
-    const energy = mag*mag*freqWeight;
+    const energy = mag*mag;
     chroma[pc] += energy;
     totalEnergy += energy;
   }
@@ -975,11 +980,16 @@ function renderAnalysisFrame(elapsed){
   // not a user choice, since 2 is the documented ceiling for Scriabin's own
   // Luce line (monophonic almost throughout, one known two-note passage near
   // the climax); anything past that would be invention, not reconstruction.
+  // The bar for a second lamp is deliberately high (>=75% of the dominant
+  // note's smoothed energy): a real recording almost always has *some*
+  // secondary pitch-class energy simply from harmonic richness, but Scriabin's
+  // own Luce line only ever doubles up in one rare passage — a low bar here
+  // was exactly why two lamps were showing almost constantly.
   const bestVal = chromaSmooth[structuralIdx] || 1e-9;
   const ranked = [];
   for(let i=0;i<12;i++){
     const rel = chromaSmooth[i]/bestVal;
-    if(rel >= 0.15) ranked.push({ note:CHROMA_NOTES[i], rel });
+    if(rel >= 0.75) ranked.push({ note:CHROMA_NOTES[i], rel });
   }
   ranked.sort((a,b)=> b.rel - a.rel);
   const ambientEntries = ranked.slice(0, multiCount).map(r=>({

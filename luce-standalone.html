@@ -658,6 +658,24 @@ function setLampAmbientMulti(entries){ // entries: [{note, intensity}]
   });
 }
 
+// Not a real analysis mode - just for fun, per direct request ("придумай
+// сам, но повеселее"). Keeps the actual detected note lit at full
+// intensity (still reacts to the real music) and layers 3 extra lamps
+// chasing around the ring on top, stepping every ~140ms off performance.now()
+// so the pattern is lively without being a seizure-risk strobe. No source,
+// no music-theory claim - it's a light show, not an analysis.
+function discoChaseEntries(structuralNote){
+  const step = Math.floor(performance.now() / 140);
+  const n = CHROMA_NOTES.length;
+  const entries = [{ note: structuralNote, intensity: 1 }];
+  for(let k=0; k<3; k++){
+    const note = CHROMA_NOTES[(step + k*4) % n];
+    if(note === structuralNote) continue;
+    entries.push({ note, intensity: 0.55 - k*0.15 });
+  }
+  return entries;
+}
+
 // --- "other music" mode: live pitch-class (chroma) analysis mapped through
 // a chosen historical colour-hearing system, for any track that isn't a
 // recording of Prometheus itself. Prometheus mode's own stages/flashes keep
@@ -708,6 +726,15 @@ const COLOR_MODELS = {
       Fis:'#a8b02f', // interpolated: between F(yellow) and G(green), not Newton's
       As:'#2e6e6e',  // interpolated: between G(green) and A(blue), not Newton's
       B:'#2e3ea0',   // interpolated: between A(blue) and H(indigo), not Newton's
+    },
+  },
+  disco80s: {
+    label: '🪩 Дискотека 80-х',
+    source: 'Не исторический источник — по прямому запросу пользователя ("алгоритм сам придумай, но повеселее"). Неоновая палитра + бегущие огни поверх реального анализа, см. discoChaseEntries()',
+    colors: {
+      C:'#ff2fb0', Des:'#00e5ff', D:'#f9f002', Es:'#39ff14', E:'#b026ff',
+      F:'#ff6f00', Fis:'#ff00c8', G:'#00bfff', As:'#ccff00', A:'#ff073a',
+      B:'#00fff0', H:'#8f00ff',
     },
   },
 };
@@ -1061,7 +1088,9 @@ function renderAnalysisFrame(elapsed){
   stageName.textContent = structuralNote;
   discHolder.style.setProperty('--stage-color', color);
   discHolder.classList.add('glow');
-  setLampAmbientMulti([{ note: structuralNote, intensity: 1 }]);
+  setLampAmbientMulti(activeColorModelKey === 'disco80s'
+    ? discoChaseEntries(structuralNote)
+    : [{ note: structuralNote, intensity: 1 }]);
 
   // simple live onset detector: a sudden jump in raw signal energy briefly
   // flares a lamp, echoing the "fast luce" flashes of the real score. Which

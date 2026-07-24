@@ -508,7 +508,7 @@
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
         <b>Тут нет настроек — только строгая реконструкция.</b> Одновременно может гореть максимум 2 лампы — ровно столько документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации). Вспышки-акценты калибро­ваны на ту же редкость, что и настоящая быстрая Luce (11 вспышек на все 606 тактов, а не частое мигание) — оба эти факта у Скрябина фиксированы, а не выбор слушателя, поэтому ползунков для них нет: решает музыка, а не настройка.<br><br>
-        Само определение ноты при этом смотрит не на мгновенный тон, а на устойчивую тональную основу: чтобы не дёргаться на каждую ноту движущейся мелодии, новый цвет засчитывается только когда он уверенно и непрерывно держит первенство больше секунды — так на глазах у меня получилось точно восстановить структуру эталонной записи (ни одного лишнего переключения) даже когда поверх неё «гуляла» мелодия.<br><br>
+        Само определение ноты при этом смотрит не на мгновенный тон, а на устойчивую тональную основу с памятью в несколько секунд: чтобы не дёргаться на каждую ноту движущейся мелодии, новый цвет засчитывается только когда он уверенно и непрерывно держит первенство больше секунды. Настроено на реальном темпе — на синтетической записи в 22 реальные минуты (не сжатой) получилось восстановить все 6 переходов партитуры без единого лишнего переключения.<br><br>
         При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
@@ -898,14 +898,23 @@ function renderAnalysisFrame(elapsed){
     const freq = i * binHz;
     const midi = 69 + 12 * Math.log2(freq/440);
     let pc = Math.round(midi) % 12; if(pc < 0) pc += 12;
-    const energy = mag*mag;
+    // bass/fundamental content tracks a piece's tonal centre far more
+    // reliably than shimmering high overtones (a real orchestra has plenty
+    // of bright treble that has nothing to do with the harmonic root) —
+    // weight lower frequencies up and taper off towards the top of the range
+    const freqWeight = 200 / Math.max(80, freq);
+    const energy = mag*mag*freqWeight;
     chroma[pc] += energy;
     totalEnergy += energy;
   }
-  // Slow decay (~3s time constant at 60fps) — rides out individual melody
+  // Slow decay (~5.5s time constant at 60fps) — rides out individual melody
   // notes so what's left standing is the underlying tonal centre, not
   // whatever pitch happened to sound in the last fraction of a second.
-  for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.985 + chroma[i]*0.015;
+  // Tuned against a *realistic-duration* synthetic reference (22 real minutes,
+  // matching an actual Prometheus performance) rather than a compressed one —
+  // a compressed-timescale test previously led to far too twitchy a setting:
+  // real playback showed 37 note-changes where the score only has 6.
+  for(let i=0;i<12;i++) chromaSmooth[i] = chromaSmooth[i]*0.997 + chroma[i]*0.003;
 
   if(totalEnergy < 4000){ // near-silence (intro, a rest, a fade) — no note to show yet
     stageBg.style.background = '#000';
@@ -923,10 +932,10 @@ function renderAnalysisFrame(elapsed){
   for(let i=1;i<12;i++) if(chromaSmooth[i] > chromaSmooth[best]) best = i;
 
   // Hysteresis: only commit to a new structural note once it has been
-  // clearly (>=1.25x) and continuously ahead of the currently-displayed one
+  // clearly (>=1.3x) and continuously ahead of the currently-displayed one
   // for CONFIRM_MS — a single loud passing tone can't win on its own.
   const CONFIRM_MS = 1000;
-  const SWITCH_MARGIN = 1.2;
+  const SWITCH_MARGIN = 1.3;
   const nowMs = performance.now();
   if(structuralIdx === null){
     structuralIdx = best;

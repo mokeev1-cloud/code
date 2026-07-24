@@ -440,7 +440,9 @@
 <div class="vignette"></div>
 
 <button id="infoBtn" class="auto-hide" aria-label="Информация" title="Информация">?</button>
-<button id="statsBtn" class="auto-hide" aria-label="Статистика" title="Статистика">📊</button>
+<button id="statsBtn" class="auto-hide" aria-label="Статистика" title="Статистика">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="19" x2="5" y2="11"/><line x1="12" y1="19" x2="12" y2="5"/><line x1="19" y1="19" x2="19" y2="14"/></svg>
+</button>
 
 <div class="wrap">
   <div class="mini-title auto-hide">Luce · A. Скрябин, Op. 60</div>
@@ -478,7 +480,7 @@
     <button id="loadBtn" type="button">♪ Загрузить «Прометея»</button>
     <input type="file" id="fileInput" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" style="display:none">
     <button id="loadOtherBtn" type="button">🎵 Другая музыка</button>
-    <input type="file" id="fileInputOther" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" style="display:none">
+    <input type="file" id="fileInputOther" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" multiple style="display:none">
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
@@ -510,7 +512,8 @@
         При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
         <b>Такты.</b> Сплошные метки на шкале — границы стадий, подтверждённые источниками: Ванечкина И. «The 'Luce' part as a clue to Scriabin's later harmony» (1977/2012, prometheus.kai.ru); Gawboy A., Townsend J. «Scriabin and the Possible», <i>Music Theory Online</i> 18.2 (2012). Штриховые метки — интерполяция там, где точные такты не публиковались в этих источниках.<br><br>
-        Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).
+        Темп у Скрябина не строго постоянен, так что это <b>пропорциональная</b>, а не хронометрическая реконструкция — длительность стадий на шкале примерно соответствует их доле от общего числа тактов (606).<br><br>
+        <b>Экран не гаснет:</b> <span id="wakeLockStatus">не проверялось</span>
       </div>
     </div>
   </div>
@@ -1115,7 +1118,20 @@ loadBtn.addEventListener('click', ()=> fileInput.click());
 fileInput.addEventListener('change', ()=> loadTrack(fileInput.files[0], 'prometheus'));
 
 loadOtherBtn.addEventListener('click', ()=> fileInputOther.click());
-fileInputOther.addEventListener('change', ()=> loadTrack(fileInputOther.files[0], 'analysis'));
+fileInputOther.addEventListener('change', ()=>{
+  const files = Array.from(fileInputOther.files);
+  if(!files.length) return;
+  loadTrack(files[0], 'analysis'); // first file loads and plays as usual
+  // any further files selected alongside it just get analysed straight into
+  // the colour-map history, so several tracks can be opened/compared at once
+  // without loading them one at a time
+  for(let i=1; i<files.length; i++){
+    const f = files[i];
+    analyzeAudioFile(f, true).then(result=>{
+      if(result && result.colorMap) addColorMapRow(f.name, result.colorMap);
+    });
+  }
+});
 
 player.addEventListener('loadedmetadata', ()=>{
   if(isFinite(player.duration) && player.duration > 0){
@@ -1139,7 +1155,11 @@ player.addEventListener('ended', ()=>{
 const infoBtn = document.getElementById('infoBtn');
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modalClose = document.getElementById('modalClose');
-infoBtn.addEventListener('click', ()=> modalBackdrop.classList.add('open'));
+infoBtn.addEventListener('click', ()=>{
+  modalBackdrop.classList.add('open');
+  const el = document.getElementById('wakeLockStatus');
+  if(el) el.textContent = wakeLockState + (nosleepVideo.paused ? ' · видео-заглушка на паузе' : ' · видео-заглушка играет');
+});
 modalClose.addEventListener('click', ()=> modalBackdrop.classList.remove('open'));
 modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) modalBackdrop.classList.remove('open'); });
 document.addEventListener('keydown', (e)=>{
@@ -1220,21 +1240,36 @@ fullscreenBtn.addEventListener('click', ()=>{
   } else {
     document.exitFullscreen().catch(()=>{});
   }
+  requestWakeLock();
+  nosleepVideo.play().catch(()=>{});
 });
 document.addEventListener('fullscreenchange', ()=>{
   fullscreenBtn.textContent = document.fullscreenElement ? '⛶ Свернуть' : '⛶ Экран';
 });
 
 // --- keep the screen from sleeping while the piece is running ---
+// Two independent mechanisms, since neither is reliable everywhere: the
+// Screen Wake Lock API (not supported at all in Firefox, and behaviour on
+// file:// origins varies by browser) plus a muted looping video, the classic
+// trick mobile browsers respect even without Wake Lock support. wakeLockState
+// is exposed in the info modal so a failure is diagnosable instead of silent.
 let wakeLock = null;
+let wakeLockState = 'не проверялось';
 async function requestWakeLock(){
-  if(!('wakeLock' in navigator)) return;
+  if(!('wakeLock' in navigator)){ wakeLockState = 'Wake Lock API недоступен в этом браузере'; return; }
   try{
     wakeLock = await navigator.wakeLock.request('screen');
-  }catch(e){ /* denied or unsupported — not fatal */ }
+    wakeLockState = 'активен (Wake Lock API)';
+    wakeLock.addEventListener('release', ()=>{
+      if(wakeLockState.startsWith('активен')) wakeLockState = 'отпущен браузером (Wake Lock API)';
+    });
+  }catch(e){
+    wakeLockState = 'запрошен, но отклонён: ' + e.name;
+  }
 }
 function releaseWakeLock(){
   if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+  wakeLockState = 'выключен (не идёт воспроизведение)';
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible' && playing){
@@ -1242,6 +1277,9 @@ document.addEventListener('visibilitychange', ()=>{
     nosleepVideo.play().catch(()=>{});
   }
 });
+// try immediately on load too — can't hurt, and on some browsers an early
+// acquisition (rather than only the click handler) has proven more reliable
+requestWakeLock();
 
 // --- immersive mode: hide everything but the photo after 20s of no input ---
 let idleTimer = null;

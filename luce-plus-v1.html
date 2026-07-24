@@ -364,20 +364,35 @@
   #statsBtn:active{ transform:scale(0.92); }
 
   .luce-plus-panel{ width:min(1200px, 92vw); margin: 10px auto 0; }
-  .luce-plus-panel canvas{ width:100%; height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.14); display:block; }
+  .luce-plus-panel canvas{ width:100%; height:140px; border-radius:8px; border:1px solid rgba(255,255,255,0.14); display:block; }
+  .luce-plus-display-toggle{ width:min(84vw,380px); margin: 0 auto 10px; display:flex; justify-content:center; }
+  .luce-plus-cp-canvas{
+    display:none;
+    width:min(92vw, 760px); height: min(50vw, 340px);
+    margin: 6px auto 18px;
+    border-radius:20px;
+    box-shadow: 0 22px 60px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06), 0 0 0 8px #100c07;
+  }
   .color-model-picker{
     display:flex; flex-wrap:wrap; align-items:center; gap:8px;
     font-family:'JetBrains Mono', monospace;
     font-size:0.78rem;
     margin: 4px 0 14px;
   }
-  .color-model-picker select{
+  #colorModelToggle{ display:flex; gap:0; border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.2); }
+  #colorModelToggle button{
     font-family:inherit; font-size:inherit;
-    background: rgba(255,255,255,0.06);
+    background: transparent;
     color:inherit;
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:6px;
-    padding:3px 6px;
+    opacity:0.55;
+    border:none;
+    border-radius:0;
+    padding:4px 12px;
+    cursor:pointer;
+  }
+  #colorModelToggle button.active{
+    background: rgba(255,255,255,0.14);
+    opacity:1;
   }
   .color-model-source{
     width:100%;
@@ -499,6 +514,10 @@
     <div class="tint-flash" id="tintFlash"></div>
     <div class="lamp-spots" id="lampSpots"></div>
   </div>
+  <div class="luce-plus-display-toggle auto-hide" id="lucePlusDisplayPicker" style="display:none;">
+    <div id="lucePlusDisplayToggle"></div>
+  </div>
+  <canvas id="lucePlusCounterpointCanvas" width="900" height="380" class="luce-plus-cp-canvas"></canvas>
 
   <div class="readout">
     <div class="stage-name" id="stageName">Fis</div>
@@ -530,13 +549,13 @@
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
   </div>
   <div class="luce-plus-panel auto-hide" id="lucePlusPanel" style="display:none;">
-    <canvas id="lucePlusPianoRoll" width="1200" height="220"></canvas>
+    <canvas id="lucePlusPianoRoll" width="1200" height="140"></canvas>
     <div id="lucePlusStatus" style="opacity:0.75; font-family:'JetBrains Mono',monospace; font-size:0.78rem;"></div>
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
   <div class="color-model-picker auto-hide" id="colorModelPicker" style="display:none;">
-    <label for="colorModelSelect">Цветовая модель</label>
-    <select id="colorModelSelect"></select>
+    <span>Цветовая модель:</span>
+    <div id="colorModelToggle"></div>
     <div class="color-model-source" id="colorModelSource"></div>
   </div>
 
@@ -570,6 +589,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label="Статистика">
       <button class="modal-close" id="statsClose" aria-label="Закрыть">✕</button>
       <h1 id="statsTitle">Партитура и доли цветов</h1>
+      <div id="statsKeyLine" style="display:none; opacity:0.85; margin-bottom:8px;"></div>
       <div class="color-bar" id="colorBar"></div>
       <div id="statsList"></div>
     </div>
@@ -897,6 +917,44 @@ function goertzelMag(samples, sampleRate, targetFreq){
 // each, estimates the 1-3 dominant pitch classes over two octaves via Goertzel
 // (decimated first so it stays fast even on a 20+ minute recording). Used to
 // draw the little colour-history strips for "Другая музыка" loads.
+let lastChromaProfile = null; // summed 12-bin chroma across the whole loaded track, for key detection
+
+// Krumhansl-Schmuckler key-finding: correlate the track's aggregated chroma
+// against the two canonical major/minor tone profiles (Krumhansl & Kessler
+// 1982 - a standard, widely-cited result in music cognition, not invented
+// here), rotated through all 12 tonics. Best correlation wins. Reuses the
+// SAME chroma data buildColorMap already computes for colouring - no extra
+// analysis pass.
+const KS_MAJOR_PROFILE = [6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const KS_MINOR_PROFILE = [6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+const KEY_NAMES_RU_MAJOR = ['до','до-диез','ре','ре-диез','ми','фа','фа-диез','соль','соль-диез','ля','ля-диез','си'];
+const KEY_NAMES_RU_MINOR = ['до','до-диез','ре','ре-диез','ми','фа','фа-диез','соль','соль-диез','ля','ля-диез','си'];
+const KEY_NAMES_LETTER = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function correlate(a, b){
+  const meanA = a.reduce((x,y)=>x+y,0)/a.length, meanB = b.reduce((x,y)=>x+y,0)/b.length;
+  let num=0, denA=0, denB=0;
+  for(let i=0;i<a.length;i++){ const da=a[i]-meanA, db=b[i]-meanB; num+=da*db; denA+=da*da; denB+=db*db; }
+  return (denA===0||denB===0) ? 0 : num/Math.sqrt(denA*denB);
+}
+function detectKey(chromaProfile){
+  if(!chromaProfile || chromaProfile.every(v=>v===0)) return null;
+  let best = { corr:-Infinity, tonic:0, mode:'major' };
+  for(let tonic=0; tonic<12; tonic++){
+    for(const [mode, profile] of [['major',KS_MAJOR_PROFILE], ['minor',KS_MINOR_PROFILE]]){
+      const rotated = profile.map((_,i)=> profile[(i-tonic+12)%12]);
+      const corr = correlate(chromaProfile, rotated);
+      if(corr > best.corr) best = { corr, tonic, mode };
+    }
+  }
+  const ruName = (best.mode==='major' ? KEY_NAMES_RU_MAJOR : KEY_NAMES_RU_MINOR)[best.tonic];
+  const ruMode = best.mode==='major' ? 'мажор' : 'минор';
+  return {
+    letter: KEY_NAMES_LETTER[best.tonic] + (best.mode==='minor' ? 'm' : ''),
+    words: ruName + ' ' + ruMode,
+    confidence: best.corr,
+  };
+}
+
 function buildColorMap(audioBuffer){
   const duration = audioBuffer.duration;
   const channels = [];
@@ -912,6 +970,7 @@ function buildColorMap(audioBuffer){
 
   const targetFreqs = CHROMA_TARGET_FREQS;
 
+  const chromaProfile = new Array(12).fill(0); // summed across the whole track, for key detection
   const result = [];
   for(let s=0; s<segCount; s++){
     const start = s*segLen;
@@ -929,6 +988,7 @@ function buildColorMap(audioBuffer){
       if(targetFreqs[f] >= effSr/2) continue;
       chroma[f%12] += goertzelMag(samples, effSr, targetFreqs[f]);
     }
+    for(let i=0;i<12;i++) chromaProfile[i] += chroma[i];
     let best = 0;
     for(let i=1;i<12;i++) if(chroma[i] > chroma[best]) best = i;
     const bestVal = chroma[best] || 1e-9;
@@ -940,6 +1000,7 @@ function buildColorMap(audioBuffer){
     ranked.sort((a,b)=> b.rel - a.rel);
     result.push(ranked.slice(0,2)); // cap at 2 — the documented maximum simultaneity in Scriabin's own Luce line
   }
+  lastChromaProfile = chromaProfile;
   return mergeIntoStructuralRuns(result, duration/segCount);
 }
 
@@ -1245,6 +1306,7 @@ function loadTrack(f, mode){
     setLampFlash(null);
     ensureAnalyser();
     colorModelPicker.style.display = '';
+    lucePlusDisplayPicker.style.display = '';
   } else {
     baseTrackName = '♪ ' + f.name;
     trackName.textContent = baseTrackName;
@@ -1253,6 +1315,8 @@ function loadTrack(f, mode){
     // hidden in Prometheus mode: its stages/flashes keep Scriabin's authored
     // colours always, switching the model here would do nothing visible
     colorModelPicker.style.display = 'none';
+    lucePlusDisplayPicker.style.display = 'none';
+    if(typeof lucePlusCounterpointCanvas!=='undefined'){ lucePlusDisplayMode='circle'; discHolder.style.display=''; lucePlusCounterpointCanvas.style.display='none'; }
     render(0); // immediate, don't wait for loadedmetadata - see the lamp-reset comment above
   }
 
@@ -1344,22 +1408,31 @@ const statsTitle = document.getElementById('statsTitle');
 const colorBar = document.getElementById('colorBar');
 const statsList = document.getElementById('statsList');
 const colorModelPicker = document.getElementById('colorModelPicker');
-const colorModelSelect = document.getElementById('colorModelSelect');
+const colorModelToggle = document.getElementById('colorModelToggle');
 const colorModelSource = document.getElementById('colorModelSource');
 
-for(const key in COLOR_MODELS){
-  const opt = document.createElement('option');
-  opt.value = key;
-  opt.textContent = COLOR_MODELS[key].label;
-  colorModelSelect.appendChild(opt);
-}
-colorModelSelect.value = activeColorModelKey;
-colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
-colorModelSelect.addEventListener('change', ()=>{
-  applyColorModel(colorModelSelect.value);
-  colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
-  if(analysisMode) renderColorShareBar(buildAnalysisStats());
+// Только эти два в UI по прямому запросу пользователя ("другие цветовые
+// круги пока не будем использовать") - остальные модели (rimskyKorsakov,
+// castel, newton) остаются в COLOR_MODELS нетронутыми на случай, если
+// понадобятся снова, просто не показаны здесь.
+const VISIBLE_COLOR_MODELS = ['scriabin', 'disco80s'];
+const colorModelBtns = {};
+VISIBLE_COLOR_MODELS.forEach(key=>{
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = COLOR_MODELS[key].label.replace('🪩 Дискотека 80-х', '🪩 Диско').replace('Скрябин (партитура «Прометея»)', 'Скрябин');
+  btn.addEventListener('click', ()=>{
+    applyColorModel(key);
+    colorModelSource.textContent = COLOR_MODELS[key].source;
+    Object.values(colorModelBtns).forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(analysisMode) renderColorShareBar(buildAnalysisStats());
+  });
+  colorModelBtns[key] = btn;
+  colorModelToggle.appendChild(btn);
 });
+colorModelBtns[activeColorModelKey].classList.add('active');
+colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
 
 function renderColorShareBar(items){
   colorBar.innerHTML = '';
@@ -1403,13 +1476,22 @@ function buildAnalysisStats(){
     .sort((a,b)=> b.frac - a.frac);
 }
 
+const statsKeyLine = document.getElementById('statsKeyLine');
 statsBtn.addEventListener('click', ()=>{
   if(analysisMode){
     statsTitle.textContent = 'Живой анализ — накопленные доли цветов';
     renderColorShareBar(buildAnalysisStats());
+    const key = detectKey(lastChromaProfile);
+    if(key){
+      statsKeyLine.style.display = '';
+      statsKeyLine.innerHTML = '<b>Тональность (оценка по хромаграмме):</b> ' + key.letter + ' — ' + key.words;
+    } else {
+      statsKeyLine.style.display = 'none';
+    }
   } else {
     statsTitle.textContent = 'Партитура «Прометея» — доли цветов по тактам';
     renderColorShareBar(buildPrometheusStats());
+    statsKeyLine.style.display = 'none';
   }
   statsBackdrop.classList.add('open');
 });
@@ -14319,8 +14401,9 @@ window.__lucePlusModelWeightsB64 = "AAAAAAEAAAABAAAArAAAAFgAAAAAAAAAAAAAAAAAAAAA
 // ============================================================
 // luce-plus additions - real neural polyphonic transcription
 // layered on top of the stable luce.html base. Everything in this
-// block is additive: it only touches lucePlus*-prefixed globals and
-// the fileInputOther change handler (one extra call at the end).
+// block is additive: it only touches lucePlus*-prefixed globals, the
+// fileInputOther change handler (one extra call), and renderAnalysisFrame
+// (one extra call at the end, only active in "Полифония" display mode).
 // ============================================================
 
 const lucePlusPanel = document.getElementById('lucePlusPanel');
@@ -14355,7 +14438,7 @@ function loadLucePlusModel(){
   return lucePlusModelPromise;
 }
 
-// --- piano-roll: the actual "polyphonic lines" visualisation ---
+// --- piano-roll: progress preview during background analysis ---
 // x = time, y = pitch (MIDI 21-108, full piano range), one horizontal bar
 // per note, coloured by pitch class through the SAME colorByNote table the
 // rest of the app uses (respects whichever colour model is selected).
@@ -14384,14 +14467,15 @@ function drawLucePlusPianoRoll(notes, totalDuration){
 // --- full-track analysis, drawn incrementally as chunks arrive ---
 // evaluateModel() processes audio in ~2s windows and calls onComplete once
 // PER WINDOW (see basic-pitch's inference.js: AUDIO_WINDOW_LENGTH_SECONDS=2,
-// a for-loop over windows) - not once at the end. So we can genuinely show
-// the piano roll growing in near-real-time (an update roughly every
-// ~2s-of-audio/ratio of wall-clock time) instead of a blank wait, matching
-// the direct question "можно ли на лету показывать".
+// a for-loop over windows) - not once at the end. So the piano roll above
+// genuinely grows live, not simulated.
 let lucePlusRunToken = 0;
+let lucePlusAllNotes = null;      // populated once analysis finishes - feeds the ±10s window
+let lucePlusTrackDuration = 0;
 async function runLucePlusAnalysis(file){
   if(!window.LucePlusEngine){ lucePlusStatus.textContent = 'luce-plus: движок не загрузился'; return; }
   const myToken = ++lucePlusRunToken; // if another track loads mid-analysis, abandon this one
+  lucePlusAllNotes = null;
   lucePlusPanel.style.display = '';
   try {
     lucePlusStatus.textContent = 'luce-plus: загружаю модель...';
@@ -14405,6 +14489,7 @@ async function runLucePlusAnalysis(file){
     const decoded = await ctx.decodeAudioData(arrayBuf);
     await ctx.close();
     if(myToken !== lucePlusRunToken) return;
+    lucePlusTrackDuration = decoded.duration;
 
     const targetSr = 22050;
 
@@ -14414,9 +14499,8 @@ async function runLucePlusAnalysis(file){
     // multi-minute track that's large enough to plausibly exceed the GPU's
     // max WebGL texture dimension (worked fine at 20s in earlier probes,
     // failed immediately - before even one onComplete - on a 7min track).
-    // Slicing into fixed-size pieces and calling evaluateModel once per
-    // piece sidesteps this regardless of the exact limit, and is a BETTER
-    // fit for "показывать на лету" anyway - one redraw per piece.
+    // Slicing into fixed-size pieces sidesteps this regardless of the exact
+    // limit, and gives more frequent progress updates as a side benefit.
     const CHUNK_SECONDS = 30;
     const { BasicPitch, outputToNotesPoly, addPitchBendsToNoteEvents, noteFramesToTime } = window.LucePlusEngine;
     const basicPitch = new BasicPitch(model);
@@ -14445,14 +14529,143 @@ async function runLucePlusAnalysis(file){
     }
     if(myToken !== lucePlusRunToken) return;
     const elapsedMs = performance.now() - t0;
+    lucePlusAllNotes = allNotes; // ready for the ±10s window now
     lucePlusStatus.textContent = 'luce-plus: готово — ' + allNotes.length + ' нот за ' + (elapsedMs/1000).toFixed(1) + 'с ('
-      + (elapsedMs/1000/decoded.duration).toFixed(2) + 'x реального времени)';
+      + (elapsedMs/1000/decoded.duration).toFixed(2) + 'x реального времени). Можно включить «Полифония».';
     console.log('[luce-plus] final notes sample:', allNotes.slice(0,10));
   } catch(e){
     lucePlusStatus.textContent = 'luce-plus: ошибка — ' + e.message;
     console.error('[luce-plus] analysis failed', e);
   }
 }
+
+// ============================================================
+// Display-mode toggle: «Цветовой круг» (the photo/lamps, unchanged) vs
+// «Полифония» (this new ±10s sliding window) - direct user request, "можно
+// прямо в окошке вместо лампочек". Swaps discHolder for a new canvas
+// occupying the same layout slot.
+// ============================================================
+let lucePlusDisplayMode = 'circle'; // 'circle' | 'polyphony'
+const lucePlusCounterpointCanvas = document.getElementById('lucePlusCounterpointCanvas');
+const lucePlusDisplayToggle = document.getElementById('lucePlusDisplayToggle');
+const lucePlusDisplayBtns = {};
+[['circle','Цветовой круг'], ['polyphony','Полифония']].forEach(([key,label])=>{
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = label;
+  btn.addEventListener('click', ()=>{
+    lucePlusDisplayMode = key;
+    Object.values(lucePlusDisplayBtns).forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    discHolder.style.display = key==='circle' ? '' : 'none';
+    lucePlusCounterpointCanvas.style.display = key==='polyphony' ? '' : 'none';
+  });
+  lucePlusDisplayBtns[key] = btn;
+  lucePlusDisplayToggle.appendChild(btn);
+});
+lucePlusDisplayBtns.circle.classList.add('active');
+lucePlusCounterpointCanvas.style.display = 'none';
+
+// --- the ±10s window: two "outer voice" lines (highest/lowest sounding
+// pitch at each instant - the classic soprano/bass framework, a reasonable
+// stand-in for real per-voice separation, which Basic Pitch's output
+// doesn't provide at all) plus a flash on CONTRARY MOTION between them
+// (one line rising while the other falls) - a real, named counterpoint
+// concept (one of the four classic types of motion: similar/parallel/
+// oblique/contrary), not an invented heuristic. "как-то так" per the
+// user's own sketch - two winding lines, flash on counterpoint.
+const CP_WINDOW_SECONDS = 10;
+const CP_SAMPLES = 240;
+function lucePlusActiveNotesAt(t){
+  if(!lucePlusAllNotes) return [];
+  const out = [];
+  for(const n of lucePlusAllNotes){
+    if(n.startTimeSeconds<=t && t<=n.startTimeSeconds+n.durationSeconds) out.push(n);
+  }
+  return out;
+}
+function drawCounterpointWindow(centerTime){
+  const canvas = lucePlusCounterpointCanvas, ctx2d = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx2d.fillStyle = '#0c0a12';
+  ctx2d.fillRect(0,0,w,h);
+  if(!lucePlusAllNotes){
+    ctx2d.fillStyle = '#8b95aa'; ctx2d.font = '14px sans-serif'; ctx2d.textAlign='center';
+    ctx2d.fillText('Анализ ещё не готов — дождитесь «готово» в статусе ниже', w/2, h/2);
+    return;
+  }
+  const t0 = centerTime - CP_WINDOW_SECONDS, t1 = centerTime + CP_WINDOW_SECONDS;
+  const samples = [];
+  for(let i=0;i<=CP_SAMPLES;i++){
+    const t = t0 + (t1-t0)*(i/CP_SAMPLES);
+    const active = lucePlusActiveNotesAt(t);
+    if(active.length){
+      let hi=active[0], lo=active[0];
+      for(const n of active){ if(n.pitchMidi>hi.pitchMidi) hi=n; if(n.pitchMidi<lo.pitchMidi) lo=n; }
+      samples.push({t, hi:hi.pitchMidi, lo:lo.pitchMidi});
+    } else samples.push({t, hi:null, lo:null});
+  }
+  let minM=127, maxM=0;
+  samples.forEach(s=>{ if(s.hi!=null){ minM=Math.min(minM,s.lo); maxM=Math.max(maxM,s.hi); } });
+  if(maxM<minM){ minM=48; maxM=72; }
+  minM -= 3; maxM += 3;
+  const xOf = t => ((t-t0)/(t1-t0))*w;
+  const yOf = m => h - ((m-minM)/(maxM-minM))*h;
+
+  // faint horizontal guide per octave (C notes)
+  ctx2d.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx2d.lineWidth = 1;
+  for(let m=Math.ceil(minM/12)*12; m<=maxM; m+=12){
+    ctx2d.beginPath(); ctx2d.moveTo(0,yOf(m)); ctx2d.lineTo(w,yOf(m)); ctx2d.stroke();
+  }
+
+  function drawLine(key, color){
+    ctx2d.strokeStyle = color; ctx2d.lineWidth = 2.5; ctx2d.lineCap = 'round';
+    ctx2d.shadowColor = color; ctx2d.shadowBlur = 5;
+    ctx2d.beginPath();
+    let started = false;
+    for(const s of samples){
+      if(s[key]==null){ started = false; continue; }
+      const x = xOf(s.t), y = yOf(s[key]);
+      if(!started){ ctx2d.moveTo(x,y); started = true; } else ctx2d.lineTo(x,y);
+    }
+    ctx2d.stroke();
+    ctx2d.shadowBlur = 0;
+  }
+  drawLine('lo', '#4a9eff'); // bottom voice - cool blue
+  drawLine('hi', '#ffcf4a'); // top voice - warm gold
+
+  // contrary-motion flashes: compare each sample to a few steps back so
+  // direction isn't noise from a single 24kHz-ish sampling step
+  const STEP_BACK = 4;
+  for(let i=STEP_BACK;i<samples.length;i++){
+    const a = samples[i-STEP_BACK], b = samples[i];
+    if(a.hi==null||b.hi==null||a.lo==null||b.lo==null) continue;
+    const dHi = b.hi-a.hi, dLo = b.lo-a.lo;
+    if(Math.abs(dHi)<0.4 || Math.abs(dLo)<0.4) continue; // both must actually move
+    if((dHi>0)===(dLo>0)) continue; // same direction = similar/parallel motion, not contrary
+    const x = xOf(b.t);
+    const grad = ctx2d.createRadialGradient(x,h/2,0, x,h/2,h*0.55);
+    grad.addColorStop(0,'rgba(255,255,255,0.5)'); grad.addColorStop(1,'rgba(255,255,255,0)');
+    ctx2d.fillStyle = grad;
+    ctx2d.fillRect(x-14,0,28,h);
+  }
+
+  // "now" marker at the centre
+  ctx2d.strokeStyle = 'rgba(255,255,255,0.75)'; ctx2d.lineWidth = 1.5;
+  ctx2d.beginPath(); ctx2d.moveTo(w/2,0); ctx2d.lineTo(w/2,h); ctx2d.stroke();
+  ctx2d.fillStyle = 'rgba(255,255,255,0.6)'; ctx2d.font = '10px "JetBrains Mono",monospace'; ctx2d.textAlign='center';
+  ctx2d.fillText('сейчас', w/2, 12);
+}
+
+// hook: called every frame renderAnalysisFrame already runs during
+// playback (renderCurrent -> renderAnalysisFrame), so this stays in sync
+// with posSec for free - no separate rAF loop needed.
+const lucePlusOrigRenderAnalysisFrame = renderAnalysisFrame;
+renderAnalysisFrame = function(elapsed){
+  lucePlusOrigRenderAnalysisFrame(elapsed);
+  if(lucePlusDisplayMode === 'polyphony') drawCounterpointWindow(elapsed);
+};
 
 </script>
 </body>

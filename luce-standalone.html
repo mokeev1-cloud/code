@@ -369,13 +369,20 @@
     font-size:0.78rem;
     margin: 4px 0 14px;
   }
-  .color-model-picker select{
+  #colorModelToggle{ display:flex; gap:0; border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.2); }
+  #colorModelToggle button{
     font-family:inherit; font-size:inherit;
-    background: rgba(255,255,255,0.06);
+    background: transparent;
     color:inherit;
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:6px;
-    padding:3px 6px;
+    opacity:0.55;
+    border:none;
+    border-radius:0;
+    padding:4px 12px;
+    cursor:pointer;
+  }
+  #colorModelToggle button.active{
+    background: rgba(255,255,255,0.14);
+    opacity:1;
   }
   .color-model-source{
     width:100%;
@@ -529,8 +536,8 @@
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
   <div class="color-model-picker auto-hide" id="colorModelPicker" style="display:none;">
-    <label for="colorModelSelect">Цветовая модель</label>
-    <select id="colorModelSelect"></select>
+    <span>Цветовая модель:</span>
+    <div id="colorModelToggle"></div>
     <div class="color-model-source" id="colorModelSource"></div>
   </div>
 
@@ -564,6 +571,7 @@
     <div class="modal" role="dialog" aria-modal="true" aria-label="Статистика">
       <button class="modal-close" id="statsClose" aria-label="Закрыть">✕</button>
       <h1 id="statsTitle">Партитура и доли цветов</h1>
+      <div id="statsKeyLine" style="display:none; opacity:0.85; margin-bottom:8px;"></div>
       <div class="color-bar" id="colorBar"></div>
       <div id="statsList"></div>
     </div>
@@ -891,6 +899,44 @@ function goertzelMag(samples, sampleRate, targetFreq){
 // each, estimates the 1-3 dominant pitch classes over two octaves via Goertzel
 // (decimated first so it stays fast even on a 20+ minute recording). Used to
 // draw the little colour-history strips for "Другая музыка" loads.
+let lastChromaProfile = null; // summed 12-bin chroma across the whole loaded track, for key detection
+
+// Krumhansl-Schmuckler key-finding: correlate the track's aggregated chroma
+// against the two canonical major/minor tone profiles (Krumhansl & Kessler
+// 1982 - a standard, widely-cited result in music cognition, not invented
+// here), rotated through all 12 tonics. Best correlation wins. Reuses the
+// SAME chroma data buildColorMap already computes for colouring - no extra
+// analysis pass.
+const KS_MAJOR_PROFILE = [6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const KS_MINOR_PROFILE = [6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+const KEY_NAMES_RU_MAJOR = ['до','до-диез','ре','ре-диез','ми','фа','фа-диез','соль','соль-диез','ля','ля-диез','си'];
+const KEY_NAMES_RU_MINOR = ['до','до-диез','ре','ре-диез','ми','фа','фа-диез','соль','соль-диез','ля','ля-диез','си'];
+const KEY_NAMES_LETTER = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function correlate(a, b){
+  const meanA = a.reduce((x,y)=>x+y,0)/a.length, meanB = b.reduce((x,y)=>x+y,0)/b.length;
+  let num=0, denA=0, denB=0;
+  for(let i=0;i<a.length;i++){ const da=a[i]-meanA, db=b[i]-meanB; num+=da*db; denA+=da*da; denB+=db*db; }
+  return (denA===0||denB===0) ? 0 : num/Math.sqrt(denA*denB);
+}
+function detectKey(chromaProfile){
+  if(!chromaProfile || chromaProfile.every(v=>v===0)) return null;
+  let best = { corr:-Infinity, tonic:0, mode:'major' };
+  for(let tonic=0; tonic<12; tonic++){
+    for(const [mode, profile] of [['major',KS_MAJOR_PROFILE], ['minor',KS_MINOR_PROFILE]]){
+      const rotated = profile.map((_,i)=> profile[(i-tonic+12)%12]);
+      const corr = correlate(chromaProfile, rotated);
+      if(corr > best.corr) best = { corr, tonic, mode };
+    }
+  }
+  const ruName = (best.mode==='major' ? KEY_NAMES_RU_MAJOR : KEY_NAMES_RU_MINOR)[best.tonic];
+  const ruMode = best.mode==='major' ? 'мажор' : 'минор';
+  return {
+    letter: KEY_NAMES_LETTER[best.tonic] + (best.mode==='minor' ? 'm' : ''),
+    words: ruName + ' ' + ruMode,
+    confidence: best.corr,
+  };
+}
+
 function buildColorMap(audioBuffer){
   const duration = audioBuffer.duration;
   const channels = [];
@@ -906,6 +952,7 @@ function buildColorMap(audioBuffer){
 
   const targetFreqs = CHROMA_TARGET_FREQS;
 
+  const chromaProfile = new Array(12).fill(0); // summed across the whole track, for key detection
   const result = [];
   for(let s=0; s<segCount; s++){
     const start = s*segLen;
@@ -923,6 +970,7 @@ function buildColorMap(audioBuffer){
       if(targetFreqs[f] >= effSr/2) continue;
       chroma[f%12] += goertzelMag(samples, effSr, targetFreqs[f]);
     }
+    for(let i=0;i<12;i++) chromaProfile[i] += chroma[i];
     let best = 0;
     for(let i=1;i<12;i++) if(chroma[i] > chroma[best]) best = i;
     const bestVal = chroma[best] || 1e-9;
@@ -934,6 +982,7 @@ function buildColorMap(audioBuffer){
     ranked.sort((a,b)=> b.rel - a.rel);
     result.push(ranked.slice(0,2)); // cap at 2 — the documented maximum simultaneity in Scriabin's own Luce line
   }
+  lastChromaProfile = chromaProfile;
   return mergeIntoStructuralRuns(result, duration/segCount);
 }
 
@@ -1337,22 +1386,31 @@ const statsTitle = document.getElementById('statsTitle');
 const colorBar = document.getElementById('colorBar');
 const statsList = document.getElementById('statsList');
 const colorModelPicker = document.getElementById('colorModelPicker');
-const colorModelSelect = document.getElementById('colorModelSelect');
+const colorModelToggle = document.getElementById('colorModelToggle');
 const colorModelSource = document.getElementById('colorModelSource');
 
-for(const key in COLOR_MODELS){
-  const opt = document.createElement('option');
-  opt.value = key;
-  opt.textContent = COLOR_MODELS[key].label;
-  colorModelSelect.appendChild(opt);
-}
-colorModelSelect.value = activeColorModelKey;
-colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
-colorModelSelect.addEventListener('change', ()=>{
-  applyColorModel(colorModelSelect.value);
-  colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
-  if(analysisMode) renderColorShareBar(buildAnalysisStats());
+// Только эти два в UI по прямому запросу пользователя ("другие цветовые
+// круги пока не будем использовать") - остальные модели (rimskyKorsakov,
+// castel, newton) остаются в COLOR_MODELS нетронутыми на случай, если
+// понадобятся снова, просто не показаны здесь.
+const VISIBLE_COLOR_MODELS = ['scriabin', 'disco80s'];
+const colorModelBtns = {};
+VISIBLE_COLOR_MODELS.forEach(key=>{
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = COLOR_MODELS[key].label.replace('🪩 Дискотека 80-х', '🪩 Диско').replace('Скрябин (партитура «Прометея»)', 'Скрябин');
+  btn.addEventListener('click', ()=>{
+    applyColorModel(key);
+    colorModelSource.textContent = COLOR_MODELS[key].source;
+    Object.values(colorModelBtns).forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(analysisMode) renderColorShareBar(buildAnalysisStats());
+  });
+  colorModelBtns[key] = btn;
+  colorModelToggle.appendChild(btn);
 });
+colorModelBtns[activeColorModelKey].classList.add('active');
+colorModelSource.textContent = COLOR_MODELS[activeColorModelKey].source;
 
 function renderColorShareBar(items){
   colorBar.innerHTML = '';
@@ -1396,13 +1454,22 @@ function buildAnalysisStats(){
     .sort((a,b)=> b.frac - a.frac);
 }
 
+const statsKeyLine = document.getElementById('statsKeyLine');
 statsBtn.addEventListener('click', ()=>{
   if(analysisMode){
     statsTitle.textContent = 'Живой анализ — накопленные доли цветов';
     renderColorShareBar(buildAnalysisStats());
+    const key = detectKey(lastChromaProfile);
+    if(key){
+      statsKeyLine.style.display = '';
+      statsKeyLine.innerHTML = '<b>Тональность (оценка по хромаграмме):</b> ' + key.letter + ' — ' + key.words;
+    } else {
+      statsKeyLine.style.display = 'none';
+    }
   } else {
     statsTitle.textContent = 'Партитура «Прометея» — доли цветов по тактам';
     renderColorShareBar(buildPrometheusStats());
+    statsKeyLine.style.display = 'none';
   }
   statsBackdrop.classList.add('open');
 });

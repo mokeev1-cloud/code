@@ -191,14 +191,17 @@
     cursor:pointer;
   }
   .timeline-track{
-    position:absolute; top:14px; left:0; right:0; height:6px;
-    border-radius:3px;
+    position:absolute; top:12px; left:0; right:0; height:10px;
+    border-radius:5px;
     background: rgba(255,255,255,0.08);
     overflow:hidden;
+    transition: background 0.4s ease;
   }
   .timeline-fill{
     position:absolute; top:0; left:0; bottom:0;
     background: linear-gradient(90deg, var(--brass), var(--brass-light));
+    opacity:0.4;
+    mix-blend-mode: overlay;
   }
   .stage-tick{
     position:absolute; top:6px; width:1px; height:22px;
@@ -473,7 +476,7 @@
 
   <div class="timeline-block">
     <div class="timeline" id="timeline">
-      <div class="timeline-track">
+      <div class="timeline-track" id="timelineTrack">
         <div class="timeline-fill" id="fill"></div>
       </div>
       <div id="ticks"></div>
@@ -510,7 +513,7 @@
         <b>Кнопка «📊».</b> Показывает партитуру в цифрах: долю каждой стадии от общего числа тактов (в «Прометее») или — в «Другой музыке» — уже накопленную за сеанс долю каждой ноты по факту звучания.<br><br>
         Вся фотография мягко подсвечивается цветом текущей стадии (медленный голос Luce), а сверху — конкретная лампа на своей реальной точке горит заметно ярче общего фона.<br><br>
         <b>«Другая музыка».</b> Это отдельный режим — для любой другой композиции. Партитуры «Прометея» тут нет и быть не может, поэтому вместо неё звук анализируется вживую (Web Audio API): на каждом кадре определяется преобладающая высота тона (хромаграмма по всему спектру), и эта нота подсвечивается по той же цветовой таблице Скрябина — так каждая мелодия получает свою световую партию «по принципам Скрябина», а не хронометраж настоящего «Прометея». Резкие акценты в музыке вызывают короткую вспышку той же лампы.<br><br>
-        <b>Тут нет настроек — только строгая реконструкция.</b> Одновременно может гореть максимум 2 лампы — ровно столько документировано в самой партии Luce (моноголосная почти всю пьесу, редкое двухголосие только у кульминации). Вспышки-акценты калибро­ваны на ту же редкость, что и настоящая быстрая Luce (11 вспышек на все 606 тактов, а не частое мигание) — оба эти факта у Скрябина фиксированы, а не выбор слушателя, поэтому ползунков для них нет: решает музыка, а не настройка.<br><br>
+        <b>Тут нет настроек — только строгая реконструкция.</b> Ровный фон всегда только одной, доминирующей ноты — устойчивое двухголосие в партии Luce у Скрябина случается лишь однажды, у кульминации, это не про повседневный режим. А вот вторая лампа коротко вспыхивает поверх фона регулярно (в партитуре — 11 раз на 606 тактов) — это быстрый акцентный голос Luce, и он честно может попасть на другую ноту, а не только зажигать ту же лампу ярче. Оба этих факта у Скрябина фиксированы, а не выбор слушателя, поэтому ползунков для них нет: решает музыка, а не настройка.<br><br>
         Само определение ноты при этом смотрит не на мгновенный тон, а на устойчивую тональную основу с памятью около 11 секунд: чтобы не дёргаться на каждую ноту движущейся мелодии, новый цвет засчитывается только когда он уверенно и непрерывно держит первенство хотя бы 2 секунды. Настроено намеренно с запасом на реальном темпе (проверялось на синтетике в 22 реальные минуты, не сжатой). <b>Важная честная оговорка:</b> цвет у Скрябина — это цвет корня «прометеева» аккорда (теоретическое построение), а не обязательно самый громкий тон в акустике; на настоящей оркестровой записи, особенно самого «Прометея», результат будет заметно менее точным, чем на чистом синтетическом сигнале — это не баг, а честный предел того, что может извлечь анализ спектра без понимания музыкальной теории. Для точного воспроизведения цвета настоящего «Прометея» используйте кнопку «Загрузить «Прометея»» — она идёт по заранее размеченной партитуре, а не угадывает по звуку.<br><br>
         При загрузке в этом режиме также сразу считается <b>быстрая цветовая карта</b> всего трека целиком (от начала до конца, отдельно от живого воспроизведения) — узкая полоска, где каждый участок закрашен доминирующим тоном, а если рядом заметны две ноты сразу — растянут градиентом между их цветами. Карты копятся списком одна над другой, самая свежая — сверху, список можно прокручивать.<br><br>
         <b>Расположение ламп.</b> Все 12 точек измерены прямо по пикселям фотографии, а не заданы идеальной окружностью. Цвета уверенно читаются у половины круга (C — красный, G — оранжевый, D — жёлтый, A — зелёный, E, H, Fis — сине-голубые) и идут ровно в порядке квинт (C–G–D–A–E–H–Fis–Des–As–Es–B–F), как и указывал сам Скрябин; вторая половина ламп на фото затемнена и восстановлена по своему месту в этом же порядке.<br><br>
@@ -972,41 +975,34 @@ function renderAnalysisFrame(elapsed){
   discHolder.style.setProperty('--stage-color', color);
   discHolder.classList.add('glow');
 
-  // "многоогоньковость": besides the single dominant note driving the big
-  // colour wash above, up to multiCount (fixed at 2, see above) of the next-
-  // strongest pitch classes (by smoothed chroma energy, relative to the
-  // dominant one) get their own lamp lit too, at a dimmer intensity. Whether
-  // a second lamp actually appears depends entirely on the music — this is
-  // not a user choice, since 2 is the documented ceiling for Scriabin's own
-  // Luce line (monophonic almost throughout, one known two-note passage near
-  // the climax); anything past that would be invention, not reconstruction.
-  // The bar for a second lamp is deliberately high (>=75% of the dominant
-  // note's smoothed energy): a real recording almost always has *some*
-  // secondary pitch-class energy simply from harmonic richness, but Scriabin's
-  // own Luce line only ever doubles up in one rare passage — a low bar here
-  // was exactly why two lamps were showing almost constantly.
-  const bestVal = chromaSmooth[structuralIdx] || 1e-9;
-  const ranked = [];
-  for(let i=0;i<12;i++){
-    const rel = chromaSmooth[i]/bestVal;
-    if(rel >= 0.75) ranked.push({ note:CHROMA_NOTES[i], rel });
-  }
-  ranked.sort((a,b)=> b.rel - a.rel);
-  const ambientEntries = ranked.slice(0, multiCount).map(r=>({
-    note: r.note,
-    intensity: Math.min(1, 0.3 + 0.65*r.rel)
-  }));
-  setLampAmbientMulti(ambientEntries);
+  // The sustained ambient wash is always the single structural note — in the
+  // real score, two lamps together is not a held second voice (that's the
+  // truly rare dyad near the climax) but the ambient note plus a *brief*
+  // fast-luce flash on a different note, and the real score does that
+  // reasonably often (11 times across the piece), just briefly each time.
+  // So the second lamp lives entirely in the onset/flash logic below, not
+  // as a slow-building second ambient — matches the real mechanism instead
+  // of a made-up "sustained co-dominance" rule.
+  setLampAmbientMulti([{ note: CHROMA_NOTES[structuralIdx], intensity: 1 }]);
 
   // simple onset detector: a sudden jump above the running energy average briefly
-  // flares the same lamp, echoing the "fast luce" flashes of the real score.
-  // dynMultiplier is fixed (see its declaration) — not a user dial.
+  // flares a lamp, echoing the "fast luce" flashes of the real score. If some
+  // other pitch class is prominent in *this instant's* raw spectrum (not the
+  // slow structural average), the flash lands on that lamp instead of the
+  // ambient one — same as the real score, where a flash often lands on a
+  // different note than the current slow-luce stage.
   analysisEnergyAvg = analysisEnergyAvg*0.9 + totalEnergy*0.1;
   const now = performance.now();
   if(totalEnergy > analysisEnergyAvg*dynMultiplier && totalEnergy > 20000 && now > analysisFlashUntil - 900){
-    tintFlash.style.setProperty('--flash-color', color);
+    let flashIdx = structuralIdx, flashBestVal = chroma[structuralIdx] || 0;
+    for(let i=0;i<12;i++){
+      if(i !== structuralIdx && chroma[i] > flashBestVal){ flashIdx = i; flashBestVal = chroma[i]; }
+    }
+    const flashNote = CHROMA_NOTES[flashIdx];
+    const flashColor = colorByNote[flashNote];
+    tintFlash.style.setProperty('--flash-color', flashColor);
     tintFlash.classList.add('on');
-    setLampFlash(note);
+    setLampFlash(flashNote);
     analysisFlashUntil = now + 260;
   }
   if(now > analysisFlashUntil){
@@ -1033,6 +1029,7 @@ const scrubHead = document.getElementById('scrubHead');
 const tCur = document.getElementById('tCur');
 const tTotal = document.getElementById('tTotal');
 const ticksEl = document.getElementById('ticks');
+const timelineTrack = document.getElementById('timelineTrack');
 const timeline = document.getElementById('timeline');
 const playBtn = document.getElementById('playBtn');
 const resetBtn = document.getElementById('resetBtn');
@@ -1071,12 +1068,7 @@ function addColorMapRow(name, segments){
   colormapHistory.insertBefore(row, colormapHistory.firstChild);
   colormapHistory.style.display = '';
 }
-// Fixed, not user-adjustable: 2 simultaneous notes is the documented ceiling for
-// Scriabin's own Luce line (mono almost throughout, one known two-voice passage
-// near the climax). Whether 1 or 2 lamps actually show still depends on the
-// music itself (see the rel>=0.15 threshold below) — only the cap is fixed.
-const multiCount = 2;
-// Also fixed: the real "fast luce" is a rare accent (11 flashes across all 606
+// Fixed, not user-adjustable: the real "fast luce" is a rare accent (11 flashes across all 606
 // measures) riding on top of colours that hold for dozens/hundreds of measures,
 // not a tunable sensitivity — so there's no slider here either, just a threshold
 // calibrated to stay that rare (see the onset check in renderAnalysisFrame).
@@ -1131,6 +1123,7 @@ function loadTrack(f, mode){
     }
     if(analysisMode && result.colorMap){
       addColorMapRow(f.name, result.colorMap);
+      paintTimelineFromColorMap(result.colorMap);
     }
   });
 }
@@ -1160,6 +1153,7 @@ player.addEventListener('loadedmetadata', ()=>{
     tTotal.textContent = fmtTime(durationSec);
     if(analysisMode){
       ticksEl.innerHTML = '';
+      setTimelineGradient(null); // cleared until this track's colour map is ready
       updateTransportUI(0);
     } else {
       buildTicks();
@@ -1392,6 +1386,35 @@ function buildTicks(){
     tick.style.left = (frac*100) + '%';
     ticksEl.appendChild(tick);
   });
+  paintTimelineFromStages();
+}
+
+// Paints the timeline track itself with the colour arc — the scripted score's
+// stages in Prometheus mode, or the precomputed whole-track colour map in
+// analysis mode — so the current lamp can be checked against it directly:
+// if the lamp doesn't match the colour under the scrub head, that's visible
+// at a glance instead of having to remember/compare against a separate strip.
+function setTimelineGradient(stops){
+  if(!stops || !stops.length){ timelineTrack.style.background = ''; return; }
+  const parts = stops.map(s => `${s.color} ${(s.frac0*100).toFixed(2)}%, ${s.color} ${(s.frac1*100).toFixed(2)}%`);
+  timelineTrack.style.background = 'linear-gradient(90deg, ' + parts.join(', ') + ')';
+}
+function paintTimelineFromStages(){
+  if(analysisMode) return; // analysis mode paints its own colour map instead
+  const stops = stages.map((s,i)=>{
+    const nextStart = (i+1 < stages.length) ? stages[i+1].start : (TOTAL_MEASURES+1);
+    return { frac0: fractionAtMeasure(s.start), frac1: fractionAtMeasure(nextStart), color: s.color };
+  });
+  setTimelineGradient(stops);
+}
+function paintTimelineFromColorMap(segments){
+  if(!segments || !segments.length){ setTimelineGradient(null); return; }
+  const n = segments.length;
+  const stops = segments.map((seg,i)=>({
+    frac0: i/n, frac1: (i+1)/n,
+    color: (!seg || !seg.length) ? '#15121c' : colorByNote[seg[0].note]
+  }));
+  setTimelineGradient(stops);
 }
 
 function updateTransportUI(elapsed){

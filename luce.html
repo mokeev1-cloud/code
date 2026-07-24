@@ -646,6 +646,7 @@ let timeData = null;
 let mediaSrcNode = null;
 let analysisEnergyAvg = 0;
 let analysisFlashUntil = 0;
+let lastFlashTriggerTime = -Infinity;
 let noteTimeAccum = new Array(12).fill(0); // seconds spent on each pitch class this session, for the stats modal
 let lastAnalysisAccumTs = null;
 
@@ -963,13 +964,32 @@ function renderAnalysisFrame(elapsed){
   // lamp is the map's own second-strongest note for this segment if it has
   // one (a real, if brief, secondary pitch class right here) — otherwise the
   // same structural lamp just flares brighter.
+  //
+  // Bug found by direct user report ("second lamp doesn't light up"),
+  // confirmed by offline simulation against both real recordings before
+  // touching this: the retrigger guard used to be
+  // `now > analysisFlashUntil - 900`, which is *always* true right after a
+  // trigger (analysisFlashUntil is only ever `now + 260`), so it never
+  // actually gated anything — replaced with a real debounce against
+  // lastFlashTriggerTime. Also, dynMultiplier=3.0 with a fast-adapting
+  // average (old 0.9/0.1 EMA, ~0.15s time constant) chases sustained
+  // dynamics almost instantly, leaving no room for a 3x spike — simulated
+  // 0 flashes in 7min on a real "Lento" symphony recording. Retuned against
+  // BOTH real recordings (not just the one that complained): 2.4/0.07 EMA
+  // gives a clean, non-mechanical ~1.4 flashes/min on the dense orchestral
+  // Prometheus recording (not cooldown-bound - see CLAUDE.md for the
+  // parameter sweep). The quiet Lento movement still doesn't trigger even
+  // with generous settings up to 1.6x/slow EMA - it may genuinely lack a
+  // sharp-enough attack for a relative-energy detector; loosening further
+  // made Prometheus flash mechanically every ~1s instead of on real accents.
   if(!analyserNode) return;
   analyserNode.getFloatTimeDomainData(timeData);
   let liveEnergy = 0;
   for(let i=0;i<timeData.length;i+=4) liveEnergy += timeData[i]*timeData[i];
-  analysisEnergyAvg = analysisEnergyAvg*0.9 + liveEnergy*0.1;
+  analysisEnergyAvg = analysisEnergyAvg*0.93 + liveEnergy*0.07;
   const now = performance.now();
-  if(liveEnergy > analysisEnergyAvg*dynMultiplier && liveEnergy > 0.5 && now > analysisFlashUntil - 900){
+  if(liveEnergy > analysisEnergyAvg*dynMultiplier && liveEnergy > 0.5 && (now - lastFlashTriggerTime) > 1000){
+    lastFlashTriggerTime = now;
     const flashNote = (seg.length > 1) ? seg[1].note : structuralNote;
     const flashColor = colorByNote[flashNote];
     tintFlash.style.setProperty('--flash-color', flashColor);
@@ -1044,7 +1064,11 @@ function addColorMapRow(name, segments){
 // measures) riding on top of colours that hold for dozens/hundreds of measures,
 // not a tunable sensitivity — so there's no slider here either, just a threshold
 // calibrated to stay that rare (see the onset check in renderAnalysisFrame).
-const dynMultiplier = 3.0;
+// Was 3.0 with a fast EMA - simulated to 0 flashes/7min on a real quiet
+// symphony recording and a broken cooldown that let 3.0 fire in useless
+// sub-second bursts on dense orchestral material. Retuned + cooldown fixed;
+// see the longer comment in renderAnalysisFrame and CLAUDE.md.
+const dynMultiplier = 2.4;
 
 function loadTrack(f, mode){
   if(!f) return;

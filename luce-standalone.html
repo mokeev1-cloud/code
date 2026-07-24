@@ -801,15 +801,24 @@ function buildColorMap(audioBuffer){
     ranked.sort((a,b)=> b.rel - a.rel);
     result.push(ranked.slice(0,2)); // cap at 2 — the documented maximum simultaneity in Scriabin's own Luce line
   }
-  return mergeIntoStructuralRuns(result);
+  return mergeIntoStructuralRuns(result, duration/segCount);
 }
 
 // Collapses the raw per-segment readings into a small number of large, stable
 // runs — the same "structural parts, not flicker" idea as the live hysteresis,
 // done here non-causally since the whole track is already decoded: majority-
 // vote smoothing kills single-segment blips, then any run still shorter than
-// ~4% of the track gets folded into its longer neighbour.
-function mergeIntoStructuralRuns(perSegmentRanked){
+// MIN_RUN_SECONDS gets folded into its longer neighbour.
+//
+// Bug found on a real ~7min symphony recording: this used to be "4% of the
+// track", which is ~53s on a 22min Prometheus recording (fine — its authored
+// stages really are that long) but only ~17s on a 7min piece, where real
+// harmony moves faster. Every non-dominant run kept losing that race and got
+// absorbed, cascading into 100% one note for the whole track. A time floor
+// independent of total duration fixes the cascade without touching Prometheus
+// (verified against both real recordings — see CLAUDE.md).
+const MIN_RUN_SECONDS = 8;
+function mergeIntoStructuralRuns(perSegmentRanked, secondsPerSegment){
   const n = perSegmentRanked.length;
   if(n === 0) return perSegmentRanked;
   const dom = perSegmentRanked.map(r => (r && r.length) ? r[0].note : null);
@@ -836,7 +845,7 @@ function mergeIntoStructuralRuns(perSegmentRanked){
     i = j;
   }
 
-  const minRunLen = Math.max(2, Math.round(n*0.04));
+  const minRunLen = Math.max(2, Math.round(MIN_RUN_SECONDS/secondsPerSegment));
   let changed = true;
   while(changed && runs.length > 1){
     changed = false;
@@ -1287,7 +1296,7 @@ let idleTimer = null;
 function scheduleIdle(){
   document.body.classList.remove('idle');
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(()=> document.body.classList.add('idle'), 20000);
+  idleTimer = setTimeout(()=> document.body.classList.add('idle'), 10000);
 }
 ['pointermove','pointerdown','touchstart','keydown','wheel'].forEach(evt=>{
   document.addEventListener(evt, scheduleIdle, {passive:true});

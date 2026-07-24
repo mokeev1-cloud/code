@@ -1215,6 +1215,14 @@ function loadTrack(f, mode){
   posSec = 0;
   contentStartSec = 0;
   contentEndSec = null;
+  // clear whatever the PREVIOUS track/mode left lit immediately - otherwise
+  // switching e.g. from "Другая музыка" (disco chase, several lamps) to
+  // "Прометей" only visually updates once loadedmetadata fires, which can
+  // read as "mode didn't switch" for that gap
+  setLampAmbientMulti([]);
+  setLampFlash(null);
+  tintFlash.classList.remove('on');
+  discHolder.classList.remove('glow');
 
   let baseTrackName;
   if(analysisMode){
@@ -1239,6 +1247,7 @@ function loadTrack(f, mode){
     // hidden in Prometheus mode: its stages/flashes keep Scriabin's authored
     // colours always, switching the model here would do nothing visible
     colorModelPicker.style.display = 'none';
+    render(0); // immediate, don't wait for loadedmetadata - see the lamp-reset comment above
   }
 
   // shared silence/applause detection: trims the Prometheus measure stretch and,

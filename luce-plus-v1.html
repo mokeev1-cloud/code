@@ -526,6 +526,8 @@
     <button id="loadOtherBtn" type="button">🎵 Загрузить любую запись</button>
     <input type="file" id="fileInputOther" accept="audio/*" multiple style="display:none">
     <button id="fullscreenBtn" type="button">⛶ Экран</button>
+    <button id="lucePlusLoadModelBtn" type="button">🧠 Загрузить модель Basic Pitch</button>
+    <input type="file" id="lucePlusModelInput" accept=".json,.bin" multiple style="display:none">
   </div>
   <div class="track-name auto-hide" id="trackName"></div>
   <div class="track-name auto-hide" id="lucePlusStatus" style="opacity:0.7;"></div>
@@ -13847,8 +13849,62 @@ fileInputOther.addEventListener('change', ()=>{
 // measurement. Not wired to any visualisation - deliberately, until the
 // speed question has a real answer.
 const lucePlusStatus = document.getElementById('lucePlusStatus');
+const lucePlusLoadModelBtn = document.getElementById('lucePlusLoadModelBtn');
+const lucePlusModelInput = document.getElementById('lucePlusModelInput');
+let lucePlusModelPromise = null; // tf.GraphModel promise, once the user has picked model.json + .bin
+
+// Model is loaded via file picker, same as music - NOT fetch(), which
+// file:// blocks outright ("Failed to fetch"). Select model.json AND the
+// .bin weight shard(s) together (multi-select); matched by filename against
+// model.json's own weightsManifest, then wired through tf.io.fromMemory so
+// tf.loadGraphModel never touches the network/filesystem itself - see
+// CLAUDE.md for why this replaced the earlier fetch('./model/model.json')
+// and the earlier (abandoned) base64-embed-the-model idea.
+lucePlusLoadModelBtn.addEventListener('click', ()=> lucePlusModelInput.click());
+lucePlusModelInput.addEventListener('change', async ()=>{
+  const files = Array.from(lucePlusModelInput.files);
+  if(!files.length) return;
+  lucePlusStatus.textContent = 'luce-plus: читаю файлы модели...';
+  try {
+    const jsonFile = files.find(f => f.name.toLowerCase().endsWith('.json'));
+    const binFiles = files.filter(f => f.name.toLowerCase().endsWith('.bin'));
+    if(!jsonFile) throw new Error('не выбран model.json');
+    if(!binFiles.length) throw new Error('не выбран(ы) .bin файл(ы) весов');
+
+    const modelJson = JSON.parse(await jsonFile.text());
+    const manifest = modelJson.weightsManifest[0];
+    // .bin shards must be concatenated in the exact order manifest.paths lists,
+    // not file-picker selection order (OS pickers don't guarantee that order)
+    const orderedBins = manifest.paths.map(p => {
+      const match = binFiles.find(f => f.name === p);
+      if(!match) throw new Error('в выбранных файлах нет ' + p + ' (указан в model.json)');
+      return match;
+    });
+    const buffers = await Promise.all(orderedBins.map(f => f.arrayBuffer()));
+    const totalLen = buffers.reduce((a,b)=>a+b.byteLength, 0);
+    const weightData = new Uint8Array(totalLen);
+    let offset = 0;
+    for(const buf of buffers){ weightData.set(new Uint8Array(buf), offset); offset += buf.byteLength; }
+
+    const { tf } = window.LucePlusEngine;
+    const handler = tf.io.fromMemory({
+      modelTopology: modelJson.modelTopology,
+      weightSpecs: manifest.weights,
+      weightData: weightData.buffer,
+    });
+    lucePlusModelPromise = tf.loadGraphModel(handler);
+    await lucePlusModelPromise; // surface load errors now, not on first use
+    lucePlusStatus.textContent = 'luce-plus: модель загружена (' + jsonFile.name + ' + ' + orderedBins.length + ' файл(ов) весов). Теперь загрузите любую запись.';
+  } catch(e){
+    lucePlusModelPromise = null;
+    lucePlusStatus.textContent = 'luce-plus: ошибка загрузки модели — ' + e.message;
+    console.error('[luce-plus] model load failed', e);
+  }
+});
+
 async function runLucePlusProbe(file){
   if(!window.LucePlusEngine){ lucePlusStatus.textContent = 'luce-plus: движок не загрузился'; return; }
+  if(!lucePlusModelPromise){ lucePlusStatus.textContent = 'luce-plus: сначала нажмите «🧠 Загрузить модель Basic Pitch» и выберите model.json + .bin'; return; }
   try {
     lucePlusStatus.textContent = 'luce-plus: декодирую...';
     const arrayBuf = await file.arrayBuffer();
@@ -13872,7 +13928,7 @@ async function runLucePlusProbe(file){
 
     lucePlusStatus.textContent = 'luce-plus: анализирую ' + probeSeconds.toFixed(0) + ' сек через Basic Pitch...';
     const { BasicPitch, outputToNotesPoly, addPitchBendsToNoteEvents, noteFramesToTime } = window.LucePlusEngine;
-    const basicPitch = new BasicPitch('./model/model.json');
+    const basicPitch = new BasicPitch(lucePlusModelPromise);
     const frames = [], onsets = [], contours = [];
     const t0 = performance.now();
     await basicPitch.evaluateModel(resampled,

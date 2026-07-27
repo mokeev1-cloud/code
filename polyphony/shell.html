@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#05060f">
+<title>Luce · полифония</title>
+<style>
+:root{ --u:12px; --ink:#c9d1f5; --dim:#6a72a4; --gold:#ffc75a; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05060f;overflow:hidden;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--ink);
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+
+.hud{position:fixed;left:0;right:0;padding:0 max(calc(var(--u)*1),env(safe-area-inset-left));
+  transition:opacity .5s;z-index:2}
+body.idle .hud{opacity:0;pointer-events:none}
+
+#top{top:max(calc(var(--u)*.8),env(safe-area-inset-top));display:flex;gap:calc(var(--u)*.7);
+  align-items:center;flex-wrap:wrap}
+#title{font-size:calc(var(--u)*.78);color:var(--dim);letter-spacing:.03em;
+  flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dens{font-size:calc(var(--u)*.7);color:var(--dim);opacity:.8;white-space:nowrap}
+
+#bottom{bottom:max(calc(var(--u)*.7),env(safe-area-inset-bottom));display:flex;
+  align-items:center;gap:calc(var(--u)*.7)}
+#track{flex:1 1 auto;height:calc(var(--u)*1.6);display:flex;align-items:center;cursor:pointer}
+#trackline{width:100%;height:2px;background:rgba(150,160,215,.16);border-radius:2px}
+#bar{height:100%;width:0;background:var(--gold);border-radius:2px;box-shadow:0 0 8px rgba(255,199,90,.5)}
+#time{font-size:calc(var(--u)*.68);color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+button,select,label.btn{background:rgba(150,160,215,.09);border:1px solid rgba(150,160,215,.16);
+  color:var(--ink);font:inherit;font-size:calc(var(--u)*.72);border-radius:calc(var(--u)*.4);
+  padding:calc(var(--u)*.42) calc(var(--u)*.7);cursor:pointer;min-height:calc(var(--u)*2.1);
+  display:inline-flex;align-items:center;justify-content:center}
+button:active,label.btn:active{background:rgba(150,160,215,.2)}
+select{max-width:min(46vw,340px)}
+#play{min-width:calc(var(--u)*2.6)}
+#file{display:none}
+#status{font-size:calc(var(--u)*.66);color:var(--dim);flex-basis:100%;order:9}
+#fit{flex-basis:100%;order:10;accent-color:var(--gold);width:min(100%,320px)}
+
+@media (max-width:560px){
+  #title{flex-basis:100%;order:-1}
+  #dens{display:none}
+  select{max-width:100%;flex:1 1 auto}
+}
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="hud" id="top">
+  <div id="title"></div>
+  <select id="score" aria-label="партитура"></select>
+  <label class="btn" for="file">выбрать mp3</label>
+  <button id="cmode">цвет: нота</button>
+  <input type="file" id="file" accept="audio/*">
+  <button id="recog" hidden>распознать голоса</button>
+  <button id="full" aria-label="полный экран">⛶</button>
+  <div id="dens"></div>
+</div>
+
+<div class="hud" id="bottom">
+  <button id="play" aria-label="воспроизведение">▶</button>
+  <div id="track"><div id="trackline"><div id="bar"></div></div></div>
+  <div id="time">0:00 / 0:00</div>
+  <div id="status">партитурные данные · перетащи mp3, чтобы подогнать под запись</div>
+  <input type="range" id="fit" min="-300" max="300" value="0" hidden aria-label="сдвиг синхронизации">
+</div>
+
+<script>
+__DATA__
+</script>
+<script>
+__APP__
+</script>
+</body>
+</html>

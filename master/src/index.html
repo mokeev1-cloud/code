@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мастер предпродажной подготовки юрлиц</title>
+<style>
+/*@CSS*/
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 40 40" width="40" height="40"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9c46a"/><stop offset="1" stop-color="#b8862b"/></linearGradient></defs>
+        <rect x="2" y="2" width="36" height="36" rx="11" fill="#1d2f5a"/><path d="M11 27V13l9 9 9-9v14" fill="none" stroke="url(#lg)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="30.5" r="1.7" fill="url(#lg)"/></svg>
+    </div>
+    <div>
+      <h1>Мастер предпродажной подготовки юрлиц</h1>
+      <p class="tagline">Свернуть расчеты внутри группы, передать внешние долги, подготовить ЮЛ к продаже или ликвидации — и не запутаться в подписанном.</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="pill" id="btnTpl" type="button" title="Шаблоны договоров (Word)"><span data-ico="doc"></span><span>Шаблоны</span><b class="badge" id="tplBadge">встроенные</b></button>
+    <div class="pill casepill" id="caseBox">
+      <span data-ico="folder"></span><span class="casename" id="caseName">Дело: новое</span><i class="dot" id="caseDot" title="Есть несохраненные изменения"></i>
+      <button class="mini" id="btnSaveCase" type="button">Сохранить</button>
+    </div>
+    <button class="pill icon" id="btnHelp" type="button" title="Справка и документация">?</button>
+  </div>
+</header>
+
+<nav class="stepper" id="stepper" aria-label="Шаги">
+  <button type="button" data-step="1"><i>1</i><span>Данные</span></button>
+  <button type="button" data-step="2"><i>2</i><span>Параметры</span></button>
+  <button type="button" data-step="3"><i>3</i><span>Готовность</span></button>
+  <button type="button" data-step="4"><i>4</i><span>Внутри группы</span></button>
+  <button type="button" data-step="5"><i>5</i><span>Внешние долги</span></button>
+  <button type="button" data-step="6"><i>6</i><span>Выпуск и подпись</span></button>
+</nav>
+
+<main>
+
+<!-- ============ 1. ДАННЫЕ ============ -->
+<section class="step" id="s1">
+  <div class="drop hero" id="uni" tabindex="0">
+    <div class="hero-ico" data-ico="upload"></div>
+    <div class="hero-text">
+      <b>Перетащите сюда всё сразу</b>
+      <span>выгрузки 1С («Регистр бухгалтерии», «Анализ субконто»), реестр ЮЛ, реквизиты, «Недогруз», файл дела (.json), шаблоны договоров (.docx). Вид файла определится сам.</span>
+      <span class="small">Все вычисления — в этом окне браузера. Ничего не отправляется.</span>
+    </div>
+    <div class="hero-btns">
+      <button type="button" class="btn primary" id="btnPick">Выбрать файлы</button>
+      <button type="button" class="btn ghost" id="btnDemo">Показать на демо-данных</button>
+    </div>
+  </div>
+  <div class="files" id="fileList"></div>
+  <div class="cols two">
+    <div class="card">
+      <h2><span data-ico="check"></span>Что есть и чего не хватает</h2>
+      <div id="cov" class="muted">Загрузите файлы — здесь появится, какие данные есть, а каких не хватает. Кнопка «?» подскажет, как получить нужный отчет в 1С.</div>
+      <div id="anInfo" class="note"></div>
+    </div>
+    <div class="card">
+      <h2><span data-ico="folder"></span>Дело — память о выпущенных документах</h2>
+      <p class="muted">Дело хранит номера, редакции и статусы всех выпущенных документов. Оно позволяет при новых выгрузках увидеть, <b>что изменилось</b> и какие подписанные договоры затронуты. Сохраняйте файл дела рядом с данными и загружайте при каждой новой сессии.</p>
+      <div id="caseInfo" class="caseinfo"></div>
+      <div class="row">
+        <label class="btn ghost filebtn">Открыть дело…<input type="file" id="caseFile" accept=".json" hidden></label>
+        <button type="button" class="btn ghost" id="btnNewCase">Начать новое дело</button>
+      </div>
+      <label class="check" style="margin-top:12px"><input type="checkbox" id="cBackup"> <span>Страховочная копия дела в этом браузере <span class="muted">(внутри — ИНН и наименования; по умолчанию выключено)</span></span></label>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. ПАРАМЕТРЫ ============ -->
+<section class="step" id="s2" hidden>
+  <div class="card">
+    <h2><span data-ico="building"></span>Организации в пакете</h2>
+    <p class="muted">Операции между организациями пакета оформляются один раз, номера — с префиксом организации. Порядок обработки запоминается в деле, чтобы номера и формулировки не менялись от перестановок.</p>
+    <div class="row" style="margin-bottom:8px"><button class="btn ghost small" id="pkgAuto" type="button">Выбрать «Обнуляем»</button><button class="btn ghost small" id="pkgAll" type="button">Все</button><button class="btn ghost small" id="pkgNone" type="button">Снять</button></div>
+    <div class="tbl short"><table class="grid">
+      <thead><tr><th style="width:44px">В пакете</th><th>Организация</th><th>ИНН</th><th>Статус в реестре</th><th>Префикс</th></tr></thead>
+      <tbody id="pkgRows"><tr><td colspan="5" class="muted">Загрузите выгрузки и реестр.</td></tr></tbody>
+    </table></div>
+  </div>
+  <div class="cols two">
+    <div class="card">
+      <h2><span data-ico="link"></span>Консолидатор и сроки</h2>
+      <div class="fields">
+        <div><label>Цессионарий — Консолидатор</label><select id="pCess"></select></div>
+        <div><label>Дата документов</label><input type="date" id="pDate"></div>
+        <div><label>Срок оплаты цены уступки</label><input type="date" id="pPay"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="pPayDz" checked> <span>Цену уступленной дебиторки гасить зачетом с Консолидатором (соглашение ЗЦ)</span></label>
+      <label class="check"><input type="checkbox" id="pKeepDates" checked> <span>При перевыпуске сохранять дату уже выпущенного документа <span class="muted">(чтобы пакет не «разъезжался» по датам)</span></span></label>
+    </div>
+    <div class="card">
+      <h2><span data-ico="filter"></span>Кого и что берем в работу</h2>
+      <label>Статусы реестра, которые берем в работу</label>
+      <div class="chips" id="pSts"><span class="muted">появятся после загрузки реестра</span></div>
+      <label style="margin-top:12px">Счета, которые считаются долгом</label>
+      <div class="chips" id="pAccs"><span class="muted">появятся после загрузки выгрузок</span></div>
+      <p class="muted small" style="margin-top:6px">Счет 19 (НДС) долгом не считается. 60/62 по знаку сальдо определяют вид требования: оплата товара или аванс (ст. 487 ГК РФ); 58/66/67 — заем; 76 — прочие расчеты.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span data-ico="out"></span>Внешние долги</h2>
+    <div class="fields four">
+      <div><label>Получатель требований и долгов</label><select id="pRcp"></select></div>
+      <div><label>Дата документов</label><input type="date" id="pXDate"></div>
+      <div><label>Срок оплаты / расчетов</label><input type="date" id="pXPay"></div>
+      <div><label>Не брать суммы меньше, ₽</label><input id="pXThr" value="1 000"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="pXOff"> <span>Расчеты с получателем — зачетом (вместо денег)</span></label>
+    <p class="muted small">Внешние — контрагенты, которых нет в реестре ЮЛ. Встречные долги — зачет; дебиторка — уступка получателю + уведомление должнику; кредиторка — перевод долга на получателя с согласия кредитора (ст. 391 ГК РФ). Налоговая, казначейство, фонды не передаются.</p>
+  </div>
+  <div class="card">
+    <details>
+      <summary><b>Готовность к ликвидации и память настроек</b> <span class="muted">— пороги, статусы-блокеры, сохранение настроек</span></summary>
+      <div class="fields four" style="margin-top:12px">
+        <div><label>Порог внешнего долга, ₽</label><input id="pLThr" value="100 000"></div>
+        <div><label>Порог отгрузок внешним покупателям (Дт 62), ₽</label><input id="pLShip" value="1 000"></div>
+        <div><label>Дата решения о ликвидации</label><input type="date" id="pLStart"></div>
+        <div><label>Статусы-блокеры (фрагменты через |)</label><input id="pLBlock" value="запрещ|чуж"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="pLAssign" checked> <span>Внешнюю дебиторку уступаем без подписи должника (уведомление) — не блокирует ликвидацию</span></label>
+      <div class="row" style="margin-top:12px">
+        <label class="btn ghost filebtn">Недогруз: исполнение контрактов (.xlsx)<input type="file" id="pOrders" accept=".xlsx,.xls" hidden></label>
+        <span id="pOrdersSt" class="muted small">не загружен — вместо него критерий отгрузок по Дт 62</span>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost small" id="sSave" type="button">Скачать настройки (.json)</button>
+        <label class="btn ghost small filebtn">Загрузить настройки<input type="file" id="sLoad" accept=".json" hidden></label>
+        <button class="btn ghost small" id="sReset" type="button">Сбросить</button><span id="sMsg" class="muted small"></span>
+      </div>
+      <p class="muted small" style="margin-top:6px">Пороги, даты, статусы и ручные решения запоминаются в этом браузере автоматически. ИНН и наименования в настройках не хранятся — ручные решения записываются хэшами.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ 3. ГОТОВНОСТЬ ============ -->
+<section class="step" id="s3" hidden>
+  <div class="card">
+    <h2><span data-ico="gauge"></span>Готовность юрлиц к ликвидации</h2>
+    <p class="muted">Только анализ и план мероприятий. Договоры готовятся на шагах 4 и 5, а выпускаются на шаге 6.</p>
+    <details><summary>Список юрлиц для анализа <span class="muted" id="lCount"></span></summary>
+      <div class="row" style="margin:10px 0"><span class="muted small">Подставить из реестра со статусами:</span><span class="chips" id="lSts"></span><button class="btn ghost small" id="lFill" type="button">Подставить</button></div>
+      <textarea id="lq" rows="6" placeholder="По одному ЮЛ в строке: наименование или ИНН (нумерация не мешает)"></textarea>
+    </details>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="lRun" type="button">Разобрать</button><span id="lMsg" class="muted small"></span></div>
+  </div>
+  <div class="kpis" id="lKpis"></div>
+  <div class="card flush">
+    <div class="tbl tall"><table class="grid">
+      <thead><tr><th>№</th><th>Юрлицо</th><th>Вывод</th><th class="num">ВГО ДЗ</th><th class="num">ВГО КЗ</th><th class="num">Внешн. ДЗ</th><th class="num">Внешн. КЗ</th><th class="num">Отгрузки внешн.</th><th>Динамика</th><th style="min-width:240px">Причина</th><th style="min-width:280px">Что сделать</th><th style="min-width:150px">Срок</th></tr></thead>
+      <tbody id="lRows"><tr><td colspan="12" class="muted">Загрузите данные и нажмите «Разобрать». Щелчок по строке — план мероприятий и остатки по контрагентам.</td></tr></tbody>
+    </table></div>
+  </div>
+  <div class="row"><button class="btn ghost" id="lX" type="button" disabled>Отчет Excel: готовность и план</button><button class="btn ghost" id="lGk" type="button" disabled title="Заполняет колонку «Исполнение гос. контрактов» реестра по отчету «Анализ заказов клиентов»">Госконтракты</button></div>
+</section>
+
+<!-- ============ 4. ВНУТРИ ГРУППЫ ============ -->
+<section class="step" id="s4" hidden>
+  <div class="card">
+    <h2><span data-ico="swap"></span>Свертывание расчетов внутри группы</h2>
+    <p class="muted">Встречные долги с одним контрагентом сначала зачитываются, остаток уступает кредитор. Требования переходят к Консолидатору, цена уступленной дебиторки гасится зачетом.</p>
+    <div class="tabs" id="vTabs"></div>
+    <div class="kpis" id="vKpis"></div>
+    <div class="row between"><div class="row"><label class="check"><input type="checkbox" id="vAll"> <span>Показать исключенных</span></label><input id="vFlt" class="search" placeholder="поиск по названию или ИНН"></div><span id="vMsg" class="muted small"></span></div>
+  </div>
+  <div class="card flush"><div class="tbl tall"><table class="grid">
+    <thead><tr><th style="width:44px">В работе</th><th>Контрагент</th><th>ИНН</th><th>Статус</th><th>Счета (+Дт / −Кт)</th><th class="num">Сальдо</th><th class="num">По книге контрагента</th><th>Реквизиты</th><th>Документы</th></tr></thead>
+    <tbody id="vRows"><tr><td colspan="9" class="muted">Загрузите выгрузки, реквизиты и реестр и выберите организации пакета.</td></tr></tbody>
+  </table></div></div>
+  <div class="row"><button class="btn ghost" id="vX" type="button" disabled>Таблица Excel (эта организация)</button><button class="btn ghost" id="vA" type="button" disabled>Сводка и проводки для бухгалтера</button></div>
+</section>
+
+<!-- ============ 5. ВНЕШНИЕ ДОЛГИ ============ -->
+<section class="step" id="s5" hidden>
+  <div class="card">
+    <h2><span data-ico="out"></span>Внешние долги юрлица</h2>
+    <p class="muted">Кому и каким документом передать: зачет с внешним контрагентом, уступка дебиторки получателю (+ уведомление должнику), перевод кредиторки с согласия кредитора.</p>
+    <div class="tabs" id="xTabs"></div>
+    <div class="kpis" id="xKpis"></div>
+    <div id="xMsg" class="muted small"></div>
+  </div>
+  <div class="card flush"><div class="tbl tall"><table class="grid">
+    <thead><tr><th style="width:44px">В работе</th><th>Контрагент</th><th>ИНН</th><th>Счета (+Дт / −Кт)</th><th class="num">Сальдо</th><th>Документ</th><th>Примечание</th></tr></thead>
+    <tbody id="xRows"><tr><td colspan="7" class="muted">Загрузите выгрузки, реестр и реквизиты.</td></tr></tbody>
+  </table></div></div>
+  <div class="row"><button class="btn ghost" id="xX" type="button" disabled>Таблица Excel (эта организация)</button></div>
+</section>
+
+<!-- ============ 6. ВЫПУСК И ПОДПИСЬ ============ -->
+<section class="step" id="s6" hidden>
+  <div class="card hero6">
+    <div>
+      <h2><span data-ico="stamp"></span>Выпуск документов и контроль подписания</h2>
+      <p class="muted">Здесь расчет сверяется с делом: что новое, что изменилось с прошлого выпуска, где расхождение с уже подписанным. Номера не меняются, перевыпуск идет в новой редакции.</p>
+    </div>
+    <div class="flow" id="flow"></div>
+  </div>
+  <div class="kpis" id="rKpis"></div>
+  <div class="card flush">
+    <div class="rtool">
+      <div class="chips filter" id="rFilter"></div>
+      <input id="rFlt" class="search" placeholder="поиск: номер, контрагент">
+    </div>
+    <div class="tbl tall"><table class="grid docs">
+      <thead><tr><th style="width:40px"></th><th>№</th><th>Документ</th><th class="num">Сумма</th><th>Сверка</th><th>Что изменилось</th><th>Статус документа</th></tr></thead>
+      <tbody id="rRows"><tr><td colspan="7" class="muted">Нет данных для сверки: загрузите данные и выберите организации пакета.</td></tr></tbody>
+    </table></div>
+  </div>
+  <div class="card issue">
+    <div class="issue-main">
+      <div>
+        <h2><span data-ico="pack"></span>Собрать выпуск</h2>
+        <div id="issueSum" class="muted">Отметьте документы в таблице.</div>
+        <label class="check"><input type="checkbox" id="rByCp" checked> <span>Разложить по контрагентам <span class="muted">(удобно отправлять на подпись)</span></span></label>
+        <div id="issueWarn" class="warnbox" hidden></div>
+      </div>
+      <div class="issue-btns">
+        <button class="btn primary big" id="rIssue" type="button" disabled>Собрать выпуск (zip)</button>
+        <button class="btn ghost" id="rReg" type="button">Реестр документов (Excel)</button>
+        <button class="btn ghost" id="rAcc" type="button" disabled>Проводки бухгалтеру</button>
+        <button class="btn ghost" id="rSave" type="button">Сохранить дело (.json)</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="histCard" hidden><h2><span data-ico="clock"></span>Журнал выпусков</h2><div id="hist"></div></div>
+</section>
+
+</main>
+
+<div class="dock">
+  <button class="btn ghost" id="bBack" type="button">← Назад</button>
+  <div class="dock-msg" id="dockMsg"></div>
+  <button class="btn primary" id="bNext" type="button">Далее →</button>
+</div>
+</div>
+
+<!-- ============ ШАБЛОНЫ ============ -->
+<aside class="drawer" id="tplPanel" hidden>
+  <div class="drawer-head"><h2>Шаблоны договоров</h2><button class="mini" id="tplClose" type="button">Закрыть ✕</button></div>
+  <p class="muted small">Шаблоны — обычные файлы Word с метками вида <code>{{Цедент.Наименование}}</code>. Юристы правят их как обычный документ. Загрузите правленые файлы — они сразу применятся, а у уже выпущенных неподписанных документов появится пометка «обновлен шаблон». Без загрузки используются встроенные тексты.</p>
+  <div class="drop mini" id="tplDrop"><b>Перетащите .docx сюда</b><span class="small">вид определится по номеру в начале имени («1 …», «2 …») или по содержанию</span></div>
+  <div id="tplList"></div>
+  <div class="row" style="margin-top:12px"><button class="btn ghost small" id="tplAll" type="button">Скачать образцы всех шаблонов (zip)</button></div>
+  <details style="margin-top:14px"><summary><b>Какие метки бывают</b></summary><div id="tplHelp" class="small"></div></details>
+</aside>
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- ============ СПРАВКА ============ -->
+<aside class="drawer wide" id="helpPanel" hidden>
+  <div class="drawer-head"><h2>Справка</h2><button class="mini" id="helpClose" type="button">Закрыть ✕</button></div>
+  <div class="row" style="margin-bottom:10px"><button class="btn ghost small" id="hTest" type="button">Самопроверка движка</button><button class="btn ghost small" id="hMd" type="button">Скачать документацию (.md)</button><span id="hMsg" class="muted small"></span></div>
+  <div id="hRes"></div>
+  <div class="md" id="hView"></div>
+</aside>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="pickAny" accept=".xlsx,.xls,.json,.docx" multiple hidden>
+<input type="file" id="tplPick" accept=".docx" multiple hidden>
+
+<script id="lib-xlsx">/*@lib-xlsx*/</script>
+<script id="lib-jszip">/*@lib-jszip*/</script>
+<script id="lib-petrovich">/*@lib-petrovich*/</script>
+<script id="engine-core">/*@engine-core*/</script>
+<script id="engine-tpl">/*@engine-tpl*/</script>
+<script id="engine-cess">/*@engine-cess*/</script>
+<script id="engine-acc">/*@engine-acc*/</script>
+<script id="engine-liq">/*@engine-liq*/</script>
+<script id="engine-ext">/*@engine-ext*/</script>
+<script id="engine-test">/*@engine-test*/</script>
+<script id="engine-case">/*@engine-case*/</script>
+<script type="text/markdown" id="project-docs">/*@docs*/</script>
+<script id="app">/*@app*/</script>
+</body>
+</html>

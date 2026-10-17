@@ -175,6 +175,29 @@ check('Проверка на данных: запросы вычислены н�
 check('Проверка на данных: контрольная сумма — только там, где слияние задвоило строки (ключи и смена типа не считаются)', dres.sums.length === 1 && /^ОПиУ: «Сумма»/.test(dres.sums[0]), dres.sums.join(' | '));
 check('Проверка на данных: исправления оптимизатора сверены до и после', dres.verify.length > 0, dres.verify.join(', '));
 check('Пакет для ИИ: только числа проверки — значений из данных нет, защита находит их в исходящем тексте', dres.pkgChecks && !dres.pkgHasData && dres.leaks === 0 && dres.leakTest === 1, JSON.stringify(dres));
+// редактор: живые данные шага под курсором, строки на шагах, пересчёт непринятой правки
+await page.evaluate(() => { saveSettings({ edData: true }); EDD.on = true; openInEditor('ОПиУ'); });
+await page.waitForTimeout(1500);
+await page.evaluate(() => { const t = ED.view.state.doc.toString(); const p = t.indexOf('Слияние') + 2; ED.view.dispatch({ selection: { anchor: p } }); });
+await page.waitForTimeout(500);
+const ed1 = await page.evaluate(() => ({ pane: $('#edData').textContent, badges: $$('#edSide .outline-step .rows').map(x => x.textContent), flow: $$('#edFlow .rows').length }));
+await shot('22-editor-data');
+await page.evaluate(() => { const t = ED.view.state.doc.toString(); const p = t.indexOf('JoinKind.LeftOuter'); ED.view.dispatch({ changes: { from: p, to: p + 'JoinKind.LeftOuter'.length, insert: 'JoinKind.Inner' } }); });
+await page.waitForTimeout(1800);
+const ed2 = await page.evaluate(() => $$('#edSide .outline-step .rows').map(x => x.textContent));
+check('Редактор: живые данные шага — строки × столбцы, превью, дубли ключей и строки без пары на шаге слияния', /Шаг «Слияние»/.test(ed1.pane) && /4 строк × 6 столбцов/.test(ed1.pane) && /дубли ключей справа/.test(ed1.pane) && /без пары: 1 из 4/.test(ed1.pane) && ed1.badges.length === 3 && ed1.flow === 3, JSON.stringify(ed1).slice(0, 300));
+check('Редактор: непринятая правка пересчитывается на данных (LeftOuter → Inner: 4 → 3 строки)', ed2[0] === '3 × 6' && ed2[2] === '3 × 2', ed2.join(' | '));
+await page.evaluate(() => edLoad('ОПиУ'));
+// ответ ИИ: сверка изменённого запроса на данных до принятия, затем «Принять и править»
+await page.click('[data-view=ai]'); await page.waitForTimeout(150);
+await page.fill('#aiText', '```m\nshared ОПиУ = let\n    Слияние = Table.NestedJoin(Проводки, {"Счёт"}, Table.Distinct(Маппинг, {"Код"}), {"Код"}, "М", JoinKind.LeftOuter),\n    Развернуть = Table.ExpandTableColumn(Слияние, "М", {"ЦФО"}),\n    Итоги = Table.Group(Развернуть, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}})\nin\n    Итоги;\n```');
+await page.click('#checkBtn'); await page.waitForTimeout(300);
+await page.click('#aiVerifyBtn'); await page.waitForTimeout(1500);
+const aiv = await page.$eval('[data-aiv="ОПиУ"]', e => e.textContent).catch(() => '');
+await shot('23-ai-verify');
+await page.click('#acceptEditBtn'); await page.waitForTimeout(800);
+const afterAccept = await page.evaluate(() => ({ view: curView, q: ED.query, dirty: isDirty() }));
+check('Ответ ИИ: правка сверена на данных до принятия (дубль убран — результат изменился), «Принять и править» открывает редактор', /результат изменился/.test(aiv) && afterAccept.view === 'editor' && afterAccept.q === 'ОПиУ' && afterAccept.dirty, aiv + ' / ' + JSON.stringify(afterAccept));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');

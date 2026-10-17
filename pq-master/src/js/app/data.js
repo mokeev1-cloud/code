@@ -6,7 +6,7 @@
    (dataLeaks) и блокирует выпуск.
    Интерпретатор получает данные через M_DATA (m/interp.js): currentWorkbook(), file(путь), folder(путь).
    ===================================================================== */
-const DATA = { limit: 200000, wb: null, wbFor: null, wbError: '', files: new Map(), folders: new Map(), selfBook: null, run: null, verify: null };
+const DATA = { ver: 0, limit: 200000, wb: null, wbFor: null, wbError: '', files: new Map(), folders: new Map(), selfBook: null, run: null, verify: null };
 const normPath = p => String(p || '').trim().replace(/\//g, '\\').replace(/\\+$/, '').toLowerCase();
 const pathBase = p => normPath(p).replace(/^.*\\/, '');
 /** Файл с диска → { name, bytes, mtime, xlsx } (книги .xlsx/.xlsm разбираются сразу: Excel.Workbook синхронный) */
@@ -25,7 +25,7 @@ async function attachFiles(list, path, kind){
 }
 function detachData(key, folder){ (folder ? DATA.folders : DATA.files).delete(key); dataChanged(); }
 /** Любое изменение данных или кода делает прежние результаты проверок неактуальными */
-function dataChanged(){ DATA.run = null; DATA.verify = null; emitState('data'); }
+function dataChanged(){ DATA.ver++; DATA.run = null; DATA.verify = null; emitState('data'); }
 /** Таблицы книги (ListObject и именованные диапазоны) — читаются один раз на версию файла */
 async function dataPrepare(){
   const b = S.book;

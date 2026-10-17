@@ -79,7 +79,7 @@ function checkAiAnswer(base, raw, dict, opts){
   return res;
 }
 async function runAiCheck(){
-  const out = $('#buildResult'); S.aiNew = null; $('#acceptBtn').disabled = true; $('#dlSectionBtn').disabled = true;
+  const out = $('#buildResult'); S.aiNew = null; S.aiChanged = []; $('#acceptBtn').disabled = true; $('#acceptEditBtn').disabled = true; $('#aiVerifyBtn').disabled = true; $('#dlSectionBtn').disabled = true;
   if (!S.work){ out.innerHTML = '<div class="note bad">Сначала откройте исходную книгу.</div>'; return; }
   const raw = $('#aiText').value; if (!raw.trim()){ out.innerHTML = '<div class="note warn">Вставьте ответ ИИ или загрузите файл.</div>'; return; }
   const sel = $('#singleTarget') ? $('#singleTarget').value : '';
@@ -98,15 +98,33 @@ async function runAiCheck(){
     h += '<details><summary>Новые литералы (' + lits.length + ')</summary><table class="t">' + lits.map(x => '<tr><td class="mono">' + escHtml(x.v) + '</td><td>' + escHtml(x.kind) + '</td><td>' + (x.risky ? '<span class="sev warn">проверить</span>' : '') + '</td></tr>').join('') + '</table></details>'; }
   const A2 = analyzeSection(r.newSection, meta); const before = S.opt.score, after = optimizeSection(r.newSection, A2, lintSection(A2)).score;
   h += '<div class="small">Оценка оптимизатора: ' + before + ' → <b style="color:' + (after >= before ? 'var(--ok)' : 'var(--bad)') + '">' + after + '</b></div>';
-  for (const c of cmp.changed) h += '<div class="card"><div class="card-h"><h3 style="margin:0">✎ ' + escHtml(c.name) + '</h3></div><div class="diff">' + diffHtml(lineDiff(c.old, c.text)) + '</div></div>';
+  for (const c of cmp.changed) h += '<div class="card"><div class="card-h"><h3 style="margin:0">✎ ' + escHtml(c.name) + '</h3><span class="sp"></span><span class="small" data-aiv="' + escHtml(c.name) + '"></span></div><div class="diff">' + diffHtml(lineDiff(c.old, c.text)) + '</div></div>';
   for (const c of cmp.added) h += '<div class="card"><h3 style="margin:0">＋ ' + escHtml(c.name) + '</h3><div class="diff">' + diffHtml(lineDiff('', c.text)) + '</div></div>';
   for (const c of cmp.removed) h += '<div class="card"><h3 style="margin:0">－ ' + escHtml(c.name) + '</h3><div class="diff">' + diffHtml(lineDiff(c.old, '')) + '</div></div>';
   const head = r.errors.map(e => '<div class="note bad">⛔ ' + escHtml(e) + '</div>').join('') + r.warns.map(w => '<div class="note warn small">' + escHtml(w) + '</div>').join('');
-  if (!r.errors.length){ S.aiNew = r.newSection; $('#acceptBtn').disabled = !(cmp.changed.length + cmp.added.length + cmp.removed.length); $('#dlSectionBtn').disabled = false;
+  if (!r.errors.length){ S.aiNew = r.newSection; S.aiChanged = cmp.changed.map(c => c.name).concat(cmp.added.map(c => c.name)); $('#acceptBtn').disabled = $('#acceptEditBtn').disabled = !(cmp.changed.length + cmp.added.length + cmp.removed.length); $('#aiVerifyBtn').disabled = !cmp.changed.length; $('#dlSectionBtn').disabled = false;
     out.innerHTML = '<div class="note ' + (r.warns.length ? 'warn' : 'ok') + '">' + (cmp.changed.length + cmp.added.length + cmp.removed.length ? '✔ Проверки пройдены' + (r.warns.length ? ' с предупреждениями' : '') + '. Нажмите «Принять в рабочую версию», затем сохраните книгу (Ctrl+S — копия, Ctrl+Shift+S — в оригинал).' : 'Изменений относительно рабочей версии нет.') + '</div>' + head + h; }
   else out.innerHTML = head + h;
 }
 $('#checkBtn').onclick = () => runAiCheck().catch(err => { console.error(err); toast(err.message, 'bad'); });
-$('#acceptBtn').onclick = () => { if (!S.aiNew) return; setWork(S.aiNew, 'ai', 'Ответ ИИ принят'); S.aiNew = null; $('#acceptBtn').disabled = true; toast('Принято в рабочую версию. Сохраните книгу: Ctrl+S или «В оригинал».', 'ok', 6000); };
+$('#acceptBtn').onclick = () => { if (!S.aiNew) return; setWork(S.aiNew, 'ai', 'Ответ ИИ принят'); S.aiNew = null; $('#acceptBtn').disabled = $('#acceptEditBtn').disabled = $('#aiVerifyBtn').disabled = true; toast('Принято в рабочую версию. Сохраните книгу: Ctrl+S или «В оригинал».', 'ok', 6000); };
+$('#acceptEditBtn').onclick = () => { if (!S.aiNew) return; const first = (S.aiChanged || [])[0]; setWork(S.aiNew, 'ai', 'Ответ ИИ принят'); S.aiNew = null; $('#acceptBtn').disabled = $('#acceptEditBtn').disabled = $('#aiVerifyBtn').disabled = true; if (first) openInEditor(first); toast('Принято (откат — «История правок»). Правьте и сохраняйте: Ctrl+S — копия, Ctrl+Shift+S — в оригинал с резервной копией.', 'ok', 7000); };
+/** Сверка ответа ИИ на данных этого компьютера: изменённые запросы до и после */
+async function aiVerifyOnData(){
+  if (!S.aiNew) return; const sec = S.aiNew; const names = [...$$('[data-aiv]')].map(x => x.dataset.aiv);
+  $('#aiVerifyBtn').disabled = true; await dataPrepare();
+  for (const n of names){
+    const cell = $('[data-aiv="' + CSS.escape(n) + '"]'); if (!cell) continue; cell.innerHTML = '⏳ вычисление…'; await new Promise(r => setTimeout(r, 0));
+    const a = dataRunQuery(S.work, n, new Map()), b = dataRunQuery(sec, n, new Map());
+    const rows = x => { const f = x.steps[x.steps.length - 1]; return f && f.rows != null ? fmtN(f.rows) : '—'; };
+    if (a.error && a.error.need || b.error && b.error.need) cell.innerHTML = '<span class="pqx-rec warn">🔌 нужен источник</span> <button class="link" data-go="data">прикрепить в «Проверке на данных»</button>';
+    else if (b.error) cell.innerHTML = '<span class="pqx-rec warn">✖ после правки ошибка</span> ' + escHtml(b.error.message.slice(0, 120));
+    else if (a.error) cell.innerHTML = '<span class="pqx-rec ok">✓ раньше была ошибка, теперь ' + rows(b) + ' строк</span>';
+    else { const c = tableCompare(a.value, b.value); cell.innerHTML = '<span class="pqx-rec ' + (c.same ? 'ok' : 'warn') + '">' + (c.same ? '✓ на данных тот же результат' : '≠ результат изменился') + '</span> <span class="muted">' + rows(a) + ' → ' + rows(b) + ' строк' + (c.note ? ' · ' + escHtml(c.note) : '') + ' · ' + (a.ms / 1000).toFixed(2).replace('.', ',') + ' → ' + (b.ms / 1000).toFixed(2).replace('.', ',') + ' с в браузере</span>'; }
+  }
+  $$('[data-go]', $('#buildResult')).forEach(x => x.onclick = () => showView(x.dataset.go));
+  $('#aiVerifyBtn').disabled = false;
+}
+$('#aiVerifyBtn').onclick = () => aiVerifyOnData().catch(e => { console.error(e); toast(e.message, 'bad'); $('#aiVerifyBtn').disabled = false; });
 $('#dlSectionBtn').onclick = () => { if (S.aiNew) download('Section1.m', S.aiNew, 'text/plain;charset=utf-8'); };
 registerView('ai', { render: renderAiInputs, alwaysRender: true });

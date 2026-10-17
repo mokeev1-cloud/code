@@ -1,0 +1,22 @@
+<section class="view" id="view-model">
+  <div class="needbook-msg">Откройте книгу — здесь появится карта её запросов: источники, объёмы, время и ускорение.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Карта модели</h1><span class="small muted" id="mdlNote"></span><span class="sp"></span>
+      <button class="btn" id="mdlRun">▶ Посчитать на данных</button><button class="btn pri" id="mdlSpeed1">⚡ Ускорить книгу</button></div>
+    <div class="tiles" id="mdlTiles"></div>
+    <div class="card viz">
+      <div class="card-h"><h2>Поток данных</h2><span class="small muted">источники → запросы → куда загружаются · толщина связи — объём, полоса в узле — строк</span><span class="sp"></span><span class="legend" id="mdlLegend"></span></div>
+      <div class="flow-wrap" id="mdlFlow"></div>
+    </div>
+    <div class="viz-2col">
+      <div class="card viz"><div class="card-h"><h2>Объём</h2><span class="small muted" id="mdlVolNote"></span></div><div id="mdlVol"></div></div>
+      <div class="card viz"><div class="card-h"><h2>Скорость</h2><span class="small muted" id="mdlSpeedNote"></span></div><div id="mdlSpeed"></div></div>
+    </div>
+    <div class="card viz" id="mdlDetail"></div>
+    <div class="card viz">
+      <div class="card-h"><h2>Ускорение</h2><span class="small muted">оценка операций Power Query по объёмам ваших данных</span><span class="sp"></span><span class="legend"><i class="sw" style="background:var(--viz-2)"></i>сейчас <i class="sw" style="background:var(--viz-1)"></i>после исправления</span></div>
+      <div id="mdlSpeedup"></div>
+    </div>
+  </div>
+  <div class="viz-tip hidden" id="vizTip"></div>
+</section>

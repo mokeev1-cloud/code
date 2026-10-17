@@ -1,0 +1,63 @@
+<section class="view" id="view-home">
+  <div id="homeEmpty" class="welcome">
+    <div class="welcome-main">
+      <h1 class="hero">Мастер PQ</h1>
+      <p class="lead">Ускоритель и редактор кода Power Query. Показывает, где книга теряет время, сам исправляет то, что можно доказать на ваших данных, и помогает дорабатывать — вручную или вместе с ИИ через обезличенный обмен.</p>
+      <div class="drop big" id="homeDrop">
+        <svg class="drop-ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3"/></svg>
+        <div><b>Перетащите сюда книгу</b> — .xlsx · .xlsm · .xlsb · .pbix · .pbit</div>
+        <div class="row center">
+          <button class="btn pri lg" id="homeOpen">Открыть файл…</button>
+          <button class="btn lg" id="homePaste">Вставить M-код</button>
+          <button class="btn lg ghost" id="homeDemo" title="Тестовая книга с типичными проблемами: SQL, папка, веб-API, пароль в строке подключения">Открыть демо-книгу</button>
+        </div>
+        <div class="small muted">Всё — только в этом браузере, сеть запрещена. Таблицы книги и прикреплённые выгрузки читаются локально — для проверки запросов на данных. Наружу (ИИ, папка обмена) уходит только обезличенное.</div>
+      </div>
+      <div id="pasteBox" class="card hidden">
+        <div class="card-h"><h2>M-код текстом</h2><span class="small muted">из «Расширенного редактора» или section Section1; с несколькими shared</span></div>
+        <textarea id="pasteText" class="code" rows="10" spellcheck="false" placeholder="let&#10;    Источник = …&#10;in&#10;    Источник"></textarea>
+        <div class="row"><label class="small">Имя, если вставлен один запрос: <input type="text" id="pasteName" value="Запрос1"></label><span class="sp"></span><button class="btn pri" id="pasteGo">Разобрать</button></div>
+      </div>
+      <details class="card hints">
+        <summary>Как выгрузить из каждого формата</summary>
+        <ul class="small">
+          <li><b>.xlsx / .xlsm / .xlsb</b> — укажите файл книги. Чтобы потом сохранить «в оригинал», закройте книгу в Excel (Windows блокирует открытые файлы).</li>
+          <li><b>.pbit</b> — самый надёжный путь для Power BI: «Файл → Экспорт → Шаблон Power BI».</li>
+          <li><b>.pbix</b> — читается, если внутри есть часть DataMashup (старый формат). Новый формат хранит запросы в сжатой модели — сохраните как .pbit.</li>
+          <li><b>M-код текстом</b> — редактор Power Query → запрос → «Расширенный редактор» → <kbd>Ctrl</kbd>+<kbd>A</kbd>, <kbd>Ctrl</kbd>+<kbd>C</kbd>.</li>
+        </ul>
+      </details>
+    </div>
+    <div class="welcome-side">
+      <div class="card">
+        <div class="card-h"><h2>Недавние файлы</h2><span class="sp"></span><button class="link" id="recentClear">Очистить список</button></div>
+        <div id="recentList"></div>
+        <div class="small muted" id="recentNote"></div>
+      </div>
+      <div class="card features">
+        <h2>Что здесь есть</h2>
+        <ul>
+          <li><b>Карта модели</b> — источники, запросы, объёмы и время с одного взгляда</li>
+          <li><b>Проверка на данных</b> — запросы вычисляются на таблицах книги и выгрузках: дубли ключей, потери строк и сумм</li>
+          <li><b>⚡ Ускорить книгу</b> — проверенные исправления кода и настроек одной кнопкой и отчёт «было → стало»</li>
+          <li><b>Редактор M</b> — подсказки, проблемы в коде и живые данные шага под курсором</li>
+          <li><b>Обмен с ИИ</b> — обезличенный пакет, проверка глазами, ответ сверяется на данных до принятия</li>
+          <li><b>Запись в книгу</b> — копия или в оригинал с резервной копией; история правок с откатом</li>
+        </ul>
+        <div class="small muted">Нажмите <kbd>Ctrl</kbd>+<kbd>K</kbd> в любой момент — палитра команд.</div>
+      </div>
+    </div>
+  </div>
+  <div id="homeBook" class="hidden">
+    <div class="page-h"><h1 id="homeTitle">Обзор книги</h1><span class="sp"></span><button class="btn" id="homeClose" title="Закрыть книгу">Закрыть</button></div>
+    <div class="dash">
+      <div class="card dash-score" id="homeScore"></div>
+      <div class="card" id="homeFacts"></div>
+      <div class="card" id="homeNext"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Запросы</h2><span class="sp"></span><input type="search" id="homeFilter" placeholder="фильтр…"></div>
+      <div id="queryTable" class="table-wrap"></div>
+    </div>
+  </div>
+</section>

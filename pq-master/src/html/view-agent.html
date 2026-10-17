@@ -1,0 +1,31 @@
+<section class="view" id="view-agent">
+  <div class="page-h"><h1>Агент: Claude Code через папку обмена</h1></div>
+  <div class="card">
+    <p class="small">Claude Code работает <b>только</b> в папке обмена и видит лишь то, что туда положила эта страница: обезличенный код, граф, замечания, обезличенную диагностику, схему и синтетические данные. Ответы (патчи и запросы) он пишет в <code>inbox/</code>, страница показывает их вам и применяет только после подтверждения. Оригиналы и словарь в папку обмена не попадают никогда — это ограничение кода, а не настройка.</p>
+    <div class="note warn small"><b>Шлюз держится на изоляции.</b> Если Claude Code может прочитать папку с оригиналом, он прочитает её и без этой страницы. Запускайте Claude Code из папки обмена, держите оригиналы и словари в другой папке и используйте сгенерированный ниже <code>.claude/settings.json</code>. Лучшая изоляция — отдельная учётная запись или контейнер, где смонтирована только папка обмена.</div>
+    <div id="fsaSupport" class="small"></div>
+    <div class="row"><button class="btn pri" id="pickExch">📁 Выбрать папку обмена…</button><span id="exchState" class="small muted">папка не выбрана</span></div>
+    <h3>Комплект для Claude Code</h3>
+    <div class="small muted">Папки с оригиналами и словарями, которым будет запрещено чтение (по одной на строку):</div>
+    <textarea id="denyPaths" rows="2" class="code" placeholder="C:\Users\me\Documents\Отчёты"></textarea>
+    <div class="row"><button class="btn" id="writeKit">Записать CLAUDE.md и .claude/settings.json в папку</button><button class="btn" id="dlKit">⬇ Скачать комплект</button></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-h"><h2>Исходящие → outbox/</h2></div>
+      <div class="row"><button class="btn pri" id="sendPkg">Отправить пакет</button><label class="small"><input type="checkbox" id="autoReqs"> отвечать на запросы «обновить пакет» автоматически</label></div>
+      <p class="small muted">Пакет проходит сканер. Если найдено известное секретное значение или слово из чёрного списка, запись блокируется.</p>
+      <div id="outLog" class="small"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Входящие ← inbox/</h2></div>
+      <div class="row"><label class="small"><input type="checkbox" id="watchInbox" checked> следить за папкой (раз в 3 с)</label><button class="btn" id="checkInbox">Проверить</button><label class="btn" for="manualIn">Загрузить ответ…</label><input type="file" id="manualIn" accept=".json,.txt,.m" hidden></div>
+      <div id="inboxBox"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h"><h2>Журнал аудита</h2><span class="sp"></span><button class="btn" id="dlAudit">⬇ CSV</button></div>
+    <p class="small muted">Всё, что покинуло страницу (скачивания, буфер обмена, папка обмена), с SHA-256 содержимого.</p>
+    <div id="auditBox" class="scroll"></div>
+  </div>
+</section>

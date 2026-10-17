@@ -1,0 +1,38 @@
+<section class="view full" id="view-editor">
+  <div class="needbook-msg">Откройте книгу или вставьте M-код на странице «Обзор».</div>
+  <div class="ed-layout hasbook-flex">
+    <aside class="ed-left">
+      <div class="pane-h"><input type="search" id="edFilter" placeholder="Запросы…"><button class="iconbtn" id="edNew" title="Новый запрос"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <ul class="qlist" id="edQList"></ul>
+      <div class="pane-f small muted">⚙ параметр · ƒ функция · 🔌 источник · ▦ на лист · ◈ в модель</div>
+    </aside>
+    <div class="ed-center">
+      <div class="ed-toolbar">
+        <b id="edTitle" class="ed-title">—</b><span id="edDirty" class="badge warn hidden">правки не применены</span>
+        <span class="sp"></span>
+        <button class="btn pri" id="edApply" title="Применить правки к рабочей версии (Ctrl+Enter)">Применить</button>
+        <button class="btn" id="edRevert" title="Вернуть текст запроса из рабочей версии">Сбросить</button>
+        <button class="btn" id="edFormat" title="Выровнять отступы (Shift+Alt+F)">Формат</button>
+        <div class="dropdown"><button class="btn" data-menu="edRefMenu">Рефакторинг ▾</button>
+          <div class="menu" id="edRefMenu">
+            <button data-ref="renameStep">Переименовать шаг под курсором…</button>
+            <button data-ref="renameQuery">Переименовать запрос…</button>
+            <button data-ref="extract">Вынести шаги до курсора в новый запрос…</button>
+            <button data-ref="toFunction">Сделать выделенный литерал параметром функции…</button>
+            <button data-ref="duplicate">Дублировать запрос</button>
+            <button data-ref="delete" class="danger">Удалить запрос…</button>
+          </div></div>
+        <button class="btn" id="edSnippet" title="Вставить сниппет в позицию курсора">Сниппет</button>
+        <button class="btn" id="edDataBtn" title="Живые данные шага под курсором: строки, столбцы, превью (вычисляется в браузере)">▦ Данные</button>
+        <button class="btn" id="edRun" title="Пошаговый прогон в песочнице">▶ Прогон</button>
+      </div>
+      <div class="ed-host" id="edHost"></div>
+      <div class="ed-data hidden" id="edData"></div>
+      <div class="ed-flow" id="edFlow"></div>
+    </div>
+    <aside class="ed-right">
+      <div class="seg" id="edSideTabs"><button data-s="steps" class="on">Шаги</button><button data-s="doc">Справка</button><button data-s="issues">Проблемы</button></div>
+      <div id="edSide" class="ed-side"></div>
+    </aside>
+  </div>
+</section>

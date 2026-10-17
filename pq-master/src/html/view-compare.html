@@ -1,0 +1,11 @@
+<section class="view" id="view-compare">
+  <div class="page-h"><h1>Сравнение версий</h1></div>
+  <div class="card">
+    <div class="row">
+      <span class="small">А: <b id="cmpAName">текущая рабочая версия</b></span><label class="btn" for="cmpAFile">Другая А…</label><input type="file" id="cmpAFile" accept=".xlsx,.xlsm,.xlsb,.pbix,.pbit,.m,.pq,.txt" hidden>
+      <span class="small">Б: <b id="cmpBName">—</b></span><label class="btn pri" for="cmpBFile">Выбрать Б…</label><input type="file" id="cmpBFile" accept=".xlsx,.xlsm,.xlsb,.pbix,.pbit,.m,.pq,.txt" hidden>
+      <button class="btn" id="cmpOrig" title="Сравнить рабочую версию с исходной книгой">Рабочая ↔ исходная</button>
+    </div>
+  </div>
+  <div id="cmpResult"></div>
+</section>

@@ -117,6 +117,10 @@ function renderOptimizer(){
   if ($('#heatMore')) $('#heatMore').onclick = () => { OPT.heatAll = !OPT.heatAll; renderOptimizer(); };
   $$('[data-step]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q, x.dataset.step));
   $$('.qn[data-q]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q));
+  // как обновляется книга: макросы и подключения (на оценку не влияют)
+  const bi = S.book ? bookRefreshIssues(S.book) : [];
+  $('#optBook').classList.toggle('hidden', !bi.length);
+  $('#optBookList').innerHTML = bi.map(i => '<div class="bi ' + i.sev + '"><div class="oh"><span class="sev ' + i.sev + '">' + SEV_LABEL[i.sev] + '</span><span class="ot">' + escHtml(i.title) + '</span></div><div class="why">' + escHtml(i.text) + '</div>' + (i.how ? '<div class="fix">→ ' + escHtml(i.how) + '</div>' : '') + '</div>').join('');
   // фильтры
   const qs = $('#optQuery'); const cur = qs.value; qs.innerHTML = '<option value="">все запросы</option>' + [...new Set(O.findings.map(f => f.query))].map(q => '<option>' + escHtml(q) + '</option>').join(''); qs.value = cur;
   renderOptCards();

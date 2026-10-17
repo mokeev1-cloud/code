@@ -59,6 +59,7 @@ export const MANIFEST = [
   ['file', 'vendor/codemirror.entry.js'],
   ['vendor', 'vendor/codemirror.bundle.js'],
   ['js', 'src/js/core/zip-mashup.js'],
+  ['js', 'src/js/core/vba.js'],
   ['js', 'src/js/m/lang.js'],
   ['js', 'src/js/m/format.js'],
   ['js', 'src/js/m/reference.js'],

@@ -5,70 +5,71 @@
     node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
   Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      73–81     src/html/head.html
-      83–130    src/css/theme.css
-     131–199    src/css/themes.css
-     200–238    src/css/layout.css
-     239–422    src/css/components.css
-     423–479    src/css/editor.css
-     483–504    src/html/shell-top.html
-     505–568    src/html/view-home.html
-     569–606    src/html/view-editor.html
-     607–630    src/html/view-optimizer.html
-     631–653    src/html/view-graph.html
-     654–681    src/html/view-sandbox.html
-     682–693    src/html/view-reference.html
-     694–702    src/html/view-snippets.html
-     703–714    src/html/view-history.html
-     715–778    src/html/view-anon.html
-     779–795    src/html/view-diag.html
-     796–823    src/html/view-ai.html
-     824–856    src/html/view-agent.html
-     857–869    src/html/view-compare.html
-     870–881    src/html/view-docs.html
-     882–888    src/html/view-help.html
-     889–895    src/html/view-selftest.html
-     896–904    src/html/shell-bottom.html
-     906–1096   DEV.md
-    1099–1264   build.mjs
-    1265–1419   test/e2e.mjs
-    1420–1580   test/stress.mjs
-    1581–1594   vendor/codemirror.entry.js
-    1597–1612   vendor/codemirror.bundle.js
-    1616–2026   src/js/core/zip-mashup.js
-    2027–2299   src/js/m/lang.js
-    2300–2362   src/js/m/format.js
-    2363–2747   src/js/m/reference.js
-    2748–3503   src/js/m/interp.js
-    3504–4024   src/js/nda/anon.js
-    4025–4161   src/js/nda/diag.js
-    4162–4569   src/js/opt/lint.js
-    4570–4878   src/js/opt/optimizer.js
-    4879–4965   src/js/opt/refactor.js
-    4966–5113   src/js/opt/snippets.js
-    5114–5180   src/js/app/state.js
-    5181–5415   src/js/nda/agent.js
-    5416–5507   src/js/app/ui-base.js
-    5508–5673   src/js/app/storage.js
-    5674–5708   src/js/app/hints.js
-    5709–5925   src/js/app/shell.js
-    5926–5999   src/js/views/home.js
-    6000–6341   src/js/views/editor.js
-    6342–6492   src/js/views/optimizer.js
-    6493–6576   src/js/views/graph.js
-    6577–6687   src/js/views/sandbox.js
-    6688–6718   src/js/views/reference.js
-    6719–6756   src/js/views/snippets.js
-    6757–6777   src/js/views/history.js
-    6778–6919   src/js/views/anon.js
-    6920–6986   src/js/views/diag.js
-    6987–7100   src/js/views/ai.js
-    7101–7164   src/js/views/agent.js
-    7165–7191   src/js/views/compare.js
-    7192–7249   src/js/views/docs.js
-    7250–7409   src/js/views/help.js
-    7410–7718   src/js/app/selftest.js
-    7719–7732   src/js/app/main.js
+      74–82     src/html/head.html
+      84–131    src/css/theme.css
+     132–200    src/css/themes.css
+     201–239    src/css/layout.css
+     240–424    src/css/components.css
+     425–481    src/css/editor.css
+     485–506    src/html/shell-top.html
+     507–570    src/html/view-home.html
+     571–608    src/html/view-editor.html
+     609–636    src/html/view-optimizer.html
+     637–659    src/html/view-graph.html
+     660–687    src/html/view-sandbox.html
+     688–699    src/html/view-reference.html
+     700–708    src/html/view-snippets.html
+     709–720    src/html/view-history.html
+     721–784    src/html/view-anon.html
+     785–801    src/html/view-diag.html
+     802–829    src/html/view-ai.html
+     830–862    src/html/view-agent.html
+     863–875    src/html/view-compare.html
+     876–887    src/html/view-docs.html
+     888–894    src/html/view-help.html
+     895–901    src/html/view-selftest.html
+     902–910    src/html/shell-bottom.html
+     912–1102   DEV.md
+    1105–1271   build.mjs
+    1272–1439   test/e2e.mjs
+    1440–1615   test/stress.mjs
+    1616–1629   vendor/codemirror.entry.js
+    1632–1647   vendor/codemirror.bundle.js
+    1651–2078   src/js/core/zip-mashup.js
+    2079–2282   src/js/core/vba.js
+    2283–2555   src/js/m/lang.js
+    2556–2618   src/js/m/format.js
+    2619–3003   src/js/m/reference.js
+    3004–3761   src/js/m/interp.js
+    3762–4282   src/js/nda/anon.js
+    4283–4419   src/js/nda/diag.js
+    4420–4834   src/js/opt/lint.js
+    4835–5144   src/js/opt/optimizer.js
+    5145–5231   src/js/opt/refactor.js
+    5232–5379   src/js/opt/snippets.js
+    5380–5446   src/js/app/state.js
+    5447–5681   src/js/nda/agent.js
+    5682–5773   src/js/app/ui-base.js
+    5774–5943   src/js/app/storage.js
+    5944–5978   src/js/app/hints.js
+    5979–6195   src/js/app/shell.js
+    6196–6282   src/js/views/home.js
+    6283–6624   src/js/views/editor.js
+    6625–6779   src/js/views/optimizer.js
+    6780–6863   src/js/views/graph.js
+    6864–6974   src/js/views/sandbox.js
+    6975–7005   src/js/views/reference.js
+    7006–7043   src/js/views/snippets.js
+    7044–7064   src/js/views/history.js
+    7065–7206   src/js/views/anon.js
+    7207–7273   src/js/views/diag.js
+    7274–7387   src/js/views/ai.js
+    7388–7451   src/js/views/agent.js
+    7452–7478   src/js/views/compare.js
+    7479–7536   src/js/views/docs.js
+    7537–7696   src/js/views/help.js
+    7697–8038   src/js/app/selftest.js
+    8039–8052   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -419,6 +420,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .hintbar .hi-ic{font-size:15px;line-height:1.2}.hintbar .hi-t{flex:1}
 .hintbar button.link{white-space:nowrap;font-size:12.5px}
 .heat-q .reads{color:var(--warn);font-weight:700}
+.book-issues{display:grid;gap:10px}.book-issues .bi{border-left:3px solid var(--border2);padding:4px 0 4px 12px}.book-issues .bi.warn{border-left-color:var(--warn)}.book-issues .bi .why{margin-top:4px}.book-issues .bi .fix{color:var(--muted);font-size:13px;margin-top:2px}
 /* ===== END src/css/components.css ===== */
 /* ===== BEGIN src/css/editor.css ===== */
 /* Редактор: раскладка и тема CodeMirror */
@@ -618,6 +620,10 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
     <div class="card">
       <div class="card-h"><h2>Карта тяжести шагов</h2><span class="sp"></span><span class="small muted" id="heatNote"></span></div>
       <div id="optHeat"></div>
+    </div>
+    <div class="card hidden" id="optBook">
+      <div class="card-h"><h2>Как обновляется книга</h2><span class="sp"></span><span class="small muted">макросы и свойства подключений — на оценку не влияют</span></div>
+      <div id="optBookList" class="book-issues"></div>
     </div>
     <div class="filters">
       <div class="seg" id="optSafety"><button data-v="" class="on">Все</button><button data-v="safe">Безопасные</button><button data-v="check">Проверить</button><button data-v="manual">Вручную</button></div>
@@ -1158,6 +1164,7 @@ export const MANIFEST = [
   ['file', 'vendor/codemirror.entry.js'],
   ['vendor', 'vendor/codemirror.bundle.js'],
   ['js', 'src/js/core/zip-mashup.js'],
+  ['js', 'src/js/core/vba.js'],
   ['js', 'src/js/m/lang.js'],
   ['js', 'src/js/m/format.js'],
   ['js', 'src/js/m/reference.js'],
@@ -1387,6 +1394,19 @@ for (const th of ['dark', 'calm', 'fun']){
   await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
   await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
 }
+// книга с макросом обновления и подключениями: факты на обзоре и карточка «Как обновляется книга»
+await page.evaluate(async () => {
+  const src = 'Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub';
+  const conn = '<connections><connection id="1" name="Запрос — Продажи" type="5" background="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи" command="SELECT * FROM [Продажи]"/></connection></connections>';
+  await openFromBytes('macro.xlsm', await makeTestBook([['xl/vbaProject.bin', makeTestVba(src, 1251)], ['xl/connections.xml', conn]]));
+});
+await page.click('[data-view=home]'); await page.waitForTimeout(150);
+const facts = await page.$eval('#homeFacts', e => e.textContent);
+check('Обзор: макросы и подключения книги', /Module1\.Обновить/.test(facts) && /при открытии: 1/.test(facts), facts.replace(/\s+/g, ' ').slice(0, 160));
+await page.click('[data-view=optimizer]'); await page.waitForTimeout(250);
+const book = await page.$eval('#optBook', e => e.classList.contains('hidden') ? '' : e.textContent);
+check('Оптимизатор: «Как обновляется книга» — двойной RefreshAll и обновление при открытии', /обновляются 2 раза/.test(book) && /при открытии/.test(book), book.slice(0, 120));
+await shot('19-book-refresh');
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');
@@ -1449,7 +1469,7 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 const grab = (src, re) => { const m = re.exec(src); if (!m) throw new Error('не найдено в исходниках: ' + re); return m[0]; };
 
 // ядро без DOM + чистые функции из видов (syntaxIssues, applyAllSafeText) и тестовая книга из самотеста
-const CORE = ['core/zip-mashup.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
+const CORE = ['core/zip-mashup.js', 'core/vba.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
 const selftest = JS('app/selftest.js');
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, CompressionStream, DecompressionStream, Blob, Response, crypto, performance, setTimeout, atob, btoa });
 vm.runInContext(CORE.map(JS).join('\n') + '\n' +
@@ -1457,7 +1477,8 @@ vm.runInContext(CORE.map(JS).join('\n') + '\n' +
   grab(JS('views/optimizer.js'), /function applyAllSafeText[\s\S]*?\n}\n/) +
   grab(selftest, /const TEST_SECTION = \[[\s\S]*?\]\.join\([^)]*\);/) + '\n' +
   grab(selftest, /async function makeTestBook[\s\S]*?\n}\n/) +
-  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
+  grab(selftest, /function makeTestVba[\s\S]*?\n}\n/) +
+  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, makeTestVba, readVbaProject, vbaRefreshCalls, bookRefreshIssues, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
 const a = ctx.api;
 const semSrc = eval(grab(selftest, /const semSrc = '[^\n]*';/).replace(/^const semSrc = /, '').replace(/;$/, ''));
 const uaSrc = eval(grab(selftest, /const ua = \[[\s\S]*?\]\.join\('\\r\\n'\);/).replace(/^const ua = /, '').replace(/;$/, ''));   // сценарий учёта на выгрузках
@@ -1558,6 +1579,20 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
     catch (e){ if (/ТАЙМАУТ/.test(e.message)) fail('зависание', '(байты)'); else if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, '(байты)', e.message); }
   }
   report('Повреждённые книги', F, n + ' файлов');
+}
+
+// ---------- 4б. повреждённые макросы (xl/vbaProject.bin) ----------
+{
+  const good = a.makeTestVba('Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub', 1251);
+  const base = a.readVbaProject(good); const [F, fail] = failer(); const n = Math.max(500, ITER);
+  if (!base.modules.length || !/Обновить/.test(base.modules[0].code)) fail('исходный тестовый проект не читается', '(байты)');
+  for (let it = 0; it < n; it++){
+    const b = good.slice(); for (let i = 0, k = 1 + Math.floor(rnd() * 8); i < k; i++) b[Math.floor(rnd() * b.length)] = Math.floor(rnd() * 256);
+    const t0 = performance.now();
+    try { const v = a.readVbaProject(b); a.bookRefreshIssues({ vba: v }); } catch (e){ if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, '(байты)', e.message); }
+    if (performance.now() - t0 > 2000) fail('чтение дольше 2 с', '(байты)');
+  }
+  report('Повреждённые макросы', F, n + ' файлов');
 }
 
 // ---------- 5. скорость ----------
@@ -1856,6 +1891,22 @@ function parseMashupMetadata(metaBytes){
   } catch { /* метаданные — справочная информация, их отсутствие не мешает */ }
   return res;
 }
+/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
+    Только для советов; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
+/** Permissions (MS-QDEFF 2.4): FirewallEnabled=false — для книги выбрано «игнорировать уровни конфиденциальности».
+    Защищено Permission Bindings (DPAPI пользователя): после любой правки кода Excel сбрасывает к умолчанию. */
+function parsePermissions(xml){
+  if (!xml) return null;
+  const fw = /<(?:\w+:)?FirewallEnabled>\s*(true|false)\s*</i.exec(xml); const gt = /<(?:\w+:)?WorkbookGroupType\b[^>]*>\s*([^<\s]+)\s*</i.exec(xml);
+  return { firewall: fw ? fw[1].toLowerCase() === 'true' : null, group: gt ? gt[1] : null };
+}
+async function readRefreshParts(book, zip){
+  book.privacy = parsePermissions(book.dm && book.dm.info && book.dm.info.permissions);
+  const ce = zipFind(zip, 'xl/connections.xml');
+  if (ce){ try { book.conns = parseConnections(decodeText(await zipEntryBytes(ce)).text); } catch (e){ book.connsError = e.message; } }
+  const ve = zipFind(zip, 'xl/vbaProject.bin');
+  if (ve){ try { book.vba = readVbaProject(await zipEntryBytes(ve)); } catch (e){ book.vba = { modules: [], error: e.message }; } }
+}
 function metaVal(v){
   if (v == null) return null;
   const t = v[0], r = v.slice(1);
@@ -1937,6 +1988,7 @@ async function readBookBytes(name, u8){
       dm, pkg: section.pkg, secEntry: section.entry, secEnc: section.enc, secBom: section.bom });
     book.origSection = section.text;
     book.meta = parseMashupMetadata(dm.info.metadata);
+    await readRefreshParts(book, zip);
   }
   return book;
 }
@@ -2024,6 +2076,210 @@ async function buildPbiSchema(book, newSection){
   return zipWrite(out, book.zip.comment);
 }
 /* ===== END src/js/core/zip-mashup.js ===== */
+/* ===== BEGIN src/js/core/vba.js ===== */
+/* =====================================================================
+   core/vba.js — чтение исходного кода макросов VBA из xl/vbaProject.bin (.xlsm/.xlsb).
+   Нужно только для советов об обновлении запросов макросами; код макросов никуда не
+   выгружается и не попадает в пакеты для ИИ (может содержать пароли и пути).
+   Форматы: MS-CFB (составной файл OLE) → хранилище VBA → поток dir (MS-OVBA, сжат) →
+   имена модулей и смещения исходного текста → сжатый исходный текст в потоке модуля.
+   readVbaProject(u8) → { modules: [{ name, stream, code }], codePage } или бросает Error.
+   ===================================================================== */
+/** MS-CFB: дерево каталога и чтение потоков по пути вида 'VBA/dir' */
+function cfbOpen(u8){
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const SIG = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
+  if (u8.length < 512 || SIG.some((b, i) => u8[i] !== b)) throw new Error('vbaProject.bin: не составной файл OLE');
+  const secSize = 1 << dv.getUint16(30, true), miniSize = 1 << dv.getUint16(32, true);
+  const nFat = dv.getUint32(44, true), dirStart = dv.getUint32(48, true), miniCutoff = dv.getUint32(56, true);
+  const miniFatStart = dv.getUint32(60, true), difatStart = dv.getUint32(68, true);
+  const END = 0xFFFFFFFE, FREE = 0xFFFFFFFF;
+  if (secSize !== 512 && secSize !== 4096 || miniSize !== 64) throw new Error('vbaProject.bin: неверный размер сектора');
+  const nSec = Math.ceil(u8.length / secSize);   // все счётчики и номера секторов ограничены размером файла
+  if (nFat > nSec) throw new Error('vbaProject.bin: повреждён заголовок');
+  const secOff = s => (s + 1) * secSize;
+  const u32 = off => (off + 4 <= u8.length ? dv.getUint32(off, true) : FREE);
+  // DIFAT: 109 записей в заголовке + цепочка секторов DIFAT
+  const fatSecs = [];
+  for (let i = 0; i < 109 && fatSecs.length < nFat; i++){ const s = u32(76 + i * 4); if (s !== FREE && s < nSec) fatSecs.push(s); }
+  for (let s = difatStart, guard = 0; s !== END && s !== FREE && s < nSec && fatSecs.length < nFat && guard < nSec; guard++){
+    const per = secSize / 4 - 1; for (let i = 0; i < per && fatSecs.length < nFat; i++){ const v = u32(secOff(s) + i * 4); if (v !== FREE && v < nSec) fatSecs.push(v); }
+    s = u32(secOff(s) + per * 4);
+  }
+  const fat = []; for (const s of fatSecs) for (let i = 0; i < secSize / 4; i++) fat.push(u32(secOff(s) + i * 4));
+  const chain = (start, table, limit) => { const out = []; const seen = new Set(); for (let s = start; s !== END && s !== FREE && s < table.length && !seen.has(s) && out.length < limit; s = table[s]){ seen.add(s); out.push(s); } return out; };
+  const readBig = (start, size) => { if (size > u8.length) throw new Error('vbaProject.bin: неверный размер потока'); const out = new Uint8Array(size); let p = 0; for (const s of chain(start, fat, Math.ceil(size / secSize) + 1)){ const o = secOff(s); const n = Math.min(secSize, size - p); if (n <= 0) break; out.set(u8.subarray(o, o + n), p); p += n; } if (p < size) throw new Error('vbaProject.bin: поток обрезан'); return out; };
+  // каталог
+  const dirBytes = (() => { const secs = chain(dirStart, fat, nSec); const out = new Uint8Array(secs.length * secSize); secs.forEach((s, i) => out.set(u8.subarray(secOff(s), secOff(s) + secSize), i * secSize)); return out; })();
+  const ddv = new DataView(dirBytes.buffer);
+  const entries = [];
+  for (let off = 0; off + 128 <= dirBytes.length; off += 128){
+    const nl = ddv.getUint16(off + 64, true); const type = dirBytes[off + 66];
+    let name = ''; for (let i = 0; i + 1 < Math.min(nl, 64) - 1; i += 2) name += String.fromCharCode(ddv.getUint16(off + i, true));
+    entries.push({ name, type, left: ddv.getUint32(off + 68, true), right: ddv.getUint32(off + 72, true), child: ddv.getUint32(off + 76, true), start: ddv.getUint32(off + 116, true), size: ddv.getUint32(off + 120, true) });
+  }
+  const root = entries[0]; if (!root || root.type !== 5) throw new Error('vbaProject.bin: нет корневого каталога');
+  // мини-поток и мини-FAT
+  const miniStream = root.size ? readBig(root.start, root.size) : new Uint8Array(0);
+  const miniFat = []; for (const s of chain(miniFatStart, fat, nSec)) for (let i = 0; i < secSize / 4; i++) miniFat.push(u32(secOff(s) + i * 4));
+  const readMini = (start, size) => { if (size > miniStream.length) throw new Error('vbaProject.bin: неверный размер потока'); const out = new Uint8Array(size); let p = 0; for (const s of chain(start, miniFat, Math.ceil(size / miniSize) + 1)){ const o = s * miniSize; const n = Math.min(miniSize, size - p); if (n <= 0) break; out.set(miniStream.subarray(o, o + n), p); p += n; } if (p < size) throw new Error('vbaProject.bin: мини-поток обрезан'); return out; };
+  const children = idx => { const out = []; const walk = (i, depth) => { if (i === FREE || i >= entries.length || depth > 64) return; const e = entries[i]; walk(e.left, depth + 1); out.push(e); walk(e.right, depth + 1); }; walk(entries[idx].child, 0); return out; };
+  const find = path => { let idx = 0; for (const part of path.split('/')){ const c = children(idx).find(e => e.name.toUpperCase() === part.toUpperCase()); if (!c) return null; idx = entries.indexOf(c); } return entries[idx]; };
+  return {
+    has: path => !!find(path),
+    read(path){ const e = find(path); if (!e || e.type !== 2) throw new Error('vbaProject.bin: нет потока ' + path); return e.size < miniCutoff ? readMini(e.start, e.size) : readBig(e.start, e.size); },
+    list: path => { const e = path ? find(path) : entries[0]; return e ? children(entries.indexOf(e)).map(x => x.name) : []; }
+  };
+}
+/** MS-OVBA 2.4.1: распаковка CompressedContainer */
+function ovbaDecompress(src){
+  if (!src.length || src[0] !== 1) throw new Error('VBA: неверная сигнатура сжатого потока');
+  const out = []; let p = 1;
+  while (p + 2 <= src.length){
+    const hdr = src[p] | (src[p + 1] << 8); const size = (hdr & 0x0FFF) + 3; const compressed = hdr >> 15;
+    const end = Math.min(src.length, p + size); p += 2;
+    const chunkStart = out.length;
+    if (!compressed){ for (let i = 0; i < 4096 && p < end; i++) out.push(src[p++]); p = end; continue; }
+    while (p < end){
+      const flags = src[p++];
+      for (let bit = 0; bit < 8 && p < end; bit++){
+        if (!(flags & (1 << bit))){ if (out.length - chunkStart >= 4096) throw new Error('VBA: повреждённый сжатый поток'); out.push(src[p++]); continue; }
+        if (p + 2 > end) { p = end; break; }
+        const tok = src[p] | (src[p + 1] << 8); p += 2;
+        const diff = out.length - chunkStart; let bc = 4; while ((1 << bc) < diff) bc++;
+        const lenMask = 0xFFFF >> bc; const len = (tok & lenMask) + 3; const off = (tok >> (16 - bc)) + 1;
+        const from = out.length - off; if (from < chunkStart) throw new Error('VBA: повреждённый сжатый поток');
+        if (out.length - chunkStart + len > 4096) throw new Error('VBA: повреждённый сжатый поток');   // распакованный кусок — не больше 4096 байт
+        for (let i = 0; i < len; i++) out.push(out[from + i]);
+      }
+    }
+  }
+  return Uint8Array.from(out);
+}
+function readVbaProject(u8){
+  const cf = cfbOpen(u8);
+  const dirPath = cf.has('VBA/dir') ? 'VBA/dir' : cf.has('_VBA_PROJECT_CUR/VBA/dir') ? '_VBA_PROJECT_CUR/VBA/dir' : null;
+  if (!dirPath) throw new Error('vbaProject.bin: нет хранилища VBA');
+  const base = dirPath.slice(0, -3);
+  const dir = ovbaDecompress(cf.read(dirPath)); const dv = new DataView(dir.buffer);
+  let codePage = 1252; const mods = []; let cur = null;
+  const mbcs = b => { try { return new TextDecoder('windows-' + codePage).decode(b); } catch { return new TextDecoder('windows-1252').decode(b); } };
+  for (let p = 0; p + 6 <= dir.length;){
+    const id = dv.getUint16(p, true); let size = dv.getUint32(p + 2, true); p += 6;
+    if (id === 0x0009) size = 6;   // PROJECTVERSION: поле размера = 4, а данных 6 (MS-OVBA 2.3.4.2.1.11)
+    if (p + size > dir.length) break;
+    const data = dir.subarray(p, p + size); p += size;
+    if (id === 0x0003 && size === 2) codePage = data[0] | (data[1] << 8);
+    else if (id === 0x0019){ cur = { name: mbcs(data), stream: '', offset: 0 }; }
+    else if (id === 0x0047 && cur){ let s = ''; for (let i = 0; i + 1 < data.length; i += 2) s += String.fromCharCode(data[i] | (data[i + 1] << 8)); if (s) cur.name = s; }
+    else if (id === 0x001A && cur) cur.stream = mbcs(data);
+    else if (id === 0x0031 && cur && size === 4) cur.offset = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+    else if (id === 0x002B && cur){ mods.push(cur); cur = null; }
+  }
+  const modules = [];
+  for (const m of mods){
+    try { const raw = cf.read(base + (m.stream || m.name)); modules.push({ name: m.name, stream: m.stream, code: mbcs(ovbaDecompress(raw.subarray(m.offset))) }); }
+    catch (e){ modules.push({ name: m.name, stream: m.stream, code: '', error: e.message }); }
+  }
+  return { modules, codePage };
+}
+
+/* ---- Подключения книги (xl/connections.xml): свойства обновления запросов Power Query ---- */
+function xmlUnescape(s){ return String(s).replace(/&(quot|amp|lt|gt|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => ({ quot: '"', amp: '&', lt: '<', gt: '>', apos: "'" })[e.toLowerCase()] || (e[1].toLowerCase() === 'x' ? String.fromCodePoint(parseInt(e.slice(2), 16)) : String.fromCodePoint(+e.slice(1)))); }
+function xmlAttrs(s){ const o = {}; const re = /([\w:.-]+)\s*=\s*("([^"]*)"|'([^']*)')/g; let m; while ((m = re.exec(s))) o[m[1]] = xmlUnescape(m[3] != null ? m[3] : m[4]); return o; }
+/** [{ name, query, background, refreshOnLoad, mashup, … }] — только свойства подключений, без данных */
+function parseConnections(xml){
+  const out = []; const re = /<connection\b([^>]*?)(?:\/>|>([\s\S]*?)<\/connection>)/g; let m;
+  const flag = v => v === '1' || v === 'true';
+  while ((m = re.exec(xml))){
+    const a = xmlAttrs(m[1]); const inner = m[2] || '';
+    const db = /<dbPr\b([^>]*?)\/?>/.exec(inner); const d = db ? xmlAttrs(db[1]) : {};
+    const cs = d.connection || ''; const loc = /(?:^|;)\s*Location\s*=\s*(?:"((?:[^"]|"")*)"|([^;]*))/i.exec(cs);
+    const x15 = /<\w+:connection\b([^>]*?)\/?>/.exec(inner); const xa = x15 ? xmlAttrs(x15[1]) : {};   // MS-XLSX: x15:connection model / excludeFromRefreshAll
+    out.push({ id: a.id, name: a.name || '', background: flag(a.background), refreshOnLoad: flag(a.refreshOnLoad), saveData: flag(a.saveData), deleted: flag(a.deleted), model: flag(xa.model), excluded: flag(xa.excludeFromRefreshAll),
+      mashup: /Microsoft\.Mashup\.OleDb/i.test(cs), query: loc ? (loc[1] != null ? loc[1].replace(/""/g, '"') : loc[2].trim()) : null });
+  }
+  return out;
+}
+
+/* ---- Макросы, которые обновляют запросы ---- */
+/** Процедуры VBA с операторами обновления: [{ module, proc, line, kind, text }]; комментарии и строки учитываются */
+function vbaRefreshCalls(modules){
+  const out = [];
+  for (const md of modules || []){
+    const lines = String(md.code || '').split(/\r\n|\r|\n/); let proc = null; const loopVar = new Map();   // переменная цикла For Each → что перебирается
+    for (let i = 0; i < lines.length; i++){
+      let l = lines[i]; const ln = i + 1;
+      while (/\s_$/.test(l) && i + 1 < lines.length) l = l.slice(0, -1) + ' ' + lines[++i].trim();   // перенос строки « _»
+      // убрать комментарий: ' вне строковых литералов, Rem в начале оператора
+      let code = '', q = false; for (const ch of l){ if (ch === '"') q = !q; if (ch === "'" && !q) break; code += ch; }
+      if (/^\s*Rem\b/i.test(code) || /^\s*Attribute\s/i.test(code)) continue;
+      const pm = /^\s*(?:(?:Public|Private|Friend)\s+)?(?:Static\s+)?(?:Sub|Function|Property\s+(?:Get|Let|Set))\s+([^\s(]+)/i.exec(code);
+      if (pm){ proc = pm[1]; continue; }
+      if (/^\s*End\s+(Sub|Function|Property)\b/i.test(code)){ proc = null; continue; }
+      const t = code.trim(); if (!t) continue;
+      const fe = /^For\s+Each\s+(\w+)\s+In\s+(.+)$/i.exec(t);
+      if (fe){ loopVar.set(fe[1].toLowerCase(), /PivotCaches|PivotTables/i.test(fe[2]) ? 'pivot' : /\.Queries\b/i.test(fe[2]) ? 'query' : /Connections/i.test(fe[2]) ? 'conn' : /ListObjects|QueryTables/i.test(fe[2]) ? 'table' : 'other'); continue; }
+      const obj = (/^(\w+)\./.exec(t) || [])[1]; const via = obj ? loopVar.get(obj.toLowerCase()) : null;
+      const add = kind => out.push({ module: md.name, proc: proc || '(вне процедур)', line: ln, kind, text: t.length > 140 ? t.slice(0, 140) + '…' : t });
+      if (/(^|[.\s])RefreshAll\b/i.test(t)) add('refreshAll');
+      else if (/\.Model\.Refresh\b/i.test(t)) add('modelRefresh');
+      else if (/\.Queries\s*\([^)]*\)\s*\.Refresh\b/i.test(t) || (via === 'query' && /\.Refresh\b/i.test(t))) add('queryRefresh');
+      else if (/\bBackgroundQuery\s*=\s*False\b/i.test(t)) add('bgOff');
+      else if ((via === 'pivot' || /PivotCaches?\b|\.PivotCache\b|\.RefreshTable\b/i.test(t)) && /\.Refresh(Table)?\b/i.test(t)) add('pivot');
+      else if (/\.Refresh\b/i.test(t)){ add(/\.Refresh\s*\(?\s*(BackgroundQuery\s*:=\s*)?False\b/i.test(t) ? 'refreshSync' : 'refresh'); }
+      if (/\bCalculateUntilAsyncQueriesDone\b/i.test(t)) add('waitAsync');
+    }
+  }
+  return out;
+}
+/** Советы уровня книги об обновлении: макросы + свойства подключений.
+    → [{ sev, key, title, text, how }]; формулировки — по проверенным фактам (DEV.md, «Обновление книги») */
+function bookRefreshIssues(book){
+  const out = []; const add = (sev, key, title, text, how) => out.push({ sev, key, title, text, how: how || '' });
+  const pl = (n, one, few, many) => { const a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; };
+  const where = xs => (xs.length > 1 ? 'строки ' : 'строка ') + xs.map(x => x.line).join(', ');
+  if (book && book.vba && book.vba.error) add('info', 'vba-unreadable', 'Макросы не прочитаны', 'Файл макросов не удалось разобрать: ' + book.vba.error + '. Советы по макросам недоступны.');
+  const calls = vbaRefreshCalls(book && book.vba ? book.vba.modules : []);
+  const procs = new Map(); for (const c of calls){ const k = c.module + '.' + c.proc; if (!procs.has(k)) procs.set(k, []); procs.get(k).push(c); }
+  for (const [name, cs] of procs){
+    const all = cs.filter(c => c.kind === 'refreshAll'), first = all.length ? all[0].line : Infinity;
+    const single = cs.filter(c => c.kind === 'refresh' || c.kind === 'refreshSync' || c.kind === 'queryRefresh'), piv = cs.filter(c => c.kind === 'pivot' && c.line > first);
+    const model = cs.filter(c => c.kind === 'modelRefresh'), qAsync = cs.filter(c => c.kind === 'queryRefresh');
+    const sync = cs.filter(c => c.kind === 'bgOff' || c.kind === 'refreshSync');
+    if (all.length >= 2) add('warn', 'macro-refreshall-twice', 'Все запросы обновляются ' + all.length + ' ' + pl(all.length, 'раз', 'раза', 'раз'), 'Процедура «' + name + '» вызывает RefreshAll ' + all.length + ' ' + pl(all.length, 'раз', 'раза', 'раз') + ' (' + where(all) + '): каждый запрос книги вычисляется заново при каждом вызове — время обновления умножается.',
+      'Повторный RefreshAll обычно ставят, чтобы сводные увидели свежие данные после фонового обновления запросов. Вместо этого отключите фоновое обновление у подключений Power Query (BackgroundQuery = False — тогда RefreshAll дождётся запросов) и при необходимости обновите после него только сводные (PivotCache.Refresh). Application.CalculateUntilAsyncQueriesDone тоже ждёт фоновые запросы, но, по отзывам, не всегда надёжно.');
+    if (all.length && single.length) add('warn', 'macro-refresh-again', 'Таблицы обновляются дважды', 'В процедуре «' + name + '» есть и RefreshAll (' + where(all) + '), и отдельные обновления подключений или таблиц (' + where(single) + '): RefreshAll уже обновляет все подключения, поэтому эти запросы вычисляются ещё раз — неважно, до или после него.',
+      'Оставьте что-то одно: RefreshAll или обновление нужных таблиц по одной (если важен порядок).');
+    if (all.length && model.length) add('warn', 'macro-model-twice', 'Модель данных обновляется дважды', 'Процедура «' + name + '» вызывает и RefreshAll, и Model.Refresh (' + where(model) + '): Model.Refresh заново обновляет все источники модели данных, которые RefreshAll уже обновил.',
+      'Оставьте один из вызовов.');
+    if (all.length && piv.length) add('info', 'macro-pivot-again', 'Сводные обновляются отдельно', 'В процедуре «' + name + '» после RefreshAll отдельно обновляются сводные (' + where(piv) + '). RefreshAll обновляет и их — это ещё один проход.',
+      'Отдельное обновление сводных нужно, только если запросы обновляются в фоне и сводные успевают обновиться раньше данных. Тогда лучше отключить фоновое обновление у подключений Power Query — а отдельное обновление сводных убрать.');
+    if (qAsync.length) add('info', 'macro-query-async', 'Запрос обновляется асинхронно', 'Процедура «' + name + '» обновляет запрос через Queries(…).Refresh (' + where(qAsync) + '). По отзывам практиков, такой вызов не ждёт окончания обновления — следующие шаги макроса могут выполниться на старых данных, и тогда появляются лишние «страховочные» обновления.',
+      'Надёжнее обновлять таблицу, в которую загружен запрос: ListObjects(…).QueryTable.Refresh BackgroundQuery:=False.');
+    if (sync.length) add('info', 'macro-sync', 'Синхронное обновление в макросе', 'Процедура «' + name + '» обновляет запросы синхронно (BackgroundQuery = False, ' + where(sync) + '). Пока идёт обновление, Excel не отвечает — это штатное поведение, а не зависание. Так же ведут себя загрузки в модель данных: в фоне они не выполняются вообще. Такую строку часто оставляет запись макроса.',
+      'Часового обновления синхронный режим не объясняет: время уходит на сами запросы — ускоряйте их (советы оптимизатора). Чтобы видеть ход работы, обновляйте таблицы по одной и выводите шаг в Application.StatusBar.');
+    if (/\.(Workbook_Open|Auto_Open)$/i.test(name) && (all.length || single.length || model.length)) add('info', 'macro-on-open', 'Обновление при каждом открытии', 'Процедура «' + name + '» обновляет запросы при открытии книги: открытие длится столько же, сколько обновление.',
+      'Если свежие данные не нужны сразу при открытии, запускайте обновление кнопкой или отдельным макросом.');
+  }
+  const fast = (book && book.vba ? book.vba.modules : []).some(m => /\.FastCombine\s*=\s*True\b/i.test(m.code || ''));
+  if (calls.some(c => c.kind === 'refreshAll' || c.kind === 'refresh' || c.kind === 'refreshSync') && !fast)
+    add('info', 'macro-fastcombine', 'Уровни конфиденциальности в макросе обновления', 'Макрос обновляет запросы, а проверки уровней конфиденциальности (Formula.Firewall) остаются включёнными. Флаг книги «игнорировать уровни» действует только для пользователя, который её сохранил, и сбрасывается при изменении кода.',
+      'Если все источники — внутренние данные компании, добавьте в макрос перед обновлением строку ThisWorkbook.Queries.FastCombine = True (Excel 2016+): она действует для любого пользователя на время работы с книгой. Сравните время обновления до и после.');
+  const pq = (book && book.conns || []).filter(c => c.mashup && !c.deleted);
+  const props = 'свойствах подключения (Данные → Запросы и подключения → правый щелчок по запросу → Свойства; вкладка «Использование» / Usage — названия пунктов в русском Excel могут отличаться)';
+  const onLoad = pq.filter(c => c.refreshOnLoad);
+  if (onLoad.length) add('info', 'conn-refresh-on-open', 'Подключения обновляются при открытии', 'У ' + onLoad.length + ' ' + pl(onLoad.length, 'подключения', 'подключений', 'подключений') + ' включено обновление при открытии файла: ' + onLoad.map(c => c.query || c.name).join(', ') + '.',
+    'Если данные не нужны свежими в момент открытия, снимите «Refresh data when opening the file» в ' + props + '.');
+  const fg = pq.filter(c => !c.background && !c.model);
+  if (fg.length) add('info', 'conn-sync', 'Подключения обновляются синхронно', 'У ' + fg.length + ' ' + pl(fg.length, 'подключения', 'подключений', 'подключений') + ' Power Query выключено фоновое обновление (' + fg.map(c => c.query || c.name).join(', ') + '): «Обновить всё» блокирует Excel до конца обновления даже без макроса. Это не ошибка и само по себе обновление не удлиняет.',
+    'Если нужно работать в Excel во время обновления, включите «Enable background refresh» в ' + props + '.');
+  const excl = pq.filter(c => c.excluded);
+  if (pq.length >= 3) add('info', 'conn-refresh-all', excl.length ? 'Часть запросов исключена из «Обновить всё»' : 'Все запросы участвуют в «Обновить всё»', (excl.length ? 'Из «Обновить всё» исключены: ' + excl.map(c => c.query || c.name).join(', ') + '. Остальные ' : 'Все ') + (pq.length - excl.length) + ' ' + pl(pq.length - excl.length, 'запрос', 'запроса', 'запросов') + ' Power Query обновляются при каждом «Обновить всё».',
+    'Запросы со справочниками и архивами, которые не меняются, можно исключить: снимите «Refresh this connection on Refresh All» в ' + props + '. Обновляйте их вручную, когда данные действительно изменились.');
+  return out;
+}
+/* ===== END src/js/core/vba.js ===== */
 /* ===== BEGIN src/js/m/lang.js ===== */
 /* =====================================================================
    Язык M: лексер, структура скобок, section-документ, шаги let…in
@@ -3124,6 +3380,8 @@ const optCulture = o => { o = force(o); return o instanceof MRec ? (o.has('Cultu
 const optFormat = o => { o = force(o); return o instanceof MRec ? (o.has('Format') ? o.get('Format') : null) : (typeof o === 'string' && !/^[a-z]{2}-[A-Z]{2}$/.test(o) ? o : null); };
 const nn = f => (...a) => (force(a[0]) === null ? null : f(...a));
 const txt = (v, fn) => { v = force(v); if (v === null) return null; if (typeof v !== 'string') throw new MErr('Expression.Error', fn + ': ожидался text, получено ' + mTypeName(v) + ' (' + mToText(v).slice(0, 30) + '). Используйте Text.From()'); return v; };
+/** Количество элементов: целое ≥ 0; результат (count × per) — не больше 1 000 000, как у диапазонов {a..b} */
+const count = (v, fn, per) => { const n = num(v, fn); if (!Number.isInteger(n) || n < 0) throw new MErr('Expression.Error', fn + ': количество должно быть целым неотрицательным числом, получено ' + n); if (n * Math.max(1, per || 1) > 1e6) throw new MErr('Expression.Error', fn + ': слишком большой результат (больше 1 000 000 элементов) — в песочнице это ограничено'); return n; };
 const num = (v, fn) => { v = force(v); if (typeof v !== 'number') throw new MErr('Expression.Error', fn + ': ожидалось число, получено ' + mTypeName(v)); return v; };
 const lst = (v, fn) => { v = force(v); if (!Array.isArray(v)) throw new MErr('Expression.Error', fn + ': ожидался list, получено ' + mTypeName(v)); return v.map(force); };
 const tab = (v, fn) => { v = force(v); if (!(v instanceof MTab)) throw new MErr('Expression.Error', fn + ': ожидалась table, получено ' + mTypeName(v)); return v; };
@@ -3249,10 +3507,10 @@ def('List.ContainsAll', (l, vs) => { l = lst(l); return lst(vs).every(v => l.som
 def('List.PositionOf', (l, v, occ) => { l = lst(l); v = force(v); occ = force(occ); if (occ === 2) return l.map((x, i) => mEquals(x, v) ? i : -1).filter(i => i >= 0); if (occ === 1){ for (let i = l.length - 1; i >= 0; i--) if (mEquals(l[i], v)) return i; return -1; } return l.findIndex(x => mEquals(x, v)); });
 def('List.Combine', ls => lst(ls).flatMap(x => lst(x, 'List.Combine')));
 def('List.Zip', ls => { ls = lst(ls).map(x => lst(x)); const n = Math.max(0, ...ls.map(x => x.length)); return Array.from({ length: n }, (_, i) => ls.map(x => i < x.length ? x[i] : null)); });
-def('List.Numbers', (s, c, inc) => { s = num(s); c = num(c); inc = force(inc) == null ? 1 : num(inc); return Array.from({ length: c }, (_, i) => s + i * inc); });
-def('List.Dates', (s, c, step) => { s = needDate(s, 'List.Dates'); step = force(step); return Array.from({ length: num(c) }, (_, i) => new MDate(s.kind, s.ms + i * step.ms)); });
+def('List.Numbers', (s, c, inc) => { s = num(s); c = count(c, 'List.Numbers'); inc = force(inc) == null ? 1 : num(inc); return Array.from({ length: c }, (_, i) => s + i * inc); });
+def('List.Dates', (s, c, step) => { s = needDate(s, 'List.Dates'); step = force(step); return Array.from({ length: count(c, 'List.Dates') }, (_, i) => new MDate(s.kind, s.ms + i * step.ms)); });
 MLIB['List.DateTimes'] = MLIB['List.Dates'];
-def('List.Repeat', (l, n) => { l = lst(l); let o = []; for (let i = 0; i < num(n); i++) o = o.concat(l); return o; });
+def('List.Repeat', (l, n) => { l = lst(l); n = count(n, 'List.Repeat', l.length); const o = []; for (let i = 0; i < n; i++) o.push(...l); return o; });
 def('List.RemoveNulls', l => lst(l).filter(x => x !== null));
 def('List.RemoveItems', (a, b) => { b = lst(b); return lst(a).filter(x => !b.some(y => mEquals(x, y))); });
 def('List.InsertRange', (l, i, v) => { l = lst(l); return l.slice(0, num(i)).concat(lst(v), l.slice(num(i))); });
@@ -3266,7 +3524,7 @@ def('List.AnyTrue', l => lst(l).some(x => x === true));
 def('List.MatchesAll', (l, f) => lst(l).every(x => callFn(f, [x]) === true));
 def('List.MatchesAny', (l, f) => lst(l).some(x => callFn(f, [x]) === true));
 def('List.Buffer', l => lst(l, 'List.Buffer'));
-def('List.Split', (l, n) => { l = lst(l); n = num(n); const o = []; for (let i = 0; i < l.length; i += n) o.push(l.slice(i, i + n)); return o; });
+def('List.Split', (l, n) => { l = lst(l); n = count(n, 'List.Split'); if (n < 1) throw new MErr('Expression.Error', 'List.Split: размер страницы должен быть не меньше 1'); const o = []; for (let i = 0; i < l.length; i += n) o.push(l.slice(i, i + n)); return o; });
 def('List.Alternate', (l, c, r, o) => { l = lst(l); c = num(c); r = force(r) == null ? 1 : num(r); o = force(o) || 0; return l.filter((_, i) => { if (i < o) return true; const k = (i - o) % (c + r); return k >= c; }); });
 // --- Record
 def('Record.Field', (r, f) => { r = rec(r, 'Record.Field'); f = txt(f); if (!r.has(f)) throw new MErr('Expression.Error', 'Поле «' + f + '» записи не найдено'); return r.get(f); });
@@ -3388,7 +3646,7 @@ def('Table.RemoveLastN', (t, n) => { t = tab(t); n = force(n) == null ? 1 : num(
 def('Table.Range', (t, o, c) => { t = tab(t); o = num(o); c = force(c); return new MTab(t.cols.slice(), c == null ? t.rows.slice(o) : t.rows.slice(o, o + c)); });
 def('Table.RemoveRows', (t, o, c) => { t = tab(t); o = num(o); c = force(c) == null ? 1 : num(c); return new MTab(t.cols.slice(), t.rows.filter((_, i) => i < o || i >= o + c)); });
 def('Table.ReverseRows', t => { t = tab(t); return new MTab(t.cols.slice(), t.rows.slice().reverse()); });
-def('Table.Repeat', (t, n) => { t = tab(t); let rows = []; for (let i = 0; i < num(n); i++) rows = rows.concat(t.rows); return new MTab(t.cols.slice(), rows); });
+def('Table.Repeat', (t, n) => { t = tab(t); n = count(n, 'Table.Repeat', t.rows.length); const rows = []; for (let i = 0; i < n; i++) rows.push(...t.rows); return new MTab(t.cols.slice(), rows); });
 def('Table.Buffer', t => tab(t, 'Table.Buffer'));
 def('Table.StopFolding', t => tab(t));
 def('Table.Combine', ts => tableCombine(lst(ts, 'Table.Combine').map(x => tab(x, 'Table.Combine'))));
@@ -4316,19 +4574,26 @@ function lintSection(A){
     if (tryN) add('info', 'try-null', m.name, '', 'try … otherwise null встречается ' + tryN + ' раз: ошибки молча превращаются в пустые значения.', 'Для отладки временно уберите otherwise или выводите текст ошибки: try x otherwise [Error=…].');
     const loadKnown = m.meta && (m.meta.FillEnabled != null || m.meta.FillToDataModelEnabled != null);
     if (loadKnown && !m.load.sheet && !m.load.model && !m.usedBy.length && !m.isParam && !m.isFn) add('info', 'orphan', m.name, '', 'Запрос не загружается и никем не используется.', 'Если он не нужен — удалите, это ускорит «Обновить всё».');
+    if (loadKnown && (m.load.sheet || m.load.model) && m.usedBy.length && !m.isParam && !m.isFn)
+      add('info', 'loaded-staging', m.name, '', 'Промежуточный запрос загружается ' + (m.load.sheet && m.load.model ? 'на лист и в модель данных' : m.load.sheet ? 'на лист' : 'в модель данных') + ', и на него же ссылаются: ' + m.usedBy.join(', ') + '.',
+        'Если его собственная таблица не нужна, сделайте его «Только подключение» (Данные → Запросы и подключения → правый щелчок → Загрузить в… → Только создать подключение): Excel не будет вычислять и выгружать его отдельно. Запросы, которые на него ссылаются, вычисляют его сами — об этом совет «Источник читается несколько раз».');
     const rd = reads.get(m.name);
     const heavy = m.hasSource || rowLookups(A, m).some(h => h.kind === 'table' || h.kind === 'hoist') || m.calls.some(c => HEAVY_STEP_FNS.has(c.fn));
-    if (heavy && !m.isParam && !m.isFn && rd && rd.length >= 2) add('warn', 'multi-eval', m.name, '', 'При «Обновить всё» этот ' + (m.hasSource ? 'запрос с внешним источником' : 'тяжёлый запрос') + ' вычисляется ≈' + rd.length + ' раз — отдельно для каждой загружаемой таблицы, которая от него зависит: ' + rd.join(', ') + '. Excel не делит результат между ними, Table.Buffer тут не поможет — он действует только внутри одного запроса.', 'Оставьте загружаемыми только итоговые таблицы, промежуточные — «Только подключение»; объедините расчёты на одних данных в меньшее число загружаемых запросов; или загрузите тяжёлый промежуточный результат один раз на лист и стройте отчёты от этой таблицы (Excel.CurrentWorkbook). Фильтруйте и убирайте лишние столбцы как можно раньше.');
+    if (heavy && !m.isParam && !m.isFn && rd && rd.length >= 2) add('warn', 'multi-eval', m.name, '', 'При «Обновить всё» этот ' + (m.hasSource ? 'запрос с внешним источником' : 'тяжёлый запрос') + ' вычисляется ≈' + rd.length + ' ' + (rd.length % 10 >= 2 && rd.length % 10 <= 4 && (rd.length % 100 < 12 || rd.length % 100 > 14) ? 'раза' : 'раз') + ' — отдельно для каждой загружаемой таблицы, которая от него зависит: ' + rd.join(', ') + '. Excel не делит результат между ними, Table.Buffer тут не поможет — он действует только внутри одного запроса.', 'Оставьте загружаемыми только итоговые таблицы, промежуточные — «Только подключение»; объедините расчёты на одних данных в меньшее число загружаемых запросов; или загрузите тяжёлый промежуточный результат один раз на лист и стройте отчёты от этой таблицы (Excel.CurrentWorkbook). Фильтруйте и убирайте лишние столбцы как можно раньше.');
   }
   // настройки Excel, которые не задаются кодом M, — один совет на книгу с файлами или смешанными источниками
   const kinds = new Set(); let fileQ = null;
   for (const m of members) for (const x of m.sources){ kinds.add(x === 'Excel.CurrentWorkbook' ? 'book' : FILE_SOURCES.has(x) ? 'file' : FOLDABLE_SOURCES.has(x) ? 'db' : 'other'); if (!fileQ && FILE_SOURCES.has(x)) fileQ = m; }
   const anySrc = members.find(x => x.sources.length);
   if (anySrc && (fileQ || kinds.size >= 2 || A.family === 'pbi')){
-    const xl = 'Excel — Данные → Получить данные → Параметры запроса: Текущая книга → Конфиденциальность — вариант, при котором уровни конфиденциальности игнорируются; Текущая книга → Загрузка данных — отключите фоновую загрузку предварительного просмотра; в свойствах загружаемых запросов (Запросы и подключения → правый щелчок → Свойства) включите быструю загрузку данных; промежуточные запросы — «Только создать подключение».';
-    const bi = 'Power BI Desktop — Файл → Параметры и настройки → Параметры: Текущий файл → Конфиденциальность — игнорировать уровни конфиденциальности; Текущий файл → Загрузка данных — отключите фоновую загрузку предварительного просмотра и автоматические дату и время (скрытые таблицы дат для каждого столбца дат), включите параллельную загрузку таблиц; у промежуточных запросов снимите «Включить загрузку».';
-    add('info', 'excel-settings', (fileQ || anySrc).name, '', 'Настройки, которые ускоряют обновление и не задаются кодом M.',
-      (A.family === 'pbi' ? bi : A.family === 'excel' ? xl : xl + ' ' + bi) + ' Игнорировать уровни конфиденциальности стоит, только если все источники — внутренние данные: так исчезают проверки Formula.Firewall при смешивании источников.');
+    const pv = A.privacy && A.privacy.firewall === false;
+    const xl = 'Excel (Data → Get Data → Query Options; по-русски примерно «Данные → Получить данные → Параметры запроса», названия пунктов могут отличаться): ' +
+      '(1) Конфиденциальность. ' + (pv ? 'Для этой книги уже выбрано «игнорировать уровни конфиденциальности» — но этот флаг действует только для пользователя Windows, который сохранил книгу, и сбрасывается, как только код запросов меняется (в том числе при сохранении из Мастера PQ). ' : 'Current Workbook → Privacy → «Ignore the Privacy Levels…» убирает проверки Formula.Firewall и буферизацию при смешивании источников; это работает, только если в Global → Privacy стоит вариант «по настройкам каждого файла». Флаг книги действует только для пользователя, который её сохранил. ') +
+      'Для всех, кто обновляет книгу макросом, надёжнее ThisWorkbook.Queries.FastCombine = True перед RefreshAll. Игнорировать уровни стоит, только если все источники — внутренние данные компании. ' +
+      '(2) Current Workbook → Data Load → «Allow data previews to download in the background»: в книгах с множеством промежуточных запросов фоновое обновление предпросмотров нагружает Excel во время «Обновить всё»; источники расходятся в том, какое положение быстрее, — проверьте оба и замерьте. ' +
+      '(3) Промежуточные запросы — «Только создать подключение» (Load To… → Only Create Connection).';
+    const bi = 'Power BI Desktop (File → Options and settings → Options; по-русски примерно «Файл → Параметры и настройки → Параметры»): Current File → Privacy — игнорировать уровни конфиденциальности (только если все источники внутренние); Current File → Data Load — проверьте фоновую загрузку предпросмотра в обоих положениях (Microsoft для Power BI советует её включать), отключите автоматические дату и время (скрытые таблицы дат для каждого столбца дат), включите параллельную загрузку таблиц; у промежуточных запросов снимите «Enable load».';
+    add('info', 'excel-settings', (fileQ || anySrc).name, '', 'Настройки, которые влияют на скорость обновления и не задаются кодом M.', A.family === 'pbi' ? bi : A.family === 'excel' ? xl : xl + ' ' + bi);
   }
   for (const [key, qs] of srcKeys) if (qs.size >= 2) add('info', 'repeated-source', [...qs][0], '', 'Источник ' + key + ' читается в ' + qs.size + ' запросах: ' + [...qs].join(', ') + '.', 'Вынесите подключение в один промежуточный запрос (без загрузки) и ссылайтесь на него — проще поддерживать и легче управлять уровнями конфиденциальности.');
   const cand = paramCandidates(A);
@@ -4739,6 +5004,7 @@ function optimizeSection(text, A, lint){
         const d = l.data; const fix = d && step ? bufferFix(A, m, step, d.kind, d.expr, d.occ) : null;
         add(Object.assign(base, { title: 'Буферизация внутри each', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Вынести буфер в отдельный шаг', fix })); break; }
       case 'manual-mapping': add(Object.assign(base, { title: 'Разметка цепочкой условий в коде', impact: ['clarity', 'speed'], safety: 'manual' })); break;
+      case 'loaded-staging': add(Object.assign(base, { title: 'Промежуточный запрос загружается', impact: ['speed'], safety: 'manual' })); break;
       case 'late-filter': add(Object.assign(base, { title: 'Фильтр можно поднять выше', impact: ['speed'], safety: 'manual' })); break;
       case 'late-columns': add(Object.assign(base, { title: 'Лишние столбцы удаляются поздно', impact: ['speed'], safety: 'manual' })); break;
       case 'sharepoint-files': add(Object.assign(base, { title: 'SharePoint.Files перечисляет весь сайт', impact: ['speed'], safety: 'manual' })); break;
@@ -5144,7 +5410,7 @@ function emitState(reason){ for (const f of _listeners){ try { f(reason); } catc
 /** Пересчитать анализ, линтер и оптимизатор для текущей рабочей версии */
 function reanalyze(){
   if (!S.work){ S.A = null; S.lint = []; S.opt = null; return; }
-  S.A = analyzeSection(S.work, S.book ? S.book.meta : {}); S.A.family = S.book ? S.book.family : null;   // excel / pbi — для советов по настройкам
+  S.A = analyzeSection(S.work, S.book ? S.book.meta : {}); S.A.family = S.book ? S.book.family : null; S.A.privacy = S.book ? S.book.privacy : null;   // для советов по настройкам
   S.lint = lintSection(S.A);
   S.opt = optimizeSection(S.work, S.A, S.lint);
   if (!S.sel || !S.A.byName.has(S.sel)) S.sel = S.A.members[0] ? S.A.members[0].name : null;
@@ -5615,6 +5881,9 @@ async function confirmPbi(){
   if (S.book.family !== 'pbi') return true;
   return (await modal('<h2>Экспериментальная запись Power BI</h2><p>Microsoft не поддерживает изменение .pbix/.pbit сторонними средствами. Будет удалена часть SecurityBindings (иначе Power BI отвергнет файл). Если Power BI Desktop не откроет результат — скопируйте код запросов в Расширенный редактор.</p>', [['cancel', 'Отмена'], ['go', 'Продолжить', 'pri']])) === 'go';
 }
+/** Правка кода сбрасывает в Excel флаг «игнорировать уровни конфиденциальности» книги (MS-QDEFF 2.6: Permission Bindings) */
+const privacyResetNote = () => S.book && S.book.privacy && S.book.privacy.firewall === false && S.work !== S.book.origSection
+  ? 'Для этой книги было выбрано «игнорировать уровни конфиденциальности». После изменения кода Excel сбросит эту настройку — включите её снова (Параметры запроса → Текущая книга → Конфиденциальность) или задайте ThisWorkbook.Queries.FastCombine = True в макросе обновления.' : '';
 async function saveCopy(){
   if (!S.book) return;
   try {
@@ -5627,8 +5896,9 @@ async function saveCopy(){
         const h = await window.showSaveFilePicker({ suggestedName: name, startIn: S.book.handle || 'documents', id: 'pqm-save', types: [{ description: 'Книга', accept: { 'application/octet-stream': [bookExt()] } }] });
         const w = await h.createWritable(); await w.write(bytes); await w.close();
         toast('Копия сохранена: ' + h.name + '. Откройте её в Excel → «Данные» → «Обновить всё».', 'ok', 7000);
+        if (privacyResetNote()) toast(privacyResetNote(), 'warn', 15000);
       } catch (e){ if (e.name === 'AbortError') return; throw e; }
-    } else { download(name, new Blob([bytes])); toast('Копия скачана: ' + name, 'ok'); }
+    } else { download(name, new Blob([bytes])); toast('Копия скачана: ' + name, 'ok'); if (privacyResetNote()) toast(privacyResetNote(), 'warn', 15000); }
     S.lastCopy = new Date(); emitState('saved');
   } catch (e){ console.error(e); toast('Сохранение: ' + e.message, 'bad'); }
 }
@@ -5638,7 +5908,7 @@ async function saveToOriginal(){
   if (!S.book.handle) return modal('<h2>Нет доступа к исходному файлу</h2><p>Книга открыта так, что браузер не дал ссылку на сам файл (выбор через старый диалог или браузер без File System Access). Откройте её кнопкой <b>«Открыть»</b> или перетаскиванием в Chrome/Edge — тогда запись в оригинал станет доступна. Пока можно «Сохранить копию».</p>');
   if (!isDirty()) return toast('Рабочая версия совпадает с файлом — записывать нечего', 'warn');
   const backup = pqmSettings().backupOnSave;
-  const ok = await modal('<h2>Записать изменения в «' + escHtml(S.book.name) + '»?</h2><ul><li><b>Закройте книгу в Excel</b> — иначе Windows не даст её перезаписать.</li>' + (backup ? '<li>Сначала будет сохранена <b>резервная копия</b> исходного файла (вы выберете место, по умолчанию — рядом с книгой).</li>' : '<li class="warn">Резервная копия отключена в настройках.</li>') + '<li>После записи файл будет перечитан и сверен с рабочей версией.</li><li>Excel может заново спросить уровни конфиденциальности источников.</li></ul>', [['cancel', 'Отмена'], ['go', 'Записать', 'pri']]);
+  const ok = await modal('<h2>Записать изменения в «' + escHtml(S.book.name) + '»?</h2><ul><li><b>Закройте книгу в Excel</b> — иначе Windows не даст её перезаписать.</li>' + (privacyResetNote() ? '<li>' + escHtml(privacyResetNote()) + '</li>' : '') + (backup ? '<li>Сначала будет сохранена <b>резервная копия</b> исходного файла (вы выберете место, по умолчанию — рядом с книгой).</li>' : '<li class="warn">Резервная копия отключена в настройках.</li>') + '<li>После записи файл будет перечитан и сверен с рабочей версией.</li><li>Excel может заново спросить уровни конфиденциальности источников.</li></ul>', [['cancel', 'Отмена'], ['go', 'Записать', 'pri']]);
   if (ok !== 'go') return;
   if (!(await confirmPbi())) return;
   const h = S.book.handle;
@@ -5968,9 +6238,11 @@ function renderHome(){
     (dmi ? '<span>DataMashup</span><span class="small">версия ' + dmi.version + ' · код ' + fmtBytes(dmi.partsLen) + (dmi.metaLen != null ? ' · метаданные ' + fmtBytes(dmi.metaLen) : '') + '</span>' : '') +
     '<span>Запросы</span><span>' + A.members.length + ' · загружаются: ' + A.members.filter(m => m.load.sheet || m.load.model).length + ' · параметры: ' + A.members.filter(m => m.isParam).length + ' · функции: ' + A.members.filter(m => m.isFn).length + '</span>' +
     '<span>Источники</span><span>' + (srcs.length ? srcs.map(x => '<span class="badge">' + escHtml(x) + '</span>').join(' ') : '—') + '</span>' +
+    refreshFacts(b) +
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
@@ -5996,6 +6268,17 @@ function renderQueryTable(){
 }
 $('#homeFilter').addEventListener('input', () => S.book && renderQueryTable());
 registerView('home', { render: renderHome, alwaysRender: true });
+/** Строки «Макросы» и «Подключения» для фактов о книге */
+function refreshFacts(b){
+  let h = '';
+  if (b.vba){ const calls = vbaRefreshCalls(b.vba.modules); const procs = [...new Set(calls.map(c => c.module + '.' + c.proc))];
+    h += '<span>Макросы</span><span>' + (b.vba.error ? '<span class="badge warn">не прочитаны</span>' : b.vba.modules.length + ' модулей' + (procs.length ? ' · обновляют запросы: ' + procs.map(x => '<span class="badge">' + escHtml(x) + '</span>').join(' ') : ' · запросы не обновляют')) + '</span>'; }
+  if (b.privacy && b.privacy.firewall != null) h += '<span>Конфиденциальность</span><span>' + (b.privacy.firewall ? 'уровни конфиденциальности учитываются (по умолчанию)' : '<span class="badge warn">для книги выбрано «игнорировать»</span> <span class="small muted">действует только для сохранившего пользователя; сбросится после изменения кода</span>') + '</span>';
+  const pq = (b.conns || []).filter(c => c.mashup && !c.deleted);
+  if (pq.length){ const onl = pq.filter(c => c.refreshOnLoad).length, bg = pq.filter(c => c.background).length;
+    h += '<span>Подключения</span><span>' + pq.length + ' Power Query · фоновое обновление: ' + bg + (onl ? ' · <span class="badge warn">при открытии: ' + onl + '</span>' : '') + '</span>'; }
+  return h;
+}
 /* ===== END src/js/views/home.js ===== */
 /* ===== BEGIN src/js/views/editor.js ===== */
 /* =====================================================================
@@ -6459,6 +6742,10 @@ function renderOptimizer(){
   if ($('#heatMore')) $('#heatMore').onclick = () => { OPT.heatAll = !OPT.heatAll; renderOptimizer(); };
   $$('[data-step]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q, x.dataset.step));
   $$('.qn[data-q]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q));
+  // как обновляется книга: макросы и подключения (на оценку не влияют)
+  const bi = S.book ? bookRefreshIssues(S.book) : [];
+  $('#optBook').classList.toggle('hidden', !bi.length);
+  $('#optBookList').innerHTML = bi.map(i => '<div class="bi ' + i.sev + '"><div class="oh"><span class="sev ' + i.sev + '">' + SEV_LABEL[i.sev] + '</span><span class="ot">' + escHtml(i.title) + '</span></div><div class="why">' + escHtml(i.text) + '</div>' + (i.how ? '<div class="fix">→ ' + escHtml(i.how) + '</div>' : '') + '</div>').join('');
   // фильтры
   const qs = $('#optQuery'); const cur = qs.value; qs.innerHTML = '<option value="">все запросы</option>' + [...new Set(O.findings.map(f => f.query))].map(q => '<option>' + escHtml(q) + '</option>').join(''); qs.value = cur;
   renderOptCards();
@@ -7320,7 +7607,7 @@ const HELP_HTML = `
 <li><b>Сохранить копию</b> — новая книга <code>имя_исправлено.xlsx</code>. Оригинал не меняется. В Chrome и Edge можно выбрать место сохранения.</li>
 <li><b>В оригинал</b> — запись поверх исходного файла. Перед записью страница проверяет, что файл на диске не менялся с момента открытия, и (по умолчанию) сохраняет резервную копию <code>имя.backup-ДАТА.xlsx</code>. После записи файл перечитывается и сверяется. <b>Книга должна быть закрыта в Excel</b> — иначе Windows не даст записать.</li>
 <li>Доступно, если книга открыта кнопкой «Открыть», перетаскиванием или из «Недавних» в Chrome или Edge: тогда браузер даёт доступ к самому файлу.</li>
-<li>После сохранения: откройте книгу → «Данные» → «Обновить всё». Excel может заново спросить уровни конфиденциальности: разрешения внутри книги привязаны к старому коду. Новые запросы появятся как «только подключение».</li>
+<li>После сохранения: откройте книгу → «Данные» → «Обновить всё». Если для книги было выбрано «игнорировать уровни конфиденциальности», после изменения кода Excel сбросит эту настройку (она привязана к коду и к пользователю, который сохранил книгу) — включите её снова или используйте ThisWorkbook.Queries.FastCombine = True в макросе обновления. Новые запросы появятся как «только подключение».</li>
 <li>Неизменённые части книги копируются байт в байт. Меняется только код запросов (Formulas/Section1.m) и длины блоков DataMashup.</li>
 </ul></div>
 
@@ -7458,7 +7745,7 @@ const TEST_SECTION = [
 ].join('\r\n');
 const TEST_SECRETS = ['sql-prod-01.corp.local', 'SalesDB', 'fileserver01', 'C:\\Users\\ivanov', 'SECRETKEY123', 'eyJhbGciOiJIUzI1NiJ9', 'analyst@company.ru', 'ivanov@company.ru', '10.20.30.40', '10.1.2.3', 'svc_user', 'P@ssw0rd!', "'North'", '"North"', 'ООО Ромашка', 'D:\\Отчёты'];
 
-async function makeTestBook(){
+async function makeTestBook(extra){
   const x = s => te.encode(s);
   const ctPkg = '<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="m" ContentType="application/x-ms-m" /></Types>';
   const pkgXml = '<?xml version="1.0" encoding="utf-8"?><Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Version>2.141.0</Version><MinVersion>2.21.0</MinVersion><Culture>ru-RU</Culture></Package>';
@@ -7489,8 +7776,32 @@ async function makeTestBook(){
     ['customXml/_rels/item1.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" Target="itemProps1.xml"/></Relationships>']
   ];
   const ents = [];
-  for (const [n, c] of files) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  for (const [n, c] of files.concat(extra || [])) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
   return zipWrite(ents);
+}
+/** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
+    потоком dir и модулем Module1 в кодировке codePage; сжатие MS-OVBA — только литералы */
+function makeTestVba(source, codePage){
+  const dec = new TextDecoder('windows-' + codePage); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
+  const enc = str => Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+  const pack = bytes => { const body = []; for (let i = 0; i < bytes.length; i += 8){ body.push(0); for (let j = i; j < Math.min(i + 8, bytes.length); j++) body.push(bytes[j]); } const h = (body.length - 1) | (3 << 12) | (1 << 15); return Uint8Array.from([1, h & 255, h >> 8, ...body]); };
+  const rec = (id, data) => concatBytes([Uint8Array.of(id & 255, id >> 8), u32le(data.length), data]);
+  const dir = pack(concatBytes([rec(0x0003, Uint8Array.of(codePage & 255, codePage >> 8)), rec(0x0019, enc('Module1')), rec(0x001A, enc('Module1')), rec(0x0031, u32le(0)), rec(0x002B, new Uint8Array(0))]));
+  const mod = pack(enc(source.replace(/\r?\n/g, '\r\n')));
+  const pad = (b, n) => concatBytes([b, new Uint8Array((n - b.length % n) % n)]);
+  const mini = concatBytes([pad(dir, 64), pad(mod, 64)]); const dirMini = Math.ceil(dir.length / 64), modMini = Math.ceil(mod.length / 64);
+  const miniFat = []; for (let i = 0; i < dirMini + modMini; i++) miniFat.push(i === dirMini - 1 || i === dirMini + modMini - 1 ? 0xFFFFFFFE : i + 1);
+  const miniSecs = Math.ceil(mini.length / 512); const S_MF = miniSecs, S_DIR = miniSecs + 1, S_FAT = miniSecs + 2;
+  const fat = []; for (let i = 0; i < miniSecs; i++) fat.push(i === miniSecs - 1 ? 0xFFFFFFFE : i + 1); fat.push(0xFFFFFFFE, 0xFFFFFFFE, 0xFFFFFFFD);
+  const words = (arr, n) => { const b = new Uint8Array(n); const dv = new DataView(b.buffer); for (let i = 0; i < n / 4; i++) dv.setUint32(i * 4, i < arr.length ? arr[i] : 0xFFFFFFFF, true); return b; };
+  const ent = (name, type, left, right, child, start, size) => { const e = new Uint8Array(128); const dv = new DataView(e.buffer); [...name].forEach((ch, i) => dv.setUint16(i * 2, ch.charCodeAt(0), true)); dv.setUint16(64, name ? (name.length + 1) * 2 : 0, true); e[66] = type; e[67] = 1; dv.setUint32(68, left, true); dv.setUint32(72, right, true); dv.setUint32(76, child, true); dv.setUint32(116, start, true); dv.setUint32(120, size, true); return e; };
+  const F = 0xFFFFFFFF;
+  const dirSec = concatBytes([ent('Root Entry', 5, F, F, 1, 0, mini.length), ent('VBA', 1, F, F, 2, 0, 0), ent('dir', 2, F, 3, F, 0, dir.length), ent('Module1', 2, F, F, F, dirMini, mod.length)]);
+  const hdr = new Uint8Array(512); const hv = new DataView(hdr.buffer);
+  hdr.set([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]); hv.setUint16(24, 0x3E, true); hv.setUint16(26, 3, true); hv.setUint16(28, 0xFFFE, true); hv.setUint16(30, 9, true); hv.setUint16(32, 6, true);
+  hv.setUint32(44, 1, true); hv.setUint32(48, S_DIR, true); hv.setUint32(56, 4096, true); hv.setUint32(60, S_MF, true); hv.setUint32(64, 1, true); hv.setUint32(68, 0xFFFFFFFE, true);
+  for (let i = 0; i < 109; i++) hv.setUint32(76 + i * 4, i === 0 ? S_FAT : F, true);
+  return concatBytes([hdr, pad(mini, 512), words(miniFat, 512), dirSec, words(fat, 512)]);
 }
 async function makeTestPbit(){
   const schema = { name: 'test', compatibilityLevel: 1550, model: { tables: [{ name: 'Факт', partitions: [{ name: 'Факт-1', mode: 'import', source: { type: 'm', expression: ['let', '    Источник = Sql.Database("pbi-srv.corp.local", "DWH")', 'in', '    Источник'] } }] }], expressions: [{ name: 'ПутьКПапке', kind: 'm', expression: '"C:\\\\Data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]' }] } };
@@ -7651,6 +7962,15 @@ async function runSelfTest(){
     const lr1 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Ф = Table.SelectRows(Н, each [Год] = 2024),', '    У = Table.RemoveColumns(Ф, {"Комментарий"})', 'in', '    У;']);
     const lr2 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Т = Table.TransformColumnTypes(Н, {{"Год", Int64.Type}}),', '    Ф = Table.SelectRows(Т, (r) => List.Contains(Record.FieldValues(r), 2024))', 'in', '    Ф;']);
     ok('Поздние фильтры и столбцы: совет есть, где перенос не меняет результат, и нет, где меняет', lr1.includes('late-filter') && lr1.includes('late-columns') && !lr2.includes('late-filter'), lr1.join(',') + ' / ' + lr2.join(','));
+    // ---------- как обновляется книга: макросы и подключения ----------
+    const vbaSrc = 'Attribute VB_Name = "Module1"\n\' Обновление отчёта\nSub ОбновитьВсё()\n    ThisWorkbook.Connections("Запрос — Продажи").OLEDBConnection.BackgroundQuery = False\n    ActiveWorkbook.RefreshAll\n    Sheets("Отчёт").ListObjects(1).QueryTable.Refresh BackgroundQuery:=False\n    ThisWorkbook.RefreshAll \' ещё раз\n    For Each pc In ThisWorkbook.PivotCaches\n        pc.Refresh\n    Next\nEnd Sub';
+    const connXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><connection id="1" keepAlive="1" name="Запрос — Продажи" type="5" refreshedVersion="8" background="1" saveData="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи;Extended Properties=&quot;&quot;" command="SELECT * FROM [Продажи]"/></connection></connections>';
+    const xlsm = await loadBookFromBytes('макрос.xlsm', await makeTestBook([['xl/vbaProject.bin', makeTestVba(vbaSrc, 1251)], ['xl/connections.xml', connXml]]));
+    const bri = bookRefreshIssues(xlsm).map(i => i.key);
+    const pp = parsePermissions('<PermissionList xmlns:xsi="x"><CanEvaluateFuturePackages>false</CanEvaluateFuturePackages><FirewallEnabled>false</FirewallEnabled><WorkbookGroupType xsi:nil="true" /></PermissionList>');
+    ok('Флаг «игнорировать уровни конфиденциальности» книги читается из Permissions (MS-QDEFF)', pp.firewall === false && xlsm.privacy && xlsm.privacy.firewall === true, JSON.stringify(pp) + ' / ' + JSON.stringify(xlsm.privacy));
+    ok('Макросы и подключения: VBA (кодовая страница 1251) прочитан, найдены двойной RefreshAll, повторное обновление, сводные, синхронное обновление, обновление при открытии',
+      xlsm.vba && xlsm.vba.modules[0] && /ОбновитьВсё/.test(xlsm.vba.modules[0].code) && xlsm.conns.length === 1 && xlsm.conns[0].query === 'Продажи' && ['macro-refreshall-twice', 'macro-refresh-again', 'macro-pivot-again', 'macro-sync', 'conn-refresh-on-open'].every(k => bri.includes(k)), bri.join(', ') + (xlsm.vba && xlsm.vba.error ? ' · ' + xlsm.vba.error : ''));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');
@@ -7677,8 +7997,8 @@ async function runSelfTest(){
     const steps = mRunSteps(book.origSection, 'Продажи', { steps: new Map([['Источник', tableFromRows([['Region', 'Amount', 'OrderDate', 'Код'], ['North', '3000', '2023-06-01', '1'], ['South', '9000', '2023-06-01', '2'], ['North', '100', '2023-06-01', '3']])]]) });
     ok('Песочница: ' + IC.length + ' выражений, источники недоступны, пошаговый прогон запроса на образце', !icBad.length && dsErr === 'DataSource.Error' && !steps.some(s => s.error) && mToText(steps[steps.length - 1].value) === 'Table (1×4)', icBad.join(' | ') + ' · ' + steps.map(s => s.name + (s.error ? '✖' : '✔')).join(' '));
     const errOf = x => { try { mEval(x, null); return 'нет ошибки'; } catch (e){ return (e instanceof MErr ? '' : 'не MErr: ') + e.message; } };
-    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)');
-    ok('Песочница: ошибки встроенных функций и рекурсии — понятные ошибки M с именем функции', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3].join(' | '));
+    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)'), e4 = errOf('List.Split({1, 2, 3}, 0)'), e5 = errOf('List.Numbers(1, 1e9)');
+    ok('Песочница: ошибки встроенных функций, рекурсия, нулевой размер страницы и огромные списки — понятные ошибки M, без зависаний', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && /^List\.Split: /.test(e4) && /^List\.Numbers: /.test(e5) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3, e4, e5].join(' | '));
     // ---------- справочник ----------
     ok('Справочник: ' + M_REF.size + ' функций, сигнатуры разобраны', M_REF.size > 300 && M_REF.get('Table.AddColumn').params.length === 4 && M_REF.get('Table.AddColumn').params[3].optional);
     // ---------- состояние, история, документация (с сохранением и восстановлением S) ----------

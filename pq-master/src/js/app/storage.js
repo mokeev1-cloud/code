@@ -107,6 +107,9 @@ async function confirmPbi(){
   if (S.book.family !== 'pbi') return true;
   return (await modal('<h2>Экспериментальная запись Power BI</h2><p>Microsoft не поддерживает изменение .pbix/.pbit сторонними средствами. Будет удалена часть SecurityBindings (иначе Power BI отвергнет файл). Если Power BI Desktop не откроет результат — скопируйте код запросов в Расширенный редактор.</p>', [['cancel', 'Отмена'], ['go', 'Продолжить', 'pri']])) === 'go';
 }
+/** Правка кода сбрасывает в Excel флаг «игнорировать уровни конфиденциальности» книги (MS-QDEFF 2.6: Permission Bindings) */
+const privacyResetNote = () => S.book && S.book.privacy && S.book.privacy.firewall === false && S.work !== S.book.origSection
+  ? 'Для этой книги было выбрано «игнорировать уровни конфиденциальности». После изменения кода Excel сбросит эту настройку — включите её снова (Параметры запроса → Текущая книга → Конфиденциальность) или задайте ThisWorkbook.Queries.FastCombine = True в макросе обновления.' : '';
 async function saveCopy(){
   if (!S.book) return;
   try {
@@ -119,8 +122,9 @@ async function saveCopy(){
         const h = await window.showSaveFilePicker({ suggestedName: name, startIn: S.book.handle || 'documents', id: 'pqm-save', types: [{ description: 'Книга', accept: { 'application/octet-stream': [bookExt()] } }] });
         const w = await h.createWritable(); await w.write(bytes); await w.close();
         toast('Копия сохранена: ' + h.name + '. Откройте её в Excel → «Данные» → «Обновить всё».', 'ok', 7000);
+        if (privacyResetNote()) toast(privacyResetNote(), 'warn', 15000);
       } catch (e){ if (e.name === 'AbortError') return; throw e; }
-    } else { download(name, new Blob([bytes])); toast('Копия скачана: ' + name, 'ok'); }
+    } else { download(name, new Blob([bytes])); toast('Копия скачана: ' + name, 'ok'); if (privacyResetNote()) toast(privacyResetNote(), 'warn', 15000); }
     S.lastCopy = new Date(); emitState('saved');
   } catch (e){ console.error(e); toast('Сохранение: ' + e.message, 'bad'); }
 }
@@ -130,7 +134,7 @@ async function saveToOriginal(){
   if (!S.book.handle) return modal('<h2>Нет доступа к исходному файлу</h2><p>Книга открыта так, что браузер не дал ссылку на сам файл (выбор через старый диалог или браузер без File System Access). Откройте её кнопкой <b>«Открыть»</b> или перетаскиванием в Chrome/Edge — тогда запись в оригинал станет доступна. Пока можно «Сохранить копию».</p>');
   if (!isDirty()) return toast('Рабочая версия совпадает с файлом — записывать нечего', 'warn');
   const backup = pqmSettings().backupOnSave;
-  const ok = await modal('<h2>Записать изменения в «' + escHtml(S.book.name) + '»?</h2><ul><li><b>Закройте книгу в Excel</b> — иначе Windows не даст её перезаписать.</li>' + (backup ? '<li>Сначала будет сохранена <b>резервная копия</b> исходного файла (вы выберете место, по умолчанию — рядом с книгой).</li>' : '<li class="warn">Резервная копия отключена в настройках.</li>') + '<li>После записи файл будет перечитан и сверен с рабочей версией.</li><li>Excel может заново спросить уровни конфиденциальности источников.</li></ul>', [['cancel', 'Отмена'], ['go', 'Записать', 'pri']]);
+  const ok = await modal('<h2>Записать изменения в «' + escHtml(S.book.name) + '»?</h2><ul><li><b>Закройте книгу в Excel</b> — иначе Windows не даст её перезаписать.</li>' + (privacyResetNote() ? '<li>' + escHtml(privacyResetNote()) + '</li>' : '') + (backup ? '<li>Сначала будет сохранена <b>резервная копия</b> исходного файла (вы выберете место, по умолчанию — рядом с книгой).</li>' : '<li class="warn">Резервная копия отключена в настройках.</li>') + '<li>После записи файл будет перечитан и сверен с рабочей версией.</li><li>Excel может заново спросить уровни конфиденциальности источников.</li></ul>', [['cancel', 'Отмена'], ['go', 'Записать', 'pri']]);
   if (ok !== 'go') return;
   if (!(await confirmPbi())) return;
   const h = S.book.handle;

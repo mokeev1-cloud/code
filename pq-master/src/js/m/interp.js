@@ -376,6 +376,8 @@ const optCulture = o => { o = force(o); return o instanceof MRec ? (o.has('Cultu
 const optFormat = o => { o = force(o); return o instanceof MRec ? (o.has('Format') ? o.get('Format') : null) : (typeof o === 'string' && !/^[a-z]{2}-[A-Z]{2}$/.test(o) ? o : null); };
 const nn = f => (...a) => (force(a[0]) === null ? null : f(...a));
 const txt = (v, fn) => { v = force(v); if (v === null) return null; if (typeof v !== 'string') throw new MErr('Expression.Error', fn + ': ожидался text, получено ' + mTypeName(v) + ' (' + mToText(v).slice(0, 30) + '). Используйте Text.From()'); return v; };
+/** Количество элементов: целое ≥ 0; результат (count × per) — не больше 1 000 000, как у диапазонов {a..b} */
+const count = (v, fn, per) => { const n = num(v, fn); if (!Number.isInteger(n) || n < 0) throw new MErr('Expression.Error', fn + ': количество должно быть целым неотрицательным числом, получено ' + n); if (n * Math.max(1, per || 1) > 1e6) throw new MErr('Expression.Error', fn + ': слишком большой результат (больше 1 000 000 элементов) — в песочнице это ограничено'); return n; };
 const num = (v, fn) => { v = force(v); if (typeof v !== 'number') throw new MErr('Expression.Error', fn + ': ожидалось число, получено ' + mTypeName(v)); return v; };
 const lst = (v, fn) => { v = force(v); if (!Array.isArray(v)) throw new MErr('Expression.Error', fn + ': ожидался list, получено ' + mTypeName(v)); return v.map(force); };
 const tab = (v, fn) => { v = force(v); if (!(v instanceof MTab)) throw new MErr('Expression.Error', fn + ': ожидалась table, получено ' + mTypeName(v)); return v; };
@@ -501,10 +503,10 @@ def('List.ContainsAll', (l, vs) => { l = lst(l); return lst(vs).every(v => l.som
 def('List.PositionOf', (l, v, occ) => { l = lst(l); v = force(v); occ = force(occ); if (occ === 2) return l.map((x, i) => mEquals(x, v) ? i : -1).filter(i => i >= 0); if (occ === 1){ for (let i = l.length - 1; i >= 0; i--) if (mEquals(l[i], v)) return i; return -1; } return l.findIndex(x => mEquals(x, v)); });
 def('List.Combine', ls => lst(ls).flatMap(x => lst(x, 'List.Combine')));
 def('List.Zip', ls => { ls = lst(ls).map(x => lst(x)); const n = Math.max(0, ...ls.map(x => x.length)); return Array.from({ length: n }, (_, i) => ls.map(x => i < x.length ? x[i] : null)); });
-def('List.Numbers', (s, c, inc) => { s = num(s); c = num(c); inc = force(inc) == null ? 1 : num(inc); return Array.from({ length: c }, (_, i) => s + i * inc); });
-def('List.Dates', (s, c, step) => { s = needDate(s, 'List.Dates'); step = force(step); return Array.from({ length: num(c) }, (_, i) => new MDate(s.kind, s.ms + i * step.ms)); });
+def('List.Numbers', (s, c, inc) => { s = num(s); c = count(c, 'List.Numbers'); inc = force(inc) == null ? 1 : num(inc); return Array.from({ length: c }, (_, i) => s + i * inc); });
+def('List.Dates', (s, c, step) => { s = needDate(s, 'List.Dates'); step = force(step); return Array.from({ length: count(c, 'List.Dates') }, (_, i) => new MDate(s.kind, s.ms + i * step.ms)); });
 MLIB['List.DateTimes'] = MLIB['List.Dates'];
-def('List.Repeat', (l, n) => { l = lst(l); let o = []; for (let i = 0; i < num(n); i++) o = o.concat(l); return o; });
+def('List.Repeat', (l, n) => { l = lst(l); n = count(n, 'List.Repeat', l.length); const o = []; for (let i = 0; i < n; i++) o.push(...l); return o; });
 def('List.RemoveNulls', l => lst(l).filter(x => x !== null));
 def('List.RemoveItems', (a, b) => { b = lst(b); return lst(a).filter(x => !b.some(y => mEquals(x, y))); });
 def('List.InsertRange', (l, i, v) => { l = lst(l); return l.slice(0, num(i)).concat(lst(v), l.slice(num(i))); });
@@ -518,7 +520,7 @@ def('List.AnyTrue', l => lst(l).some(x => x === true));
 def('List.MatchesAll', (l, f) => lst(l).every(x => callFn(f, [x]) === true));
 def('List.MatchesAny', (l, f) => lst(l).some(x => callFn(f, [x]) === true));
 def('List.Buffer', l => lst(l, 'List.Buffer'));
-def('List.Split', (l, n) => { l = lst(l); n = num(n); const o = []; for (let i = 0; i < l.length; i += n) o.push(l.slice(i, i + n)); return o; });
+def('List.Split', (l, n) => { l = lst(l); n = count(n, 'List.Split'); if (n < 1) throw new MErr('Expression.Error', 'List.Split: размер страницы должен быть не меньше 1'); const o = []; for (let i = 0; i < l.length; i += n) o.push(l.slice(i, i + n)); return o; });
 def('List.Alternate', (l, c, r, o) => { l = lst(l); c = num(c); r = force(r) == null ? 1 : num(r); o = force(o) || 0; return l.filter((_, i) => { if (i < o) return true; const k = (i - o) % (c + r); return k >= c; }); });
 // --- Record
 def('Record.Field', (r, f) => { r = rec(r, 'Record.Field'); f = txt(f); if (!r.has(f)) throw new MErr('Expression.Error', 'Поле «' + f + '» записи не найдено'); return r.get(f); });
@@ -640,7 +642,7 @@ def('Table.RemoveLastN', (t, n) => { t = tab(t); n = force(n) == null ? 1 : num(
 def('Table.Range', (t, o, c) => { t = tab(t); o = num(o); c = force(c); return new MTab(t.cols.slice(), c == null ? t.rows.slice(o) : t.rows.slice(o, o + c)); });
 def('Table.RemoveRows', (t, o, c) => { t = tab(t); o = num(o); c = force(c) == null ? 1 : num(c); return new MTab(t.cols.slice(), t.rows.filter((_, i) => i < o || i >= o + c)); });
 def('Table.ReverseRows', t => { t = tab(t); return new MTab(t.cols.slice(), t.rows.slice().reverse()); });
-def('Table.Repeat', (t, n) => { t = tab(t); let rows = []; for (let i = 0; i < num(n); i++) rows = rows.concat(t.rows); return new MTab(t.cols.slice(), rows); });
+def('Table.Repeat', (t, n) => { t = tab(t); n = count(n, 'Table.Repeat', t.rows.length); const rows = []; for (let i = 0; i < n; i++) rows.push(...t.rows); return new MTab(t.cols.slice(), rows); });
 def('Table.Buffer', t => tab(t, 'Table.Buffer'));
 def('Table.StopFolding', t => tab(t));
 def('Table.Combine', ts => tableCombine(lst(ts, 'Table.Combine').map(x => tab(x, 'Table.Combine'))));

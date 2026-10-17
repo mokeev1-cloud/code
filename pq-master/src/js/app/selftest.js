@@ -48,7 +48,7 @@ const TEST_SECTION = [
 ].join('\r\n');
 const TEST_SECRETS = ['sql-prod-01.corp.local', 'SalesDB', 'fileserver01', 'C:\\Users\\ivanov', 'SECRETKEY123', 'eyJhbGciOiJIUzI1NiJ9', 'analyst@company.ru', 'ivanov@company.ru', '10.20.30.40', '10.1.2.3', 'svc_user', 'P@ssw0rd!', "'North'", '"North"', 'ООО Ромашка', 'D:\\Отчёты'];
 
-async function makeTestBook(){
+async function makeTestBook(extra){
   const x = s => te.encode(s);
   const ctPkg = '<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="m" ContentType="application/x-ms-m" /></Types>';
   const pkgXml = '<?xml version="1.0" encoding="utf-8"?><Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Version>2.141.0</Version><MinVersion>2.21.0</MinVersion><Culture>ru-RU</Culture></Package>';
@@ -79,8 +79,32 @@ async function makeTestBook(){
     ['customXml/_rels/item1.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" Target="itemProps1.xml"/></Relationships>']
   ];
   const ents = [];
-  for (const [n, c] of files) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  for (const [n, c] of files.concat(extra || [])) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
   return zipWrite(ents);
+}
+/** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
+    потоком dir и модулем Module1 в кодировке codePage; сжатие MS-OVBA — только литералы */
+function makeTestVba(source, codePage){
+  const dec = new TextDecoder('windows-' + codePage); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
+  const enc = str => Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+  const pack = bytes => { const body = []; for (let i = 0; i < bytes.length; i += 8){ body.push(0); for (let j = i; j < Math.min(i + 8, bytes.length); j++) body.push(bytes[j]); } const h = (body.length - 1) | (3 << 12) | (1 << 15); return Uint8Array.from([1, h & 255, h >> 8, ...body]); };
+  const rec = (id, data) => concatBytes([Uint8Array.of(id & 255, id >> 8), u32le(data.length), data]);
+  const dir = pack(concatBytes([rec(0x0003, Uint8Array.of(codePage & 255, codePage >> 8)), rec(0x0019, enc('Module1')), rec(0x001A, enc('Module1')), rec(0x0031, u32le(0)), rec(0x002B, new Uint8Array(0))]));
+  const mod = pack(enc(source.replace(/\r?\n/g, '\r\n')));
+  const pad = (b, n) => concatBytes([b, new Uint8Array((n - b.length % n) % n)]);
+  const mini = concatBytes([pad(dir, 64), pad(mod, 64)]); const dirMini = Math.ceil(dir.length / 64), modMini = Math.ceil(mod.length / 64);
+  const miniFat = []; for (let i = 0; i < dirMini + modMini; i++) miniFat.push(i === dirMini - 1 || i === dirMini + modMini - 1 ? 0xFFFFFFFE : i + 1);
+  const miniSecs = Math.ceil(mini.length / 512); const S_MF = miniSecs, S_DIR = miniSecs + 1, S_FAT = miniSecs + 2;
+  const fat = []; for (let i = 0; i < miniSecs; i++) fat.push(i === miniSecs - 1 ? 0xFFFFFFFE : i + 1); fat.push(0xFFFFFFFE, 0xFFFFFFFE, 0xFFFFFFFD);
+  const words = (arr, n) => { const b = new Uint8Array(n); const dv = new DataView(b.buffer); for (let i = 0; i < n / 4; i++) dv.setUint32(i * 4, i < arr.length ? arr[i] : 0xFFFFFFFF, true); return b; };
+  const ent = (name, type, left, right, child, start, size) => { const e = new Uint8Array(128); const dv = new DataView(e.buffer); [...name].forEach((ch, i) => dv.setUint16(i * 2, ch.charCodeAt(0), true)); dv.setUint16(64, name ? (name.length + 1) * 2 : 0, true); e[66] = type; e[67] = 1; dv.setUint32(68, left, true); dv.setUint32(72, right, true); dv.setUint32(76, child, true); dv.setUint32(116, start, true); dv.setUint32(120, size, true); return e; };
+  const F = 0xFFFFFFFF;
+  const dirSec = concatBytes([ent('Root Entry', 5, F, F, 1, 0, mini.length), ent('VBA', 1, F, F, 2, 0, 0), ent('dir', 2, F, 3, F, 0, dir.length), ent('Module1', 2, F, F, F, dirMini, mod.length)]);
+  const hdr = new Uint8Array(512); const hv = new DataView(hdr.buffer);
+  hdr.set([0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1]); hv.setUint16(24, 0x3E, true); hv.setUint16(26, 3, true); hv.setUint16(28, 0xFFFE, true); hv.setUint16(30, 9, true); hv.setUint16(32, 6, true);
+  hv.setUint32(44, 1, true); hv.setUint32(48, S_DIR, true); hv.setUint32(56, 4096, true); hv.setUint32(60, S_MF, true); hv.setUint32(64, 1, true); hv.setUint32(68, 0xFFFFFFFE, true);
+  for (let i = 0; i < 109; i++) hv.setUint32(76 + i * 4, i === 0 ? S_FAT : F, true);
+  return concatBytes([hdr, pad(mini, 512), words(miniFat, 512), dirSec, words(fat, 512)]);
 }
 async function makeTestPbit(){
   const schema = { name: 'test', compatibilityLevel: 1550, model: { tables: [{ name: 'Факт', partitions: [{ name: 'Факт-1', mode: 'import', source: { type: 'm', expression: ['let', '    Источник = Sql.Database("pbi-srv.corp.local", "DWH")', 'in', '    Источник'] } }] }], expressions: [{ name: 'ПутьКПапке', kind: 'm', expression: '"C:\\\\Data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]' }] } };
@@ -241,6 +265,15 @@ async function runSelfTest(){
     const lr1 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Ф = Table.SelectRows(Н, each [Год] = 2024),', '    У = Table.RemoveColumns(Ф, {"Комментарий"})', 'in', '    У;']);
     const lr2 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Т = Table.TransformColumnTypes(Н, {{"Год", Int64.Type}}),', '    Ф = Table.SelectRows(Т, (r) => List.Contains(Record.FieldValues(r), 2024))', 'in', '    Ф;']);
     ok('Поздние фильтры и столбцы: совет есть, где перенос не меняет результат, и нет, где меняет', lr1.includes('late-filter') && lr1.includes('late-columns') && !lr2.includes('late-filter'), lr1.join(',') + ' / ' + lr2.join(','));
+    // ---------- как обновляется книга: макросы и подключения ----------
+    const vbaSrc = 'Attribute VB_Name = "Module1"\n\' Обновление отчёта\nSub ОбновитьВсё()\n    ThisWorkbook.Connections("Запрос — Продажи").OLEDBConnection.BackgroundQuery = False\n    ActiveWorkbook.RefreshAll\n    Sheets("Отчёт").ListObjects(1).QueryTable.Refresh BackgroundQuery:=False\n    ThisWorkbook.RefreshAll \' ещё раз\n    For Each pc In ThisWorkbook.PivotCaches\n        pc.Refresh\n    Next\nEnd Sub';
+    const connXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><connection id="1" keepAlive="1" name="Запрос — Продажи" type="5" refreshedVersion="8" background="1" saveData="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи;Extended Properties=&quot;&quot;" command="SELECT * FROM [Продажи]"/></connection></connections>';
+    const xlsm = await loadBookFromBytes('макрос.xlsm', await makeTestBook([['xl/vbaProject.bin', makeTestVba(vbaSrc, 1251)], ['xl/connections.xml', connXml]]));
+    const bri = bookRefreshIssues(xlsm).map(i => i.key);
+    const pp = parsePermissions('<PermissionList xmlns:xsi="x"><CanEvaluateFuturePackages>false</CanEvaluateFuturePackages><FirewallEnabled>false</FirewallEnabled><WorkbookGroupType xsi:nil="true" /></PermissionList>');
+    ok('Флаг «игнорировать уровни конфиденциальности» книги читается из Permissions (MS-QDEFF)', pp.firewall === false && xlsm.privacy && xlsm.privacy.firewall === true, JSON.stringify(pp) + ' / ' + JSON.stringify(xlsm.privacy));
+    ok('Макросы и подключения: VBA (кодовая страница 1251) прочитан, найдены двойной RefreshAll, повторное обновление, сводные, синхронное обновление, обновление при открытии',
+      xlsm.vba && xlsm.vba.modules[0] && /ОбновитьВсё/.test(xlsm.vba.modules[0].code) && xlsm.conns.length === 1 && xlsm.conns[0].query === 'Продажи' && ['macro-refreshall-twice', 'macro-refresh-again', 'macro-pivot-again', 'macro-sync', 'conn-refresh-on-open'].every(k => bri.includes(k)), bri.join(', ') + (xlsm.vba && xlsm.vba.error ? ' · ' + xlsm.vba.error : ''));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');
@@ -267,8 +300,8 @@ async function runSelfTest(){
     const steps = mRunSteps(book.origSection, 'Продажи', { steps: new Map([['Источник', tableFromRows([['Region', 'Amount', 'OrderDate', 'Код'], ['North', '3000', '2023-06-01', '1'], ['South', '9000', '2023-06-01', '2'], ['North', '100', '2023-06-01', '3']])]]) });
     ok('Песочница: ' + IC.length + ' выражений, источники недоступны, пошаговый прогон запроса на образце', !icBad.length && dsErr === 'DataSource.Error' && !steps.some(s => s.error) && mToText(steps[steps.length - 1].value) === 'Table (1×4)', icBad.join(' | ') + ' · ' + steps.map(s => s.name + (s.error ? '✖' : '✔')).join(' '));
     const errOf = x => { try { mEval(x, null); return 'нет ошибки'; } catch (e){ return (e instanceof MErr ? '' : 'не MErr: ') + e.message; } };
-    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)');
-    ok('Песочница: ошибки встроенных функций и рекурсии — понятные ошибки M с именем функции', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3].join(' | '));
+    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)'), e4 = errOf('List.Split({1, 2, 3}, 0)'), e5 = errOf('List.Numbers(1, 1e9)');
+    ok('Песочница: ошибки встроенных функций, рекурсия, нулевой размер страницы и огромные списки — понятные ошибки M, без зависаний', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && /^List\.Split: /.test(e4) && /^List\.Numbers: /.test(e5) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3, e4, e5].join(' | '));
     // ---------- справочник ----------
     ok('Справочник: ' + M_REF.size + ' функций, сигнатуры разобраны', M_REF.size > 300 && M_REF.get('Table.AddColumn').params.length === 4 && M_REF.get('Table.AddColumn').params[3].optional);
     // ---------- состояние, история, документация (с сохранением и восстановлением S) ----------

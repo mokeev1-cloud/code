@@ -29,7 +29,7 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 const grab = (src, re) => { const m = re.exec(src); if (!m) throw new Error('не найдено в исходниках: ' + re); return m[0]; };
 
 // ядро без DOM + чистые функции из видов (syntaxIssues, applyAllSafeText) и тестовая книга из самотеста
-const CORE = ['core/zip-mashup.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
+const CORE = ['core/zip-mashup.js', 'core/vba.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
 const selftest = JS('app/selftest.js');
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, CompressionStream, DecompressionStream, Blob, Response, crypto, performance, setTimeout, atob, btoa });
 vm.runInContext(CORE.map(JS).join('\n') + '\n' +
@@ -37,7 +37,8 @@ vm.runInContext(CORE.map(JS).join('\n') + '\n' +
   grab(JS('views/optimizer.js'), /function applyAllSafeText[\s\S]*?\n}\n/) +
   grab(selftest, /const TEST_SECTION = \[[\s\S]*?\]\.join\([^)]*\);/) + '\n' +
   grab(selftest, /async function makeTestBook[\s\S]*?\n}\n/) +
-  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
+  grab(selftest, /function makeTestVba[\s\S]*?\n}\n/) +
+  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, makeTestVba, readVbaProject, vbaRefreshCalls, bookRefreshIssues, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
 const a = ctx.api;
 const semSrc = eval(grab(selftest, /const semSrc = '[^\n]*';/).replace(/^const semSrc = /, '').replace(/;$/, ''));
 const uaSrc = eval(grab(selftest, /const ua = \[[\s\S]*?\]\.join\('\\r\\n'\);/).replace(/^const ua = /, '').replace(/;$/, ''));   // сценарий учёта на выгрузках
@@ -138,6 +139,20 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
     catch (e){ if (/ТАЙМАУТ/.test(e.message)) fail('зависание', '(байты)'); else if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, '(байты)', e.message); }
   }
   report('Повреждённые книги', F, n + ' файлов');
+}
+
+// ---------- 4б. повреждённые макросы (xl/vbaProject.bin) ----------
+{
+  const good = a.makeTestVba('Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub', 1251);
+  const base = a.readVbaProject(good); const [F, fail] = failer(); const n = Math.max(500, ITER);
+  if (!base.modules.length || !/Обновить/.test(base.modules[0].code)) fail('исходный тестовый проект не читается', '(байты)');
+  for (let it = 0; it < n; it++){
+    const b = good.slice(); for (let i = 0, k = 1 + Math.floor(rnd() * 8); i < k; i++) b[Math.floor(rnd() * b.length)] = Math.floor(rnd() * 256);
+    const t0 = performance.now();
+    try { const v = a.readVbaProject(b); a.bookRefreshIssues({ vba: v }); } catch (e){ if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, '(байты)', e.message); }
+    if (performance.now() - t0 > 2000) fail('чтение дольше 2 с', '(байты)');
+  }
+  report('Повреждённые макросы', F, n + ' файлов');
 }
 
 // ---------- 5. скорость ----------

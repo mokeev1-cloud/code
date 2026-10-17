@@ -122,6 +122,19 @@ for (const th of ['dark', 'calm', 'fun']){
   await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
   await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
 }
+// книга с макросом обновления и подключениями: факты на обзоре и карточка «Как обновляется книга»
+await page.evaluate(async () => {
+  const src = 'Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub';
+  const conn = '<connections><connection id="1" name="Запрос — Продажи" type="5" background="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи" command="SELECT * FROM [Продажи]"/></connection></connections>';
+  await openFromBytes('macro.xlsm', await makeTestBook([['xl/vbaProject.bin', makeTestVba(src, 1251)], ['xl/connections.xml', conn]]));
+});
+await page.click('[data-view=home]'); await page.waitForTimeout(150);
+const facts = await page.$eval('#homeFacts', e => e.textContent);
+check('Обзор: макросы и подключения книги', /Module1\.Обновить/.test(facts) && /при открытии: 1/.test(facts), facts.replace(/\s+/g, ' ').slice(0, 160));
+await page.click('[data-view=optimizer]'); await page.waitForTimeout(250);
+const book = await page.$eval('#optBook', e => e.classList.contains('hidden') ? '' : e.textContent);
+check('Оптимизатор: «Как обновляется книга» — двойной RefreshAll и обновление при открытии', /обновляются 2 раза/.test(book) && /при открытии/.test(book), book.slice(0, 120));
+await shot('19-book-refresh');
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');

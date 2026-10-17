@@ -42,9 +42,11 @@ function renderHome(){
     (dmi ? '<span>DataMashup</span><span class="small">версия ' + dmi.version + ' · код ' + fmtBytes(dmi.partsLen) + (dmi.metaLen != null ? ' · метаданные ' + fmtBytes(dmi.metaLen) : '') + '</span>' : '') +
     '<span>Запросы</span><span>' + A.members.length + ' · загружаются: ' + A.members.filter(m => m.load.sheet || m.load.model).length + ' · параметры: ' + A.members.filter(m => m.isParam).length + ' · функции: ' + A.members.filter(m => m.isFn).length + '</span>' +
     '<span>Источники</span><span>' + (srcs.length ? srcs.map(x => '<span class="badge">' + escHtml(x) + '</span>').join(' ') : '—') + '</span>' +
+    refreshFacts(b) +
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
@@ -70,3 +72,14 @@ function renderQueryTable(){
 }
 $('#homeFilter').addEventListener('input', () => S.book && renderQueryTable());
 registerView('home', { render: renderHome, alwaysRender: true });
+/** Строки «Макросы» и «Подключения» для фактов о книге */
+function refreshFacts(b){
+  let h = '';
+  if (b.vba){ const calls = vbaRefreshCalls(b.vba.modules); const procs = [...new Set(calls.map(c => c.module + '.' + c.proc))];
+    h += '<span>Макросы</span><span>' + (b.vba.error ? '<span class="badge warn">не прочитаны</span>' : b.vba.modules.length + ' модулей' + (procs.length ? ' · обновляют запросы: ' + procs.map(x => '<span class="badge">' + escHtml(x) + '</span>').join(' ') : ' · запросы не обновляют')) + '</span>'; }
+  if (b.privacy && b.privacy.firewall != null) h += '<span>Конфиденциальность</span><span>' + (b.privacy.firewall ? 'уровни конфиденциальности учитываются (по умолчанию)' : '<span class="badge warn">для книги выбрано «игнорировать»</span> <span class="small muted">действует только для сохранившего пользователя; сбросится после изменения кода</span>') + '</span>';
+  const pq = (b.conns || []).filter(c => c.mashup && !c.deleted);
+  if (pq.length){ const onl = pq.filter(c => c.refreshOnLoad).length, bg = pq.filter(c => c.background).length;
+    h += '<span>Подключения</span><span>' + pq.length + ' Power Query · фоновое обновление: ' + bg + (onl ? ' · <span class="badge warn">при открытии: ' + onl + '</span>' : '') + '</span>'; }
+  return h;
+}

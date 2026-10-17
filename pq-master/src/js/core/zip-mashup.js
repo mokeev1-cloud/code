@@ -240,6 +240,22 @@ function parseMashupMetadata(metaBytes){
   } catch { /* метаданные — справочная информация, их отсутствие не мешает */ }
   return res;
 }
+/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
+    Только для советов; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
+/** Permissions (MS-QDEFF 2.4): FirewallEnabled=false — для книги выбрано «игнорировать уровни конфиденциальности».
+    Защищено Permission Bindings (DPAPI пользователя): после любой правки кода Excel сбрасывает к умолчанию. */
+function parsePermissions(xml){
+  if (!xml) return null;
+  const fw = /<(?:\w+:)?FirewallEnabled>\s*(true|false)\s*</i.exec(xml); const gt = /<(?:\w+:)?WorkbookGroupType\b[^>]*>\s*([^<\s]+)\s*</i.exec(xml);
+  return { firewall: fw ? fw[1].toLowerCase() === 'true' : null, group: gt ? gt[1] : null };
+}
+async function readRefreshParts(book, zip){
+  book.privacy = parsePermissions(book.dm && book.dm.info && book.dm.info.permissions);
+  const ce = zipFind(zip, 'xl/connections.xml');
+  if (ce){ try { book.conns = parseConnections(decodeText(await zipEntryBytes(ce)).text); } catch (e){ book.connsError = e.message; } }
+  const ve = zipFind(zip, 'xl/vbaProject.bin');
+  if (ve){ try { book.vba = readVbaProject(await zipEntryBytes(ve)); } catch (e){ book.vba = { modules: [], error: e.message }; } }
+}
 function metaVal(v){
   if (v == null) return null;
   const t = v[0], r = v.slice(1);
@@ -321,6 +337,7 @@ async function readBookBytes(name, u8){
       dm, pkg: section.pkg, secEntry: section.entry, secEnc: section.enc, secBom: section.bom });
     book.origSection = section.text;
     book.meta = parseMashupMetadata(dm.info.metadata);
+    await readRefreshParts(book, zip);
   }
   return book;
 }

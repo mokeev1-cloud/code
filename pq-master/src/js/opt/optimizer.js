@@ -169,6 +169,7 @@ function optimizeSection(text, A, lint){
         const d = l.data; const fix = d && step ? bufferFix(A, m, step, d.kind, d.expr, d.occ) : null;
         add(Object.assign(base, { title: 'Буферизация внутри each', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Вынести буфер в отдельный шаг', fix })); break; }
       case 'manual-mapping': add(Object.assign(base, { title: 'Разметка цепочкой условий в коде', impact: ['clarity', 'speed'], safety: 'manual' })); break;
+      case 'loaded-staging': add(Object.assign(base, { title: 'Промежуточный запрос загружается', impact: ['speed'], safety: 'manual' })); break;
       case 'late-filter': add(Object.assign(base, { title: 'Фильтр можно поднять выше', impact: ['speed'], safety: 'manual' })); break;
       case 'late-columns': add(Object.assign(base, { title: 'Лишние столбцы удаляются поздно', impact: ['speed'], safety: 'manual' })); break;
       case 'sharepoint-files': add(Object.assign(base, { title: 'SharePoint.Files перечисляет весь сайт', impact: ['speed'], safety: 'manual' })); break;

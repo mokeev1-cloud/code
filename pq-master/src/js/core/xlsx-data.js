@@ -20,7 +20,7 @@ function xlsxDateKinds(stylesXml){
     if ((id >= 14 && id <= 17) || id === 22 || (id >= 27 && id <= 31) || (id >= 34 && id <= 36) || (id >= 50 && id <= 58)) return id === 22 ? 'datetime' : 'date';
     if ((id >= 18 && id <= 21) || (id >= 45 && id <= 47) || id === 32 || id === 33) return 'time';
     const code = custom[id]; if (!code) return null;
-    const c = code.split(';')[0].replace(/"[^"]*"|\\.|\[[^\]]*\]/g, '');
+    const c = code.split(';')[0].replace(/\[(h+|m+|s+)\]/gi, '$1').replace(/"[^"]*"|\\.|\[[^\]]*\]/g, '');   // [h]:mm — длительность, оставить h
     const d = /[dy]/i.test(c) || /m{3,}/i.test(c), t = /[hs]/i.test(c);
     return d && t ? 'datetime' : d ? 'date' : t ? 'time' : null;
   };
@@ -86,7 +86,7 @@ async function readXlsxData(zip, opts){
     const xml = await get(sd.part); if (xml == null) continue;
     const g = xlsxParseSheet(xml, ss, kinds, date1904, opts.maxRows); if (g.truncated) out.truncated = true;
     if (opts.only !== 'objects'){ const ok = g.r1 >= 0; out.sheets.push({ name: sd.name, hidden: sd.hidden, cols: xlsxColumns(ok ? g.c1 - g.c0 + 1 : 0), rows: ok ? xlsxSlice(g.grid, g) : [] }); }
-    for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: t.range.r1 - t.totals, c1: t.range.c1 }; const w = rg.c1 - rg.c0 + 1;
+    for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: Math.min(t.range.r1 - t.totals, g.r1), c1: t.range.c1 } /* не дальше прочитанных строк (лимит) */; const w = rg.c1 - rg.c0 + 1;
       out.tables.push({ name: t.name, sheet: sd.name, cols: t.cols.length === w ? t.cols : xlsxColumns(w), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
     for (const n of myNames) if (n.range){ const rg = Object.assign({}, n.range, { r1: Math.min(n.range.r1, g.r1), c1: Math.min(n.range.c1, Math.max(g.c1, n.range.c0)) });   // «A1:C1048576» — до последней заполненной строки
       out.names.push({ name: n.name, cols: xlsxColumns(rg.c1 - rg.c0 + 1), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }

@@ -36,7 +36,7 @@ async function dataPrepare(){
     DATA.wbFor = key; DATA.selfBook = null;
   }
   // запрос читает сам этот файл: Excel.Workbook(File.Contents("…\Книга.xlsx")) — нужен полный разбор листов
-  if (!DATA.selfBook && /Excel\.Workbook\s*\(\s*File\.Contents/.test(S.work || '')){
+  if (!DATA.selfBook && /Excel\.Workbook/.test(S.work || '') && /File\.Contents/.test(S.work || '')){
     DATA.selfBook = { name: b.name, bytes: b.bytes, mtime: 0, xlsx: null };
     try { DATA.selfBook.xlsx = await readXlsxData(b.zip, { maxRows: DATA.limit }); } catch { /* Excel.Workbook сообщит */ }
   }
@@ -63,15 +63,17 @@ function dataSummaryText(){
     Не считаются утечкой: заголовки столбцов и строки, которые уже есть в обезличенном коде. */
 function dataValueSet(){
   const vals = new Set(), skip = new Set(); const CAP = 400000;
-  const addRows = (cols, rows) => { for (const c of cols || []) skip.add(String(c)); for (const r of rows || []){ for (const v of r){ if (typeof v === 'string' && v.length >= 4 && v.length <= 400) vals.add(v.trim()); } if (vals.size > CAP) return; } };
+  const addRows = (cols, rows, colsAreData) => { for (const c of cols || []) (colsAreData ? (String(c).length >= 4 && vals.add(String(c))) : skip.add(String(c))); for (const r of rows || []){ for (const v of r){ if (typeof v === 'string' && v.length >= 4 && v.length <= 400) vals.add(v.trim()); } if (vals.size > CAP) return; } };
   if (DATA.wb) for (const t of DATA.wb.tables.concat(DATA.wb.names)) addRows(t.cols, t.rows);
   const files = [...DATA.files.values(), ...[].concat(...DATA.folders.values())];
   for (const f of files){
     if (f.xlsx) for (const t of f.xlsx.sheets.concat(f.xlsx.tables)) addRows(t.cols, t.rows);
-    else if (f.bytes && f.bytes.length < 50e6 && /\.(csv|txt|tsv)$/i.test(f.name)){   // первая строка — заголовки
-      decodeBin(f.bytes).split(/\r?\n/).forEach((line, li) => { for (const cell of line.split(/[;,\t|]/)){ const v = cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"').trim(); if (li === 0) skip.add(v); else if (v.length >= 4 && v.length <= 400) vals.add(v); } }); }
+    else if (f.bytes && f.bytes.length < 50e6 && /\.(csv|txt|tsv)$/i.test(f.name)){   // по правилам CSV (кавычки, переводы строк); первая строка — заголовки
+      const t = decodeBin(f.bytes); const head = t.slice(0, t.indexOf('\n') + 1 || 4096); const delim = [';', '\t', ',', '|'].sort((a, b) => head.split(b).length - head.split(a).length)[0];
+      csvRows(t, delim).forEach((row, li) => { for (const cell of row){ const v = String(cell).trim(); if (li === 0) skip.add(v); else if (v.length >= 4 && v.length <= 400) vals.add(v); } }); }
+    else if (f.bytes && f.bytes.length < 50e6 && /\.json$/i.test(f.name)){ try { const walk = x => { if (typeof x === 'string'){ if (x.length >= 4 && x.length <= 400) vals.add(x.trim()); } else if (x && typeof x === 'object') for (const k in x) walk(x[k]); }; walk(JSON.parse(decodeBin(f.bytes))); } catch { /* не JSON */ } }
   }
-  if (DATA.run) for (const q of DATA.run.queries) if (q.sample) addRows(q.sample.cols, q.sample.rows);
+  if (DATA.run) for (const q of DATA.run.queries) if (q.sample) addRows(q.sample.cols, q.sample.rows, true);   // столбцы результата могут быть данными (Pivot, PromoteHeaders) — не исключаются
   if (S.anon && S.anon.out){ const re = /"((?:[^"]|"")*)"/g; let m; while ((m = re.exec(S.anon.out))) skip.add(m[1].replace(/""/g, '"')); }
   for (const s of skip) vals.delete(s);
   return vals;

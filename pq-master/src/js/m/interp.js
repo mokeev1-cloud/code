@@ -698,7 +698,7 @@ def('Table.NestedJoin', (a, ka, b, kb, name, kind) => { a = tab(a, 'Table.Nested
   const eq = r => s => ia.every((i, k) => mEquals(r[i], s[ib[k]]));
   const match = r => { const k = rowKey(r, ia); if (k === null) return b.rows.filter(eq(r)); const hit = idx.get(k) || []; return slow.length ? hit.concat(slow.filter(eq(r))) : hit; };
   const rows = []; const usedB = new Set(); let miss = 0;
-  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
+  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if ((kind === 0 || kind === 2) && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
   if (kind === 2 || kind === 3 || kind === 5) for (const s of b.rows) if (!usedB.has(s)) rows.push(a.cols.map(() => null).concat([new MTab(b.cols.slice(), [s])]));
   if (M_TRACE){ let dupKeys = 0, dupRows = 0; for (const l of idx.values()) if (l.length > 1){ dupKeys++; dupRows += l.length; }
     const typeOf = (t, ix) => { const ts = new Set(); for (const r of t.rows.slice(0, 500)) for (const i of ix){ try { const x = force(r[i]); if (x !== null) ts.add(mTypeName(x)); } catch { ts.add('error'); } } return [...ts].join('/'); };
@@ -735,7 +735,7 @@ const binOf = (v, fn) => { v = force(v); if (v instanceof MBin) return v; if (ty
 /** Текст из байтов: кодовая страница M (65001, 1251, 1200…) или по BOM; без BOM — UTF-8, если он корректен, иначе 1251 */
 function decodeBin(u8, enc){
   enc = force(enc); if (enc instanceof MRec) enc = enc.has('Encoding') ? force(enc.get('Encoding')) : null;
-  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); try { return new TextDecoder('windows-' + enc).decode(u8); } catch { /* ниже */ } }
+  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); const CP = { 866: 'ibm866', 20866: 'koi8-r', 21866: 'koi8-u', 28595: 'iso-8859-5', 1250: 'windows-1250', 1251: 'windows-1251', 1252: 'windows-1252' }; let d; try { d = new TextDecoder(CP[enc] || 'windows-' + enc); } catch { throw new MErr('DataFormat.Error', 'Кодировка ' + enc + ' не поддерживается'); } return d.decode(u8); }
   if (u8[0] === 0xEF && u8[1] === 0xBB && u8[2] === 0xBF) return td8.decode(u8.subarray(3));
   if (u8[0] === 0xFF && u8[1] === 0xFE) return new TextDecoder('utf-16le').decode(u8.subarray(2));
   if (enc === 65001) return td8.decode(u8);
@@ -745,8 +745,9 @@ function decodeBin(u8, enc){
 function xlsxValueToM(v){
   if (v === undefined || v === null || typeof v !== 'object') return v === undefined ? null : v;
   if (v.err) return new Thunk(() => { throw new MErr('DataFormat.Error', 'Ошибка в ячейке: ' + v.err); });
-  const ms = Math.round((v.xd - 25569) * 86400000);
-  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.round(ms / 86400000) * 86400000 : ms);
+  const xd = v.xd >= 1 && v.xd < 61 ? v.xd + 1 : v.xd;   // до 1 марта 1900 Excel считает несуществующее 29 февраля
+  const ms = Math.round((xd - 25569) * 86400000);
+  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.floor(ms / 86400000) * 86400000 : ms);
 }
 const xlsxTable = (cols, rows) => new MTab(cols, rows.map(r => cols.map((_, i) => xlsxValueToM(r[i]))));
 def('Excel.CurrentWorkbook', () => {

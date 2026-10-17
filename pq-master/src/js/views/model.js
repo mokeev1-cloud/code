@@ -99,6 +99,8 @@ function mdlFlow(){
   for (const m of qs){ const r = mdlRows(m.name).rows; if (m.load.sheet) edges.push({ a: 'q:' + m.name, b: 't:sheet', rows: r }); if (m.load.model) edges.push({ a: 'q:' + m.name, b: 't:model', rows: r }); }
   // колонки и порядок (барицентры по входящим связям, несколько проходов)
   const cols = []; for (const n of nodes.values()) (cols[n.col] = cols[n.col] || []).push(n);
+  if (!cols.length) return { svg: '<div class="small muted">Обычных запросов нет — только функции и параметры.</div>', legend: '' };
+  cols[0] = cols[0] || [];
   for (let i = 0; i < cols.length; i++) cols[i] = cols[i] || [];
   const pos = new Map(); cols.forEach(c => c.forEach((n, i) => pos.set(n.id, i)));
   const into = new Map(); for (const e of edges){ if (!into.has(e.b)) into.set(e.b, []); into.get(e.b).push(e.a); }
@@ -162,9 +164,9 @@ function mdlSpeedupHtml(){
   const ver = DATA.verify && DATA.verify.forWork === S.work ? DATA.verify.items : new Map();
   return '<div class="sp-hero"><div><div class="tv">×' + fmtBig(Math.round(tb / ta)) + '</div><div class="ts">меньше операций в этих местах после исправлений</div></div><div class="small muted">' + fmtBig(tb) + ' → ' + fmtBig(ta) + ' операций (сравнений строк и повторных чтений) на ваших объёмах. Power Query не строит индекс для поиска «для каждой строки» и не делит результат промежуточного запроса между загружаемыми таблицами — отсюда умножение. Реальное время зависит от источника и машины: проверьте диагностикой до и после.</div></div>' +
     '<div class="dumb">' + sp.slice(0, 12).map(x => { const v = ver.get(x.f.id); const a = X(x.after), b = X(x.before);
-      return '<div class="dr" data-tip="' + escHtml('<b>' + escHtml(x.f.query + (x.f.step ? ' › ' + x.f.step : '')) + '</b><br>' + escHtml(x.how) + '<br>сейчас ≈ ' + fmtBig(x.before) + ' операций<br>после ≈ ' + fmtBig(x.after) + (v ? '<br>на данных: ' + (v.same ? 'результат тот же ✓' : 'результат другой ✖') : '')) + '"><span class="hl"><b>' + escHtml(x.f.query) + '</b>' + (x.f.step ? ' › ' + escHtml(x.f.step) : '') + '<br><span class="muted">' + escHtml(x.how) + '</span></span>' +
+      return '<div class="dr" data-tip="' + escHtml('<b>' + escHtml(x.f.query + (x.f.step ? ' › ' + x.f.step : '')) + '</b><br>' + escHtml(x.how) + '<br>сейчас ≈ ' + fmtBig(x.before) + ' операций<br>после ≈ ' + fmtBig(x.after) + (v ? '<br>на данных: ' + (v.same ? 'результат тот же ✓' : v.results.some(r => r.same) ? 'вариант «' + escHtml(v.results.find(r => r.same).label) + '» — тот же ✓' : 'результат другой ✖') : '')) + '"><span class="hl"><b>' + escHtml(x.f.query) + '</b>' + (x.f.step ? ' › ' + escHtml(x.f.step) : '') + '<br><span class="muted">' + escHtml(x.how) + '</span></span>' +
         '<span class="dt"><i class="dl" style="left:' + a.toFixed(2) + '%;width:' + Math.max(0, b - a).toFixed(2) + '%"></i><i class="dd after" style="left:' + a.toFixed(2) + '%"></i><i class="dd before" style="left:' + b.toFixed(2) + '%"></i></span>' +
-        '<span class="dk"><b>×' + fmtBig(Math.round(x.k)) + '</b>' + (v ? (v.same ? ' <span class="ok">✓</span>' : ' <span class="bad">✖</span>') : '') + '</span>' +
+        '<span class="dk"><b>×' + fmtBig(Math.round(x.k)) + '</b>' + (v ? (v.results.some(r => r.same) ? ' <span class="ok">✓</span>' : ' <span class="bad">✖</span>') : '') + '</span>' +
         '<button class="btn sm" data-fix="' + escHtml(x.f.id) + '">Исправить…</button></div>'; }).join('') + '</div>' +
     '<div class="small muted">Шкала логарифмическая: каждое деление — в 10 раз. ✓/✖ — сверка исправления на данных («Проверка на данных»).</div>';
 }

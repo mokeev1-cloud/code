@@ -28,7 +28,7 @@ function tableProfile(t){
       if (dist.size < 100001){ const k = mHashKey(v); if (k !== null) dist.add(k); }
       if (typeof v === 'number'){ nums++; sum += v; }
       else if (typeof v === 'string'){ if (/^\s*-?[\d  ]+([.,]\d+)?\s*$/.test(v)) txtNum++; if (v !== v.trim()) spaces++; } }
-    return { col: c, types: [...types].sort((a, b) => b[1] - a[1]).map(([k, x]) => k + (types.size > 1 ? ' ' + x : '')).join(', ') || 'null', nulls, errs, distinct: dist.size > 100000 ? '>100000' : dist.size, txtNum, spaces, sum: nums ? sum : null, nums, rows: n };
+    return { col: c, types: [...types].sort((a, b) => b[1] - a[1]).map(([k, x]) => k + (types.size > 1 ? ' ' + x : '')).join(', ') || 'null', nulls, errs, distinct: dist.size > 100000 ? 100001 : dist.size, distinctCapped: dist.size > 100000, txtNum, spaces, sum: nums ? sum : null, nums, rows: n };
   });
 }
 /** Сумма числового столбца в каждом шаге-таблице: где итог изменился */
@@ -195,7 +195,7 @@ function renderData(){
   $('#dataDetail').innerHTML = '<div class="card-h"><h2>' + escHtml(q.name) + '</h2><span class="sp"></span><button class="btn sm" id="dataToSb">Открыть в песочнице</button></div>' +
     '<h3>Шаги</h3><table class="t small"><tr><th>Шаг</th><th>Строк</th><th></th><th>Время</th></tr>' + q.steps.map(s => '<tr><td>' + escHtml(s.name) + (s.overridden ? ' 📎' : '') + '</td><td class="num">' + (s.error ? '<span style="color:var(--bad)" title="' + escHtml(s.error.message) + '">' + (s.error.need ? '🔌' : '✖') + '</span>' : fmtN(s.rows)) + '</td><td style="width:40%"><div class="bar"><i style="width:' + ((s.rows || 0) / maxR * 100) + '%"></i></div></td><td class="num">' + (s.ms || 0).toFixed(0) + ' мс</td></tr>').join('') + '</table>' +
     (q.sums && q.sums.length ? '<h3>Контрольные суммы</h3><table class="t small"><tr><th>Столбец</th><th>Первый шаг</th><th>Результат</th><th>Где менялась</th></tr>' + q.sums.map(c => '<tr><td>' + escHtml(c.col) + '</td><td class="num">' + fmtN(c.first.sum) + '</td><td class="num">' + fmtN(c.last.sum) + '</td><td>' + (c.changes.length ? c.changes.slice(0, 6).map(x => escHtml(x.step) + ' (' + relChange(x.before, x.after) + ', ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before) + ')').join(', ') : '<span class="muted">не менялась</span>') + '</td></tr>').join('') + '</table>' : '') +
-    (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + fmtN(p.distinct) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
+    (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + (p.distinctCapped ? '> 100 000' : fmtN(p.distinct)) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
     (q.sample ? '<h3>Первые строки результата</h3><div class="table-wrap" style="max-height:40vh"><table class="t small"><tr>' + q.sample.cols.map(c => '<th>' + escHtml(c) + '</th>').join('') + '</tr>' + q.sample.rows.slice(0, 30).map(r => '<tr>' + r.map(v => '<td>' + (v === null ? '<span class="muted">null</span>' : escHtml(v === '⚠' || v === null ? String(v) : mToText(v))) + '</td>').join('') + '</tr>').join('') + '</table></div>' : '');
   $('#dataToSb').onclick = () => { showView('sandbox'); sbRunQuery(q.name); };
 }
@@ -207,7 +207,7 @@ function dataChecksForAi(){
     queries: DATA.run.queries.map(q => ({ query: anonQueryName(q.name), error: q.error ? (q.error.need ? 'нужен источник ' + q.error.need.kind : q.error.reason) : null,
       steps: q.steps.map(s => ({ step: sanitizeName(s.name), rows: s.rows, ms: Math.round(s.ms || 0), error: s.error ? s.error.reason : undefined })),
       joins: q.joins.map(j => ({ step: sanitizeName(j.step), keys: j.keysA.map(anonColName), left: j.left, right: j.right, unmatchedLeft: j.miss, duplicateKeysRight: j.dupKeys, keyTypes: j.typeA + ' / ' + j.typeB })),
-      columns: (q.profile || []).map(p => ({ name: anonColName(p.col), types: p.types, nullShare: p.rows ? +(p.nulls / p.rows).toFixed(4) : 0, errors: p.errs, textNumbers: p.txtNum, edgeSpaces: p.spaces })) })),
+      columns: (q.profile || []).map((p, i) => ({ name: 'столбец ' + (i + 1) /* имена столбцов результата могут быть данными (Pivot) — не передаются */, types: p.types, nullShare: p.rows ? +(p.nulls / p.rows).toFixed(4) : 0, errors: p.errs, textNumbers: p.txtNum, edgeSpaces: p.spaces })) })),
     fixesOnData: ver.map(v => ({ rule: v.rule, query: anonQueryName(v.query), sameResult: v.same })) };
 }
 $('#dataRun').onclick = dataRunAll;

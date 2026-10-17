@@ -243,9 +243,8 @@ function genPqMacro(opts){
       '    Dim cn As WorkbookConnection',
       '    On Error Resume Next',
       '    For Each cn In ThisWorkbook.Connections');
-    if (noOpen.length) add('        Select Case cn.Name', '            Case ' + cs(noOpen) + ': cn.OLEDBConnection.RefreshOnFileOpen = False', '        End Select');
-    if (excl.length) add('        Select Case cn.Name', '            Case ' + cs(excl) + ': cn.RefreshWithRefreshAll = False', '        End Select');
-    if (incl.length) add('        Select Case cn.Name', '            Case ' + cs(incl) + ': cn.RefreshWithRefreshAll = True', '        End Select');
+    const sel = (xs, stmt) => { if (xs.length) add('        Select Case cn.Name', ...xs.map(x => '            Case ' + vbaStr(x, cp) + ': ' + stmt), '        End Select'); };   // по строке на имя: строка VBA — не длиннее 1023 символов
+    sel(noOpen, 'cn.OLEDBConnection.RefreshOnFileOpen = False'); sel(excl, 'cn.RefreshWithRefreshAll = False'); sel(incl, 'cn.RefreshWithRefreshAll = True');
     add('    Next cn', '    MsgBox "Настройки подключений изменены. Сохраните книгу.", vbInformation, "Мастер PQ"', 'End Sub', '');
   }
   add("' Подключение Power Query: OLE DB с поставщиком Microsoft.Mashup.OleDb",

@@ -325,7 +325,7 @@ async function runSelfTest(){
     const macBack = new TextDecoder('windows-1251').decode(encodeCodePage(mac, 1251));
     ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
       /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
-      mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
+      mac.includes('Case "Запрос — Курсы": cn.RefreshWithRefreshAll = False') && mac.includes('Case "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
     // ---------- данные на этом компьютере: таблицы книги, выгрузки, соединения, защита от утечки ----------
     const keepData = { wb: DATA.wb, wbFor: DATA.wbFor, files: DATA.files, folders: DATA.folders, run: DATA.run, verify: DATA.verify, selfBook: DATA.selfBook };
     try {
@@ -362,6 +362,15 @@ async function runSelfTest(){
       const T1 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"}})', ''), T2 = mEval('#table({"b","a"}, {{"y",2},{"x",1}})', ''), T3 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"},{2,"y"}})', '');
       const c1 = tableCompare(T1, T1), c2 = tableCompare(T1, T2), c3 = tableCompare(T1, T3);
       ok('Сверка результатов до и после исправления: полностью / другой порядок / отличается', c1.same && c1.exact && c2.same && !c2.exact && !c3.same && /появилось 1/.test(c3.note), [c1, c2, c3].map(c => JSON.stringify(c)).join(' '));
+      // регрессии ревью: правое соединение, дата со временем, таблица при лимите строк, cp866, CSV с кавычками в защите от утечки
+      const ro = mEval('Table.RowCount(Table.NestedJoin(#table({"k"}, {{1}, {2}}), {"k"}, #table({"k"}, {{1}, {3}}), {"k"}, "R", JoinKind.RightOuter))', '');
+      const dt = xlsxValueToM({ xd: 45000.75, kind: 'date' }), old = xlsxValueToM({ xd: 1, kind: 'date' });
+      const xd5 = await readXlsxData(zipRead(dx), { maxRows: 3 }); const mp5 = xd5.tables.find(t => t.name === 'Маппинг');
+      DATA.files.set(normPath('C:\\к.txt'), { name: 'к.txt', bytes: Uint8Array.of(0x8F, 0xE0, 0xA8, 0xA2, 0xA5, 0xE2), mtime: 0 });
+      const k866 = mEval('Text.FromBinary(File.Contents("C:\\к.txt"), 866)', '');
+      DATA.files.set('name:квоты.csv', { name: 'квоты.csv', bytes: te.encode('Имя;Сумма\r\n"Ромашка, ООО";10\r\n'), mtime: 0 });
+      ok('Регрессии: RightOuter без лишних строк, дата с временем — тот же день, 1 января 1900, таблица не дополняется пустыми строками при лимите, cp866, значение CSV с запятой в кавычках',
+        ro === 2 && mToText(dt) === '2023-03-15' && mToText(old) === '1900-01-01' && mp5 && mp5.rows.length === 2 && k866 === 'Привет' && dataLeaks('{"x":"Ромашка, ООО"}').length === 1, [ro, mToText(dt), mToText(old), mp5 && mp5.rows.length, k866].join(' | '));
     } finally { Object.assign(DATA, keepData); M_TRACE = null; }
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');

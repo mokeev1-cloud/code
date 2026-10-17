@@ -135,7 +135,7 @@ function renderOptCards(){
   $('#optCards').innerHTML = list.length ? list.slice(0, OPT.limit).map(f => {
     const opts = (f.options || []).map(o => '<label class="small">' + escHtml(o.label) + ': <select data-fopt="' + escHtml(f.id) + '" data-k="' + o.key + '">' + o.values.map(([v, l]) => '<option value="' + v + '"' + (enc === v ? ' selected' : '') + '>' + escHtml(l) + '</option>').join('') + '</select></label>').join('');
     const vd = DATA.verify && DATA.verify.forWork === S.work && DATA.verify.items.get(f.id);   // сверка на данных (раздел «Проверка на данных»)
-    const vb = vd ? '<span class="pqx-rec ' + (vd.same ? 'ok' : 'warn') + '" title="' + escHtml(vd.results.map(r => (r.label ? r.label + ': ' : '') + (r.same ? 'совпадает' : 'отличается') + (r.note ? ' — ' + r.note : '')).join('; ')) + '">' + (vd.same ? '✓ на данных — тот же результат' : '✖ на данных — результат другой') + '</span>' : '';
+    const vOk = vd && vd.results.find(r => r.same); const vb = vd ? '<span class="pqx-rec ' + (vOk ? 'ok' : 'warn') + '" title="' + escHtml(vd.results.map(r => (r.label ? r.label + ': ' : '') + (r.same ? 'совпадает' : 'отличается') + (r.note ? ' — ' + r.note : '')).join('; ')) + '">' + (vd.same ? '✓ на данных — тот же результат' : vOk ? '✓ на данных — вариант «' + vOk.label + '» даёт тот же результат' : '✖ на данных — результат другой') + '</span>' : '';
     return '<div class="ocard ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span><span class="safety ' + f.safety + '">' + SAFETY_LABEL[f.safety] + '</span>' + vb + '</div>' +
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
@@ -168,7 +168,10 @@ function pqxSet(c, k, v){
   if (Object.keys(e).length) E[c.id] = e; else delete E[c.id];
 }
 /** excludeFromRefreshAll без элемента x15:connection в файле не пишется — такие подключения уходят в макрос PQ_Setup */
+/** Состояние окна настроек принадлежит книге: при другой книге — сброс (иначе исключения и FastCombine перенеслись бы) */
+function pqxSync(){ const B = S.book; if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = B.family === 'excel' && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; } }
 function pqxMacroOpts(forFile){
+  pqxSync();
   const conns = S.book.conns ? pqxConns() : [];
   const ex = conns.filter(c => !c.hasX15 && PQX.macroExcl && PQX.macroExcl.has(c.id)).map(c => c.name);
   return { refresh: PQX.refresh, timing: PQX.timing, fastCombine: PQX.fastCombine, setup: { exclude: ex }, codePage: (S.book.vba && S.book.vba.codePage) || 1251, bookName: S.book.name, forFile };
@@ -176,7 +179,7 @@ function pqxMacroOpts(forFile){
 async function openPqSettings(){
   if (!S.book || S.book.family === 'text') return toast('Откройте книгу Excel или Power BI', 'warn');
   const B = S.book, xl = B.family === 'excel';
-  if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = xl && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; }
+  pqxSync();
   const conns = xl && B.conns ? pqxConns() : [];
   const ck = (on, attrs) => '<input type="checkbox"' + (on ? ' checked' : '') + ' ' + attrs + '>';
   // рекомендации: «при открытии» — выкл; фоновое — выкл, если в книге есть сводные (иначе вкл); «Обновить всё» — как в файле

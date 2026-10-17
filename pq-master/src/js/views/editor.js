@@ -184,6 +184,7 @@ function edLoad(name){
   else ED.view.dispatch({ changes: { from: 0, to: ED.view.state.doc.length, insert: ED.base }, selection: { anchor: 0 }, scrollIntoView: true });
   $('#edTitle').textContent = name; $('#edTitle').title = name;
   $('#edDirty').classList.add('hidden');
+  EDD.res = null; EDD.resQuery = null; EDD.manual = false; EDD.key = null;   // данные прошлого запроса не показывать
   edAnalyze(ED.base); renderEdList(); renderEdSide(); renderEdFlow(); EDD.step = null; edDataSchedule();
 }
 async function edConfirmLeave(){
@@ -328,7 +329,8 @@ $('#edRefMenu').addEventListener('click', async e => {
 async function openInEditor(name, step){
   showView('editor');
   if (ED.query !== name && !(await edConfirmLeave())) return;
-  edLoad(name); if (step) setTimeout(() => edGotoStep(step), 30);
+  if (ED.query !== name || !edDirty()) edLoad(name);   // тот же запрос с непринятыми правками — не затирать их
+  if (step) setTimeout(() => edGotoStep(step), 30);
 }
 function renderEditor(reason){
   if (!S.A) return;
@@ -341,7 +343,7 @@ function renderEditor(reason){
 /* ---- Живые данные: шаг под курсором вычисляется на таблицах книги и выгрузках (только в браузере) ----
    Вычисляется текст редактора, даже не применённый; запросы, на которые он ссылается, — по рабочей
    версии один раз (кэш по версии кода и данных). Долгий прогон (> 3 с) переводит панель в ручной режим. */
-const EDD = { on: pqmSettings().edData !== false, res: null, key: null, step: null, busy: false, manual: false, ms: 0, up: new Map(), upKey: null, prof: new WeakMap() };
+const EDD = { on: pqmSettings().edData !== false, res: null, resQuery: null, pending: false, key: null, step: null, busy: false, manual: false, ms: 0, up: new Map(), upKey: null, prof: new WeakMap() };
 function edDataSchedule(){ clearTimeout(EDD.t); if (EDD.on && !EDD.manual) EDD.t = setTimeout(() => edDataRun(false), 600); else edDataRender(); }
 /** Результаты запросов, от которых зависит текущий (рабочая версия; из «Проверки на данных», если она свежая) */
 function edUpstream(m){
@@ -353,7 +355,8 @@ function edUpstream(m){
   return EDD.up;
 }
 async function edDataRun(force){
-  if (!EDD.on || !ED.query || !S.A || EDD.busy) return;
+  if (!EDD.on || !ED.query || !S.A) return;
+  if (EDD.busy){ EDD.pending = true; return; }   // идёт прогон — повторить после него
   const m = S.A.byName.get(ED.query); if (!m || m.isFn) { EDD.res = null; edDataRender(); return; }
   const temp = S.work.slice(0, m.exprStart) + ' ' + safeExprEnd(edCurrentText()) + S.work.slice(m.exprEnd);
   const key = temp + '\u0001' + ED.query + '\u0001' + DATA.ver + '\u0001' + DATA.limit;
@@ -362,15 +365,15 @@ async function edDataRun(force){
   try {
     await dataPrepare();
     const t0 = performance.now(); const up = edUpstream(m);
-    const t1 = performance.now(); EDD.res = dataRunQuery(temp, ED.query, up); EDD.key = key;
+    const t1 = performance.now(); EDD.res = dataRunQuery(temp, ED.query, up); EDD.resQuery = ED.query; EDD.key = key;
     EDD.ms = performance.now() - t1; EDD.upMs = t1 - t0; EDD.manual = EDD.ms > 3000;
   } catch (e){ EDD.res = { error: { reason: e.reason || 'Error', message: e.message }, steps: [], joins: [] }; }
-  finally { EDD.busy = false; }
+  finally { EDD.busy = false; if (EDD.pending){ EDD.pending = false; if (!EDD.manual) setTimeout(() => edDataRun(false), 0); } }
   edDataRender(); renderEdSide(); renderEdFlow();
 }
 /** Строк на шаге (бейдж в списке шагов и в потоке) */
 function edStepBadge(name, small){
-  if (!EDD.on || !EDD.res || EDD.key == null) return '';
+  if (!EDD.on || !EDD.res || EDD.key == null || EDD.resQuery !== ED.query) return '';
   const st = EDD.res.steps.find(x => x.name === name); if (!st) return '';
   if (st.error) return '<span class="rows bad" title="' + escHtml(st.error.message) + '">' + (st.error.need ? '🔌' : '✖') + '</span>';
   return st.rows != null ? '<span class="rows' + (small ? ' sm' : '') + '" title="строк × столбцов на данных">' + fmtN(st.rows) + (small ? '' : ' × ' + st.cols) + '</span>' : '';
@@ -380,7 +383,7 @@ function edDataRender(){
   const box = $('#edData'); if (!box) return;
   box.classList.toggle('hidden', !EDD.on); $('#edDataBtn').classList.toggle('on', EDD.on);
   if (!EDD.on) return;
-  const r = EDD.res; const stale = EDD.busy || !r || EDD.key == null;
+  const r = EDD.resQuery === ED.query ? EDD.res : null; const stale = EDD.busy || !r || EDD.key == null;
   const pick = r && r.steps.length ? (r.steps.find(x => x.name === EDD.step) || r.steps[r.steps.length - 1]) : null;
   let h = '<div class="edd-h"><b>' + (pick ? escHtml(pick.name === 'in → результат' ? 'Результат запроса' : 'Шаг «' + pick.name + '»') : 'Данные') + '</b>';
   if (EDD.busy) h += '<span class="small muted">⏳ вычисление…</span>';

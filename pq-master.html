@@ -38,12 +38,12 @@
     1885–1898   vendor/codemirror.entry.js
     1901–1916   vendor/codemirror.bundle.js
     1920–2358   src/js/core/zip-mashup.js
-    2359–2704   src/js/core/vba.js
-    2705–2801   src/js/core/xlsx-data.js
-    2802–3074   src/js/m/lang.js
-    3075–3137   src/js/m/format.js
-    3138–3522   src/js/m/reference.js
-    3523–4390   src/js/m/interp.js
+    2359–2703   src/js/core/vba.js
+    2704–2800   src/js/core/xlsx-data.js
+    2801–3073   src/js/m/lang.js
+    3074–3136   src/js/m/format.js
+    3137–3521   src/js/m/reference.js
+    3522–4390   src/js/m/interp.js
     4391–4911   src/js/nda/anon.js
     4912–5048   src/js/nda/diag.js
     5049–5469   src/js/opt/lint.js
@@ -51,32 +51,32 @@
     5781–5867   src/js/opt/refactor.js
     5868–6015   src/js/opt/snippets.js
     6016–6084   src/js/app/state.js
-    6085–6175   src/js/app/data.js
-    6176–6413   src/js/nda/agent.js
-    6414–6505   src/js/app/ui-base.js
-    6506–6684   src/js/app/storage.js
-    6685–6721   src/js/app/hints.js
-    6722–6944   src/js/app/shell.js
-    6945–7037   src/js/views/home.js
-    7038–7462   src/js/views/editor.js
-    7463–7717   src/js/views/optimizer.js
-    7718–7801   src/js/views/graph.js
-    7802–7917   src/js/views/sandbox.js
-    7918–8139   src/js/views/data.js
-    8140–8338   src/js/views/model.js
-    8339–8453   src/js/views/speedup.js
-    8454–8484   src/js/views/reference.js
-    8485–8522   src/js/views/snippets.js
-    8523–8543   src/js/views/history.js
-    8544–8728   src/js/views/anon.js
-    8729–8795   src/js/views/diag.js
-    8796–8927   src/js/views/ai.js
-    8928–8991   src/js/views/agent.js
-    8992–9018   src/js/views/compare.js
-    9019–9076   src/js/views/docs.js
-    9077–9262   src/js/views/help.js
-    9263–9693   src/js/app/selftest.js
-    9694–9707   src/js/app/main.js
+    6085–6177   src/js/app/data.js
+    6178–6415   src/js/nda/agent.js
+    6416–6507   src/js/app/ui-base.js
+    6508–6686   src/js/app/storage.js
+    6687–6723   src/js/app/hints.js
+    6724–6946   src/js/app/shell.js
+    6947–7039   src/js/views/home.js
+    7040–7467   src/js/views/editor.js
+    7468–7725   src/js/views/optimizer.js
+    7726–7809   src/js/views/graph.js
+    7810–7925   src/js/views/sandbox.js
+    7926–8147   src/js/views/data.js
+    8148–8348   src/js/views/model.js
+    8349–8463   src/js/views/speedup.js
+    8464–8494   src/js/views/reference.js
+    8495–8532   src/js/views/snippets.js
+    8533–8553   src/js/views/history.js
+    8554–8738   src/js/views/anon.js
+    8739–8805   src/js/views/diag.js
+    8806–8938   src/js/views/ai.js
+    8939–9002   src/js/views/agent.js
+    9003–9029   src/js/views/compare.js
+    9030–9087   src/js/views/docs.js
+    9088–9273   src/js/views/help.js
+    9274–9713   src/js/app/selftest.js
+    9714–9727   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -2602,9 +2602,8 @@ function genPqMacro(opts){
       '    Dim cn As WorkbookConnection',
       '    On Error Resume Next',
       '    For Each cn In ThisWorkbook.Connections');
-    if (noOpen.length) add('        Select Case cn.Name', '            Case ' + cs(noOpen) + ': cn.OLEDBConnection.RefreshOnFileOpen = False', '        End Select');
-    if (excl.length) add('        Select Case cn.Name', '            Case ' + cs(excl) + ': cn.RefreshWithRefreshAll = False', '        End Select');
-    if (incl.length) add('        Select Case cn.Name', '            Case ' + cs(incl) + ': cn.RefreshWithRefreshAll = True', '        End Select');
+    const sel = (xs, stmt) => { if (xs.length) add('        Select Case cn.Name', ...xs.map(x => '            Case ' + vbaStr(x, cp) + ': ' + stmt), '        End Select'); };   // по строке на имя: строка VBA — не длиннее 1023 символов
+    sel(noOpen, 'cn.OLEDBConnection.RefreshOnFileOpen = False'); sel(excl, 'cn.RefreshWithRefreshAll = False'); sel(incl, 'cn.RefreshWithRefreshAll = True');
     add('    Next cn', '    MsgBox "Настройки подключений изменены. Сохраните книгу.", vbInformation, "Мастер PQ"', 'End Sub', '');
   }
   add("' Подключение Power Query: OLE DB с поставщиком Microsoft.Mashup.OleDb",
@@ -2725,7 +2724,7 @@ function xlsxDateKinds(stylesXml){
     if ((id >= 14 && id <= 17) || id === 22 || (id >= 27 && id <= 31) || (id >= 34 && id <= 36) || (id >= 50 && id <= 58)) return id === 22 ? 'datetime' : 'date';
     if ((id >= 18 && id <= 21) || (id >= 45 && id <= 47) || id === 32 || id === 33) return 'time';
     const code = custom[id]; if (!code) return null;
-    const c = code.split(';')[0].replace(/"[^"]*"|\\.|\[[^\]]*\]/g, '');
+    const c = code.split(';')[0].replace(/\[(h+|m+|s+)\]/gi, '$1').replace(/"[^"]*"|\\.|\[[^\]]*\]/g, '');   // [h]:mm — длительность, оставить h
     const d = /[dy]/i.test(c) || /m{3,}/i.test(c), t = /[hs]/i.test(c);
     return d && t ? 'datetime' : d ? 'date' : t ? 'time' : null;
   };
@@ -2791,7 +2790,7 @@ async function readXlsxData(zip, opts){
     const xml = await get(sd.part); if (xml == null) continue;
     const g = xlsxParseSheet(xml, ss, kinds, date1904, opts.maxRows); if (g.truncated) out.truncated = true;
     if (opts.only !== 'objects'){ const ok = g.r1 >= 0; out.sheets.push({ name: sd.name, hidden: sd.hidden, cols: xlsxColumns(ok ? g.c1 - g.c0 + 1 : 0), rows: ok ? xlsxSlice(g.grid, g) : [] }); }
-    for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: t.range.r1 - t.totals, c1: t.range.c1 }; const w = rg.c1 - rg.c0 + 1;
+    for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: Math.min(t.range.r1 - t.totals, g.r1), c1: t.range.c1 } /* не дальше прочитанных строк (лимит) */; const w = rg.c1 - rg.c0 + 1;
       out.tables.push({ name: t.name, sheet: sd.name, cols: t.cols.length === w ? t.cols : xlsxColumns(w), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
     for (const n of myNames) if (n.range){ const rg = Object.assign({}, n.range, { r1: Math.min(n.range.r1, g.r1), c1: Math.min(n.range.c1, Math.max(g.c1, n.range.c0)) });   // «A1:C1048576» — до последней заполненной строки
       out.names.push({ name: n.name, cols: xlsxColumns(rg.c1 - rg.c0 + 1), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
@@ -4221,7 +4220,7 @@ def('Table.NestedJoin', (a, ka, b, kb, name, kind) => { a = tab(a, 'Table.Nested
   const eq = r => s => ia.every((i, k) => mEquals(r[i], s[ib[k]]));
   const match = r => { const k = rowKey(r, ia); if (k === null) return b.rows.filter(eq(r)); const hit = idx.get(k) || []; return slow.length ? hit.concat(slow.filter(eq(r))) : hit; };
   const rows = []; const usedB = new Set(); let miss = 0;
-  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
+  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if ((kind === 0 || kind === 2) && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
   if (kind === 2 || kind === 3 || kind === 5) for (const s of b.rows) if (!usedB.has(s)) rows.push(a.cols.map(() => null).concat([new MTab(b.cols.slice(), [s])]));
   if (M_TRACE){ let dupKeys = 0, dupRows = 0; for (const l of idx.values()) if (l.length > 1){ dupKeys++; dupRows += l.length; }
     const typeOf = (t, ix) => { const ts = new Set(); for (const r of t.rows.slice(0, 500)) for (const i of ix){ try { const x = force(r[i]); if (x !== null) ts.add(mTypeName(x)); } catch { ts.add('error'); } } return [...ts].join('/'); };
@@ -4258,7 +4257,7 @@ const binOf = (v, fn) => { v = force(v); if (v instanceof MBin) return v; if (ty
 /** Текст из байтов: кодовая страница M (65001, 1251, 1200…) или по BOM; без BOM — UTF-8, если он корректен, иначе 1251 */
 function decodeBin(u8, enc){
   enc = force(enc); if (enc instanceof MRec) enc = enc.has('Encoding') ? force(enc.get('Encoding')) : null;
-  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); try { return new TextDecoder('windows-' + enc).decode(u8); } catch { /* ниже */ } }
+  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); const CP = { 866: 'ibm866', 20866: 'koi8-r', 21866: 'koi8-u', 28595: 'iso-8859-5', 1250: 'windows-1250', 1251: 'windows-1251', 1252: 'windows-1252' }; let d; try { d = new TextDecoder(CP[enc] || 'windows-' + enc); } catch { throw new MErr('DataFormat.Error', 'Кодировка ' + enc + ' не поддерживается'); } return d.decode(u8); }
   if (u8[0] === 0xEF && u8[1] === 0xBB && u8[2] === 0xBF) return td8.decode(u8.subarray(3));
   if (u8[0] === 0xFF && u8[1] === 0xFE) return new TextDecoder('utf-16le').decode(u8.subarray(2));
   if (enc === 65001) return td8.decode(u8);
@@ -4268,8 +4267,9 @@ function decodeBin(u8, enc){
 function xlsxValueToM(v){
   if (v === undefined || v === null || typeof v !== 'object') return v === undefined ? null : v;
   if (v.err) return new Thunk(() => { throw new MErr('DataFormat.Error', 'Ошибка в ячейке: ' + v.err); });
-  const ms = Math.round((v.xd - 25569) * 86400000);
-  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.round(ms / 86400000) * 86400000 : ms);
+  const xd = v.xd >= 1 && v.xd < 61 ? v.xd + 1 : v.xd;   // до 1 марта 1900 Excel считает несуществующее 29 февраля
+  const ms = Math.round((xd - 25569) * 86400000);
+  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.floor(ms / 86400000) * 86400000 : ms);
 }
 const xlsxTable = (cols, rows) => new MTab(cols, rows.map(r => cols.map((_, i) => xlsxValueToM(r[i]))));
 def('Excel.CurrentWorkbook', () => {
@@ -6121,7 +6121,7 @@ async function dataPrepare(){
     DATA.wbFor = key; DATA.selfBook = null;
   }
   // запрос читает сам этот файл: Excel.Workbook(File.Contents("…\Книга.xlsx")) — нужен полный разбор листов
-  if (!DATA.selfBook && /Excel\.Workbook\s*\(\s*File\.Contents/.test(S.work || '')){
+  if (!DATA.selfBook && /Excel\.Workbook/.test(S.work || '') && /File\.Contents/.test(S.work || '')){
     DATA.selfBook = { name: b.name, bytes: b.bytes, mtime: 0, xlsx: null };
     try { DATA.selfBook.xlsx = await readXlsxData(b.zip, { maxRows: DATA.limit }); } catch { /* Excel.Workbook сообщит */ }
   }
@@ -6148,15 +6148,17 @@ function dataSummaryText(){
     Не считаются утечкой: заголовки столбцов и строки, которые уже есть в обезличенном коде. */
 function dataValueSet(){
   const vals = new Set(), skip = new Set(); const CAP = 400000;
-  const addRows = (cols, rows) => { for (const c of cols || []) skip.add(String(c)); for (const r of rows || []){ for (const v of r){ if (typeof v === 'string' && v.length >= 4 && v.length <= 400) vals.add(v.trim()); } if (vals.size > CAP) return; } };
+  const addRows = (cols, rows, colsAreData) => { for (const c of cols || []) (colsAreData ? (String(c).length >= 4 && vals.add(String(c))) : skip.add(String(c))); for (const r of rows || []){ for (const v of r){ if (typeof v === 'string' && v.length >= 4 && v.length <= 400) vals.add(v.trim()); } if (vals.size > CAP) return; } };
   if (DATA.wb) for (const t of DATA.wb.tables.concat(DATA.wb.names)) addRows(t.cols, t.rows);
   const files = [...DATA.files.values(), ...[].concat(...DATA.folders.values())];
   for (const f of files){
     if (f.xlsx) for (const t of f.xlsx.sheets.concat(f.xlsx.tables)) addRows(t.cols, t.rows);
-    else if (f.bytes && f.bytes.length < 50e6 && /\.(csv|txt|tsv)$/i.test(f.name)){   // первая строка — заголовки
-      decodeBin(f.bytes).split(/\r?\n/).forEach((line, li) => { for (const cell of line.split(/[;,\t|]/)){ const v = cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"').trim(); if (li === 0) skip.add(v); else if (v.length >= 4 && v.length <= 400) vals.add(v); } }); }
+    else if (f.bytes && f.bytes.length < 50e6 && /\.(csv|txt|tsv)$/i.test(f.name)){   // по правилам CSV (кавычки, переводы строк); первая строка — заголовки
+      const t = decodeBin(f.bytes); const head = t.slice(0, t.indexOf('\n') + 1 || 4096); const delim = [';', '\t', ',', '|'].sort((a, b) => head.split(b).length - head.split(a).length)[0];
+      csvRows(t, delim).forEach((row, li) => { for (const cell of row){ const v = String(cell).trim(); if (li === 0) skip.add(v); else if (v.length >= 4 && v.length <= 400) vals.add(v); } }); }
+    else if (f.bytes && f.bytes.length < 50e6 && /\.json$/i.test(f.name)){ try { const walk = x => { if (typeof x === 'string'){ if (x.length >= 4 && x.length <= 400) vals.add(x.trim()); } else if (x && typeof x === 'object') for (const k in x) walk(x[k]); }; walk(JSON.parse(decodeBin(f.bytes))); } catch { /* не JSON */ } }
   }
-  if (DATA.run) for (const q of DATA.run.queries) if (q.sample) addRows(q.sample.cols, q.sample.rows);
+  if (DATA.run) for (const q of DATA.run.queries) if (q.sample) addRows(q.sample.cols, q.sample.rows, true);   // столбцы результата могут быть данными (Pivot, PromoteHeaders) — не исключаются
   if (S.anon && S.anon.out){ const re = /"((?:[^"]|"")*)"/g; let m; while ((m = re.exec(S.anon.out))) skip.add(m[1].replace(/""/g, '"')); }
   for (const s of skip) vals.delete(s);
   return vals;
@@ -7222,6 +7224,7 @@ function edLoad(name){
   else ED.view.dispatch({ changes: { from: 0, to: ED.view.state.doc.length, insert: ED.base }, selection: { anchor: 0 }, scrollIntoView: true });
   $('#edTitle').textContent = name; $('#edTitle').title = name;
   $('#edDirty').classList.add('hidden');
+  EDD.res = null; EDD.resQuery = null; EDD.manual = false; EDD.key = null;   // данные прошлого запроса не показывать
   edAnalyze(ED.base); renderEdList(); renderEdSide(); renderEdFlow(); EDD.step = null; edDataSchedule();
 }
 async function edConfirmLeave(){
@@ -7366,7 +7369,8 @@ $('#edRefMenu').addEventListener('click', async e => {
 async function openInEditor(name, step){
   showView('editor');
   if (ED.query !== name && !(await edConfirmLeave())) return;
-  edLoad(name); if (step) setTimeout(() => edGotoStep(step), 30);
+  if (ED.query !== name || !edDirty()) edLoad(name);   // тот же запрос с непринятыми правками — не затирать их
+  if (step) setTimeout(() => edGotoStep(step), 30);
 }
 function renderEditor(reason){
   if (!S.A) return;
@@ -7379,7 +7383,7 @@ function renderEditor(reason){
 /* ---- Живые данные: шаг под курсором вычисляется на таблицах книги и выгрузках (только в браузере) ----
    Вычисляется текст редактора, даже не применённый; запросы, на которые он ссылается, — по рабочей
    версии один раз (кэш по версии кода и данных). Долгий прогон (> 3 с) переводит панель в ручной режим. */
-const EDD = { on: pqmSettings().edData !== false, res: null, key: null, step: null, busy: false, manual: false, ms: 0, up: new Map(), upKey: null, prof: new WeakMap() };
+const EDD = { on: pqmSettings().edData !== false, res: null, resQuery: null, pending: false, key: null, step: null, busy: false, manual: false, ms: 0, up: new Map(), upKey: null, prof: new WeakMap() };
 function edDataSchedule(){ clearTimeout(EDD.t); if (EDD.on && !EDD.manual) EDD.t = setTimeout(() => edDataRun(false), 600); else edDataRender(); }
 /** Результаты запросов, от которых зависит текущий (рабочая версия; из «Проверки на данных», если она свежая) */
 function edUpstream(m){
@@ -7391,7 +7395,8 @@ function edUpstream(m){
   return EDD.up;
 }
 async function edDataRun(force){
-  if (!EDD.on || !ED.query || !S.A || EDD.busy) return;
+  if (!EDD.on || !ED.query || !S.A) return;
+  if (EDD.busy){ EDD.pending = true; return; }   // идёт прогон — повторить после него
   const m = S.A.byName.get(ED.query); if (!m || m.isFn) { EDD.res = null; edDataRender(); return; }
   const temp = S.work.slice(0, m.exprStart) + ' ' + safeExprEnd(edCurrentText()) + S.work.slice(m.exprEnd);
   const key = temp + '\u0001' + ED.query + '\u0001' + DATA.ver + '\u0001' + DATA.limit;
@@ -7400,15 +7405,15 @@ async function edDataRun(force){
   try {
     await dataPrepare();
     const t0 = performance.now(); const up = edUpstream(m);
-    const t1 = performance.now(); EDD.res = dataRunQuery(temp, ED.query, up); EDD.key = key;
+    const t1 = performance.now(); EDD.res = dataRunQuery(temp, ED.query, up); EDD.resQuery = ED.query; EDD.key = key;
     EDD.ms = performance.now() - t1; EDD.upMs = t1 - t0; EDD.manual = EDD.ms > 3000;
   } catch (e){ EDD.res = { error: { reason: e.reason || 'Error', message: e.message }, steps: [], joins: [] }; }
-  finally { EDD.busy = false; }
+  finally { EDD.busy = false; if (EDD.pending){ EDD.pending = false; if (!EDD.manual) setTimeout(() => edDataRun(false), 0); } }
   edDataRender(); renderEdSide(); renderEdFlow();
 }
 /** Строк на шаге (бейдж в списке шагов и в потоке) */
 function edStepBadge(name, small){
-  if (!EDD.on || !EDD.res || EDD.key == null) return '';
+  if (!EDD.on || !EDD.res || EDD.key == null || EDD.resQuery !== ED.query) return '';
   const st = EDD.res.steps.find(x => x.name === name); if (!st) return '';
   if (st.error) return '<span class="rows bad" title="' + escHtml(st.error.message) + '">' + (st.error.need ? '🔌' : '✖') + '</span>';
   return st.rows != null ? '<span class="rows' + (small ? ' sm' : '') + '" title="строк × столбцов на данных">' + fmtN(st.rows) + (small ? '' : ' × ' + st.cols) + '</span>' : '';
@@ -7418,7 +7423,7 @@ function edDataRender(){
   const box = $('#edData'); if (!box) return;
   box.classList.toggle('hidden', !EDD.on); $('#edDataBtn').classList.toggle('on', EDD.on);
   if (!EDD.on) return;
-  const r = EDD.res; const stale = EDD.busy || !r || EDD.key == null;
+  const r = EDD.resQuery === ED.query ? EDD.res : null; const stale = EDD.busy || !r || EDD.key == null;
   const pick = r && r.steps.length ? (r.steps.find(x => x.name === EDD.step) || r.steps[r.steps.length - 1]) : null;
   let h = '<div class="edd-h"><b>' + (pick ? escHtml(pick.name === 'in → результат' ? 'Результат запроса' : 'Шаг «' + pick.name + '»') : 'Данные') + '</b>';
   if (EDD.busy) h += '<span class="small muted">⏳ вычисление…</span>';
@@ -7598,7 +7603,7 @@ function renderOptCards(){
   $('#optCards').innerHTML = list.length ? list.slice(0, OPT.limit).map(f => {
     const opts = (f.options || []).map(o => '<label class="small">' + escHtml(o.label) + ': <select data-fopt="' + escHtml(f.id) + '" data-k="' + o.key + '">' + o.values.map(([v, l]) => '<option value="' + v + '"' + (enc === v ? ' selected' : '') + '>' + escHtml(l) + '</option>').join('') + '</select></label>').join('');
     const vd = DATA.verify && DATA.verify.forWork === S.work && DATA.verify.items.get(f.id);   // сверка на данных (раздел «Проверка на данных»)
-    const vb = vd ? '<span class="pqx-rec ' + (vd.same ? 'ok' : 'warn') + '" title="' + escHtml(vd.results.map(r => (r.label ? r.label + ': ' : '') + (r.same ? 'совпадает' : 'отличается') + (r.note ? ' — ' + r.note : '')).join('; ')) + '">' + (vd.same ? '✓ на данных — тот же результат' : '✖ на данных — результат другой') + '</span>' : '';
+    const vOk = vd && vd.results.find(r => r.same); const vb = vd ? '<span class="pqx-rec ' + (vOk ? 'ok' : 'warn') + '" title="' + escHtml(vd.results.map(r => (r.label ? r.label + ': ' : '') + (r.same ? 'совпадает' : 'отличается') + (r.note ? ' — ' + r.note : '')).join('; ')) + '">' + (vd.same ? '✓ на данных — тот же результат' : vOk ? '✓ на данных — вариант «' + vOk.label + '» даёт тот же результат' : '✖ на данных — результат другой') + '</span>' : '';
     return '<div class="ocard ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span><span class="safety ' + f.safety + '">' + SAFETY_LABEL[f.safety] + '</span>' + vb + '</div>' +
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
@@ -7631,7 +7636,10 @@ function pqxSet(c, k, v){
   if (Object.keys(e).length) E[c.id] = e; else delete E[c.id];
 }
 /** excludeFromRefreshAll без элемента x15:connection в файле не пишется — такие подключения уходят в макрос PQ_Setup */
+/** Состояние окна настроек принадлежит книге: при другой книге — сброс (иначе исключения и FastCombine перенеслись бы) */
+function pqxSync(){ const B = S.book; if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = B.family === 'excel' && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; } }
 function pqxMacroOpts(forFile){
+  pqxSync();
   const conns = S.book.conns ? pqxConns() : [];
   const ex = conns.filter(c => !c.hasX15 && PQX.macroExcl && PQX.macroExcl.has(c.id)).map(c => c.name);
   return { refresh: PQX.refresh, timing: PQX.timing, fastCombine: PQX.fastCombine, setup: { exclude: ex }, codePage: (S.book.vba && S.book.vba.codePage) || 1251, bookName: S.book.name, forFile };
@@ -7639,7 +7647,7 @@ function pqxMacroOpts(forFile){
 async function openPqSettings(){
   if (!S.book || S.book.family === 'text') return toast('Откройте книгу Excel или Power BI', 'warn');
   const B = S.book, xl = B.family === 'excel';
-  if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = xl && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; }
+  pqxSync();
   const conns = xl && B.conns ? pqxConns() : [];
   const ck = (on, attrs) => '<input type="checkbox"' + (on ? ' checked' : '') + ' ' + attrs + '>';
   // рекомендации: «при открытии» — выкл; фоновое — выкл, если в книге есть сводные (иначе вкл); «Обновить всё» — как в файле
@@ -7946,7 +7954,7 @@ function tableProfile(t){
       if (dist.size < 100001){ const k = mHashKey(v); if (k !== null) dist.add(k); }
       if (typeof v === 'number'){ nums++; sum += v; }
       else if (typeof v === 'string'){ if (/^\s*-?[\d  ]+([.,]\d+)?\s*$/.test(v)) txtNum++; if (v !== v.trim()) spaces++; } }
-    return { col: c, types: [...types].sort((a, b) => b[1] - a[1]).map(([k, x]) => k + (types.size > 1 ? ' ' + x : '')).join(', ') || 'null', nulls, errs, distinct: dist.size > 100000 ? '>100000' : dist.size, txtNum, spaces, sum: nums ? sum : null, nums, rows: n };
+    return { col: c, types: [...types].sort((a, b) => b[1] - a[1]).map(([k, x]) => k + (types.size > 1 ? ' ' + x : '')).join(', ') || 'null', nulls, errs, distinct: dist.size > 100000 ? 100001 : dist.size, distinctCapped: dist.size > 100000, txtNum, spaces, sum: nums ? sum : null, nums, rows: n };
   });
 }
 /** Сумма числового столбца в каждом шаге-таблице: где итог изменился */
@@ -8113,7 +8121,7 @@ function renderData(){
   $('#dataDetail').innerHTML = '<div class="card-h"><h2>' + escHtml(q.name) + '</h2><span class="sp"></span><button class="btn sm" id="dataToSb">Открыть в песочнице</button></div>' +
     '<h3>Шаги</h3><table class="t small"><tr><th>Шаг</th><th>Строк</th><th></th><th>Время</th></tr>' + q.steps.map(s => '<tr><td>' + escHtml(s.name) + (s.overridden ? ' 📎' : '') + '</td><td class="num">' + (s.error ? '<span style="color:var(--bad)" title="' + escHtml(s.error.message) + '">' + (s.error.need ? '🔌' : '✖') + '</span>' : fmtN(s.rows)) + '</td><td style="width:40%"><div class="bar"><i style="width:' + ((s.rows || 0) / maxR * 100) + '%"></i></div></td><td class="num">' + (s.ms || 0).toFixed(0) + ' мс</td></tr>').join('') + '</table>' +
     (q.sums && q.sums.length ? '<h3>Контрольные суммы</h3><table class="t small"><tr><th>Столбец</th><th>Первый шаг</th><th>Результат</th><th>Где менялась</th></tr>' + q.sums.map(c => '<tr><td>' + escHtml(c.col) + '</td><td class="num">' + fmtN(c.first.sum) + '</td><td class="num">' + fmtN(c.last.sum) + '</td><td>' + (c.changes.length ? c.changes.slice(0, 6).map(x => escHtml(x.step) + ' (' + relChange(x.before, x.after) + ', ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before) + ')').join(', ') : '<span class="muted">не менялась</span>') + '</td></tr>').join('') + '</table>' : '') +
-    (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + fmtN(p.distinct) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
+    (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + (p.distinctCapped ? '> 100 000' : fmtN(p.distinct)) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
     (q.sample ? '<h3>Первые строки результата</h3><div class="table-wrap" style="max-height:40vh"><table class="t small"><tr>' + q.sample.cols.map(c => '<th>' + escHtml(c) + '</th>').join('') + '</tr>' + q.sample.rows.slice(0, 30).map(r => '<tr>' + r.map(v => '<td>' + (v === null ? '<span class="muted">null</span>' : escHtml(v === '⚠' || v === null ? String(v) : mToText(v))) + '</td>').join('') + '</tr>').join('') + '</table></div>' : '');
   $('#dataToSb').onclick = () => { showView('sandbox'); sbRunQuery(q.name); };
 }
@@ -8125,7 +8133,7 @@ function dataChecksForAi(){
     queries: DATA.run.queries.map(q => ({ query: anonQueryName(q.name), error: q.error ? (q.error.need ? 'нужен источник ' + q.error.need.kind : q.error.reason) : null,
       steps: q.steps.map(s => ({ step: sanitizeName(s.name), rows: s.rows, ms: Math.round(s.ms || 0), error: s.error ? s.error.reason : undefined })),
       joins: q.joins.map(j => ({ step: sanitizeName(j.step), keys: j.keysA.map(anonColName), left: j.left, right: j.right, unmatchedLeft: j.miss, duplicateKeysRight: j.dupKeys, keyTypes: j.typeA + ' / ' + j.typeB })),
-      columns: (q.profile || []).map(p => ({ name: anonColName(p.col), types: p.types, nullShare: p.rows ? +(p.nulls / p.rows).toFixed(4) : 0, errors: p.errs, textNumbers: p.txtNum, edgeSpaces: p.spaces })) })),
+      columns: (q.profile || []).map((p, i) => ({ name: 'столбец ' + (i + 1) /* имена столбцов результата могут быть данными (Pivot) — не передаются */, types: p.types, nullShare: p.rows ? +(p.nulls / p.rows).toFixed(4) : 0, errors: p.errs, textNumbers: p.txtNum, edgeSpaces: p.spaces })) })),
     fixesOnData: ver.map(v => ({ rule: v.rule, query: anonQueryName(v.query), sameResult: v.same })) };
 }
 $('#dataRun').onclick = dataRunAll;
@@ -8239,6 +8247,8 @@ function mdlFlow(){
   for (const m of qs){ const r = mdlRows(m.name).rows; if (m.load.sheet) edges.push({ a: 'q:' + m.name, b: 't:sheet', rows: r }); if (m.load.model) edges.push({ a: 'q:' + m.name, b: 't:model', rows: r }); }
   // колонки и порядок (барицентры по входящим связям, несколько проходов)
   const cols = []; for (const n of nodes.values()) (cols[n.col] = cols[n.col] || []).push(n);
+  if (!cols.length) return { svg: '<div class="small muted">Обычных запросов нет — только функции и параметры.</div>', legend: '' };
+  cols[0] = cols[0] || [];
   for (let i = 0; i < cols.length; i++) cols[i] = cols[i] || [];
   const pos = new Map(); cols.forEach(c => c.forEach((n, i) => pos.set(n.id, i)));
   const into = new Map(); for (const e of edges){ if (!into.has(e.b)) into.set(e.b, []); into.get(e.b).push(e.a); }
@@ -8302,9 +8312,9 @@ function mdlSpeedupHtml(){
   const ver = DATA.verify && DATA.verify.forWork === S.work ? DATA.verify.items : new Map();
   return '<div class="sp-hero"><div><div class="tv">×' + fmtBig(Math.round(tb / ta)) + '</div><div class="ts">меньше операций в этих местах после исправлений</div></div><div class="small muted">' + fmtBig(tb) + ' → ' + fmtBig(ta) + ' операций (сравнений строк и повторных чтений) на ваших объёмах. Power Query не строит индекс для поиска «для каждой строки» и не делит результат промежуточного запроса между загружаемыми таблицами — отсюда умножение. Реальное время зависит от источника и машины: проверьте диагностикой до и после.</div></div>' +
     '<div class="dumb">' + sp.slice(0, 12).map(x => { const v = ver.get(x.f.id); const a = X(x.after), b = X(x.before);
-      return '<div class="dr" data-tip="' + escHtml('<b>' + escHtml(x.f.query + (x.f.step ? ' › ' + x.f.step : '')) + '</b><br>' + escHtml(x.how) + '<br>сейчас ≈ ' + fmtBig(x.before) + ' операций<br>после ≈ ' + fmtBig(x.after) + (v ? '<br>на данных: ' + (v.same ? 'результат тот же ✓' : 'результат другой ✖') : '')) + '"><span class="hl"><b>' + escHtml(x.f.query) + '</b>' + (x.f.step ? ' › ' + escHtml(x.f.step) : '') + '<br><span class="muted">' + escHtml(x.how) + '</span></span>' +
+      return '<div class="dr" data-tip="' + escHtml('<b>' + escHtml(x.f.query + (x.f.step ? ' › ' + x.f.step : '')) + '</b><br>' + escHtml(x.how) + '<br>сейчас ≈ ' + fmtBig(x.before) + ' операций<br>после ≈ ' + fmtBig(x.after) + (v ? '<br>на данных: ' + (v.same ? 'результат тот же ✓' : v.results.some(r => r.same) ? 'вариант «' + escHtml(v.results.find(r => r.same).label) + '» — тот же ✓' : 'результат другой ✖') : '')) + '"><span class="hl"><b>' + escHtml(x.f.query) + '</b>' + (x.f.step ? ' › ' + escHtml(x.f.step) : '') + '<br><span class="muted">' + escHtml(x.how) + '</span></span>' +
         '<span class="dt"><i class="dl" style="left:' + a.toFixed(2) + '%;width:' + Math.max(0, b - a).toFixed(2) + '%"></i><i class="dd after" style="left:' + a.toFixed(2) + '%"></i><i class="dd before" style="left:' + b.toFixed(2) + '%"></i></span>' +
-        '<span class="dk"><b>×' + fmtBig(Math.round(x.k)) + '</b>' + (v ? (v.same ? ' <span class="ok">✓</span>' : ' <span class="bad">✖</span>') : '') + '</span>' +
+        '<span class="dk"><b>×' + fmtBig(Math.round(x.k)) + '</b>' + (v ? (v.results.some(r => r.same) ? ' <span class="ok">✓</span>' : ' <span class="bad">✖</span>') : '') + '</span>' +
         '<button class="btn sm" data-fix="' + escHtml(x.f.id) + '">Исправить…</button></div>'; }).join('') + '</div>' +
     '<div class="small muted">Шкала логарифмическая: каждое деление — в 10 раз. ✓/✖ — сверка исправления на данных («Проверка на данных»).</div>';
 }
@@ -8911,6 +8921,7 @@ async function aiVerifyOnData(){
   $('#aiVerifyBtn').disabled = true; await dataPrepare();
   for (const n of names){
     const cell = $('[data-aiv="' + CSS.escape(n) + '"]'); if (!cell) continue; cell.innerHTML = '⏳ вычисление…'; await new Promise(r => setTimeout(r, 0));
+    if (S.aiNew !== sec) return;   // ответ перепроверили — результаты этого прогона уже не к месту
     const a = dataRunQuery(S.work, n, new Map()), b = dataRunQuery(sec, n, new Map());
     const rows = x => { const f = x.steps[x.steps.length - 1]; return f && f.rows != null ? fmtN(f.rows) : '—'; };
     if (a.error && a.error.need || b.error && b.error.need) cell.innerHTML = '<span class="pqx-rec warn">🔌 нужен источник</span> <button class="link" data-go="data">прикрепить в «Проверке на данных»</button>';
@@ -9588,7 +9599,7 @@ async function runSelfTest(){
     const macBack = new TextDecoder('windows-1251').decode(encodeCodePage(mac, 1251));
     ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
       /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
-      mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
+      mac.includes('Case "Запрос — Курсы": cn.RefreshWithRefreshAll = False') && mac.includes('Case "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
     // ---------- данные на этом компьютере: таблицы книги, выгрузки, соединения, защита от утечки ----------
     const keepData = { wb: DATA.wb, wbFor: DATA.wbFor, files: DATA.files, folders: DATA.folders, run: DATA.run, verify: DATA.verify, selfBook: DATA.selfBook };
     try {
@@ -9625,6 +9636,15 @@ async function runSelfTest(){
       const T1 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"}})', ''), T2 = mEval('#table({"b","a"}, {{"y",2},{"x",1}})', ''), T3 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"},{2,"y"}})', '');
       const c1 = tableCompare(T1, T1), c2 = tableCompare(T1, T2), c3 = tableCompare(T1, T3);
       ok('Сверка результатов до и после исправления: полностью / другой порядок / отличается', c1.same && c1.exact && c2.same && !c2.exact && !c3.same && /появилось 1/.test(c3.note), [c1, c2, c3].map(c => JSON.stringify(c)).join(' '));
+      // регрессии ревью: правое соединение, дата со временем, таблица при лимите строк, cp866, CSV с кавычками в защите от утечки
+      const ro = mEval('Table.RowCount(Table.NestedJoin(#table({"k"}, {{1}, {2}}), {"k"}, #table({"k"}, {{1}, {3}}), {"k"}, "R", JoinKind.RightOuter))', '');
+      const dt = xlsxValueToM({ xd: 45000.75, kind: 'date' }), old = xlsxValueToM({ xd: 1, kind: 'date' });
+      const xd5 = await readXlsxData(zipRead(dx), { maxRows: 3 }); const mp5 = xd5.tables.find(t => t.name === 'Маппинг');
+      DATA.files.set(normPath('C:\\к.txt'), { name: 'к.txt', bytes: Uint8Array.of(0x8F, 0xE0, 0xA8, 0xA2, 0xA5, 0xE2), mtime: 0 });
+      const k866 = mEval('Text.FromBinary(File.Contents("C:\\к.txt"), 866)', '');
+      DATA.files.set('name:квоты.csv', { name: 'квоты.csv', bytes: te.encode('Имя;Сумма\r\n"Ромашка, ООО";10\r\n'), mtime: 0 });
+      ok('Регрессии: RightOuter без лишних строк, дата с временем — тот же день, 1 января 1900, таблица не дополняется пустыми строками при лимите, cp866, значение CSV с запятой в кавычках',
+        ro === 2 && mToText(dt) === '2023-03-15' && mToText(old) === '1900-01-01' && mp5 && mp5.rows.length === 2 && k866 === 'Привет' && dataLeaks('{"x":"Ромашка, ООО"}').length === 1, [ro, mToText(dt), mToText(old), mp5 && mp5.rows.length, k866].join(' | '));
     } finally { Object.assign(DATA, keepData); M_TRACE = null; }
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');

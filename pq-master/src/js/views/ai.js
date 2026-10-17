@@ -115,6 +115,7 @@ async function aiVerifyOnData(){
   $('#aiVerifyBtn').disabled = true; await dataPrepare();
   for (const n of names){
     const cell = $('[data-aiv="' + CSS.escape(n) + '"]'); if (!cell) continue; cell.innerHTML = '⏳ вычисление…'; await new Promise(r => setTimeout(r, 0));
+    if (S.aiNew !== sec) return;   // ответ перепроверили — результаты этого прогона уже не к месту
     const a = dataRunQuery(S.work, n, new Map()), b = dataRunQuery(sec, n, new Map());
     const rows = x => { const f = x.steps[x.steps.length - 1]; return f && f.rows != null ? fmtN(f.rows) : '—'; };
     if (a.error && a.error.need || b.error && b.error.need) cell.innerHTML = '<span class="pqx-rec warn">🔌 нужен источник</span> <button class="link" data-go="data">прикрепить в «Проверке на данных»</button>';

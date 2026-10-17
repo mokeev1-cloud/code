@@ -24,7 +24,10 @@ $('#pasteGo').onclick = async () => {
   if (!(await confirmDiscard())) return;
   setBook(loadBookFromText('M-код', t.replace(/\r?\n/g, '\r\n'), $('#pasteName').value.trim() || 'Запрос1'));
 };
-async function openDemo(){ if (!(await confirmDiscard())) return; await openFromBytes('Демо-книга.xlsx', await makeTestBook(), null); }
+/** Демо-книга: выдуманные запросы (TEST_SECTION самотеста) и два подключения — чтобы были видны все разделы */
+const DEMO_CONNS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+  [['1', 'Продажи', ' background="1" refreshOnLoad="1"'], ['2', 'Локальная таблица', '']].map(([id, q, a]) => '<connection id="' + id + '" keepAlive="1" name="Запрос — ' + q + '" description="Соединение с запросом «' + q + '» в книге." type="5" refreshedVersion="8"' + a + ' saveData="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=&quot;' + q + '&quot;;Extended Properties=&quot;&quot;" command="SELECT * FROM [' + q + ']"/><extLst><ext uri="{DE250136-89BD-433C-8126-D09CA5730AF9}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main"><x15:connection id=""/></ext></extLst></connection>').join('') + '</connections>';
+async function openDemo(){ if (!(await confirmDiscard())) return; await openFromBytes('Демо-книга.xlsx', await makeTestBook([['xl/connections.xml', DEMO_CONNS]]), null); }
 
 function renderHome(){
   $('#homeEmpty').classList.toggle('hidden', !!S.book); $('#homeBook').classList.toggle('hidden', !S.book);

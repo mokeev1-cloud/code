@@ -144,6 +144,11 @@ const pqx = await page.evaluate(async () => {
   return { code: /Public Sub PQ_RefreshAll\(\)/.test(code) && /Public Sub PQ_TimeQueries\(\)/.test(code), dirty, pend, onLoad: re.conns[0].refreshOnLoad, same: re.origSection === S.work };
 });
 await shot('20-pq-settings');
+const recBefore = await page.$$eval('#modal .pqx-rec[data-rk].warn', xs => xs.length);
+await page.evaluate(() => { $('#modal input[data-k="refreshOnLoad"]').click(); });   // вернуть «как в файле» для этой строки
+await page.click('#pqxRec'); await page.waitForTimeout(100);
+const recAfter = await page.$$eval('#modal .pqx-rec[data-rk]', xs => xs.map(x => x.className + ':' + x.textContent));
+check('Настройки PQ и Excel: рекомендации у флажков, «Применить рекомендуемое» приводит их к рекомендуемым', recAfter.length >= 2 && recAfter.every(x => /\bok\b/.test(x)) && !(await page.$eval('#modal input[data-k="refreshOnLoad"]', x => x.checked)), recBefore + ' → ' + recAfter.join(' | '));
 await page.click('#modal button[data-v=ok]'); await page.waitForTimeout(100);
 check('Настройки PQ и Excel: снятый флажок «при открытии» ждёт записи и попадает в собранный файл; макрос показан', pqx.code && pqx.dirty && /сохраните/.test(pqx.pend) && pqx.onLoad === false && pqx.same, JSON.stringify(pqx));
 // подсказки разделов

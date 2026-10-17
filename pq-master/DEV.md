@@ -192,7 +192,8 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
   проектов (самотест проверяет в песочнице, что слияние и буферы не меняют отчёты).
 - **Настройки PQ и Excel** (`openPqSettings`, `views/optimizer.js`). С Excel инструмент не связывается
   (браузер, CSP). Три части: (1) в файле — `refreshOnLoad`, `background`, `excludeFromRefreshAll`
-  (последний — только в существующем `x15:connection`, иначе через макрос); (2) модуль VBA `PQMaster`
+  (последний — только в существующем `x15:connection`, иначе через макрос); рекомендации: «при открытии» — выкл,
+  «фоновое» — выкл, если в книге есть сводные (`book.pivots`, только число кэшей), иначе вкл; «Обновить всё» — как в файле; (2) модуль VBA `PQMaster`
   (`genPqMacro`): `PQ_RefreshAll` — одно «Обновить всё», подключения PQ временно синхронны, затем
   прежние значения; `PQ_TimeQueries` — замер по подключениям; `PQ_Setup`; опция FastCombine;
   .bas в кодировке проекта (cp1251 по умолчанию), имена вне кодировки — `ChrW`; (3) вручную —

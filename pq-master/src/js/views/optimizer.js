@@ -176,21 +176,32 @@ async function openPqSettings(){
   if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = xl && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; }
   const conns = xl && B.conns ? pqxConns() : [];
   const ck = (on, attrs) => '<input type="checkbox"' + (on ? ' checked' : '') + ' ' + attrs + '>';
+  // рекомендации: «при открытии» — выкл; фоновое — выкл, если в книге есть сводные (иначе вкл); «Обновить всё» — как в файле
+  const recBg = !(B.pivots > 0);
+  const rec = { refreshOnLoad: false, background: recBg };
+  const legend = '<table class="t small pqx-legend"><tr><th>Флажок</th><th>Рекомендуется</th><th>Когда иначе</th></tr>' +
+    '<tr><td><b>Обновлять при открытии</b></td><td>выключить</td><td>Открытие книги длится столько же, сколько обновление. Включайте, только если книгу открывают ради свежих данных и ждать при открытии приемлемо.</td></tr>' +
+    '<tr><td><b>В «Обновить всё»</b></td><td>включено (как сейчас)</td><td>Снимите у справочников и архивов, которые не меняются (прошлые периоды, план, маппинг): «Обновить всё» перестанет их пересчитывать. Обновляйте их вручную, когда данные изменились.</td></tr>' +
+    '<tr><td><b>Фоновое обновление</b></td><td>' + (recBg ? 'включить' : 'выключить') + '</td><td>' + (recBg
+      ? 'Сводных таблиц в книге нет: в фоне можно работать в Excel, пока идёт обновление. Скорость от флажка не зависит.'
+      : 'В книге есть сводные (' + B.pivots + '): при фоновом обновлении они успевают обновиться раньше данных и «Обновить всё» приходится нажимать дважды. Выключенный флажок — один проход, но Excel не отвечает до конца обновления.') +
+      ' Макрос PQ_RefreshAll на время своей работы всё равно выключает фон.</td></tr></table>';
+  const recBadge = k => k in rec ? ' <span class="pqx-rec small" data-rk="' + k + '"></span>' : '';
   const fileSec = !xl ? '<p class="small muted">У файлов Power BI свойства обновления задаются в Power BI Desktop — см. «Вручную».</p>'
     : !B.conns ? '<p class="small muted">' + (B.ext === 'xlsb' ? 'В .xlsb подключения хранятся в двоичном виде — здесь их не изменить. Используйте макрос ниже или пункты «Вручную».' : 'В книге нет файла подключений (xl/connections.xml).') + '</p>'
     : !conns.length ? '<p class="small muted">Подключений Power Query в книге нет (запросы не загружаются ни на лист, ни в модель).</p>'
-    : '<div class="table-wrap" style="max-height:34vh"><table class="t"><tr><th>Подключение</th><th title="Refresh data when opening the file">Обновлять при открытии</th><th title="Refresh this connection on Refresh All">В «Обновить всё»</th><th title="Enable background refresh">Фоновое обновление</th></tr>' +
+    : legend + '<div class="table-wrap" style="max-height:34vh;margin-top:8px"><table class="t"><tr><th>Подключение</th><th title="Refresh data when opening the file">Обновлять при открытии</th><th title="Refresh this connection on Refresh All">В «Обновить всё»</th><th title="Enable background refresh">Фоновое обновление</th></tr>' +
       conns.map(c => '<tr><td>' + escHtml(c.query || c.name) + (c.model ? ' <span class="small muted">модель данных</span>' : '') + '</td>' +
-        '<td>' + ck(pqxVal(c, 'refreshOnLoad'), 'data-cid="' + escHtml(c.id) + '" data-k="refreshOnLoad"') + '</td>' +
+        '<td>' + ck(pqxVal(c, 'refreshOnLoad'), 'data-cid="' + escHtml(c.id) + '" data-k="refreshOnLoad"') + recBadge('refreshOnLoad') + '</td>' +
         '<td>' + ck(c.hasX15 ? !pqxVal(c, 'excluded') : !PQX.macroExcl.has(c.id), 'data-cid="' + escHtml(c.id) + '" data-k="excluded"') + (c.hasX15 ? '' : ' <span class="small muted" title="Этот флаг в файле не записан — изменение уйдёт в макрос PQ_Setup">макросом</span>') + '</td>' +
-        '<td>' + (c.model ? '<span class="small muted" title="Загрузки в модель данных в фоне не выполняются">всегда синхронно</span>' : ck(pqxVal(c, 'background'), 'data-cid="' + escHtml(c.id) + '" data-k="background"')) + '</td></tr>').join('') + '</table></div>' +
-      '<div class="row" style="margin-top:6px"><button class="btn sm" id="pqxNoOpen">Снять «при открытии» у всех</button><button class="btn sm" id="pqxReset">Вернуть как в файле</button><span class="small muted" id="pqxPend"></span></div>' +
-      '<p class="small muted">Справочники и архивы, которые не меняются, можно исключить из «Обновить всё» и обновлять вручную, когда данные изменились. Фоновое обновление на скорость не влияет: без него Excel не отвечает до конца обновления. Записывается только эта часть файла (xl/connections.xml), код запросов не трогается.</p>';
+        '<td>' + (c.model ? '<span class="small muted" title="Загрузки в модель данных в фоне не выполняются">всегда синхронно</span>' : ck(pqxVal(c, 'background'), 'data-cid="' + escHtml(c.id) + '" data-k="background"') + recBadge('background')) + '</td></tr>').join('') + '</table></div>' +
+      '<div class="row" style="margin-top:6px"><button class="btn sm pri" id="pqxRec">Применить рекомендуемое</button><button class="btn sm" id="pqxReset">Вернуть как в файле</button><span class="small muted" id="pqxPend"></span></div>' +
+      '<p class="small muted">«Применить рекомендуемое» меняет только «при открытии» и «фоновое»; исключение из «Обновить всё» — ваше решение по смыслу данных. Записывается только xl/connections.xml, код запросов не трогается.</p>';
   const procs = [...new Set(bookRefreshIssues(B).filter(i => /^macro-(refreshall-twice|refresh-again|model-twice|pivot-again)$/.test(i.key)).map(i => (/«([^»]+)»/.exec(i.text) || [])[1]).filter(Boolean))];
   const macroSec = xl ? '<div class="row" style="flex-wrap:wrap;gap:14px">' +
-      '<label>' + ck(PQX.refresh, 'id="pqxRefresh"') + ' PQ_RefreshAll — одно «Обновить всё», макрос ждёт данные</label>' +
-      '<label>' + ck(PQX.timing, 'id="pqxTiming"') + ' PQ_TimeQueries — замер времени каждого запроса</label>' +
-      '<label title="ThisWorkbook.Queries.FastCombine = True — действует, пока книга открыта, для любого пользователя">' + ck(PQX.fastCombine, 'id="pqxFast"') + ' игнорировать уровни конфиденциальности (FastCombine)</label></div>' +
+      '<label>' + ck(PQX.refresh, 'id="pqxRefresh"') + ' PQ_RefreshAll — одно «Обновить всё», макрос ждёт данные <span class="pqx-rec ok small">рекомендуется</span></label>' +
+      '<label>' + ck(PQX.timing, 'id="pqxTiming"') + ' PQ_TimeQueries — замер времени каждого запроса <span class="small muted">(рекомендуется: запустите один раз, чтобы найти самые медленные)</span></label>' +
+      '<label title="ThisWorkbook.Queries.FastCombine = True — действует, пока книга открыта, для любого пользователя">' + ck(PQX.fastCombine, 'id="pqxFast"') + ' игнорировать уровни конфиденциальности (FastCombine) ' + (EXTERNAL_SRC.test(S.work) ? '<span class="pqx-rec warn small">не рекомендуется: есть веб-источники</span>' : '<span class="pqx-rec ok small">рекомендуется: источники внутренние</span>') + '</label></div>' +
       '<p class="small muted" id="pqxFastNote"></p>' +
       (procs.length ? '<div class="note warn small">В процедуре ' + procs.map(p => '«' + escHtml(p) + '»').join(', ') + ' запросы обновляются повторно (см. «Как обновляется книга»). Замените в ней вызовы обновления одной строкой <code>PQ_RefreshAll</code>.</div>' : '') +
       (/^xlsx$/i.test(B.ext) ? '<p class="small muted">Книга .xlsx не хранит макросы: после вставки модуля сохраните её как .xlsm (Книга Excel с поддержкой макросов).</p>' : '') +
@@ -209,7 +220,7 @@ async function openPqSettings(){
     ['Уровни конфиденциальности', 'Файл → Параметры и настройки → Параметры → Текущий файл → Конфиденциальность → «Игнорировать уровни конфиденциальности».'],
     ['Фоновые данные', 'Параметры → Текущий файл → Загрузка данных → снять «Разрешить загрузку предварительного просмотра данных в фоне»; там же — параллельная загрузка таблиц.']
   ];
-  const html = '<h2>⚙ Настройки PQ и Excel</h2><p class="small muted">Мастер PQ работает в браузере и к Excel не подключается. Свойства, которые хранятся в файле, меняются здесь и записываются при сохранении книги; то, что задаётся только в Excel, — макросом или вручную.</p>' +
+  const html = '<h2>⚙ Настройки PQ и Excel</h2><p class="small muted">Мастер PQ работает в браузере и к Excel не подключается. Свойства, которые хранятся в файле, меняются здесь и записываются при сохранении книги; то, что задаётся только в Excel, — макросом или вручную.</p>' + (/^Демо-книга/.test(B.name) ? '<div class="note small">Это демо-книга: запросы «Продажи», «Курсы» и другие и их подключения выдуманы для примера. Откройте свою книгу — здесь будут её подключения.</div>' : '') +
     '<h3>1. В файле</h3>' + fileSec + '<h3>2. Макрос для Excel</h3>' + macroSec +
     '<h3>3. Вручную</h3><ol class="small">' + manual.map(([t, d]) => '<li><b>' + escHtml(t) + '.</b> ' + d + '</li>').join('') + '</ol><p class="small muted">Названия пунктов — по документации Microsoft; в вашей версии Excel они могут немного отличаться.</p>';
   const p = modal(html, [['ok', 'Готово', 'pri']], { wide: true });
@@ -217,7 +228,8 @@ async function openPqSettings(){
     const n = Object.keys(S.bookEdits.conns).length, nm = PQX.macroExcl ? PQX.macroExcl.size : 0;
     if ($('#pqxPend')) $('#pqxPend').textContent = (n ? 'к записи в файл: ' + n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'подключение' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'подключения' : 'подключений') + ' — сохраните книгу' : '') + (nm ? (n ? '; ' : '') + 'через макрос PQ_Setup: ' + nm : '');
     if ($('#pqxCode')) $('#pqxCode').textContent = genPqMacro(pqxMacroOpts(false));
-    if ($('#pqxFastNote')) $('#pqxFastNote').textContent = PQX.fastCombine ? (EXTERNAL_SRC.test(S.work) ? 'Внимание: в книге есть веб-источники — без проверок уровней данные одних источников могут уйти в запросы к другим. Включайте, только если все источники — внутренние.' : 'Источники — файлы, книги и базы: проверки уровней обычно только замедляют обновление.') : '';
+    if ($('#pqxFastNote')) $('#pqxFastNote').textContent = EXTERNAL_SRC.test(S.work) ? 'В книге есть веб-источники: без проверок уровней данные одних источников могут уйти в запросы к другим. Включайте, только если все источники — внутренние.' : 'Источники — файлы, книги и базы данных: проверки уровней конфиденциальности обычно только замедляют слияние разных источников.';
+    $$('#modal .pqx-rec[data-rk]').forEach(b => { const x = b.parentNode.querySelector('input'); const want = rec[b.dataset.rk]; const okv = x.checked === want; b.className = 'pqx-rec small ' + (okv ? 'ok' : 'warn'); b.textContent = okv ? '✓' : 'рек.: ' + (want ? 'вкл' : 'выкл'); b.title = okv ? 'Как рекомендуется' : 'Рекомендуется ' + (want ? 'включить' : 'выключить') + ' — см. таблицу выше'; });
   };
   $$('#modal input[data-cid]').forEach(x => x.onchange = () => {
     const c = conns.find(cc => cc.id === x.dataset.cid); const k = x.dataset.k;
@@ -226,7 +238,7 @@ async function openPqSettings(){
     refresh(); emitState('settings');
   });
   const setAll = (k, v) => { $$('#modal input[data-k="' + k + '"]').forEach(x => { if (x.checked !== v){ x.checked = v; x.onchange(); } }); };
-  if ($('#pqxNoOpen')) $('#pqxNoOpen').onclick = () => setAll('refreshOnLoad', false);
+  if ($('#pqxRec')) $('#pqxRec').onclick = () => { setAll('refreshOnLoad', rec.refreshOnLoad); setAll('background', rec.background); };
   if ($('#pqxReset')) $('#pqxReset').onclick = () => { S.bookEdits.conns = {}; PQX.macroExcl.clear(); $$('#modal input[data-cid]').forEach(x => { const c = conns.find(cc => cc.id === x.dataset.cid); x.checked = x.dataset.k === 'excluded' ? !c.excluded : c[x.dataset.k]; }); refresh(); emitState('settings'); };
   for (const [id, key] of [['#pqxRefresh', 'refresh'], ['#pqxTiming', 'timing'], ['#pqxFast', 'fastCombine']]) if ($(id)) $(id).onchange = e => { PQX[key] = e.target.checked; refresh(); };
   if ($('#pqxCopy')) $('#pqxCopy').onclick = async () => { await copyText(genPqMacro(pqxMacroOpts(false))); toast('Код модуля скопирован — вставьте его в редакторе VBA (Alt+F11 → Вставка → Модуль)', 'ok'); };

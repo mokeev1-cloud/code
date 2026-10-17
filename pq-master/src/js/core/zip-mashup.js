@@ -253,6 +253,7 @@ async function readRefreshParts(book, zip){
   book.privacy = parsePermissions(book.dm && book.dm.info && book.dm.info.permissions);
   const ce = zipFind(zip, 'xl/connections.xml');
   if (ce){ try { const d = decodeText(await zipEntryBytes(ce)); Object.assign(book, { connsEntry: ce, connsText: d.text, connsEnc: d.enc, connsBom: d.bom }); book.conns = parseConnections(d.text); } catch (e){ book.connsError = e.message; } }
+  book.pivots = zip.entries.filter(e => /^xl\/pivotCache\/pivotCacheDefinition\d+\.(xml|bin)$/i.test(e.name)).length;   // только число кэшей сводных, их содержимое не читается
   const ve = zipFind(zip, 'xl/vbaProject.bin');
   if (ve){ try { book.vba = readVbaProject(await zipEntryBytes(ve)); } catch (e){ book.vba = { modules: [], error: e.message }; } }
 }

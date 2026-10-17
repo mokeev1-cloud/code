@@ -181,3 +181,4 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .hintbar button.link{white-space:nowrap;font-size:12.5px}
 .heat-q .reads{color:var(--warn);font-weight:700}
 .book-issues{display:grid;gap:10px}.book-issues .bi{border-left:3px solid var(--border2);padding:4px 0 4px 12px}.book-issues .bi.warn{border-left-color:var(--warn)}.book-issues .bi .why{margin-top:4px}.book-issues .bi .fix{color:var(--muted);font-size:13px;margin-top:2px}
+.pqx-rec{display:inline-block;padding:0 6px;border-radius:6px;font-size:12px;margin-left:4px}.pqx-rec.ok{color:var(--ok);background:var(--ok-soft)}.pqx-rec.warn{color:var(--warn);background:var(--warn-soft,var(--panel2))}.pqx-legend td{vertical-align:top}.pqx-legend td:nth-child(2){white-space:nowrap;font-weight:600}

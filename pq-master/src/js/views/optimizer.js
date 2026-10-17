@@ -4,7 +4,7 @@
    applyAllSafeText(text) — все безопасные исправления подряд (чистая функция,
    используется кнопкой «Применить все безопасные» и прогнозом оценки).
    ===================================================================== */
-const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null, limit: 60, heatAll: false };
+const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null, safeResult: null, limit: 60, heatAll: false };
 const OPT_PAGE = 60, HEAT_TOP = 40;
 function applyAllSafeText(text, meta){
   let t = text; const applied = [];
@@ -62,7 +62,8 @@ async function previewFinding(id){
 }
 async function applyAllSafe(){
   if (!S.work) return;
-  const r = applyAllSafeText(S.work, S.book.meta);
+  // цепочка исправлений уже посчитана прогнозом оценки для этого же текста — берём её
+  const r = OPT.potentialFor === S.work && OPT.safeResult ? OPT.safeResult : applyAllSafeText(S.work, S.book.meta);
   if (!r.applied.length) return toast('Безопасных исправлений нет', 'ok');
   const c = compareSections(S.work, r.text);
   const ok = await modal('<h2>Применить ' + r.applied.length + ' безопасных исправлений?</h2><p class="small muted">Безопасные исправления не меняют результат запросов: удаление неиспользуемых шагов, слияние однотипных шагов подряд, буферизация списков, вынос источников в параметры.</p><ul class="small">' + r.applied.map(x => '<li>' + escHtml(x) + '</li>').join('') + '</ul><details><summary>Изменения (' + (c.changed.length + c.added.length) + ' запросов)</summary>' + c.changed.map(x => '<h3>' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff(x.old, x.text)) + '</div>').join('') + c.added.map(x => '<h3>＋ ' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff('', x.text)) + '</div>').join('') + '</details>', [['cancel', 'Отмена'], ['go', 'Применить', 'pri']], { wide: true });
@@ -84,13 +85,13 @@ function diagSecondsMap(){
 }
 /** Прогноз оценки после всех безопасных исправлений: считается после отрисовки, результат кэшируется по тексту */
 function renderPotential(){
-  if (!S.opt.breakdown.safeFixable){ OPT.potentialFor = S.work; OPT.potential = null; }
+  if (!S.opt.breakdown.safeFixable){ OPT.potentialFor = S.work; OPT.potential = null; OPT.safeResult = null; }
   const show = () => { const el = $('#optPotential'); if (el) el.innerHTML = OPT.potentialFor !== S.work ? '<span class="muted">после безопасных исправлений: считаю…</span>' : OPT.potential != null ? 'после безопасных исправлений: <b style="color:var(--ok)">' + OPT.potential + '</b>' : ''; };
   show(); if (OPT.potentialFor === S.work) return;
   const text = S.work;
   setTimeout(() => {
     if (S.work !== text || OPT.potentialFor === text) return;
-    try { const r = applyAllSafeText(text, S.book.meta); const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; }
+    try { const r = applyAllSafeText(text, S.book.meta); OPT.safeResult = r; const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; OPT.safeResult = null; }
     OPT.potentialFor = text; show();
   }, 30);
 }
@@ -130,7 +131,7 @@ function renderOptCards(){
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
       '<div class="oa">' + opts + (f.fix ? '<button class="btn sm" data-prev="' + escHtml(f.id) + '">Показать изменения</button><button class="btn sm pri" data-apply="' + escHtml(f.id) + '">' + escHtml(f.fixLabel || 'Применить') + '</button>' : '<span class="small muted">исправляется вручную</span>') + '</div></div>';
-  }).join('') + (list.length > OPT.limit ? '<button class="btn" id="optMore" style="grid-column:1/-1">Показать ещё ' + Math.min(OPT_PAGE, list.length - OPT.limit) + ' из ' + (list.length - OPT.limit) + '</button>' : '') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
+  }).join('') + (list.length > OPT.limit ? '<button class="btn" id="optMore" style="grid-column:1/-1;justify-self:center">Показать ещё ' + Math.min(OPT_PAGE, list.length - OPT.limit) + ' из ' + (list.length - OPT.limit) + '</button>' : '') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
   if ($('#optMore')) $('#optMore').onclick = () => { OPT.limit += OPT_PAGE; renderOptCards(); };
   $$('[data-apply]', $('#optCards')).forEach(b => b.onclick = () => applyFinding(b.dataset.apply));
   $$('[data-prev]', $('#optCards')).forEach(b => b.onclick = () => previewFinding(b.dataset.prev));

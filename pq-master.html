@@ -28,44 +28,44 @@
      878–884    src/html/view-help.html
      885–891    src/html/view-selftest.html
      892–900    src/html/shell-bottom.html
-     902–1038   DEV.md
-     941–undefined путь
-    1041–1056   vendor/codemirror.bundle.js
-    1060–1457   src/js/core/zip-mashup.js
-    1458–1730   src/js/m/lang.js
-    1731–1793   src/js/m/format.js
-    1794–2178   src/js/m/reference.js
-    2179–2936   src/js/m/interp.js
-    2937–3424   src/js/nda/anon.js
-    3425–3561   src/js/nda/diag.js
-    3562–3790   src/js/opt/lint.js
-    3791–4023   src/js/opt/optimizer.js
-    4024–4110   src/js/opt/refactor.js
-    4111–4258   src/js/opt/snippets.js
-    4259–4325   src/js/app/state.js
-    4326–4560   src/js/nda/agent.js
-    4561–4657   src/js/app/ui-base.js
-    4658–4823   src/js/app/storage.js
-    4824–4858   src/js/app/hints.js
-    4859–5076   src/js/app/shell.js
-    5077–5150   src/js/views/home.js
-    5151–5492   src/js/views/editor.js
-    5493–5642   src/js/views/optimizer.js
-    5643–5726   src/js/views/graph.js
-    5727–5837   src/js/views/sandbox.js
-    5838–5868   src/js/views/reference.js
-    5869–5906   src/js/views/snippets.js
-    5907–5927   src/js/views/history.js
-    5928–6069   src/js/views/anon.js
-    6070–6136   src/js/views/diag.js
-    6137–6250   src/js/views/ai.js
-    6251–6314   src/js/views/agent.js
-    6315–6341   src/js/views/compare.js
-    6342–6399   src/js/views/docs.js
-    6400–6532   src/js/views/help.js
-    6528–6528   DEV\\.md
-    6533–6802   src/js/app/selftest.js
-    6803–6816   src/js/app/main.js
+     902–1045   DEV.md
+     942–undefined путь
+    1048–1063   vendor/codemirror.bundle.js
+    1067–1477   src/js/core/zip-mashup.js
+    1478–1750   src/js/m/lang.js
+    1751–1813   src/js/m/format.js
+    1814–2198   src/js/m/reference.js
+    2199–2956   src/js/m/interp.js
+    2957–3477   src/js/nda/anon.js
+    3478–3614   src/js/nda/diag.js
+    3615–3843   src/js/opt/lint.js
+    3844–4076   src/js/opt/optimizer.js
+    4077–4163   src/js/opt/refactor.js
+    4164–4311   src/js/opt/snippets.js
+    4312–4378   src/js/app/state.js
+    4379–4613   src/js/nda/agent.js
+    4614–4710   src/js/app/ui-base.js
+    4711–4876   src/js/app/storage.js
+    4877–4911   src/js/app/hints.js
+    4912–5129   src/js/app/shell.js
+    5130–5203   src/js/views/home.js
+    5204–5545   src/js/views/editor.js
+    5546–5696   src/js/views/optimizer.js
+    5697–5780   src/js/views/graph.js
+    5781–5891   src/js/views/sandbox.js
+    5892–5922   src/js/views/reference.js
+    5923–5960   src/js/views/snippets.js
+    5961–5981   src/js/views/history.js
+    5982–6123   src/js/views/anon.js
+    6124–6190   src/js/views/diag.js
+    6191–6304   src/js/views/ai.js
+    6305–6368   src/js/views/agent.js
+    6369–6395   src/js/views/compare.js
+    6396–6453   src/js/views/docs.js
+    6454–6586   src/js/views/help.js
+    6582–6582   DEV\\.md
+    6587–6865   src/js/app/selftest.js
+    6866–6879   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -934,6 +934,7 @@ node pq-master/build.mjs            # собрать ../pq-master.html из src/
 node pq-master/build.mjs --check    # + проверить, что разрезка восстанавливает модули байт в байт
 node pq-master/build.mjs --split pq-master.html out/   # нет исходников? разрежьте готовый HTML
 node pq-master/test/e2e.mjs         # headless-прогон: самотест + сценарии UI (нужен playwright-core)
+node pq-master/test/stress.mjs      # фаззинг ядра, утечки, библиотека M, битые файлы, скорость (только Node)
 ```
 
 В начале `pq-master.html` — **оглавление с номерами строк каждого модуля**. Если у вас только HTML:
@@ -969,7 +970,7 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 | `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
 | `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
-| `app/selftest.js` | самотест (44 проверки) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
+| `app/selftest.js` | самотест (51 проверка) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
 
 ## Поток данных
@@ -1021,6 +1022,12 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 - Для оптимизатора — семантическая проверка интерпретатором: результат до и после «безопасных»
   исправлений совпадает.
 - Внешняя проверка: `test/e2e.mjs` дополнительно открывает собранную книгу через Python `zipfile`.
+- Стресс: `test/stress.mjs` грузит ядро в Node и проверяет свойства на тысячах случайных входов —
+  анализ не падает на незаконченном коде, обезличивание обратимо побайтно и не пропускает секреты
+  в 25 типичных конструкциях, функции интерпретатора дают только ошибки M, битые .xlsx — понятные
+  сообщения. Найденный класс ошибок закрепляйте проверкой в самотесте.
+- Скорость меряйте на большой книге (`stress.mjs` строит ~3800 строк): всё, что вызывается на
+  каждую отрисовку или правку, должно быть линейным по размеру книги.
 - Не проверено автоматически: открытие собранной книги в настоящем Excel / Power BI Desktop
   (в контейнере их нет). Если пользователь сообщает о проблеме открытия — начинайте с
   `core/zip-mashup.js` (`buildBookWithSection`) и сравнения частей ZIP.
@@ -1204,9 +1211,12 @@ function zipRead(u8){
 }
 function decodeLatinOrUtf8(b){ try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch { return String.fromCharCode.apply(null, b); } }
 async function zipEntryBytes(e){
-  if (e.method === 0) return e.raw.slice();
-  if (e.method === 8) return inflateRaw(e.raw);
-  throw new Error('Неподдерживаемый метод сжатия ' + e.method + ' в части ' + e.name);
+  let data;
+  if (e.method === 0) data = e.raw.slice();
+  else if (e.method === 8) data = await inflateRaw(e.raw);
+  else throw new Error('Неподдерживаемый метод сжатия ' + e.method + ' в части ' + e.name);
+  if (crc32(data) !== e.crc) throw new Error('Часть ' + e.name + ' повреждена: контрольная сумма CRC32 не совпадает. Откройте и пересохраните книгу в Excel; если не поможет — возьмите резервную копию.');
+  return data;
 }
 function zipFind(zip, name){ const l = name.toLowerCase(); return zip.entries.find(e => e.name.toLowerCase() === l); }
 /** Новые данные для записи, с сохранением метода сжатия и атрибутов исходной записи */
@@ -1311,7 +1321,17 @@ function metaVal(v){
    ===================================================================== */
 const SECTION_PATH = 'Formulas/Section1.m';
 
+/** Чтение книги. Собственные ошибки разбора (класс Error) понятны пользователю и проходят как есть;
+    внутренние (битый deflate, выход за границы, неверный base64/UTF-16, JSON) — это повреждённый файл */
 async function loadBookFromBytes(name, u8){
+  try { return await readBookBytes(name, u8); }
+  catch (e){
+    if (e && e.constructor === Error) throw e;
+    const err = new Error('Файл повреждён: не удалось разобрать его содержимое (' + (e && e.name || 'Error') + (e && e.message ? ': ' + e.message : '') + '). Откройте и пересохраните книгу в Excel; если не поможет — возьмите резервную копию.');
+    err.cause = e; throw err;
+  }
+}
+async function readBookBytes(name, u8){
   const ext = (name.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   if (['m', 'pq', 'txt'].includes(ext)) return loadBookFromText(name, decodeText(u8).text);
   const zip = zipRead(u8);
@@ -3018,7 +3038,15 @@ const RE_HOST = /(?<![\w.@\-\/\\])(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+(?
 const RE_SECRET_KV = /(?<![A-Za-z0-9_])(password|pwd|passwd|user ?id|uid|user ?name|username|login|api[_\- ]?key|apikey|x-api-key|access[_\-]?token|refresh[_\-]?token|id[_\-]?token|token|client[_\-]?secret|secret|account ?key|sig|signature|auth|subscription[_\-]?key|code)\s*=\s*("[^"]*"|'[^']*'|\{[^}]*\}|[^;&\s"'#,)]+)/gi;
 const RE_BEARER = /\b(?:Bearer|Basic|Token)\s+([A-Za-z0-9\-._~+\/]{6,}=*)/g;
 const SECRET_KEY_RE = /^(password|pwd|passwd|user ?id|uid|user|user ?name|login|api[_\- ]?key|x-api-key|access[_\-]?token|refresh[_\-]?token|token|client[_\-]?secret|secret|account ?key|shared ?access ?signature|sig|authorization|auth|subscription[_\-]?key)$/i;
-const SECRET_FIELD_RE = /(password|passwd|pwd|secret|token|api[_\-]?key|apikey|authorization|subscription-key|access[_\-]?key|credential|^user ?name$|^username$|^login$|^uid$|^user ?id$)/i;
+const SECRET_FIELD_RE = /(password|passwd|pwd|secret|token|api[_\-]?key|apikey|authorization|subscription-key|access[_\-]?key|credential|пароль|токен|секрет|^user ?name$|^username$|^login$|^логин$|^uid$|^user ?id$)/i;
+/** Роль строки по имени поля записи-настройки ([Server = "…", Database = "…", RelativePath = "…"]) */
+const FIELD_ROLES = [
+  [/^(server|server ?name|host|host ?name|data ?source|сервер|хост)$/i, 'SRV'],
+  [/^(database|db|db ?name|initial catalog|catalog|база|база ?данных|бд)$/i, 'DB'],
+  [/^(url|uri|base ?url|endpoint|relative ?path|адрес ?url|ссылка)$/i, 'URL'],
+  [/^(path|file ?path|folder|folder ?path|directory|dir|путь|папка|файл|путь ?к ?файлу|путь ?к ?папке)$/i, 'PATH']
+];
+const fieldRole = f => { for (const [re, r] of FIELD_ROLES) if (re.test(f)) return r; return null; };
 const CONN_DETECT = /(?:^|;)\s*(server|data source|initial catalog|database|provider|dsn|driver|uid|pwd|password|user id|host|port|integrated security|trusted_connection|address|addr|extended properties)\s*=/i;
 const SRV_KEYS = /^(server|data source|host|hostname|address|addr|network address|dsn|server name)$/i;
 const DB_KEYS = /^(database|initial catalog|dbname|catalog)$/i;
@@ -3144,6 +3172,14 @@ function anonymizeM(text, cfg, dict){
   const sec = parseSection(text); const names = new Set(sec.members.map(m => m.name));
   const C = makeCollector(text, cfg); const { want, add, embedded } = C;
   const colNames = new Set(); const pending = []; const inDate = new Set(); const paramRole = new Map(); const paramStr = [];
+  // привязки «Имя = "строка"» (шаги let и запросы) и роли имён по месту использования в аргументах функций-источников
+  const binds = []; const useLocal = new Map(), useGlobal = new Map();
+  const memberAt = pos => { let lo = 0, hi = sec.members.length - 1, r = null; while (lo <= hi){ const mid = (lo + hi) >> 1; if (sec.members[mid].start <= pos){ r = sec.members[mid]; lo = mid + 1; } else hi = mid - 1; } return r && pos <= r.end ? r : null; };
+  const roleSpan = (role, raw, base) => {
+    if (role === 'CONN'){ if (/=/.test(raw) && CONN_DETECT.test(raw)) C.conn(raw, base); else add(base, base + raw.length, want('CONN') ? 'CONN' : 'SECRET'); return; }
+    const cat = role === 'SRV' || role === 'DB' ? role : (wholeCategory(raw) || role);
+    if (want(cat)) add(base, base + raw.length, cat); else embedded(raw, base);
+  };
   const stack = []; const bindEq = new Set();
   const sig = st.sig;
   const nearestCall = () => { for (let i = stack.length - 1; i >= 0; i--) if (stack[i].k === '(') return { f: stack[i], idx: i }; return null; };
@@ -3219,6 +3255,10 @@ function anonymizeM(text, cfg, dict){
       continue;
     }
     if (isName(t) && !st.fieldTok.has(ti)){
+      if (top && top.k === '(' && top.fn && SOURCE_FNS[top.fn]){
+        const role = SOURCE_FNS[top.fn][top.arg];
+        if (role){ const mm = memberAt(t.s); useLocal.set((mm ? mm.name : '') + '\u0001' + nameOf(t), role); if (!useGlobal.has(nameOf(t))) useGlobal.set(nameOf(t), role); }
+      }
       if (names.has(nameOf(t))){
         if (want('QRY')){ if (t.t === 'qid') add(t.s + 2, t.e - 1, 'QRY'); else add(t.s, t.e, 'QRY'); }
         // запрос-параметр как аргумент функции-источника: запоминаем роль (сервер, база, путь…)
@@ -3233,6 +3273,9 @@ function anonymizeM(text, cfg, dict){
     if (!raw.trim()) continue;
     // значение запроса-параметра: "…" meta [IsParameterQuery=true…] — классифицируем после обхода по месту использования
     { const nx = toks[sig[k + 1]]; if (!top && prev && prev.v === '=' && nx && isKw(nx, 'meta')){ const pm = sec.members.find(m => t.s >= m.exprStart && t.e <= m.exprEnd); if (pm){ paramStr.push({ raw, base, name: pm.name }); continue; } } }
+    { const nx = toks[sig[k + 1]];
+      if (prev && prev.v === '=' && bindEq.has(sig[k - 1]) && prev2 && isName(prev2) && (!nx || nx.v === ',' || nx.v === ';' || isKw(nx, 'in'))){
+        const mm = memberAt(t.s); binds.push({ raw, base, name: nameOf(prev2), member: mm ? mm.name : '', isQuery: !!mm && prev2.s === mm.nameS }); } }
     const nc = nearestCall(); const fnF = nc ? nc.f : null;
     const direct = top && top.k === '(';
     const recTop = top && top.k === '[' && top.kind === 'record' ? top : null;
@@ -3243,6 +3286,11 @@ function anonymizeM(text, cfg, dict){
     if (direct && fnF.fn in SQL_TEXT_ARGS && fnF.arg === SQL_TEXT_ARGS[fnF.fn]){ C.sql(raw, base); continue; }
     if (field && /^(Query|CommandText|Statement)$/i.test(field) && parentOfRec && parentOfRec.k === '(' && (SOURCE_FNS[parentOfRec.fn] || parentOfRec.fn === 'Value.NativeQuery')){ C.sql(raw, base); continue; }
     if (field && SECRET_FIELD_RE.test(field)){ add(base, base + raw.length, 'SECRET'); continue; }
+    if (field && fieldRole(field)){ roleSpan(fieldRole(field), raw, base); continue; }
+    if (field && parentOfRec && parentOfRec.k === '[' && /^Query$/i.test(parentOfRec.field || '')){
+      const gp = stack[stack.length - 3];   // Web.Contents(url, [Query = [ключ = "значение"]]) — значения — часть URL
+      if (gp && gp.k === '(' && /^(Web\.Contents|Web\.Page|Web\.BrowserContents|OData\.Feed)$/.test(gp.fn)){ roleSpan('URL', raw, base); continue; }
+    }
     let role = null;
     if (direct && fnF.fn && SOURCE_FNS[fnF.fn]) role = SOURCE_FNS[fnF.fn][fnF.arg] || null;
     if (role === 'CONN' || CONN_DETECT.test(raw) && /=/.test(raw) && (/;/.test(raw) || /^\s*(dsn|driver|provider)\s*=/i.test(raw))){ C.conn(raw, base); continue; }
@@ -3271,6 +3319,11 @@ function anonymizeM(text, cfg, dict){
     embedded(raw, base);
   }
   for (const p of pending) if (colNames.has(p.raw) && want('COL')) add(p.base, p.base + p.raw.length, 'COL');
+  for (const b of binds){
+    if (SECRET_FIELD_RE.test(b.name)){ add(b.base, b.base + b.raw.length, 'SECRET'); continue; }
+    const role = b.isQuery ? (paramRole.get(b.name) || useGlobal.get(b.name)) : useLocal.get(b.member + '\u0001' + b.name);
+    if (role) roleSpan(role, b.raw, b.base);
+  }
   for (const p of paramStr){
     const role = paramRole.get(p.name); const wc = wholeCategory(p.raw);
     const cat = role === 'SRV' || role === 'DB' ? role : (wc || role || 'TXT');
@@ -5497,7 +5550,7 @@ registerView('editor', { render: renderEditor, onShow: () => setTimeout(() => ED
    applyAllSafeText(text) — все безопасные исправления подряд (чистая функция,
    используется кнопкой «Применить все безопасные» и прогнозом оценки).
    ===================================================================== */
-const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null, limit: 60, heatAll: false };
+const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null, safeResult: null, limit: 60, heatAll: false };
 const OPT_PAGE = 60, HEAT_TOP = 40;
 function applyAllSafeText(text, meta){
   let t = text; const applied = [];
@@ -5555,7 +5608,8 @@ async function previewFinding(id){
 }
 async function applyAllSafe(){
   if (!S.work) return;
-  const r = applyAllSafeText(S.work, S.book.meta);
+  // цепочка исправлений уже посчитана прогнозом оценки для этого же текста — берём её
+  const r = OPT.potentialFor === S.work && OPT.safeResult ? OPT.safeResult : applyAllSafeText(S.work, S.book.meta);
   if (!r.applied.length) return toast('Безопасных исправлений нет', 'ok');
   const c = compareSections(S.work, r.text);
   const ok = await modal('<h2>Применить ' + r.applied.length + ' безопасных исправлений?</h2><p class="small muted">Безопасные исправления не меняют результат запросов: удаление неиспользуемых шагов, слияние однотипных шагов подряд, буферизация списков, вынос источников в параметры.</p><ul class="small">' + r.applied.map(x => '<li>' + escHtml(x) + '</li>').join('') + '</ul><details><summary>Изменения (' + (c.changed.length + c.added.length) + ' запросов)</summary>' + c.changed.map(x => '<h3>' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff(x.old, x.text)) + '</div>').join('') + c.added.map(x => '<h3>＋ ' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff('', x.text)) + '</div>').join('') + '</details>', [['cancel', 'Отмена'], ['go', 'Применить', 'pri']], { wide: true });
@@ -5577,13 +5631,13 @@ function diagSecondsMap(){
 }
 /** Прогноз оценки после всех безопасных исправлений: считается после отрисовки, результат кэшируется по тексту */
 function renderPotential(){
-  if (!S.opt.breakdown.safeFixable){ OPT.potentialFor = S.work; OPT.potential = null; }
+  if (!S.opt.breakdown.safeFixable){ OPT.potentialFor = S.work; OPT.potential = null; OPT.safeResult = null; }
   const show = () => { const el = $('#optPotential'); if (el) el.innerHTML = OPT.potentialFor !== S.work ? '<span class="muted">после безопасных исправлений: считаю…</span>' : OPT.potential != null ? 'после безопасных исправлений: <b style="color:var(--ok)">' + OPT.potential + '</b>' : ''; };
   show(); if (OPT.potentialFor === S.work) return;
   const text = S.work;
   setTimeout(() => {
     if (S.work !== text || OPT.potentialFor === text) return;
-    try { const r = applyAllSafeText(text, S.book.meta); const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; }
+    try { const r = applyAllSafeText(text, S.book.meta); OPT.safeResult = r; const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; OPT.safeResult = null; }
     OPT.potentialFor = text; show();
   }, 30);
 }
@@ -5623,7 +5677,7 @@ function renderOptCards(){
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
       '<div class="oa">' + opts + (f.fix ? '<button class="btn sm" data-prev="' + escHtml(f.id) + '">Показать изменения</button><button class="btn sm pri" data-apply="' + escHtml(f.id) + '">' + escHtml(f.fixLabel || 'Применить') + '</button>' : '<span class="small muted">исправляется вручную</span>') + '</div></div>';
-  }).join('') + (list.length > OPT.limit ? '<button class="btn" id="optMore" style="grid-column:1/-1">Показать ещё ' + Math.min(OPT_PAGE, list.length - OPT.limit) + ' из ' + (list.length - OPT.limit) + '</button>' : '') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
+  }).join('') + (list.length > OPT.limit ? '<button class="btn" id="optMore" style="grid-column:1/-1;justify-self:center">Показать ещё ' + Math.min(OPT_PAGE, list.length - OPT.limit) + ' из ' + (list.length - OPT.limit) + '</button>' : '') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
   if ($('#optMore')) $('#optMore').onclick = () => { OPT.limit += OPT_PAGE; renderOptCards(); };
   $$('[data-apply]', $('#optCards')).forEach(b => b.onclick = () => applyFinding(b.dataset.apply));
   $$('[data-prev]', $('#optCards')).forEach(b => b.onclick = () => previewFinding(b.dataset.prev));
@@ -6703,6 +6757,9 @@ async function runSelfTest(){
     // нет DataMashup
     let noMash = false; try { const ents = [await zipFinalizeNew(zipNewEntry('xl/workbook.xml', te.encode('<workbook/>'), true))]; await loadBookFromBytes('пусто.xlsx', zipWrite(ents)); } catch (err){ noMash = !!err.noMashup; }
     ok('Книга без Power Query: понятное сообщение', noMash);
+    const badBytes = (await makeTestBook()).slice(); const badItem = zipFind(zipRead(badBytes), 'customXml/item1.xml'); badItem.raw[badItem.raw.length >> 1] ^= 0x20;
+    let badMsg = ''; try { await loadBookFromBytes('битая.xlsx', badBytes); } catch (err){ badMsg = err.constructor === Error ? err.message : 'не Error: ' + err; }
+    ok('Повреждённая часть книги: понятное сообщение, а не внутренняя ошибка', /поврежд/i.test(badMsg), badMsg.slice(0, 90));
     ok('Содержимое листов не читается: текст ячеек тестовой книги не встречается в модели', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
 
     // ---------- форматер ----------
@@ -6732,6 +6789,12 @@ async function runSelfTest(){
     const broken = ['section S;\r\nshared A = let\r\n    x = Table.SelectRows(t, each [a] = 1,\r\n    = 2\r\nin\r\n    x;', 'shared B = let a = Sql.Database("s", "d"', 'section S; shared C = let x = List.Contains(L, [k]), in', 'let ( = 1, x = Excel.Workbook(File.Contents("p") in x'];
     const crash = []; for (const b of broken){ try { const Ab = analyzeSection(b, {}); optimizeSection(b, Ab, lintSection(Ab)); formatM(b); } catch (e){ crash.push(e.message); } }
     ok('Анализ, линтер и оптимизатор не падают на незаконченном коде', !crash.length, crash.join(' | '));
+    const viaUse = ['section S;', 'shared Q1 = let', '    Сервер = "SRVBARE77",', '    База = "DBBARE77",', '    Пароль = "Pw77!x",', '    Источник = Sql.Database(Сервер, База),', '    Odbc1 = Odbc.DataSource("dsn=x;pwd=" & Пароль)', 'in', '    Источник;',
+      'shared F = (cfg as record) => Sql.Database(cfg[Server], cfg[Database]);', 'shared Q2 = F([Server = "SRVREC77", Database = "DBREC77"]);',
+      'shared Q3 = Web.Contents("https://api.example.com", [RelativePath = "clients/Ромашка77/orders", Query = [client = "Клиент77"]]);', ''].join('\r\n');
+    const dUse = new TokenDict(); const anUse = anonymizeM(viaUse, defaultConfig(), dUse);
+    const leftUse = ['SRVBARE77', 'DBBARE77', 'Pw77!x', 'SRVREC77', 'DBREC77', 'Ромашка77', 'Клиент77'].filter(x => anUse.out.includes(x));
+    ok('Обезличивание по месту использования: сервер и пароль в переменных шагов, запись-настройка, RelativePath, Query=[…]', !leftUse.length && restoreTokens(anUse.out, dUse).out === viaUse, leftUse.length ? 'осталось: ' + leftUse.join(', ') : '');
     const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
     const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
     ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);

@@ -170,6 +170,9 @@ async function runSelfTest(){
     // нет DataMashup
     let noMash = false; try { const ents = [await zipFinalizeNew(zipNewEntry('xl/workbook.xml', te.encode('<workbook/>'), true))]; await loadBookFromBytes('пусто.xlsx', zipWrite(ents)); } catch (err){ noMash = !!err.noMashup; }
     ok('Книга без Power Query: понятное сообщение', noMash);
+    const badBytes = (await makeTestBook()).slice(); const badItem = zipFind(zipRead(badBytes), 'customXml/item1.xml'); badItem.raw[badItem.raw.length >> 1] ^= 0x20;
+    let badMsg = ''; try { await loadBookFromBytes('битая.xlsx', badBytes); } catch (err){ badMsg = err.constructor === Error ? err.message : 'не Error: ' + err; }
+    ok('Повреждённая часть книги: понятное сообщение, а не внутренняя ошибка', /поврежд/i.test(badMsg), badMsg.slice(0, 90));
     ok('Содержимое листов не читается: текст ячеек тестовой книги не встречается в модели', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
 
     // ---------- форматер ----------
@@ -199,6 +202,12 @@ async function runSelfTest(){
     const broken = ['section S;\r\nshared A = let\r\n    x = Table.SelectRows(t, each [a] = 1,\r\n    = 2\r\nin\r\n    x;', 'shared B = let a = Sql.Database("s", "d"', 'section S; shared C = let x = List.Contains(L, [k]), in', 'let ( = 1, x = Excel.Workbook(File.Contents("p") in x'];
     const crash = []; for (const b of broken){ try { const Ab = analyzeSection(b, {}); optimizeSection(b, Ab, lintSection(Ab)); formatM(b); } catch (e){ crash.push(e.message); } }
     ok('Анализ, линтер и оптимизатор не падают на незаконченном коде', !crash.length, crash.join(' | '));
+    const viaUse = ['section S;', 'shared Q1 = let', '    Сервер = "SRVBARE77",', '    База = "DBBARE77",', '    Пароль = "Pw77!x",', '    Источник = Sql.Database(Сервер, База),', '    Odbc1 = Odbc.DataSource("dsn=x;pwd=" & Пароль)', 'in', '    Источник;',
+      'shared F = (cfg as record) => Sql.Database(cfg[Server], cfg[Database]);', 'shared Q2 = F([Server = "SRVREC77", Database = "DBREC77"]);',
+      'shared Q3 = Web.Contents("https://api.example.com", [RelativePath = "clients/Ромашка77/orders", Query = [client = "Клиент77"]]);', ''].join('\r\n');
+    const dUse = new TokenDict(); const anUse = anonymizeM(viaUse, defaultConfig(), dUse);
+    const leftUse = ['SRVBARE77', 'DBBARE77', 'Pw77!x', 'SRVREC77', 'DBREC77', 'Ромашка77', 'Клиент77'].filter(x => anUse.out.includes(x));
+    ok('Обезличивание по месту использования: сервер и пароль в переменных шагов, запись-настройка, RelativePath, Query=[…]', !leftUse.length && restoreTokens(anUse.out, dUse).out === viaUse, leftUse.length ? 'осталось: ' + leftUse.join(', ') : '');
     const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
     const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
     ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);

@@ -81,7 +81,15 @@ const RE_HOST = /(?<![\w.@\-\/\\])(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+(?
 const RE_SECRET_KV = /(?<![A-Za-z0-9_])(password|pwd|passwd|user ?id|uid|user ?name|username|login|api[_\- ]?key|apikey|x-api-key|access[_\-]?token|refresh[_\-]?token|id[_\-]?token|token|client[_\-]?secret|secret|account ?key|sig|signature|auth|subscription[_\-]?key|code)\s*=\s*("[^"]*"|'[^']*'|\{[^}]*\}|[^;&\s"'#,)]+)/gi;
 const RE_BEARER = /\b(?:Bearer|Basic|Token)\s+([A-Za-z0-9\-._~+\/]{6,}=*)/g;
 const SECRET_KEY_RE = /^(password|pwd|passwd|user ?id|uid|user|user ?name|login|api[_\- ]?key|x-api-key|access[_\-]?token|refresh[_\-]?token|token|client[_\-]?secret|secret|account ?key|shared ?access ?signature|sig|authorization|auth|subscription[_\-]?key)$/i;
-const SECRET_FIELD_RE = /(password|passwd|pwd|secret|token|api[_\-]?key|apikey|authorization|subscription-key|access[_\-]?key|credential|^user ?name$|^username$|^login$|^uid$|^user ?id$)/i;
+const SECRET_FIELD_RE = /(password|passwd|pwd|secret|token|api[_\-]?key|apikey|authorization|subscription-key|access[_\-]?key|credential|пароль|токен|секрет|^user ?name$|^username$|^login$|^логин$|^uid$|^user ?id$)/i;
+/** Роль строки по имени поля записи-настройки ([Server = "…", Database = "…", RelativePath = "…"]) */
+const FIELD_ROLES = [
+  [/^(server|server ?name|host|host ?name|data ?source|сервер|хост)$/i, 'SRV'],
+  [/^(database|db|db ?name|initial catalog|catalog|база|база ?данных|бд)$/i, 'DB'],
+  [/^(url|uri|base ?url|endpoint|relative ?path|адрес ?url|ссылка)$/i, 'URL'],
+  [/^(path|file ?path|folder|folder ?path|directory|dir|путь|папка|файл|путь ?к ?файлу|путь ?к ?папке)$/i, 'PATH']
+];
+const fieldRole = f => { for (const [re, r] of FIELD_ROLES) if (re.test(f)) return r; return null; };
 const CONN_DETECT = /(?:^|;)\s*(server|data source|initial catalog|database|provider|dsn|driver|uid|pwd|password|user id|host|port|integrated security|trusted_connection|address|addr|extended properties)\s*=/i;
 const SRV_KEYS = /^(server|data source|host|hostname|address|addr|network address|dsn|server name)$/i;
 const DB_KEYS = /^(database|initial catalog|dbname|catalog)$/i;
@@ -207,6 +215,14 @@ function anonymizeM(text, cfg, dict){
   const sec = parseSection(text); const names = new Set(sec.members.map(m => m.name));
   const C = makeCollector(text, cfg); const { want, add, embedded } = C;
   const colNames = new Set(); const pending = []; const inDate = new Set(); const paramRole = new Map(); const paramStr = [];
+  // привязки «Имя = "строка"» (шаги let и запросы) и роли имён по месту использования в аргументах функций-источников
+  const binds = []; const useLocal = new Map(), useGlobal = new Map();
+  const memberAt = pos => { let lo = 0, hi = sec.members.length - 1, r = null; while (lo <= hi){ const mid = (lo + hi) >> 1; if (sec.members[mid].start <= pos){ r = sec.members[mid]; lo = mid + 1; } else hi = mid - 1; } return r && pos <= r.end ? r : null; };
+  const roleSpan = (role, raw, base) => {
+    if (role === 'CONN'){ if (/=/.test(raw) && CONN_DETECT.test(raw)) C.conn(raw, base); else add(base, base + raw.length, want('CONN') ? 'CONN' : 'SECRET'); return; }
+    const cat = role === 'SRV' || role === 'DB' ? role : (wholeCategory(raw) || role);
+    if (want(cat)) add(base, base + raw.length, cat); else embedded(raw, base);
+  };
   const stack = []; const bindEq = new Set();
   const sig = st.sig;
   const nearestCall = () => { for (let i = stack.length - 1; i >= 0; i--) if (stack[i].k === '(') return { f: stack[i], idx: i }; return null; };
@@ -282,6 +298,10 @@ function anonymizeM(text, cfg, dict){
       continue;
     }
     if (isName(t) && !st.fieldTok.has(ti)){
+      if (top && top.k === '(' && top.fn && SOURCE_FNS[top.fn]){
+        const role = SOURCE_FNS[top.fn][top.arg];
+        if (role){ const mm = memberAt(t.s); useLocal.set((mm ? mm.name : '') + '\u0001' + nameOf(t), role); if (!useGlobal.has(nameOf(t))) useGlobal.set(nameOf(t), role); }
+      }
       if (names.has(nameOf(t))){
         if (want('QRY')){ if (t.t === 'qid') add(t.s + 2, t.e - 1, 'QRY'); else add(t.s, t.e, 'QRY'); }
         // запрос-параметр как аргумент функции-источника: запоминаем роль (сервер, база, путь…)
@@ -296,6 +316,9 @@ function anonymizeM(text, cfg, dict){
     if (!raw.trim()) continue;
     // значение запроса-параметра: "…" meta [IsParameterQuery=true…] — классифицируем после обхода по месту использования
     { const nx = toks[sig[k + 1]]; if (!top && prev && prev.v === '=' && nx && isKw(nx, 'meta')){ const pm = sec.members.find(m => t.s >= m.exprStart && t.e <= m.exprEnd); if (pm){ paramStr.push({ raw, base, name: pm.name }); continue; } } }
+    { const nx = toks[sig[k + 1]];
+      if (prev && prev.v === '=' && bindEq.has(sig[k - 1]) && prev2 && isName(prev2) && (!nx || nx.v === ',' || nx.v === ';' || isKw(nx, 'in'))){
+        const mm = memberAt(t.s); binds.push({ raw, base, name: nameOf(prev2), member: mm ? mm.name : '', isQuery: !!mm && prev2.s === mm.nameS }); } }
     const nc = nearestCall(); const fnF = nc ? nc.f : null;
     const direct = top && top.k === '(';
     const recTop = top && top.k === '[' && top.kind === 'record' ? top : null;
@@ -306,6 +329,11 @@ function anonymizeM(text, cfg, dict){
     if (direct && fnF.fn in SQL_TEXT_ARGS && fnF.arg === SQL_TEXT_ARGS[fnF.fn]){ C.sql(raw, base); continue; }
     if (field && /^(Query|CommandText|Statement)$/i.test(field) && parentOfRec && parentOfRec.k === '(' && (SOURCE_FNS[parentOfRec.fn] || parentOfRec.fn === 'Value.NativeQuery')){ C.sql(raw, base); continue; }
     if (field && SECRET_FIELD_RE.test(field)){ add(base, base + raw.length, 'SECRET'); continue; }
+    if (field && fieldRole(field)){ roleSpan(fieldRole(field), raw, base); continue; }
+    if (field && parentOfRec && parentOfRec.k === '[' && /^Query$/i.test(parentOfRec.field || '')){
+      const gp = stack[stack.length - 3];   // Web.Contents(url, [Query = [ключ = "значение"]]) — значения — часть URL
+      if (gp && gp.k === '(' && /^(Web\.Contents|Web\.Page|Web\.BrowserContents|OData\.Feed)$/.test(gp.fn)){ roleSpan('URL', raw, base); continue; }
+    }
     let role = null;
     if (direct && fnF.fn && SOURCE_FNS[fnF.fn]) role = SOURCE_FNS[fnF.fn][fnF.arg] || null;
     if (role === 'CONN' || CONN_DETECT.test(raw) && /=/.test(raw) && (/;/.test(raw) || /^\s*(dsn|driver|provider)\s*=/i.test(raw))){ C.conn(raw, base); continue; }
@@ -334,6 +362,11 @@ function anonymizeM(text, cfg, dict){
     embedded(raw, base);
   }
   for (const p of pending) if (colNames.has(p.raw) && want('COL')) add(p.base, p.base + p.raw.length, 'COL');
+  for (const b of binds){
+    if (SECRET_FIELD_RE.test(b.name)){ add(b.base, b.base + b.raw.length, 'SECRET'); continue; }
+    const role = b.isQuery ? (paramRole.get(b.name) || useGlobal.get(b.name)) : useLocal.get(b.member + '\u0001' + b.name);
+    if (role) roleSpan(role, b.raw, b.base);
+  }
   for (const p of paramStr){
     const role = paramRole.get(p.name); const wc = wholeCategory(p.raw);
     const cat = role === 'SRV' || role === 'DB' ? role : (wc || role || 'TXT');

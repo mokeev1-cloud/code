@@ -144,9 +144,12 @@ function zipRead(u8){
 }
 function decodeLatinOrUtf8(b){ try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch { return String.fromCharCode.apply(null, b); } }
 async function zipEntryBytes(e){
-  if (e.method === 0) return e.raw.slice();
-  if (e.method === 8) return inflateRaw(e.raw);
-  throw new Error('Неподдерживаемый метод сжатия ' + e.method + ' в части ' + e.name);
+  let data;
+  if (e.method === 0) data = e.raw.slice();
+  else if (e.method === 8) data = await inflateRaw(e.raw);
+  else throw new Error('Неподдерживаемый метод сжатия ' + e.method + ' в части ' + e.name);
+  if (crc32(data) !== e.crc) throw new Error('Часть ' + e.name + ' повреждена: контрольная сумма CRC32 не совпадает. Откройте и пересохраните книгу в Excel; если не поможет — возьмите резервную копию.');
+  return data;
 }
 function zipFind(zip, name){ const l = name.toLowerCase(); return zip.entries.find(e => e.name.toLowerCase() === l); }
 /** Новые данные для записи, с сохранением метода сжатия и атрибутов исходной записи */
@@ -251,7 +254,17 @@ function metaVal(v){
    ===================================================================== */
 const SECTION_PATH = 'Formulas/Section1.m';
 
+/** Чтение книги. Собственные ошибки разбора (класс Error) понятны пользователю и проходят как есть;
+    внутренние (битый deflate, выход за границы, неверный base64/UTF-16, JSON) — это повреждённый файл */
 async function loadBookFromBytes(name, u8){
+  try { return await readBookBytes(name, u8); }
+  catch (e){
+    if (e && e.constructor === Error) throw e;
+    const err = new Error('Файл повреждён: не удалось разобрать его содержимое (' + (e && e.name || 'Error') + (e && e.message ? ': ' + e.message : '') + '). Откройте и пересохраните книгу в Excel; если не поможет — возьмите резервную копию.');
+    err.cause = e; throw err;
+  }
+}
+async function readBookBytes(name, u8){
   const ext = (name.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
   if (['m', 'pq', 'txt'].includes(ext)) return loadBookFromText(name, decodeText(u8).text);
   const zip = zipRead(u8);

@@ -1,0 +1,19 @@
+<div class="app" id="app">
+<header class="topbar">
+  <button class="iconbtn" id="sbToggle" title="Свернуть меню" aria-label="Меню"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div class="brand"><span class="logo">PQ</span><span>Мастер PQ</span></div>
+  <div class="bookchip" id="bookChip" title="Открытая книга"><span class="dot" id="bookDot"></span><span id="bookName">книга не открыта</span></div>
+  <div class="tb-group">
+    <button class="btn" id="tbOpen" title="Открыть книгу (Ctrl+O)"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>Открыть</button>
+    <button class="iconbtn" id="tbUndo" title="Отменить последнее изменение рабочей версии (Ctrl+Alt+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg></button>
+    <button class="iconbtn" id="tbRedo" title="Вернуть изменение (Ctrl+Alt+Y)" disabled><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 000 10h3"/></svg></button>
+    <button class="btn pri" id="tbSave" title="Сохранить новую копию книги (Ctrl+S)" disabled><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3"/></svg>Сохранить копию</button>
+    <button class="btn" id="tbSaveOrig" title="Записать в исходный файл, предварительно сделав резервную копию (Ctrl+Shift+S)" disabled>В оригинал</button>
+  </div>
+  <button class="searchbox" id="tbPalette" title="Палитра команд"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span>Команды, запросы, функции…</span><kbd>Ctrl K</kbd></button>
+  <span class="badge ok" title="Content-Security-Policy запрещает странице любые сетевые запросы (connect-src 'none')">🔒 офлайн</span>
+  <button class="iconbtn" id="tbSettings" title="Настройки"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+  <button class="iconbtn" id="tbTheme" title="Светлая / тёмная тема"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 000 16z" class="fill"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar" aria-label="Разделы"></nav>
+<main class="main" id="main">

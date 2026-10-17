@@ -1,0 +1,62 @@
+<section class="view" id="view-anon">
+  <div class="needbook-msg">Откройте книгу или вставьте M-код на странице «Обзор».</div>
+  <div class="hasbook">
+  <div class="page-h"><h1>Обезличивание для ИИ</h1><span class="sp"></span>
+    <button class="btn pri" id="dlAnonTxt">⬇ Обезличенный код</button>
+    <button class="btn" id="copyAnon">⧉ Копировать код</button>
+    <button class="btn" id="dlDict" title="Секретный файл: превращает метки обратно в значения">🔐 Словарь замен</button></div>
+  <div class="anon-layout">
+    <div class="anon-side">
+      <div class="card" id="catBox"></div>
+      <div class="card">
+        <h2>🛡 Чёрный список NDA</h2>
+        <p class="small muted">Слова, которые заменяются <b>всегда и везде</b>: в строках, именах шагов и столбцов, комментариях, диагностике. По одному на строку, регистр не важен.</p>
+        <textarea id="blacklist" rows="4" placeholder="ООО Ромашка&#10;Project Falcon"></textarea>
+        <div class="row small"><button class="btn" id="blApply">Применить</button><button class="btn" id="profSave" title="Категории, чёрный список, ручные замены — файлом у вас">Сохранить профиль</button><label class="btn" for="profLoad">Загрузить профиль</label><input type="file" id="profLoad" accept=".json" hidden></div>
+      </div>
+      <div class="card">
+        <h2>Ручные правки</h2>
+        <div class="small muted">Выделите текст в панели → «Добавить выделенное». Клик по замене → «Вернуть».</div>
+        <h3>Добавлено вручную</h3><div id="manualList" class="small"></div>
+        <h3>Исключено</h3><div id="exclList" class="small"></div>
+      </div>
+      <div class="card">
+        <h2>Словарь сеанса</h2>
+        <div class="small" id="dictInfo"></div>
+        <div class="row small"><label class="btn" for="dictLoad" title="Продолжить с теми же метками">Загрузить словарь…</label><input type="file" id="dictLoad" accept=".json" hidden><button class="btn danger" id="dictReset">Сбросить нумерацию</button></div>
+      </div>
+    </div>
+    <div class="anon-main">
+      <div class="card">
+        <div class="card-h"><h2>Было / стало</h2><span class="sp"></span><select id="anonQuery"></select><button class="btn" id="addSelBtn" title="Выделите текст в любой панели">＋ Добавить выделенное</button></div>
+        <div class="chips" id="anonSummary"></div>
+        <div class="panes">
+          <div><div class="pane-cap">Было — подсвечено то, что будет заменено</div><pre class="code wrap" id="paneOrig"></pre></div>
+          <div><div class="pane-cap">Стало — уйдёт наружу</div><pre class="code wrap" id="paneAnon"></pre></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Финальная проверка-сканер</h2><span class="sp"></span><span id="scanBadge"></span></div>
+        <p class="small muted">Ищет то, что похоже на пропущенные пути, адреса, e-mail, IP, GUID, ключи и длинные числа, а также известные секретные значения и слова из чёрного списка, которые остались открытыми.</p>
+        <div id="scanBox" class="scroll"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h2>Пакет для ИИ и задача для чата</h2></div>
+        <div class="note small">Большому ИИ стоит отдавать только сложные случаи: встроенный оптимизатор, линтер и рефакторинг закрывают типовые задачи без отправки кода наружу.</div>
+        <div class="grid2">
+          <div><label class="small muted">Что нужно сделать:</label><textarea id="goal" rows="4" placeholder="Например: ускорить обновление запроса ⟦QRY_1⟧; найти, почему шаг «Объединено» даёт дубли…"></textarea></div>
+          <div class="small form-grid">
+            <span class="muted">Среда</span><select id="envHost"><option>Excel для Microsoft 365</option><option>Excel 2021</option><option>Excel 2019</option><option>Excel 2016</option><option>Power BI Desktop</option><option>Dataflow / Fabric</option></select>
+            <span class="muted">Локаль</span><select id="envLocale"><option>ru-RU</option><option>en-US</option><option>de-DE</option><option>kk-KZ</option><option>uk-UA</option></select>
+            <span class="muted">Отладочные данные</span><select id="dbgMode"><option value="schema">Схема + синтетические строки</option><option value="masked">+ маскированные образцы</option><option value="none">Только код</option></select>
+            <span></span><span id="sampleRow" class="hidden"><label class="btn" for="sampleFile">Образец (CSV/XLSX)…</label><input type="file" id="sampleFile" accept=".csv,.txt,.xlsx" multiple hidden> <span id="sampleInfo" class="muted"></span></span>
+            <span></span><label><input type="checkbox" id="pkgDiag" checked> сводка диагностики (обезличенная)</label>
+          </div>
+        </div>
+        <div class="row"><button class="btn pri" id="dlPkg">⬇ Пакет для ИИ (.json)</button><button class="btn" id="copyPrompt">⧉ Задача для чата</button><button class="btn" id="viewPkg">Показать, что уйдёт</button></div>
+        <div class="note bad small"><b>Словарь замен никому не отправляйте</b> — даже ИИ. Храните рядом с оригиналом, вне папки обмена.</div>
+      </div>
+    </div>
+  </div>
+  </div>
+</section>

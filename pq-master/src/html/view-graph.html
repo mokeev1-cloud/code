@@ -1,0 +1,21 @@
+<section class="view" id="view-graph">
+  <div class="needbook-msg">Откройте книгу, чтобы увидеть граф зависимостей.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Граф и параметры</h1></div>
+    <div class="card">
+      <div class="card-h"><h2>Граф зависимостей</h2><span class="sp"></span>
+        <label class="small"><input type="checkbox" id="graphAnon"> обезличенные имена</label>
+        <button class="btn" id="graphSvgBtn">Скачать SVG</button></div>
+      <div class="legend small muted">
+        <span><i class="lg-src"></i>обращается к источнику</span><span><i class="lg-param"></i>параметр</span><span><i class="lg-load"></i>загружается</span><span><i class="lg-fn"></i>функция</span><span><i class="lg-warn"></i>есть замечания</span>
+        <span>Стрелка: «откуда данные» → «кто использует». Клик — открыть в редакторе.</span>
+      </div>
+      <div class="graphbox" id="graphBox"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Параметризатор</h2></div>
+      <p class="small muted">Захардкоженные пути, серверы, базы и URL выносятся в запросы-параметры: код становится переносимым, а источники собираются в одном месте.</p>
+      <div id="paramBox"></div>
+    </div>
+  </div>
+</section>

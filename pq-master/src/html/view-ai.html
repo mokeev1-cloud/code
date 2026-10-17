@@ -1,0 +1,26 @@
+<section class="view" id="view-ai">
+  <div class="needbook-msg">Откройте исходную книгу (или M-код) на странице «Обзор» — ответ ИИ применяется к ней.</div>
+  <div class="hasbook">
+  <div class="page-h"><h1>Ответ ИИ → обратная подстановка</h1></div>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <h3>Исправленный ИИ код</h3>
+        <div class="row"><label class="btn" for="aiFile">Файл .txt / .m / .json-патч…</label><input type="file" id="aiFile" accept=".txt,.m,.pq,.json,.md" hidden><span class="small muted" id="aiFileInfo"></span></div>
+        <textarea id="aiText" class="code" rows="10" spellcheck="false" placeholder="Вставьте ответ ИИ целиком: код ```m …``` или JSON-патч"></textarea>
+      </div>
+      <div class="small">
+        <h3>Словарь замен</h3>
+        <div id="buildDictInfo"></div>
+        <label class="btn" for="buildDictFile">Загрузить словарь .json…</label><input type="file" id="buildDictFile" accept=".json" hidden>
+        <h3>Если в ответе только часть запросов</h3>
+        <label><input type="radio" name="missing" value="keep" checked> остальные оставить как есть</label><br>
+        <label><input type="radio" name="missing" value="drop"> удалить отсутствующие</label>
+        <div id="singleTargetRow" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="row"><button class="btn pri" id="checkBtn">Проверить</button><button class="btn" id="acceptBtn" disabled title="Записать результат в рабочую версию (появится в истории)">Принять в рабочую версию</button><button class="btn" id="dlSectionBtn" disabled>⬇ Section1.m</button></div>
+  </div>
+  <div id="buildResult"></div>
+  </div>
+</section>

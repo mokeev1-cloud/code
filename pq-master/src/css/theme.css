@@ -1,0 +1,46 @@
+/* Цветовые токены. Тёмная тема — по системной настройке или data-theme="dark". */
+:root{
+  --bg:#f4f5f8; --panel:#ffffff; --panel2:#f0f2f6; --panel3:#e7eaf0; --text:#1b2130; --muted:#667085; --border:#dde1e8; --border2:#c9ced8;
+  --accent:#2f6fde; --accent-2:#1f57bd; --accent-soft:#e4ecfc; --ok:#178a4c; --ok-soft:#e1f4e9; --warn:#b26a00; --warn-soft:#fdf0d9;
+  --bad:#c42b2b; --bad-soft:#fbe4e4; --violet:#7b2fb5; --violet-soft:#f1e6fa; --code-bg:#fbfbfd; --sel:#cfe0ff;
+  --c-kw:#7b2fb5; --c-str:#a5461c; --c-num:#0b7a6e; --c-cmt:#7c8595; --c-fn:#2156b8; --c-qid:#8a5a00; --c-op:#4a5568; --c-type:#0e7490;
+  --tok-bg:#ffe8a3; --tok-fg:#5a3f00; --orig-bg:#ffd3d3; --orig-fg:#6b0000;
+  --heat0:#e7f5ec; --heat1:#c9ecd6; --heat2:#fff0b3; --heat3:#ffd28a; --heat4:#ffa77a; --heat5:#f46a5e;
+  --shadow:0 1px 2px rgba(20,30,50,.06),0 3px 12px rgba(20,30,50,.05); --shadow-lg:0 12px 40px rgba(15,23,42,.22);
+  --radius:10px; --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code",Consolas,"JetBrains Mono","DejaVu Sans Mono",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12151b; --panel:#1a1e26; --panel2:#212631; --panel3:#2a303c; --text:#e3e7ef; --muted:#98a1b3; --border:#2f3644; --border2:#3c4455;
+  --accent:#6a9dff; --accent-2:#8bb3ff; --accent-soft:#1f2f4d; --ok:#4cc386; --ok-soft:#173627; --warn:#f0b04a; --warn-soft:#3a2d14;
+  --bad:#ff7a7a; --bad-soft:#412121; --violet:#c792ea; --violet-soft:#33244a; --code-bg:#161a21; --sel:#2b4370;
+  --c-kw:#c792ea; --c-str:#f0a070; --c-num:#5ed6c4; --c-cmt:#7a8496; --c-fn:#82aaff; --c-qid:#e0b45c; --c-op:#aab3c5; --c-type:#67d4e8;
+  --tok-bg:#4a3c12; --tok-fg:#ffe08a; --orig-bg:#4d2020; --orig-fg:#ffc4c4;
+  --heat0:#16302a; --heat1:#1e4434; --heat2:#4b4219; --heat3:#5d3e16; --heat4:#6b2f1c; --heat5:#8a2525;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 12px 40px rgba(0,0,0,.6); color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#12151b; --panel:#1a1e26; --panel2:#212631; --panel3:#2a303c; --text:#e3e7ef; --muted:#98a1b3; --border:#2f3644; --border2:#3c4455;
+  --accent:#6a9dff; --accent-2:#8bb3ff; --accent-soft:#1f2f4d; --ok:#4cc386; --ok-soft:#173627; --warn:#f0b04a; --warn-soft:#3a2d14;
+  --bad:#ff7a7a; --bad-soft:#412121; --violet:#c792ea; --violet-soft:#33244a; --code-bg:#161a21; --sel:#2b4370;
+  --c-kw:#c792ea; --c-str:#f0a070; --c-num:#5ed6c4; --c-cmt:#7a8496; --c-fn:#82aaff; --c-qid:#e0b45c; --c-op:#aab3c5; --c-type:#67d4e8;
+  --tok-bg:#4a3c12; --tok-fg:#ffe08a; --orig-bg:#4d2020; --orig-fg:#ffc4c4;
+  --heat0:#16302a; --heat1:#1e4434; --heat2:#4b4219; --heat3:#5d3e16; --heat4:#6b2f1c; --heat5:#8a2525;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 12px 40px rgba(0,0,0,.6); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.45 var(--font)}
+code,pre,kbd,.mono,textarea.code{font-family:var(--mono);font-size:12.5px}
+a{color:var(--accent)}
+h1{font-size:20px;font-weight:650;margin:0}
+h2{font-size:15px;font-weight:650;margin:0 0 8px}
+h3{font-size:13.5px;font-weight:650;margin:14px 0 6px}
+svg:not([width]){width:18px;height:18px}
+svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg .fill{fill:currentColor;stroke:none}
+::selection{background:var(--sel)}
+.muted{color:var(--muted)}.small{font-size:12.5px}.hidden{display:none!important}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.row.center{justify-content:center}
+.sp{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+kbd{border:1px solid var(--border2);border-bottom-width:2px;border-radius:4px;padding:0 4px;font-size:11px;background:var(--panel2);color:var(--muted)}

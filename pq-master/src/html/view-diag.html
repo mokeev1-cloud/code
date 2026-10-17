@@ -1,0 +1,15 @@
+<section class="view" id="view-diag">
+  <div class="page-h"><h1>Диагностика</h1><span class="small muted">Обезличивание тем же словарём и визуализация времени</span></div>
+  <div class="card">
+    <div class="drop" id="diagDrop">
+      Перетащите CSV/XLSX-выгрузки диагностики (Detailed, Aggregated, Partitions) или журналы трассировки (.log / .txt)
+      <label class="btn pri" for="diagFile">Выбрать файлы…</label><input type="file" id="diagFile" multiple accept=".csv,.txt,.log,.xlsx,.tsv,.json" hidden>
+    </div>
+    <p class="small muted">Время, длительность, число строк, тип операции и ID сохраняются. Ресурсы, пути, тексты запросов к источнику и прочий текст обезличиваются или удаляются (настраивается по столбцам). Сервер из кода и сервер из диагностики получат одну и ту же метку. Как включить диагностику — см. «Справку». Если загружена книга, реальные секунды появятся и на карте тяжести в «Оптимизаторе».</p>
+  </div>
+  <div class="card hidden" id="diagVizCard">
+    <div class="card-h"><h2>Где тратится время</h2><span class="sp"></span><label class="small"><input type="checkbox" id="vizAnon" checked> обезличенные подписи</label></div>
+    <div id="diagViz"></div>
+  </div>
+  <div id="diagFiles"></div>
+</section>

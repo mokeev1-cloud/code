@@ -212,9 +212,10 @@ function parseSteps(toks, st, a, b){
   const startStep = k0 => {
     let j = k0; const nameToks = [];
     while (j < sig.length && toks[sig[j]].v !== '=') { nameToks.push(sig[j]); j++; }
-    if (j >= sig.length) return null;
-    const nt = nameToks.length === 1 ? toks[nameToks[0]] : null;
-    return { name: nt ? nameOf(nt) : nameToks.map(x => toks[x].v).join(' '), nameRaw: nt ? nt.v : '', s: toks[sig[k0]].s, nameE: toks[nameToks[nameToks.length - 1]].e, exprK: j + 1, exprS: toks[sig[j + 1]] ? toks[sig[j + 1]].s : toks[sig[j]].e };
+    // имя шага в M — ровно один идентификатор (или #"…"); иное — не разбираемый let
+    if (j >= sig.length || nameToks.length !== 1 || !isName(toks[nameToks[0]])) return null;
+    const nt = toks[nameToks[0]];
+    return { name: nameOf(nt), nameRaw: nt.v, s: nt.s, nameE: nt.e, exprK: j + 1, exprS: toks[sig[j + 1]] ? toks[sig[j + 1]].s : toks[sig[j]].e };
   };
   cur = startStep(k); if (!cur) return null; k = cur.exprK;
   for (; k < sig.length; k++){
@@ -229,9 +230,10 @@ function parseSteps(toks, st, a, b){
     }
     if (d === 0 && letD === 0 && t.v === ','){
       cur.exprE = toks[sig[k - 1]].e; cur.tokS = sig[cur.exprK]; cur.tokE = sig[k - 1] + 1; steps.push(cur);
-      cur = startStep(k + 1); if (!cur) return steps.length ? { steps, inExpr: null } : null; k = cur.exprK - 1;
+      cur = startStep(k + 1); if (!cur) break; k = cur.exprK - 1;
     }
   }
+  if (!steps.length) return null;
   const names = new Set(steps.map(s => s.name));
   const refsIn = (ta, tb, self) => { const r = new Set(); for (let i = ta; i < tb; i++){ const t = toks[i]; if (isSig(t) && isName(t) && !st.fieldTok.has(i) && names.has(nameOf(t)) && nameOf(t) !== self) r.add(nameOf(t)); } return r; };
   for (const s of steps){

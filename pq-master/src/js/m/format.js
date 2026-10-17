@@ -9,8 +9,8 @@
    ===================================================================== */
 function formatM(src, unit){
   unit = unit || '    ';
-  const nl = /\r\n/.test(src) ? '\r\n' : '\n';
-  const lines = src.split(/\r?\n/);
+  // переводы строк сохраняются как есть: внутри многострочной строки "…" они — часть значения
+  const parts = src.split(/(\r?\n)/); const lines = parts.filter((_, i) => i % 2 === 0), seps = parts.filter((_, i) => i % 2 === 1);
   const starts = []; { let p = 0; for (const l of lines){ starts.push(p); p += l.length + (src.substr(p + l.length, 2) === '\r\n' ? 2 : 1); } }
   const toks = lexM(src);
   const lineOf = pos => { let lo = 0, hi = starts.length - 1; while (lo < hi){ const mid = (lo + hi + 1) >> 1; if (starts[mid] <= pos) lo = mid; else hi = mid - 1; } return lo; };
@@ -49,11 +49,13 @@ function formatM(src, unit){
   // но если на такой строке после конца токена есть ещё токены, indent мог быть выставлен — сбросим
   const keepEnd = new Set();
   for (const t of toks){ if ((t.t === 'str' || t.t === 'qid' || t.t === 'cmt') && lineOf(t.e - 1) > lineOf(t.s)){ keepEnd.add(lineOf(t.s)); for (let k = lineOf(t.s) + 1; k <= lineOf(t.e - 1); k++) indent[k] = null; } }
+  // незакрытая строка в конце текста: пробелы в её конце — часть строки
+  for (const t of toks) if ((t.t === 'str' || t.t === 'qid') && /[ \t]$/.test(t.v)) keepEnd.add(lineOf(t.e - 1));
   return lines.map((l, i) => {
     if (indent[i] == null) return l;
     let body = l.replace(/^[ \t]+/, ''); if (!keepEnd.has(i)) body = body.replace(/[ \t]+$/, '');
     return body ? unit.repeat(indent[i]) + body : '';
-  }).join(nl);
+  }).map((l, i) => l + (seps[i] || '')).join('');
 }
-/** Значимые токены текста (для проверки, что форматирование не изменило код) */
-function sigTokens(src){ return lexM(src).filter(t => t.t !== 'ws').map(t => t.v); }
+/** Значимые токены текста (для проверки, что форматирование не изменило код); пробелы в конце комментария не значимы */
+function sigTokens(src){ return lexM(src).filter(t => t.t !== 'ws').map(t => t.t === 'cmt' ? t.v.replace(/[ \t]+$/, '') : t.v); }

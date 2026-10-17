@@ -175,6 +175,8 @@ async function runSelfTest(){
     // ---------- форматер ----------
     const messy = 'let\n  a = 1,\n        b = {1,\n2},\n c = let x = 1 in x\n   in\n c';
     const fm = formatM(messy), fs = formatM(TEST_SECTION);
+    const mixed = 'let\r\n  a = "x\ny",\r\n    b = 1 // заметка   \r\nin\r\n  a & "', fmx = formatM(mixed);
+    ok('Форматер: переводы строк внутри строк и незакрытая строка не меняются', /"x\ny"/.test(fmx) && fmx.endsWith('& "') && JSON.stringify(sigTokens(fmx)) === JSON.stringify(sigTokens(mixed)), JSON.stringify(fmx));
     ok('Форматер: значимые токены не меняются, повторное форматирование ничего не меняет', JSON.stringify(sigTokens(fm)) === JSON.stringify(sigTokens(messy)) && formatM(fm) === fm && JSON.stringify(sigTokens(fs)) === JSON.stringify(sigTokens(TEST_SECTION)) && formatM(fs) === fs, fm.replace(/\n/g, '⏎'));
     // ---------- оптимизатор ----------
     const O = optimizeSection(book.origSection, A, lintSection(A));
@@ -192,6 +194,14 @@ async function runSelfTest(){
     const semAfter = applyAllSafeText(semSrc, {}).text;
     const ev = (sec, q) => mLit(mEval('Table.ToRows(' + q + ')', sec));
     ok('Оптимизатор: безопасные исправления не меняют результат (проверено песочницей)', semAfter !== semSrc && ev(semSrc, 'Т') === ev(semAfter, 'Т') && ev(semSrc, 'Т2') === ev(semAfter, 'Т2') && /List\.Buffer\(Список\)/.test(semAfter) && !/Мусор/.test(semAfter), ev(semAfter, 'Т') + ' · ' + ev(semAfter, 'Т2'));
+    const semAll = applyAllSafeText(semSrc, {}); const A4 = analyzeSection(semAll.text, {});
+    ok('Оптимизатор: «все безопасные» сходятся — буферизованный список не буферизуется повторно', semAll.applied.length <= 5 && !/_буфер_буфер/.test(semAll.text) && !lintSection(A4).some(l => l.rule === 'list-buffer'), semAll.applied.length + ' исправлений');
+    const broken = ['section S;\r\nshared A = let\r\n    x = Table.SelectRows(t, each [a] = 1,\r\n    = 2\r\nin\r\n    x;', 'shared B = let a = Sql.Database("s", "d"', 'section S; shared C = let x = List.Contains(L, [k]), in', 'let ( = 1, x = Excel.Workbook(File.Contents("p") in x'];
+    const crash = []; for (const b of broken){ try { const Ab = analyzeSection(b, {}); optimizeSection(b, Ab, lintSection(Ab)); formatM(b); } catch (e){ crash.push(e.message); } }
+    ok('Анализ, линтер и оптимизатор не падают на незаконченном коде', !crash.length, crash.join(' | '));
+    const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
+    const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
+    ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');
@@ -217,6 +227,9 @@ async function runSelfTest(){
     let dsErr = ''; try { mEval('Sql.Database("s", "d")'); } catch (e){ dsErr = e.reason; }
     const steps = mRunSteps(book.origSection, 'Продажи', { steps: new Map([['Источник', tableFromRows([['Region', 'Amount', 'OrderDate', 'Код'], ['North', '3000', '2023-06-01', '1'], ['South', '9000', '2023-06-01', '2'], ['North', '100', '2023-06-01', '3']])]]) });
     ok('Песочница: ' + IC.length + ' выражений, источники недоступны, пошаговый прогон запроса на образце', !icBad.length && dsErr === 'DataSource.Error' && !steps.some(s => s.error) && mToText(steps[steps.length - 1].value) === 'Table (1×4)', icBad.join(' | ') + ' · ' + steps.map(s => s.name + (s.error ? '✖' : '✔')).join(' '));
+    const errOf = x => { try { mEval(x, null); return 'нет ошибки'; } catch (e){ return (e instanceof MErr ? '' : 'не MErr: ') + e.message; } };
+    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)');
+    ok('Песочница: ошибки встроенных функций и рекурсии — понятные ошибки M с именем функции', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3].join(' | '));
     // ---------- справочник ----------
     ok('Справочник: ' + M_REF.size + ' функций, сигнатуры разобраны', M_REF.size > 300 && M_REF.get('Table.AddColumn').params.length === 4 && M_REF.get('Table.AddColumn').params[3].optional);
     // ---------- состояние, история, документация (с сохранением и восстановлением S) ----------

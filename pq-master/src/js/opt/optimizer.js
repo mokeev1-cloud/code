@@ -3,7 +3,7 @@
    оценка «здоровья» книги, карта тяжести шагов.
    optimizeSection(text, A, lint) → { findings, score, breakdown, heat }
    Каждый совет: { id, rule, sev, impact[], safety, query, step, title, why, how,
-                   fix?(text, opts) → новый текст, fixLabel, options? }
+                   fix?(text, opts) → новый текст, fixLabel, options?, local }
      safety: 'safe'   — исправление не меняет результат запроса;
              'check'  — почти наверняка верно, но проверьте результат;
              'manual' — только совет, автоисправления нет.
@@ -14,12 +14,15 @@
 const IMPACT_LABEL = { speed: 'скорость', reliability: 'надёжность', portability: 'переносимость', clarity: 'читаемость' };
 const SAFETY_LABEL = { safe: 'безопасно', check: 'проверьте результат', manual: 'вручную' };
 const SEV_W = { err: 12, warn: 5, info: 2, tip: 1 };
+// правила, чьи исправления меняют другие запросы или добавляют/удаляют запросы
+const NONLOCAL_FIX_RULES = new Set(['hardcoded', 'orphan', 'shared-source']);
 
 const rng = (text, s, e, repl) => text.slice(0, s) + repl + text.slice(e);
 function lineIndentAt(text, pos){ const ls = text.lastIndexOf('\n', pos - 1) + 1; return (/^[ \t]*/.exec(text.slice(ls, pos)) || [''])[0]; }
-/** Описание вызова функции по индексу токена-имени */
+/** Описание вызова функции по индексу токена-имени; null, если скобка вызова не закрыта */
 function callInfo(A, fnTi){
   const { toks, st } = A; const open = st.sig[st.pos.get(fnTi) + 1]; const close = st.match.get(open);
+  if (close == null || !toks[open] || toks[open].v !== '(') return null;
   const args = callArgs(toks, st, open);
   const argRange = i => { const a = args[i]; if (!a || !a.length) return null; return { s: toks[a[0]].s, e: toks[a[a.length - 1]].e }; };
   return { open, close, args, argRange, argText: i => { const r = argRange(i); return r ? A.text.slice(r.s, r.e) : null; }, s: toks[fnTi].s, e: toks[close].e };
@@ -58,6 +61,10 @@ function optimizeSection(text, A, lint){
   const F = []; const add = f => { f.id = f.rule + '|' + f.query + '|' + (f.step || '') + '|' + (f.key || ''); F.push(f); };
   const byQ = n => A.byName.get(n);
   const locale = (typeof pqmSettings === 'function' && pqmSettings().cultureLocale) || 'ru-RU';
+  // кандидаты в параметры и существующие параметры-строки считаются один раз на книгу (иначе O(запросов²))
+  let candByQ = null, paramByLit = null;
+  const candidatesOf = q => { if (!candByQ){ candByQ = new Map(); for (const c of paramCandidates(A)){ if (!candByQ.has(c.member)) candByQ.set(c.member, []); candByQ.get(c.member).push(c); } } return candByQ.get(q) || []; };
+  const paramWithValue = v => { if (!paramByLit){ paramByLit = new Map(); for (const x of A.members){ if (!x.isParam) continue; const mm = /^\s*("(?:[^"]|"")*")\s+meta/.exec(text.slice(x.exprStart, x.exprEnd)); if (mm && !paramByLit.has(mm[1])) paramByLit.set(mm[1], x.name); } } return paramByLit.get(mQuoteString(v)); };
   // --- советы на основе линтера (с исправлениями, где возможно)
   for (const l of lint){
     const m = byQ(l.query); const steps = m && m.steps ? m.steps.steps : null;
@@ -71,7 +78,7 @@ function optimizeSection(text, A, lint){
         const ci = step && stepSingleCall(A, step, 'Table.Buffer');
         add(Object.assign(base, { title: 'Table.Buffer в последнем шаге бесполезен', impact: ['speed'], safety: ci && ci.args.length === 1 ? 'safe' : 'manual', fixLabel: 'Убрать Table.Buffer', fix: ci && ci.args.length === 1 ? t => rng(t, ci.s, ci.e, ci.argText(0)) : null })); break; }
       case 'culture': {
-        const call = m.calls.find(c => LOCALE_FNS.includes(c.fn) && stepOfToken(m, c.i) === step && callInfo(A, c.i).args.length === 1);
+        const call = m.calls.find(c => LOCALE_FNS.includes(c.fn) && stepOfToken(m, c.i) === step && (callInfo(A, c.i) || { args: [] }).args.length === 1);
         const ci = call && callInfo(A, call.i); const arg = /FromText$/.test(call ? call.fn : '') && !/^Number/.test(call.fn) ? '[Culture="' + locale + '"]' : '"' + locale + '"';
         add(Object.assign(base, { title: (call ? call.fn : 'Преобразование') + ' без культуры', impact: ['reliability', 'portability'], safety: ci ? 'check' : 'manual', fixLabel: 'Добавить культуру ' + locale, fix: ci ? t => rng(t, A.toks[ci.close].s, A.toks[ci.close].s, ', ' + arg) : null })); break; }
       case 'types-culture': {
@@ -97,14 +104,14 @@ function optimizeSection(text, A, lint){
         if (step && listName && steps){
           const newName = uniqueStepName(m, listName + '_буфер');
           const reps = [];
-          for (let i = step.tokS; i < step.tokE; i++){ const tk = A.toks[i]; if (tk.v !== 'List.Contains') continue; const ci = callInfo(A, i); const a0 = ci.args[0]; if (a0 && a0.length === 1 && isName(A.toks[a0[0]]) && nameOf(A.toks[a0[0]]) === listName) reps.push(A.toks[a0[0]]); }
+          for (let i = step.tokS; i < step.tokE; i++){ const tk = A.toks[i]; if (tk.v !== 'List.Contains') continue; const ci = callInfo(A, i); const a0 = ci && ci.args[0]; if (a0 && a0.length === 1 && isName(A.toks[a0[0]]) && nameOf(A.toks[a0[0]]) === listName) reps.push(A.toks[a0[0]]); }
           if (reps.length){ const ind = lineIndentAt(text, step.s); fix = t => { let o = t; for (const r of reps.slice().sort((a, b) => b.s - a.s)) o = rng(o, r.s, r.e, mQuoteName(newName)); return rng(o, step.s, step.s, mQuoteName(newName) + ' = List.Buffer(' + mQuoteName(listName) + '),' + (text.includes('\r\n') ? '\r\n' : '\n') + ind); }; }
         }
         add(Object.assign(base, { title: 'Список в фильтре вычисляется для каждой строки', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Добавить шаг с List.Buffer', fix })); break; }
       case 'hardcoded': {
-        const cand = paramCandidates(A).filter(c => c.member === l.query);
+        const cand = candidatesOf(l.query);
         const used = new Set(A.members.map(x => x.name)); const seen = new Map();
-        for (const c of cand) if (!seen.has(c.value)){ const ex = A.members.find(x => x.isParam && new RegExp('^\\s*' + mQuoteString(c.value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s+meta').test(text.slice(x.exprStart, x.exprEnd))); seen.set(c.value, ex ? ex.name : suggestParamName(c.role, c.value, used)); }
+        for (const c of cand) if (!seen.has(c.value)) seen.set(c.value, paramWithValue(c.value) || suggestParamName(c.role, c.value, used));
         const picks = [...seen.entries()].map(([value, name]) => ({ value, name }));
         add(Object.assign(base, { title: 'Захардкожены источники (' + picks.length + ')', impact: ['portability', 'clarity'], safety: picks.length ? 'safe' : 'manual', fixLabel: 'Вынести в параметры: ' + picks.map(p => p.name).join(', '),
           fix: picks.length ? t => { const AA = analyzeSection(t, {}); const exist = picks.filter(p => AA.byName.has(p.name)); const fresh = picks.filter(p => !AA.byName.has(p.name));
@@ -164,7 +171,7 @@ function optimizeSection(text, A, lint){
     // Excel.Workbook(File.Contents(...)) без delayTypes
     for (const c of m.calls){
       if (c.fn !== 'Excel.Workbook') continue; const ci = callInfo(A, c.i);
-      if (ci.args.length !== 1) continue; const step = stepOfToken(m, c.i);
+      if (!ci || ci.args.length !== 1) continue; const step = stepOfToken(m, c.i);
       add({ rule: 'excel-delay', key: String(c.i), sev: 'tip', query: m.name, step: step ? step.name : '', impact: ['speed'], safety: 'check',
         title: 'Excel.Workbook без delayTypes', why: 'Без третьего аргумента Power Query определяет типы всех столбцов всех листов при открытии книги — это медленно на больших файлах.',
         how: 'Добавить «, null, true» и задавать типы явно в своих шагах. Проверьте, что следующие шаги не полагаются на автоматические типы.', fixLabel: 'Добавить null, true',
@@ -173,7 +180,7 @@ function optimizeSection(text, A, lint){
   }
   // общий источник в нескольких запросах → промежуточный запрос
   const groups = new Map();
-  for (const m of A.members){ if (m.isParam) continue; for (const c of m.calls){ if (!EXTERNAL_SOURCES.has(c.fn)) continue; const ci = callInfo(A, c.i); const key = text.slice(ci.s, ci.e).replace(/\s+/g, ' '); if (!groups.has(key)) groups.set(key, []); groups.get(key).push({ m, ci, c }); } }
+  for (const m of A.members){ if (m.isParam) continue; for (const c of m.calls){ if (!EXTERNAL_SOURCES.has(c.fn)) continue; const ci = callInfo(A, c.i); if (!ci) continue; const key = text.slice(ci.s, ci.e).replace(/\s+/g, ' '); if (!groups.has(key)) groups.set(key, []); groups.get(key).push({ m, ci, c }); } }
   for (const [key, occ] of groups){
     const qs = [...new Set(occ.map(o => o.m.name))]; if (qs.length < 2) continue;
     const fn = occ[0].c.fn; const newName = uniqueQueryName(A, 'Источник_' + fn.split('.')[0]);
@@ -182,6 +189,8 @@ function optimizeSection(text, A, lint){
       how: 'Создать промежуточный запрос «' + newName + '» и сослаться на него. Проверьте, что не появилась ошибка Formula.Firewall.', fixLabel: 'Создать «' + newName + '»',
       fix: t => { let o = t; for (const x of occ.slice().sort((p, q) => q.ci.s - p.ci.s)) o = rng(o, x.ci.s, x.ci.e, mQuoteName(newName)); const nl = /\r\n/.test(t) ? '\r\n' : '\n'; return o.replace(/\s*$/, '') + nl + nl + 'shared ' + mQuoteName(newName) + ' = ' + text.slice(occ[0].ci.s, occ[0].ci.e) + ';' + nl; } });
   }
+  // local — исправление меняет текст только внутри своего запроса (такие можно применять пачкой)
+  for (const f of F) f.local = !!f.fix && !NONLOCAL_FIX_RULES.has(f.rule);
   // оценка
   const perRuleQ = new Map(); let pen = 0;
   for (const f of F){ const k = f.rule + '|' + f.query; const used = perRuleQ.get(k) || 0; const w = SEV_W[f.sev] || 1; const cap = w * 2; const take = Math.max(0, Math.min(w, cap - used)); perRuleQ.set(k, used + take); pen += take; }
@@ -195,6 +204,7 @@ function optimizeSection(text, A, lint){
 
 /* ---- Карта тяжести: оценка «стоимости» шагов без выполнения ---- */
 const HEAVY = { 'Table.NestedJoin': 2.5, 'Table.Join': 2.5, 'Table.FuzzyNestedJoin': 3.5, 'Table.Group': 1.5, 'Table.Sort': 1.5, 'Table.Distinct': 1.5, 'Table.Pivot': 2, 'Table.Unpivot': 1.2, 'Table.UnpivotOtherColumns': 1.2, 'Table.ExpandTableColumn': 1, 'Table.Buffer': 1, 'List.Buffer': 0.5, 'Table.AddColumn': 0.5, 'Table.TransformColumns': 0.5, 'Table.Combine': 1, 'Table.AddIndexColumn': 0.6, 'List.Generate': 1.5, 'List.Accumulate': 1.5, 'Table.FillDown': 0.4 };
+function listArgBuffered(A, m, ti){ const ci = callInfo(A, ti); const a0 = ci && ci.args[0]; return !!a0 && a0.length === 1 && isName(A.toks[a0[0]]) && isBufferedList(A, m, nameOf(A.toks[a0[0]])); }
 function heatMap(A){
   const out = [];
   for (const m of A.members){
@@ -210,7 +220,7 @@ function heatMap(A){
       if (foldable && !broken && (s.fns.some(f => FOLD_BREAKERS.has(f)) || (s.fns.includes('Value.NativeQuery') && !/EnableFolding\s*=\s*true/i.test(txt)) || (ext.length && /\[\s*Query\s*=/.test(txt)))){ broken = true; s._brk = true; why.push('здесь прерывается свёртка'); }
       for (const f of s.fns) if (HEAVY[f]){ c += HEAVY[f] * (broken && foldable ? 1.4 : 1); why.push(f); }
       if (broken && foldable && !s._brk){ c += 0.8; why.push('выполняется локально (после разрыва свёртки)'); }
-      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } if (t.v === 'List.Contains' && isInsideEach(A.toks, A.st, i) && !s.fns.includes('List.Buffer')){ c += 1.2; why.push('List.Contains внутри each'); break; } }
+      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } if (t.v === 'List.Contains' && isInsideEach(A.toks, A.st, i) && !s.fns.includes('List.Buffer') && !listArgBuffered(A, m, i)){ c += 1.2; why.push('List.Contains внутри each'); break; } }
       cells.push({ step: s.name, level: Math.min(5, Math.round(c)), cost: +c.toFixed(1), why, brk: !!s._brk, dead: !!s.dead });
       delete s._brk;
     }

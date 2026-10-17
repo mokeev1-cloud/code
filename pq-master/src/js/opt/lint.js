@@ -85,7 +85,7 @@ function lintSection(A){
       if (c.fn === 'Table.TransformColumnTypes' && args.length === 2 && m.sources.some(s => ['Csv.Document','Web.Contents','File.Contents','Lines.FromBinary'].includes(s))) add('info', 'types-culture', m.name, step && step.name, 'Преобразование типов текстового источника без культуры.', 'Для дат и дробных чисел из текста добавьте третий аргумент: Table.TransformColumnTypes(t, {…}, "ru-RU").');
       if (c.fn === 'Table.SelectRows'){
         const body = args[1] || [];
-        for (const ti of body){ const t = toks[ti]; if (t.v === 'List.Contains'){ const kk = st.pos.get(ti); const op = st.sig[kk + 1]; const la = callArgs(toks, st, op)[0] || []; if (la.length === 1 && isName(toks[la[0]])) add('tip', 'list-buffer', m.name, step && step.name, 'List.Contains по списку «' + nameOf(toks[la[0]]) + '» внутри each вычисляет список заново для каждой строки.', 'Сделайте отдельный шаг Список = List.Buffer(…) и используйте его в фильтре.'); } }
+        for (const ti of body){ const t = toks[ti]; if (t.v === 'List.Contains'){ const kk = st.pos.get(ti); const op = st.sig[kk + 1]; const la = callArgs(toks, st, op)[0] || []; if (la.length === 1 && isName(toks[la[0]]) && !isBufferedList(A, m, nameOf(toks[la[0]]))) add('tip', 'list-buffer', m.name, step && step.name, 'List.Contains по списку «' + nameOf(toks[la[0]]) + '» внутри each вычисляет список заново для каждой строки.', 'Сделайте отдельный шаг Список = List.Buffer(…) и используйте его в фильтре.'); } }
       }
       if ((c.fn === 'Web.Contents' || c.fn === 'OData.Feed') && isInsideEach(toks, st, c.i)) add('warn', 'per-row-call', m.name, step && step.name, c.fn + ' внутри each: по отдельному HTTP-запросу на каждую строку.', 'Сгруппируйте запросы (пакетный API, фильтр на сервере) или кэшируйте результат через Table.Buffer.');
     }
@@ -120,6 +120,12 @@ function lintSection(A){
   const ord = { err: 0, warn: 1, info: 2, tip: 3 };
   out.sort((a, b) => ord[a.sev] - ord[b.sev] || a.query.localeCompare(b.query));
   return out;
+}
+/** Шаг (или запрос) с таким именем уже целиком List.Buffer(…) — повторно буферизовать нечего */
+function isBufferedList(A, m, name){
+  const s = m.steps && m.steps.steps.find(x => x.name === name); const q = !s && A.byName.get(name);
+  const src = s ? A.text.slice(s.exprS, s.exprE) : q ? A.text.slice(q.exprStart, q.exprEnd) : '';
+  return /^\s*List\.Buffer\s*\([\s\S]*\)\s*$/.test(src);
 }
 function isInsideEach(toks, st, ti){
   // грубая проверка: между ближайшим незакрытым "(" и токеном встречается each

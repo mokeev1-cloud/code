@@ -32,40 +32,40 @@
      941–undefined путь
     1041–1056   vendor/codemirror.bundle.js
     1060–1457   src/js/core/zip-mashup.js
-    1458–1728   src/js/m/lang.js
-    1729–1789   src/js/m/format.js
-    1790–2174   src/js/m/reference.js
-    2175–2922   src/js/m/interp.js
-    2923–3403   src/js/nda/anon.js
-    3404–3540   src/js/nda/diag.js
-    3541–3763   src/js/opt/lint.js
-    3764–3986   src/js/opt/optimizer.js
-    3987–4073   src/js/opt/refactor.js
-    4074–4221   src/js/opt/snippets.js
-    4222–4288   src/js/app/state.js
-    4289–4523   src/js/nda/agent.js
-    4524–4620   src/js/app/ui-base.js
-    4621–4786   src/js/app/storage.js
-    4787–4821   src/js/app/hints.js
-    4822–5039   src/js/app/shell.js
-    5040–5113   src/js/views/home.js
-    5114–5455   src/js/views/editor.js
-    5456–5565   src/js/views/optimizer.js
-    5566–5649   src/js/views/graph.js
-    5650–5760   src/js/views/sandbox.js
-    5761–5791   src/js/views/reference.js
-    5792–5829   src/js/views/snippets.js
-    5830–5850   src/js/views/history.js
-    5851–5992   src/js/views/anon.js
-    5993–6059   src/js/views/diag.js
-    6060–6173   src/js/views/ai.js
-    6174–6237   src/js/views/agent.js
-    6238–6264   src/js/views/compare.js
-    6265–6318   src/js/views/docs.js
-    6319–6451   src/js/views/help.js
-    6447–6447   DEV\\.md
-    6452–6708   src/js/app/selftest.js
-    6709–6722   src/js/app/main.js
+    1458–1730   src/js/m/lang.js
+    1731–1793   src/js/m/format.js
+    1794–2178   src/js/m/reference.js
+    2179–2936   src/js/m/interp.js
+    2937–3424   src/js/nda/anon.js
+    3425–3561   src/js/nda/diag.js
+    3562–3790   src/js/opt/lint.js
+    3791–4023   src/js/opt/optimizer.js
+    4024–4110   src/js/opt/refactor.js
+    4111–4258   src/js/opt/snippets.js
+    4259–4325   src/js/app/state.js
+    4326–4560   src/js/nda/agent.js
+    4561–4657   src/js/app/ui-base.js
+    4658–4823   src/js/app/storage.js
+    4824–4858   src/js/app/hints.js
+    4859–5076   src/js/app/shell.js
+    5077–5150   src/js/views/home.js
+    5151–5492   src/js/views/editor.js
+    5493–5642   src/js/views/optimizer.js
+    5643–5726   src/js/views/graph.js
+    5727–5837   src/js/views/sandbox.js
+    5838–5868   src/js/views/reference.js
+    5869–5906   src/js/views/snippets.js
+    5907–5927   src/js/views/history.js
+    5928–6069   src/js/views/anon.js
+    6070–6136   src/js/views/diag.js
+    6137–6250   src/js/views/ai.js
+    6251–6314   src/js/views/agent.js
+    6315–6341   src/js/views/compare.js
+    6342–6399   src/js/views/docs.js
+    6400–6532   src/js/views/help.js
+    6528–6528   DEV\\.md
+    6533–6802   src/js/app/selftest.js
+    6803–6816   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -1670,9 +1670,10 @@ function parseSteps(toks, st, a, b){
   const startStep = k0 => {
     let j = k0; const nameToks = [];
     while (j < sig.length && toks[sig[j]].v !== '=') { nameToks.push(sig[j]); j++; }
-    if (j >= sig.length) return null;
-    const nt = nameToks.length === 1 ? toks[nameToks[0]] : null;
-    return { name: nt ? nameOf(nt) : nameToks.map(x => toks[x].v).join(' '), nameRaw: nt ? nt.v : '', s: toks[sig[k0]].s, nameE: toks[nameToks[nameToks.length - 1]].e, exprK: j + 1, exprS: toks[sig[j + 1]] ? toks[sig[j + 1]].s : toks[sig[j]].e };
+    // имя шага в M — ровно один идентификатор (или #"…"); иное — не разбираемый let
+    if (j >= sig.length || nameToks.length !== 1 || !isName(toks[nameToks[0]])) return null;
+    const nt = toks[nameToks[0]];
+    return { name: nameOf(nt), nameRaw: nt.v, s: nt.s, nameE: nt.e, exprK: j + 1, exprS: toks[sig[j + 1]] ? toks[sig[j + 1]].s : toks[sig[j]].e };
   };
   cur = startStep(k); if (!cur) return null; k = cur.exprK;
   for (; k < sig.length; k++){
@@ -1687,9 +1688,10 @@ function parseSteps(toks, st, a, b){
     }
     if (d === 0 && letD === 0 && t.v === ','){
       cur.exprE = toks[sig[k - 1]].e; cur.tokS = sig[cur.exprK]; cur.tokE = sig[k - 1] + 1; steps.push(cur);
-      cur = startStep(k + 1); if (!cur) return steps.length ? { steps, inExpr: null } : null; k = cur.exprK - 1;
+      cur = startStep(k + 1); if (!cur) break; k = cur.exprK - 1;
     }
   }
+  if (!steps.length) return null;
   const names = new Set(steps.map(s => s.name));
   const refsIn = (ta, tb, self) => { const r = new Set(); for (let i = ta; i < tb; i++){ const t = toks[i]; if (isSig(t) && isName(t) && !st.fieldTok.has(i) && names.has(nameOf(t)) && nameOf(t) !== self) r.add(nameOf(t)); } return r; };
   for (const s of steps){
@@ -1738,8 +1740,8 @@ function highlightM(src){
    ===================================================================== */
 function formatM(src, unit){
   unit = unit || '    ';
-  const nl = /\r\n/.test(src) ? '\r\n' : '\n';
-  const lines = src.split(/\r?\n/);
+  // переводы строк сохраняются как есть: внутри многострочной строки "…" они — часть значения
+  const parts = src.split(/(\r?\n)/); const lines = parts.filter((_, i) => i % 2 === 0), seps = parts.filter((_, i) => i % 2 === 1);
   const starts = []; { let p = 0; for (const l of lines){ starts.push(p); p += l.length + (src.substr(p + l.length, 2) === '\r\n' ? 2 : 1); } }
   const toks = lexM(src);
   const lineOf = pos => { let lo = 0, hi = starts.length - 1; while (lo < hi){ const mid = (lo + hi + 1) >> 1; if (starts[mid] <= pos) lo = mid; else hi = mid - 1; } return lo; };
@@ -1778,14 +1780,16 @@ function formatM(src, unit){
   // но если на такой строке после конца токена есть ещё токены, indent мог быть выставлен — сбросим
   const keepEnd = new Set();
   for (const t of toks){ if ((t.t === 'str' || t.t === 'qid' || t.t === 'cmt') && lineOf(t.e - 1) > lineOf(t.s)){ keepEnd.add(lineOf(t.s)); for (let k = lineOf(t.s) + 1; k <= lineOf(t.e - 1); k++) indent[k] = null; } }
+  // незакрытая строка в конце текста: пробелы в её конце — часть строки
+  for (const t of toks) if ((t.t === 'str' || t.t === 'qid') && /[ \t]$/.test(t.v)) keepEnd.add(lineOf(t.e - 1));
   return lines.map((l, i) => {
     if (indent[i] == null) return l;
     let body = l.replace(/^[ \t]+/, ''); if (!keepEnd.has(i)) body = body.replace(/[ \t]+$/, '');
     return body ? unit.repeat(indent[i]) + body : '';
-  }).join(nl);
+  }).map((l, i) => l + (seps[i] || '')).join('');
 }
-/** Значимые токены текста (для проверки, что форматирование не изменило код) */
-function sigTokens(src){ return lexM(src).filter(t => t.t !== 'ws').map(t => t.v); }
+/** Значимые токены текста (для проверки, что форматирование не изменило код); пробелы в конце комментария не значимы */
+function sigTokens(src){ return lexM(src).filter(t => t.t !== 'ws').map(t => t.t === 'cmt' ? t.v.replace(/[ \t]+$/, '') : t.v); }
 /* ===== END src/js/m/format.js ===== */
 /* ===== BEGIN src/js/m/reference.js ===== */
 /* =====================================================================
@@ -2191,6 +2195,14 @@ class MErr extends Error {
   constructor(reason, message, detail){ super(message); this.reason = reason || 'Expression.Error'; this.detail = detail == null ? null : detail; }
   get rec(){ return mkRec(['Reason', 'Message', 'Detail'], [this.reason, this.message, this.detail]); }
 }
+/** Любое исключение → ошибка M (name — встроенная функция, в которой оно возникло) */
+function toMErr(e, name){
+  if (e instanceof MErr){ if (name && e.message.startsWith('undefined: ')) e.message = name + e.message.slice(9); return e; }
+  const msg = String(e && e.message || e);
+  if (e instanceof RangeError && /call stack/i.test(msg)) return new MErr('Expression.Error', 'Слишком глубокая рекурсия (переполнение стека)');
+  if (!name) return new MErr('Expression.Error', msg);
+  return new MErr('Expression.Error', name + ': ' + (/\b(null|undefined)\b|is not iterable/.test(msg) ? 'аргумент равен null или пропущен, а функция ожидает значение' : 'недопустимое значение аргумента (' + msg + ')'));
+}
 class Thunk { constructor(f){ this.f = f; this.st = 0; this.v = undefined; this.e = null; } }
 function force(x){
   if (!(x instanceof Thunk)) return x;
@@ -2198,7 +2210,7 @@ function force(x){
   if (x.st === 3) throw x.e;
   if (x.st === 1) throw new MErr('Expression.Error', 'Циклическая ссылка при вычислении');
   x.st = 1;
-  try { x.v = x.f(); x.st = 2; return x.v; } catch (e){ x.st = 3; x.e = e instanceof MErr ? e : new MErr('Expression.Error', String(e && e.message || e)); throw x.e; }
+  try { x.v = x.f(); x.st = 2; return x.v; } catch (e){ x.st = 3; x.e = toMErr(e); throw x.e; }
 }
 class MRec { constructor(names, vals){ this.names = names; this.vals = vals; } get(n){ const i = this.names.indexOf(n); return i < 0 ? undefined : (this.vals[i] = force(this.vals[i])); } has(n){ return this.names.includes(n); } }
 class MTab { constructor(cols, rows){ this.cols = cols; this.rows = rows; } }
@@ -2558,7 +2570,9 @@ function colNamesOf(t, spec){ spec = force(spec); return typeof spec === 'string
 /* ---------- Библиотека ---------- */
 const F = (name, arity, f) => new MFn(arity, args => f(...args), name);
 const MLIB = {};
-const def = (name, f) => { MLIB[name] = F(name, f.length, f); };
+/** Встроенная функция. Внутренняя ошибка JS (null там, где нужен текст, недопустимое число…) становится
+    понятной ошибкой M с именем функции; сообщения проверок типов без имени получают его здесь */
+const def = (name, f, arity) => { MLIB[name] = F(name, arity == null ? f.length : arity, (...a) => { try { return f(...a); } catch (e){ throw toMErr(e, name); } }); };
 // --- конструкторы
 def('#date', (y, m, d) => mkDate(num(y), num(m), num(d)));
 def('#datetime', (y, m, d, h, mi, s) => new MDate('datetime', Date.UTC(num(y), num(m) - 1, num(d), num(h), num(mi), 0) + num(s) * 1000));
@@ -2627,9 +2641,9 @@ def('Number.IsEven', a => num(a) % 2 === 0);
 def('Number.IsOdd', a => Math.abs(num(a) % 2) === 1);
 def('Number.Random', () => Math.random());
 def('Number.RandomBetween', (a, b) => num(a) + Math.random() * (num(b) - num(a)));
-MLIB['Int64.From'] = F('Int64.From', 1, (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 0); });
-MLIB['Decimal.From'] = MLIB['Number.From']; MLIB['Double.From'] = MLIB['Number.From']; MLIB['Currency.From'] = F('Currency.From', 1, (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 4); });
-MLIB['Percentage.From'] = F('Percentage.From', 1, (v, c) => { v = force(v); if (typeof v === 'string' && /%\s*$/.test(v)) return numFromText(v.replace('%', ''), force(c)) / 100; return MLIB['Number.From'].call([v, c]); });
+def('Int64.From', (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 0); }, 1);
+MLIB['Decimal.From'] = MLIB['Number.From']; MLIB['Double.From'] = MLIB['Number.From']; def('Currency.From', (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 4); }, 1);
+def('Percentage.From', (v, c) => { v = force(v); if (typeof v === 'string' && /%\s*$/.test(v)) return numFromText(v.replace('%', ''), force(c)) / 100; return MLIB['Number.From'].call([v, c]); }, 1);
 MLIB['Int32.From'] = MLIB['Int64.From'];
 // --- Logical
 def('Logical.From', v => { v = force(v); if (v === null) return null; if (typeof v === 'boolean') return v; if (typeof v === 'number') return v !== 0; if (typeof v === 'string'){ if (/^true$/i.test(v)) return true; if (/^false$/i.test(v)) return false; } throw new MErr('DataFormat.Error', 'Logical.From: нельзя преобразовать «' + mToText(v) + '»'); });
@@ -2718,10 +2732,10 @@ def('Function.Invoke', (f, args) => callFn(f, lst(args)));
 def('Error.Record', (r, m, d) => mkRec(['Reason', 'Message', 'Detail'], [force(r), force(m) === undefined ? null : force(m), force(d) === undefined ? null : force(d)]));
 def('Expression.Constant', v => mLit(v));
 def('Expression.Identifier', n => mQuoteName(txt(n)));
-MLIB['Comparer.OrdinalIgnoreCase'] = F('Comparer.OrdinalIgnoreCase', 2, (a, b) => Math.sign(mCompare(String(force(a)).toLowerCase(), String(force(b)).toLowerCase())));
-MLIB['Comparer.Ordinal'] = F('Comparer.Ordinal', 2, (a, b) => Math.sign(mCompare(a, b)));
-MLIB['Replacer.ReplaceText'] = F('Replacer.ReplaceText', 3, (v, a, b) => { v = force(v); return typeof v === 'string' ? v.split(txt(a)).join(txt(b)) : v; });
-MLIB['Replacer.ReplaceValue'] = F('Replacer.ReplaceValue', 3, (v, a, b) => mEquals(v, a) ? force(b) : force(v));
+def('Comparer.OrdinalIgnoreCase', (a, b) => Math.sign(mCompare(String(force(a)).toLowerCase(), String(force(b)).toLowerCase())), 2);
+def('Comparer.Ordinal', (a, b) => Math.sign(mCompare(a, b)), 2);
+def('Replacer.ReplaceText', (v, a, b) => { v = force(v); return typeof v === 'string' ? v.split(txt(a)).join(txt(b)) : v; }, 3);
+def('Replacer.ReplaceValue', (v, a, b) => mEquals(v, a) ? force(b) : force(v), 3);
 def('Splitter.SplitTextByDelimiter', (d) => { d = txt(d); return F('Splitter', 1, t => force(t) === null ? [null] : txt(t).split(d)); });
 def('Splitter.SplitTextByAnyDelimiter', (ds) => { ds = lst(ds).map(x => txt(x)); return F('Splitter', 1, t => { t = txt(t); if (t === null) return [null]; const re = new RegExp(ds.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')); return t.split(re); }); });
 def('Splitter.SplitTextByPositions', (ps) => { ps = lst(ps); return F('Splitter', 1, t => { t = txt(t); return ps.map((p, i) => t.slice(p, i + 1 < ps.length ? ps[i + 1] : undefined)); }); });
@@ -2731,7 +2745,7 @@ def('Combiner.CombineTextByDelimiter', (d) => { d = txt(d); return F('Combiner',
 def('Date.From', (v, c) => { v = force(v); if (v === null) return null; if (v instanceof MDate){ const p = dParts(v); return mkDate(p.y, p.m, p.d); } if (typeof v === 'number') return new MDate('date', Math.floor(v - 25569) * DAY); if (typeof v === 'string'){ const p = parseDateText(v, force(c)); return mkDate(p.y, p.mo, p.d); } throw new MErr('Expression.Error', 'Date.From: нельзя преобразовать ' + mTypeName(v)); });
 def('Date.FromText', (t, o) => { t = txt(t, 'Date.FromText'); if (t === null) return null; const p = parseDateText(t, optCulture(o)); return mkDate(p.y, p.mo, p.d); });
 def('DateTime.From', (v, c) => { v = force(v); if (v === null) return null; if (v instanceof MDate) return new MDate('datetime', v.ms); if (typeof v === 'number') return new MDate('datetime', Math.round((v - 25569) * DAY)); const p = parseDateText(txt(v), force(c)); return new MDate('datetime', Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, 0) + p.s * 1000); });
-MLIB['DateTime.FromText'] = F('DateTime.FromText', 2, (t, o) => MLIB['DateTime.From'].call([t, optCulture(o)]));
+def('DateTime.FromText', (t, o) => MLIB['DateTime.From'].call([t, optCulture(o)]), 2);
 def('Date.ToText', (d, o, c) => { d = needDate(d, 'Date.ToText'); if (d === null) return null; return fmtDate(d, optFormat(o) || 'yyyy-MM-dd', optCulture(o) || force(c)); });
 def('DateTime.ToText', (d, o, c) => { d = needDate(d, 'DateTime.ToText'); if (d === null) return null; return fmtDate(d, optFormat(o) || 'yyyy-MM-dd HH:mm:ss', optCulture(o) || force(c)); });
 const dpart = (name, f) => def(name, v => { v = needDate(v, name); return v === null ? null : f(dParts(v), v); });
@@ -2770,7 +2784,7 @@ def('Table.FromRecords', (rs, cols) => { cols = force(cols); return tableFromRec
 def('Table.FromRows', (rows, cols) => { rows = lst(rows).map(r => lst(r)); cols = force(cols); const n = rows.length ? rows[0].length : 0; const names = cols == null ? Array.from({ length: n }, (_, i) => 'Column' + (i + 1)) : cols instanceof MType ? cols.cols : lst(cols); return new MTab(names, rows); });
 def('Table.FromColumns', (cs, cols) => { cs = lst(cs).map(c => lst(c)); cols = force(cols); const names = cols == null ? cs.map((_, i) => 'Column' + (i + 1)) : lst(cols); const n = Math.max(0, ...cs.map(c => c.length)); return new MTab(names, Array.from({ length: n }, (_, i) => cs.map(c => i < c.length ? c[i] : null))); });
 def('Table.FromList', (l, sp, cols) => { l = lst(l); sp = force(sp); const rows = l.map(x => sp ? lst(callFn(sp, [x])) : (Array.isArray(x) ? x : [x])); cols = force(cols); const n = Math.max(1, ...rows.map(r => r.length)); const names = cols == null ? Array.from({ length: n }, (_, i) => 'Column' + (i + 1)) : typeof cols === 'number' ? Array.from({ length: cols }, (_, i) => 'Column' + (i + 1)) : cols instanceof MType ? cols.cols : lst(cols); return new MTab(names, rows.map(r => names.map((_, i) => i < r.length ? r[i] : null))); });
-MLIB['Splitter.SplitByNothing'] = F('Splitter.SplitByNothing', 0, () => F('Splitter', 1, v => [force(v)]));
+def('Splitter.SplitByNothing', () => F('Splitter', 1, v => [force(v)]), 0);
 def('Table.ToRecords', t => { t = tab(t); return t.rows.map((_, i) => rowRec(t, i)); });
 def('Table.ToRows', t => tab(t).rows.map(r => r.slice()));
 def('Table.ToColumns', t => { t = tab(t); return t.cols.map((_, i) => t.rows.map(r => r[i])); });
@@ -2877,7 +2891,7 @@ function deepForce(v, depth){
 }
 function mEval(text, sectionText){
   const env = sectionEnv(sectionText);
-  return deepForce(evalNode(mParse(text), env));
+  try { return deepForce(evalNode(mParse(text), env)); } catch (e){ throw toMErr(e); }
 }
 /** Пошаговый прогон запроса: результат каждого шага let или ошибка */
 function mRunSteps(sectionText, member, overrides){
@@ -2889,17 +2903,17 @@ function mRunSteps(sectionText, member, overrides){
   const ast = mParse(exprText);
   const out = [];
   if (ast.k !== 'let'){
-    const t0 = performance.now(); let value, error = null; try { value = deepForce(evalNode(ast, env)); } catch (e){ error = e; }
+    const t0 = performance.now(); let value, error = null; try { value = deepForce(evalNode(ast, env)); } catch (e){ error = toMErr(e); }
     out.push({ name: '(результат)', value, error, ms: performance.now() - t0 }); return out;
   }
   const vars = new Map(); const e2 = new Env(vars, env);
   for (const [nm, ex] of ast.binds){ const ov = overrides.steps && overrides.steps.get(nm); vars.set(nm, ov !== undefined ? new Thunk(() => ov) : new Thunk(() => evalNode(ex, e2))); }
   for (const [nm] of ast.binds){
     const t0 = performance.now(); let value, error = null;
-    try { value = deepForce(force(vars.get(nm))); } catch (e){ error = e instanceof MErr ? e : new MErr('Expression.Error', String(e.message || e)); }
+    try { value = deepForce(force(vars.get(nm))); } catch (e){ error = toMErr(e); }
     out.push({ name: nm, value, error, ms: performance.now() - t0, overridden: !!(overrides.steps && overrides.steps.has(nm)) });
   }
-  const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = e; }
+  const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = toMErr(e); }
   out.push({ name: 'in → результат', value: fv, error: fe, ms: performance.now() - t0, final: true });
   return out;
 }
@@ -2967,6 +2981,11 @@ class TokenDict {
     e = { token: '⟦' + cat + '_' + n + '⟧', cat, value: raw };
     this.entries.push(e); this.byRaw.set(raw, e); this.byToken.set(e.token, e); this.version++;
     return e.token;
+  }
+  /** Метки, уже встречающиеся в исходном тексте и неизвестные словарю, не выдавать заново —
+      иначе обратная подстановка превратит этот чужой текст в значение */
+  reserve(text){
+    for (const m of String(text).matchAll(TOKEN_RE)) if (!this.byToken.has(m[0])) this.counters[m[1]] = Math.max(this.counters[m[1]] || 0, +m[2]);
   }
   get size(){ return this.entries.length; }
   toJSON(extra){
@@ -3268,6 +3287,7 @@ function anonymizeM(text, cfg, dict){
   return finishSpans(text, C, cfg, dict, colNames);
 }
 function finishSpans(text, C, cfg, dict, colNames){
+  dict.reserve(text);
   let acc = resolveSpans(C.spans);
   const extra = makeCollector(text, cfg);
   const partial = termSpans(text, cfg.blacklist || [], 'NDA', true, acc, extra)
@@ -3344,6 +3364,7 @@ function anonymizeFree(str, cfg, dict, mode){
   return r;
 }
 function finishSpansFree(text, C, cfg, dict, knownMap){
+  dict.reserve(text);
   let acc = resolveSpans(C.spans);
   const extra = makeCollector(text, cfg);
   termSpans(text, cfg.blacklist || [], 'NDA', true, acc, extra);
@@ -3626,7 +3647,7 @@ function lintSection(A){
       if (c.fn === 'Table.TransformColumnTypes' && args.length === 2 && m.sources.some(s => ['Csv.Document','Web.Contents','File.Contents','Lines.FromBinary'].includes(s))) add('info', 'types-culture', m.name, step && step.name, 'Преобразование типов текстового источника без культуры.', 'Для дат и дробных чисел из текста добавьте третий аргумент: Table.TransformColumnTypes(t, {…}, "ru-RU").');
       if (c.fn === 'Table.SelectRows'){
         const body = args[1] || [];
-        for (const ti of body){ const t = toks[ti]; if (t.v === 'List.Contains'){ const kk = st.pos.get(ti); const op = st.sig[kk + 1]; const la = callArgs(toks, st, op)[0] || []; if (la.length === 1 && isName(toks[la[0]])) add('tip', 'list-buffer', m.name, step && step.name, 'List.Contains по списку «' + nameOf(toks[la[0]]) + '» внутри each вычисляет список заново для каждой строки.', 'Сделайте отдельный шаг Список = List.Buffer(…) и используйте его в фильтре.'); } }
+        for (const ti of body){ const t = toks[ti]; if (t.v === 'List.Contains'){ const kk = st.pos.get(ti); const op = st.sig[kk + 1]; const la = callArgs(toks, st, op)[0] || []; if (la.length === 1 && isName(toks[la[0]]) && !isBufferedList(A, m, nameOf(toks[la[0]]))) add('tip', 'list-buffer', m.name, step && step.name, 'List.Contains по списку «' + nameOf(toks[la[0]]) + '» внутри each вычисляет список заново для каждой строки.', 'Сделайте отдельный шаг Список = List.Buffer(…) и используйте его в фильтре.'); } }
       }
       if ((c.fn === 'Web.Contents' || c.fn === 'OData.Feed') && isInsideEach(toks, st, c.i)) add('warn', 'per-row-call', m.name, step && step.name, c.fn + ' внутри each: по отдельному HTTP-запросу на каждую строку.', 'Сгруппируйте запросы (пакетный API, фильтр на сервере) или кэшируйте результат через Table.Buffer.');
     }
@@ -3661,6 +3682,12 @@ function lintSection(A){
   const ord = { err: 0, warn: 1, info: 2, tip: 3 };
   out.sort((a, b) => ord[a.sev] - ord[b.sev] || a.query.localeCompare(b.query));
   return out;
+}
+/** Шаг (или запрос) с таким именем уже целиком List.Buffer(…) — повторно буферизовать нечего */
+function isBufferedList(A, m, name){
+  const s = m.steps && m.steps.steps.find(x => x.name === name); const q = !s && A.byName.get(name);
+  const src = s ? A.text.slice(s.exprS, s.exprE) : q ? A.text.slice(q.exprStart, q.exprEnd) : '';
+  return /^\s*List\.Buffer\s*\([\s\S]*\)\s*$/.test(src);
 }
 function isInsideEach(toks, st, ti){
   // грубая проверка: между ближайшим незакрытым "(" и токеном встречается each
@@ -3767,7 +3794,7 @@ function newLiterals(oldText, newText){
    оценка «здоровья» книги, карта тяжести шагов.
    optimizeSection(text, A, lint) → { findings, score, breakdown, heat }
    Каждый совет: { id, rule, sev, impact[], safety, query, step, title, why, how,
-                   fix?(text, opts) → новый текст, fixLabel, options? }
+                   fix?(text, opts) → новый текст, fixLabel, options?, local }
      safety: 'safe'   — исправление не меняет результат запроса;
              'check'  — почти наверняка верно, но проверьте результат;
              'manual' — только совет, автоисправления нет.
@@ -3778,12 +3805,15 @@ function newLiterals(oldText, newText){
 const IMPACT_LABEL = { speed: 'скорость', reliability: 'надёжность', portability: 'переносимость', clarity: 'читаемость' };
 const SAFETY_LABEL = { safe: 'безопасно', check: 'проверьте результат', manual: 'вручную' };
 const SEV_W = { err: 12, warn: 5, info: 2, tip: 1 };
+// правила, чьи исправления меняют другие запросы или добавляют/удаляют запросы
+const NONLOCAL_FIX_RULES = new Set(['hardcoded', 'orphan', 'shared-source']);
 
 const rng = (text, s, e, repl) => text.slice(0, s) + repl + text.slice(e);
 function lineIndentAt(text, pos){ const ls = text.lastIndexOf('\n', pos - 1) + 1; return (/^[ \t]*/.exec(text.slice(ls, pos)) || [''])[0]; }
-/** Описание вызова функции по индексу токена-имени */
+/** Описание вызова функции по индексу токена-имени; null, если скобка вызова не закрыта */
 function callInfo(A, fnTi){
   const { toks, st } = A; const open = st.sig[st.pos.get(fnTi) + 1]; const close = st.match.get(open);
+  if (close == null || !toks[open] || toks[open].v !== '(') return null;
   const args = callArgs(toks, st, open);
   const argRange = i => { const a = args[i]; if (!a || !a.length) return null; return { s: toks[a[0]].s, e: toks[a[a.length - 1]].e }; };
   return { open, close, args, argRange, argText: i => { const r = argRange(i); return r ? A.text.slice(r.s, r.e) : null; }, s: toks[fnTi].s, e: toks[close].e };
@@ -3822,6 +3852,10 @@ function optimizeSection(text, A, lint){
   const F = []; const add = f => { f.id = f.rule + '|' + f.query + '|' + (f.step || '') + '|' + (f.key || ''); F.push(f); };
   const byQ = n => A.byName.get(n);
   const locale = (typeof pqmSettings === 'function' && pqmSettings().cultureLocale) || 'ru-RU';
+  // кандидаты в параметры и существующие параметры-строки считаются один раз на книгу (иначе O(запросов²))
+  let candByQ = null, paramByLit = null;
+  const candidatesOf = q => { if (!candByQ){ candByQ = new Map(); for (const c of paramCandidates(A)){ if (!candByQ.has(c.member)) candByQ.set(c.member, []); candByQ.get(c.member).push(c); } } return candByQ.get(q) || []; };
+  const paramWithValue = v => { if (!paramByLit){ paramByLit = new Map(); for (const x of A.members){ if (!x.isParam) continue; const mm = /^\s*("(?:[^"]|"")*")\s+meta/.exec(text.slice(x.exprStart, x.exprEnd)); if (mm && !paramByLit.has(mm[1])) paramByLit.set(mm[1], x.name); } } return paramByLit.get(mQuoteString(v)); };
   // --- советы на основе линтера (с исправлениями, где возможно)
   for (const l of lint){
     const m = byQ(l.query); const steps = m && m.steps ? m.steps.steps : null;
@@ -3835,7 +3869,7 @@ function optimizeSection(text, A, lint){
         const ci = step && stepSingleCall(A, step, 'Table.Buffer');
         add(Object.assign(base, { title: 'Table.Buffer в последнем шаге бесполезен', impact: ['speed'], safety: ci && ci.args.length === 1 ? 'safe' : 'manual', fixLabel: 'Убрать Table.Buffer', fix: ci && ci.args.length === 1 ? t => rng(t, ci.s, ci.e, ci.argText(0)) : null })); break; }
       case 'culture': {
-        const call = m.calls.find(c => LOCALE_FNS.includes(c.fn) && stepOfToken(m, c.i) === step && callInfo(A, c.i).args.length === 1);
+        const call = m.calls.find(c => LOCALE_FNS.includes(c.fn) && stepOfToken(m, c.i) === step && (callInfo(A, c.i) || { args: [] }).args.length === 1);
         const ci = call && callInfo(A, call.i); const arg = /FromText$/.test(call ? call.fn : '') && !/^Number/.test(call.fn) ? '[Culture="' + locale + '"]' : '"' + locale + '"';
         add(Object.assign(base, { title: (call ? call.fn : 'Преобразование') + ' без культуры', impact: ['reliability', 'portability'], safety: ci ? 'check' : 'manual', fixLabel: 'Добавить культуру ' + locale, fix: ci ? t => rng(t, A.toks[ci.close].s, A.toks[ci.close].s, ', ' + arg) : null })); break; }
       case 'types-culture': {
@@ -3861,14 +3895,14 @@ function optimizeSection(text, A, lint){
         if (step && listName && steps){
           const newName = uniqueStepName(m, listName + '_буфер');
           const reps = [];
-          for (let i = step.tokS; i < step.tokE; i++){ const tk = A.toks[i]; if (tk.v !== 'List.Contains') continue; const ci = callInfo(A, i); const a0 = ci.args[0]; if (a0 && a0.length === 1 && isName(A.toks[a0[0]]) && nameOf(A.toks[a0[0]]) === listName) reps.push(A.toks[a0[0]]); }
+          for (let i = step.tokS; i < step.tokE; i++){ const tk = A.toks[i]; if (tk.v !== 'List.Contains') continue; const ci = callInfo(A, i); const a0 = ci && ci.args[0]; if (a0 && a0.length === 1 && isName(A.toks[a0[0]]) && nameOf(A.toks[a0[0]]) === listName) reps.push(A.toks[a0[0]]); }
           if (reps.length){ const ind = lineIndentAt(text, step.s); fix = t => { let o = t; for (const r of reps.slice().sort((a, b) => b.s - a.s)) o = rng(o, r.s, r.e, mQuoteName(newName)); return rng(o, step.s, step.s, mQuoteName(newName) + ' = List.Buffer(' + mQuoteName(listName) + '),' + (text.includes('\r\n') ? '\r\n' : '\n') + ind); }; }
         }
         add(Object.assign(base, { title: 'Список в фильтре вычисляется для каждой строки', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Добавить шаг с List.Buffer', fix })); break; }
       case 'hardcoded': {
-        const cand = paramCandidates(A).filter(c => c.member === l.query);
+        const cand = candidatesOf(l.query);
         const used = new Set(A.members.map(x => x.name)); const seen = new Map();
-        for (const c of cand) if (!seen.has(c.value)){ const ex = A.members.find(x => x.isParam && new RegExp('^\\s*' + mQuoteString(c.value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s+meta').test(text.slice(x.exprStart, x.exprEnd))); seen.set(c.value, ex ? ex.name : suggestParamName(c.role, c.value, used)); }
+        for (const c of cand) if (!seen.has(c.value)) seen.set(c.value, paramWithValue(c.value) || suggestParamName(c.role, c.value, used));
         const picks = [...seen.entries()].map(([value, name]) => ({ value, name }));
         add(Object.assign(base, { title: 'Захардкожены источники (' + picks.length + ')', impact: ['portability', 'clarity'], safety: picks.length ? 'safe' : 'manual', fixLabel: 'Вынести в параметры: ' + picks.map(p => p.name).join(', '),
           fix: picks.length ? t => { const AA = analyzeSection(t, {}); const exist = picks.filter(p => AA.byName.has(p.name)); const fresh = picks.filter(p => !AA.byName.has(p.name));
@@ -3928,7 +3962,7 @@ function optimizeSection(text, A, lint){
     // Excel.Workbook(File.Contents(...)) без delayTypes
     for (const c of m.calls){
       if (c.fn !== 'Excel.Workbook') continue; const ci = callInfo(A, c.i);
-      if (ci.args.length !== 1) continue; const step = stepOfToken(m, c.i);
+      if (!ci || ci.args.length !== 1) continue; const step = stepOfToken(m, c.i);
       add({ rule: 'excel-delay', key: String(c.i), sev: 'tip', query: m.name, step: step ? step.name : '', impact: ['speed'], safety: 'check',
         title: 'Excel.Workbook без delayTypes', why: 'Без третьего аргумента Power Query определяет типы всех столбцов всех листов при открытии книги — это медленно на больших файлах.',
         how: 'Добавить «, null, true» и задавать типы явно в своих шагах. Проверьте, что следующие шаги не полагаются на автоматические типы.', fixLabel: 'Добавить null, true',
@@ -3937,7 +3971,7 @@ function optimizeSection(text, A, lint){
   }
   // общий источник в нескольких запросах → промежуточный запрос
   const groups = new Map();
-  for (const m of A.members){ if (m.isParam) continue; for (const c of m.calls){ if (!EXTERNAL_SOURCES.has(c.fn)) continue; const ci = callInfo(A, c.i); const key = text.slice(ci.s, ci.e).replace(/\s+/g, ' '); if (!groups.has(key)) groups.set(key, []); groups.get(key).push({ m, ci, c }); } }
+  for (const m of A.members){ if (m.isParam) continue; for (const c of m.calls){ if (!EXTERNAL_SOURCES.has(c.fn)) continue; const ci = callInfo(A, c.i); if (!ci) continue; const key = text.slice(ci.s, ci.e).replace(/\s+/g, ' '); if (!groups.has(key)) groups.set(key, []); groups.get(key).push({ m, ci, c }); } }
   for (const [key, occ] of groups){
     const qs = [...new Set(occ.map(o => o.m.name))]; if (qs.length < 2) continue;
     const fn = occ[0].c.fn; const newName = uniqueQueryName(A, 'Источник_' + fn.split('.')[0]);
@@ -3946,6 +3980,8 @@ function optimizeSection(text, A, lint){
       how: 'Создать промежуточный запрос «' + newName + '» и сослаться на него. Проверьте, что не появилась ошибка Formula.Firewall.', fixLabel: 'Создать «' + newName + '»',
       fix: t => { let o = t; for (const x of occ.slice().sort((p, q) => q.ci.s - p.ci.s)) o = rng(o, x.ci.s, x.ci.e, mQuoteName(newName)); const nl = /\r\n/.test(t) ? '\r\n' : '\n'; return o.replace(/\s*$/, '') + nl + nl + 'shared ' + mQuoteName(newName) + ' = ' + text.slice(occ[0].ci.s, occ[0].ci.e) + ';' + nl; } });
   }
+  // local — исправление меняет текст только внутри своего запроса (такие можно применять пачкой)
+  for (const f of F) f.local = !!f.fix && !NONLOCAL_FIX_RULES.has(f.rule);
   // оценка
   const perRuleQ = new Map(); let pen = 0;
   for (const f of F){ const k = f.rule + '|' + f.query; const used = perRuleQ.get(k) || 0; const w = SEV_W[f.sev] || 1; const cap = w * 2; const take = Math.max(0, Math.min(w, cap - used)); perRuleQ.set(k, used + take); pen += take; }
@@ -3959,6 +3995,7 @@ function optimizeSection(text, A, lint){
 
 /* ---- Карта тяжести: оценка «стоимости» шагов без выполнения ---- */
 const HEAVY = { 'Table.NestedJoin': 2.5, 'Table.Join': 2.5, 'Table.FuzzyNestedJoin': 3.5, 'Table.Group': 1.5, 'Table.Sort': 1.5, 'Table.Distinct': 1.5, 'Table.Pivot': 2, 'Table.Unpivot': 1.2, 'Table.UnpivotOtherColumns': 1.2, 'Table.ExpandTableColumn': 1, 'Table.Buffer': 1, 'List.Buffer': 0.5, 'Table.AddColumn': 0.5, 'Table.TransformColumns': 0.5, 'Table.Combine': 1, 'Table.AddIndexColumn': 0.6, 'List.Generate': 1.5, 'List.Accumulate': 1.5, 'Table.FillDown': 0.4 };
+function listArgBuffered(A, m, ti){ const ci = callInfo(A, ti); const a0 = ci && ci.args[0]; return !!a0 && a0.length === 1 && isName(A.toks[a0[0]]) && isBufferedList(A, m, nameOf(A.toks[a0[0]])); }
 function heatMap(A){
   const out = [];
   for (const m of A.members){
@@ -3974,7 +4011,7 @@ function heatMap(A){
       if (foldable && !broken && (s.fns.some(f => FOLD_BREAKERS.has(f)) || (s.fns.includes('Value.NativeQuery') && !/EnableFolding\s*=\s*true/i.test(txt)) || (ext.length && /\[\s*Query\s*=/.test(txt)))){ broken = true; s._brk = true; why.push('здесь прерывается свёртка'); }
       for (const f of s.fns) if (HEAVY[f]){ c += HEAVY[f] * (broken && foldable ? 1.4 : 1); why.push(f); }
       if (broken && foldable && !s._brk){ c += 0.8; why.push('выполняется локально (после разрыва свёртки)'); }
-      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } if (t.v === 'List.Contains' && isInsideEach(A.toks, A.st, i) && !s.fns.includes('List.Buffer')){ c += 1.2; why.push('List.Contains внутри each'); break; } }
+      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } if (t.v === 'List.Contains' && isInsideEach(A.toks, A.st, i) && !s.fns.includes('List.Buffer') && !listArgBuffered(A, m, i)){ c += 1.2; why.push('List.Contains внутри each'); break; } }
       cells.push({ step: s.name, level: Math.min(5, Math.round(c)), cost: +c.toFixed(1), why, brk: !!s._brk, dead: !!s.dead });
       delete s._brk;
     }
@@ -5460,16 +5497,38 @@ registerView('editor', { render: renderEditor, onShow: () => setTimeout(() => ED
    applyAllSafeText(text) — все безопасные исправления подряд (чистая функция,
    используется кнопкой «Применить все безопасные» и прогнозом оценки).
    ===================================================================== */
-const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null };
+const OPT = { safety: '', query: '', impact: '', potential: null, potentialFor: null, limit: 60, heatAll: false };
+const OPT_PAGE = 60, HEAT_TOP = 40;
 function applyAllSafeText(text, meta){
   let t = text; const applied = [];
-  for (let i = 0; i < 80; i++){
+  for (let pass = 0; pass < 80; pass++){
     const A = analyzeSection(t, meta || {}); const o = optimizeSection(t, A, lintSection(A));
-    const f = o.findings.find(x => x.safety === 'safe' && x.fix);
-    if (!f) break;
-    let n; try { n = f.fix(t); } catch { break; }
-    if (n === t || syntaxIssues(n).length > syntaxIssues(t).length) break;
-    applied.push(f.fixLabel + ' · ' + f.query); t = n;
+    const safe = o.findings.filter(x => x.safety === 'safe' && x.fix);
+    if (!safe.length) break;
+    // За проход — первое безопасное исправление каждого запроса. Те, что меняют текст только внутри
+    // своего запроса, не зависят друг от друга и применяются пачкой с конца текста; остальные — по одному.
+    const first = new Map(); for (const f of safe) if (!first.has(f.query)) first.set(f.query, f);
+    const edits = [];
+    for (const f of first.values()){
+      const m = A.byName.get(f.query); if (!m || !f.local) continue;
+      let n; try { n = f.fix(t); } catch { continue; }
+      if (n === t) continue;
+      // проверка, что исправление действительно изменило только свой запрос: текст до и после него тот же
+      const ne = n.length - (t.length - m.end);
+      if (ne < m.start || n.slice(0, m.start) !== t.slice(0, m.start) || n.slice(ne) !== t.slice(m.end)) continue;
+      edits.push({ s: m.start, e: m.end, repl: n.slice(m.start, ne), f });
+    }
+    edits.sort((x, y) => y.s - x.s);   // запросы не пересекаются — применяем с конца, позиции не сдвигаются
+    let n = t; const done = [];
+    for (const d of edits){ n = n.slice(0, d.s) + d.repl + n.slice(d.e); done.push(d.f); }
+    if (!done.length || syntaxIssues(n).length > syntaxIssues(t).length){
+      // запасной путь: одно исправление за проход
+      const f = safe[0]; let one; try { one = f.fix(t); } catch { break; }
+      if (one === t || syntaxIssues(one).length > syntaxIssues(t).length) break;
+      applied.push(f.fixLabel + ' · ' + f.query); t = one; continue;
+    }
+    for (const f of done.reverse()) applied.push(f.fixLabel + ' · ' + f.query);
+    t = n;
   }
   return { text: t, applied };
 }
@@ -5488,7 +5547,8 @@ function applyFinding(id){
 }
 async function previewFinding(id){
   const f = currentFinding(id); if (!f || !f.fix) return;
-  const n = f.fix(S.work, findingOpts(id)); const c = compareSections(S.work, n);
+  let n; try { n = f.fix(S.work, findingOpts(id)); } catch (e){ return toast('Не удалось построить исправление: ' + e.message, 'bad'); }
+  const c = compareSections(S.work, n);
   const parts = c.changed.map(x => '<h3>✎ ' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff(x.old, x.text)) + '</div>').concat(c.added.map(x => '<h3>＋ ' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff('', x.text)) + '</div>'), c.removed.map(x => '<h3>－ ' + escHtml(x.name) + '</h3><div class="diff">' + diffHtml(lineDiff(x.old, '')) + '</div>'));
   const r = await modal('<h2>' + escHtml(f.fixLabel) + '</h2><div class="small muted">' + escHtml(f.how || '') + '</div>' + parts.join(''), [['cancel', 'Закрыть'], ['go', 'Применить', 'pri']], { wide: true });
   if (r === 'go') applyFinding(id);
@@ -5515,12 +5575,24 @@ function diagSecondsMap(){
   }
   return map;
 }
+/** Прогноз оценки после всех безопасных исправлений: считается после отрисовки, результат кэшируется по тексту */
+function renderPotential(){
+  if (!S.opt.breakdown.safeFixable){ OPT.potentialFor = S.work; OPT.potential = null; }
+  const show = () => { const el = $('#optPotential'); if (el) el.innerHTML = OPT.potentialFor !== S.work ? '<span class="muted">после безопасных исправлений: считаю…</span>' : OPT.potential != null ? 'после безопасных исправлений: <b style="color:var(--ok)">' + OPT.potential + '</b>' : ''; };
+  show(); if (OPT.potentialFor === S.work) return;
+  const text = S.work;
+  setTimeout(() => {
+    if (S.work !== text || OPT.potentialFor === text) return;
+    try { const r = applyAllSafeText(text, S.book.meta); const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; }
+    OPT.potentialFor = text; show();
+  }, 30);
+}
 function renderOptimizer(){
   if (!S.opt) return;
   const O = S.opt;
-  if (OPT.potentialFor !== S.work){ OPT.potentialFor = S.work; try { const r = applyAllSafeText(S.work, S.book.meta); const A = analyzeSection(r.text, S.book.meta); OPT.potential = r.applied.length ? optimizeSection(r.text, A, lintSection(A)).score : null; } catch { OPT.potential = null; } }
   const b = O.breakdown;
-  $('#optScore').innerHTML = gaugeSvg(O.score, 120) + '<div class="score-txt"><b>Здоровье книги</b><div>' + O.findings.length + ' советов · исправимо автоматически: ' + b.fixable + '</div>' + (OPT.potential != null ? '<div>после безопасных исправлений: <b style="color:var(--ok)">' + OPT.potential + '</b></div>' : '') + '<div class="small muted" style="margin-top:4px">Оценка — эвристика по тексту кода: ошибки −12, предупреждения −5, заметки −2, советы −1 (с ограничением на повторы).</div></div>';
+  $('#optScore').innerHTML = gaugeSvg(O.score, 120) + '<div class="score-txt"><b>Здоровье книги</b><div>' + O.findings.length + ' советов · исправимо автоматически: ' + b.fixable + '</div><div id="optPotential"></div><div class="small muted" style="margin-top:4px">Оценка — эвристика по тексту кода: ошибки −12, предупреждения −5, заметки −2, советы −1 (с ограничением на повторы).</div></div>';
+  renderPotential();
   $('#optApplySafe').disabled = !b.safeFixable; $('#optApplySafe').textContent = 'Применить все безопасные' + (b.safeFixable ? ' (' + b.safeFixable + ')' : '');
   const maxI = Math.max(1, ...Object.values(b.byImpact));
   const sevCol = { err: 'var(--bad)', warn: 'var(--warn)', info: 'var(--accent)', tip: 'var(--ok)' };
@@ -5530,9 +5602,11 @@ function renderOptimizer(){
   // карта тяжести
   const secs = diagSecondsMap(); const maxSec = Math.max(0, ...secs.values());
   $('#heatNote').textContent = secs.size ? 'Фиолетовая полоска — реальное время из загруженной диагностики' : 'Загрузите диагностику — на карте появятся реальные секунды';
-  const heat = O.heat;
+  const heat = OPT.heatAll ? O.heat : O.heat.slice(0, HEAT_TOP);
   $('#optHeat').innerHTML = heat.length ? heat.map(h => '<div class="heat-q"><span class="qn" data-q="' + escHtml(h.query) + '" title="' + escHtml(h.query) + '">' + escHtml(h.query) + '</span><div class="heat-strip">' + h.cells.map(c => { const sec = secs.get(h.query + '\u0001' + c.step); return '<div class="heat-cell' + (c.brk ? ' brk' : '') + '" data-q="' + escHtml(h.query) + '" data-step="' + escHtml(c.step) + '" style="background:' + heatColor(c.level) + (c.dead ? ';opacity:.45' : '') + '" title="' + escHtml(c.step + ' — ' + (c.why.join('; ') || 'лёгкий шаг') + (sec != null ? ' · ' + sec.toFixed(3) + ' с по диагностике' : '') + (c.dead ? ' · не используется' : '')) + '">' + (h.cells.length <= 8 ? escHtml(c.step.slice(0, 14)) : '') + (sec != null && maxSec ? '<span class="secs" style="width:' + (sec / maxSec * 100) + '%"></span>' : '') + '</div>'; }).join('') + '</div><span class="small muted">' + h.total + ' ед.</span></div>').join('') +
-    '<div class="heat-legend">лёгкий <i style="background:var(--heat0)"></i><i style="background:var(--heat1)"></i><i style="background:var(--heat2)"></i><i style="background:var(--heat3)"></i><i style="background:var(--heat4)"></i><i style="background:var(--heat5)"></i> тяжёлый · <span style="box-shadow:inset 3px 0 0 var(--bad);padding:0 6px">красная кромка</span> — здесь прерывается свёртка</div>' : '<div class="muted small">Нет запросов</div>';
+    '<div class="heat-legend">лёгкий <i style="background:var(--heat0)"></i><i style="background:var(--heat1)"></i><i style="background:var(--heat2)"></i><i style="background:var(--heat3)"></i><i style="background:var(--heat4)"></i><i style="background:var(--heat5)"></i> тяжёлый · <span style="box-shadow:inset 3px 0 0 var(--bad);padding:0 6px">красная кромка</span> — здесь прерывается свёртка</div>' +
+    (O.heat.length > HEAT_TOP ? '<button class="btn sm" id="heatMore">' + (OPT.heatAll ? 'Только ' + HEAT_TOP + ' самых тяжёлых' : 'Показать все запросы (' + O.heat.length + ')') + '</button>' : '') : '<div class="muted small">Нет запросов</div>';
+  if ($('#heatMore')) $('#heatMore').onclick = () => { OPT.heatAll = !OPT.heatAll; renderOptimizer(); };
   $$('[data-step]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q, x.dataset.step));
   $$('.qn[data-q]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q));
   // фильтры
@@ -5542,20 +5616,23 @@ function renderOptimizer(){
 function renderOptCards(){
   const O = S.opt;
   const list = O.findings.filter(f => (!OPT.safety || f.safety === OPT.safety) && (!$('#optQuery').value || f.query === $('#optQuery').value) && (!$('#optImpact').value || (f.impact || []).includes($('#optImpact').value)));
-  $('#optCards').innerHTML = list.length ? list.map(f => {
-    const opts = (f.options || []).map(o => '<label class="small">' + escHtml(o.label) + ': <select data-fopt="' + escHtml(f.id) + '" data-k="' + o.key + '">' + o.values.map(([v, l]) => '<option value="' + v + '"' + (String(pqmSettings().csvEncoding) === v ? ' selected' : '') + '>' + escHtml(l) + '</option>').join('') + '</select></label>').join('');
+  const enc = String(pqmSettings().csvEncoding);
+  $('#optCards').innerHTML = list.length ? list.slice(0, OPT.limit).map(f => {
+    const opts = (f.options || []).map(o => '<label class="small">' + escHtml(o.label) + ': <select data-fopt="' + escHtml(f.id) + '" data-k="' + o.key + '">' + o.values.map(([v, l]) => '<option value="' + v + '"' + (enc === v ? ' selected' : '') + '>' + escHtml(l) + '</option>').join('') + '</select></label>').join('');
     return '<div class="ocard ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span><span class="safety ' + f.safety + '">' + SAFETY_LABEL[f.safety] + '</span></div>' +
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
       '<div class="oa">' + opts + (f.fix ? '<button class="btn sm" data-prev="' + escHtml(f.id) + '">Показать изменения</button><button class="btn sm pri" data-apply="' + escHtml(f.id) + '">' + escHtml(f.fixLabel || 'Применить') + '</button>' : '<span class="small muted">исправляется вручную</span>') + '</div></div>';
-  }).join('') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
+  }).join('') + (list.length > OPT.limit ? '<button class="btn" id="optMore" style="grid-column:1/-1">Показать ещё ' + Math.min(OPT_PAGE, list.length - OPT.limit) + ' из ' + (list.length - OPT.limit) + '</button>' : '') : '<div class="note ok">Под выбранный фильтр советов нет.</div>';
+  if ($('#optMore')) $('#optMore').onclick = () => { OPT.limit += OPT_PAGE; renderOptCards(); };
   $$('[data-apply]', $('#optCards')).forEach(b => b.onclick = () => applyFinding(b.dataset.apply));
   $$('[data-prev]', $('#optCards')).forEach(b => b.onclick = () => previewFinding(b.dataset.prev));
   $$('[data-oq]', $('#optCards')).forEach(b => b.onclick = () => openInEditor(b.dataset.oq, b.dataset.os || null));
 }
-$('#optSafety').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; OPT.safety = b.dataset.v; $$('#optSafety button').forEach(x => x.classList.toggle('on', x === b)); renderOptCards(); });
-$('#optQuery').addEventListener('change', renderOptCards);
-$('#optImpact').addEventListener('change', renderOptCards);
+const optFilter = () => { OPT.limit = OPT_PAGE; renderOptCards(); };
+$('#optSafety').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; OPT.safety = b.dataset.v; $$('#optSafety button').forEach(x => x.classList.toggle('on', x === b)); optFilter(); });
+$('#optQuery').addEventListener('change', optFilter);
+$('#optImpact').addEventListener('change', optFilter);
 $('#optApplySafe').onclick = applyAllSafe;
 $('#optReport').onclick = async () => {
   const t = '# Советы оптимизатора — ' + S.book.name + '\nОценка: ' + S.opt.score + '/100\n\n' + S.opt.findings.map(f => '- [' + SEV_LABEL[f.sev] + ', ' + SAFETY_LABEL[f.safety] + '] **' + f.query + (f.step ? ' › ' + f.step : '') + '**: ' + f.title + (f.how ? ' — ' + f.how : '')).join('\n');
@@ -6268,6 +6345,7 @@ registerView('compare', { render: renderCompare, alwaysRender: true });
    Описание запроса берётся из комментариев в начале его кода.
    ===================================================================== */
 const DOC_CSS = '.pqdoc{font:14px/1.5 "Segoe UI",system-ui,sans-serif;color:#1b2130;max-width:1100px;margin:0 auto}.pqdoc h1{font-size:26px;margin:0 0 4px}.pqdoc h2{font-size:19px;margin:28px 0 8px;border-bottom:2px solid #e4ecfc;padding-bottom:4px}.pqdoc h3{font-size:15px;margin:16px 0 6px}.pqdoc .muted{color:#667085}.pqdoc table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}.pqdoc th,.pqdoc td{border:1px solid #dde1e8;padding:5px 8px;text-align:left;vertical-align:top}.pqdoc th{background:#f0f2f6}.pqdoc pre{background:#fbfbfd;border:1px solid #dde1e8;border-radius:8px;padding:10px;overflow:auto;font:12.5px Consolas,monospace;white-space:pre-wrap}.pqdoc .k{color:#7b2fb5;font-weight:600}.pqdoc .s{color:#a5461c}.pqdoc .n{color:#0b7a6e}.pqdoc .c{color:#7c8595;font-style:italic}.pqdoc .f{color:#2156b8}.pqdoc .q{color:#8a5a00}.pqdoc .b{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;background:#f0f2f6;margin-right:4px}.pqdoc .graph{overflow:auto;border:1px solid #dde1e8;border-radius:8px;padding:6px;background:#fbfbfd}.pqdoc .graph svg text{font:12px sans-serif;fill:#1b2130}.pqdoc .graph .gnode rect{fill:#fff;stroke:#c9ced8}.pqdoc .graph .gnode.src rect{fill:#e1f4e9}.pqdoc .graph .gnode.param rect{fill:#e4ecfc}.pqdoc .graph .gnode.load rect{stroke:#2f6fde;stroke-width:2}.pqdoc .graph .gnode.warnf rect{stroke:#b26a00;stroke-width:2}.pqdoc .graph .gnode.fn rect{stroke-dasharray:4 3}.pqdoc .graph .gedge{fill:none;stroke:#8a93a5}.pqdoc .sev-err{color:#c42b2b}.pqdoc .sev-warn{color:#b26a00}';
+const DOC_PREVIEW_QUERIES = 30;
 function memberDescription(text){ const lines = []; for (const l of text.replace(/^\s+/, '').split(/\r?\n/)){ const m = /^\s*\/\/\s?(.*)$/.exec(l); if (m) lines.push(m[1]); else break; } return lines.join(' '); }
 function genBookDoc(opts){
   const anon = !!opts.anon; const A = S.A; const a = anon ? ensureAnon() : null;
@@ -6279,19 +6357,22 @@ function genBookDoc(opts){
   let h = '<div class="pqdoc"><h1>' + escHtml(title) + '</h1><div class="muted">Сформировано Мастером PQ ' + fmtDateTime(new Date()) + (anon ? ' · обезличено' : '') + '</div>';
   h += '<h2>Сводка</h2><table><tr><th>Запросов</th><td>' + A.members.length + ' (загружаются: ' + A.members.filter(m => m.load.sheet || m.load.model).length + ', параметров: ' + A.members.filter(m => m.isParam).length + ', функций: ' + A.members.filter(m => m.isFn).length + ')</td></tr><tr><th>Источники</th><td>' + escHtml([...new Set(A.members.flatMap(m => m.sources))].join(', ') || '—') + '</td></tr><tr><th>Оценка оптимизатора</th><td>' + S.opt.score + ' / 100 · советов: ' + S.opt.findings.length + '</td></tr></table>';
   h += '<h2>Граф зависимостей</h2><div class="graph">' + graphSvg(A, { lint: S.lint, name: qn }) + '</div>';
-  h += '<h2>Запросы</h2><table><tr><th>Запрос</th><th>Тип</th><th>Загрузка</th><th>Строк</th><th>Использует</th><th>Используется в</th><th>Шагов</th></tr>' + A.members.map(m => '<tr><td><a href="#q-' + A.members.indexOf(m) + '">' + escHtml(qn(m.name)) + '</a></td><td>' + kind(m) + '</td><td>' + loadTxt(m) + '</td><td>' + (m.load.rows != null ? m.load.rows : '') + '</td><td>' + [...m.refs].map(x => escHtml(qn(x))).join(', ') + '</td><td>' + m.usedBy.map(x => escHtml(qn(x))).join(', ') + '</td><td>' + (m.steps ? m.steps.steps.length : '') + '</td></tr>').join('') + '</table>';
-  for (const m of A.members){
+  h += '<h2>Запросы</h2><table><tr><th>Запрос</th><th>Тип</th><th>Загрузка</th><th>Строк</th><th>Использует</th><th>Используется в</th><th>Шагов</th></tr>' + A.members.map((m, i) => '<tr><td><a href="#q-' + i + '">' + escHtml(qn(m.name)) + '</a></td><td>' + kind(m) + '</td><td>' + loadTxt(m) + '</td><td>' + (m.load.rows != null ? m.load.rows : '') + '</td><td>' + [...m.refs].map(x => escHtml(qn(x))).join(', ') + '</td><td>' + m.usedBy.map(x => escHtml(qn(x))).join(', ') + '</td><td>' + (m.steps ? m.steps.steps.length : '') + '</td></tr>').join('') + '</table>';
+  const lim = opts.preview ? DOC_PREVIEW_QUERIES : Infinity;
+  A.members.slice(0, lim).forEach((m, qi) => {
     const desc = memberDescription(S.work.slice(m.exprStart, m.exprEnd));
     const lints = S.lint.filter(l => l.query === m.name);
-    h += '<h2 id="q-' + A.members.indexOf(m) + '">' + escHtml(qn(m.name)) + '</h2><div><span class="b">' + kind(m) + '</span><span class="b">' + loadTxt(m) + '</span>' + (m.sources.length ? '<span class="b">' + escHtml([...new Set(m.sources)].join(', ')) + '</span>' : '') + (m.load.rows != null ? '<span class="b">' + m.load.rows + ' строк</span>' : '') + '</div>';
+    h += '<h2 id="q-' + qi + '">' + escHtml(qn(m.name)) + '</h2><div><span class="b">' + kind(m) + '</span><span class="b">' + loadTxt(m) + '</span>' + (m.sources.length ? '<span class="b">' + escHtml([...new Set(m.sources)].join(', ')) + '</span>' : '') + (m.load.rows != null ? '<span class="b">' + m.load.rows + ' строк</span>' : '') + '</div>';
     if (desc) h += '<p>' + escHtml(tx(desc)) + '</p>';
     if (Array.isArray(m.load.columns)) h += '<h3>Столбцы результата</h3><p>' + m.load.columns.map(c => '<span class="b">' + escHtml(anon ? anonColName(c) : String(c)) + '</span>').join(' ') + '</p>';
     if (m.steps) h += '<h3>Шаги</h3><table><tr><th>#</th><th>Шаг</th><th>Функция</th><th>Зависит от</th><th>Примечание</th></tr>' + m.steps.steps.map((s, i) => '<tr><td>' + (i + 1) + '</td><td>' + escHtml(tx(s.name)) + '</td><td>' + escHtml(s.fn) + '</td><td>' + [...s.refs].map(x => escHtml(tx(x))).join(', ') + '</td><td>' + (s.dead ? 'не используется ' : '') + lints.filter(l => l.step === s.name).map(l => '<span class="sev-' + l.sev + '">' + escHtml(tx(l.msg)) + '</span>').join('; ') + '</td></tr>').join('') + '</table>';
     const ql = lints.filter(l => !l.step);
     if (ql.length) h += '<h3>Замечания</h3><ul>' + ql.map(l => '<li class="sev-' + l.sev + '">' + escHtml(tx(l.msg)) + '</li>').join('') + '</ul>';
     if (opts.code) h += '<h3>Код</h3><pre>' + highlightM(codeOf(m)) + '</pre>';
-  }
+  });
+  if (A.members.length > lim) h += '<p class="muted">В предпросмотре — первые ' + lim + ' запросов из ' + A.members.length + '. В скачанном файле — все.</p>';
   h += '</div>';
+  if (opts.preview) return { html: h };
   // Markdown
   let md = '# ' + title + '\n\n_Сформировано Мастером PQ ' + fmtDateTime(new Date()) + (anon ? ' · обезличено' : '') + '_\n\n## Запросы\n\n| Запрос | Тип | Загрузка | Строк | Использует |\n|---|---|---|---|---|\n' + A.members.map(m => '| ' + qn(m.name) + ' | ' + kind(m) + ' | ' + loadTxt(m) + ' | ' + (m.load.rows != null ? m.load.rows : '') + ' | ' + [...m.refs].map(qn).join(', ') + ' |').join('\n') + '\n';
   for (const m of A.members){
@@ -6313,7 +6394,7 @@ async function exportDoc(kind){
 $('#docHtml').onclick = () => exportDoc('html');
 $('#docMd').onclick = () => exportDoc('md');
 $('#docAnon').onchange = () => renderDocs(); $('#docCode').onchange = () => renderDocs();
-function renderDocs(){ if (!S.A) return; const d = genBookDoc({ anon: $('#docAnon').checked, code: $('#docCode').checked }); $('#docPreview').innerHTML = '<style>' + DOC_CSS.replace(/\.pqdoc/g, '.pqdoc-preview .pqdoc') + '.pqdoc-preview .pqdoc{color:var(--text)}.pqdoc-preview .pqdoc th{background:var(--panel2)}.pqdoc-preview .pqdoc pre{background:var(--code-bg)}</style>' + d.html; }
+function renderDocs(){ if (!S.A) return; const d = genBookDoc({ anon: $('#docAnon').checked, code: $('#docCode').checked, preview: true }); $('#docPreview').innerHTML = '<style>' + DOC_CSS.replace(/\.pqdoc/g, '.pqdoc-preview .pqdoc') + '.pqdoc-preview .pqdoc{color:var(--text)}.pqdoc-preview .pqdoc th{background:var(--panel2)}.pqdoc-preview .pqdoc pre{background:var(--code-bg)}</style>' + d.html; }
 registerView('docs', { render: renderDocs });
 /* ===== END src/js/views/docs.js ===== */
 /* ===== BEGIN src/js/views/help.js ===== */
@@ -6627,6 +6708,8 @@ async function runSelfTest(){
     // ---------- форматер ----------
     const messy = 'let\n  a = 1,\n        b = {1,\n2},\n c = let x = 1 in x\n   in\n c';
     const fm = formatM(messy), fs = formatM(TEST_SECTION);
+    const mixed = 'let\r\n  a = "x\ny",\r\n    b = 1 // заметка   \r\nin\r\n  a & "', fmx = formatM(mixed);
+    ok('Форматер: переводы строк внутри строк и незакрытая строка не меняются', /"x\ny"/.test(fmx) && fmx.endsWith('& "') && JSON.stringify(sigTokens(fmx)) === JSON.stringify(sigTokens(mixed)), JSON.stringify(fmx));
     ok('Форматер: значимые токены не меняются, повторное форматирование ничего не меняет', JSON.stringify(sigTokens(fm)) === JSON.stringify(sigTokens(messy)) && formatM(fm) === fm && JSON.stringify(sigTokens(fs)) === JSON.stringify(sigTokens(TEST_SECTION)) && formatM(fs) === fs, fm.replace(/\n/g, '⏎'));
     // ---------- оптимизатор ----------
     const O = optimizeSection(book.origSection, A, lintSection(A));
@@ -6644,6 +6727,14 @@ async function runSelfTest(){
     const semAfter = applyAllSafeText(semSrc, {}).text;
     const ev = (sec, q) => mLit(mEval('Table.ToRows(' + q + ')', sec));
     ok('Оптимизатор: безопасные исправления не меняют результат (проверено песочницей)', semAfter !== semSrc && ev(semSrc, 'Т') === ev(semAfter, 'Т') && ev(semSrc, 'Т2') === ev(semAfter, 'Т2') && /List\.Buffer\(Список\)/.test(semAfter) && !/Мусор/.test(semAfter), ev(semAfter, 'Т') + ' · ' + ev(semAfter, 'Т2'));
+    const semAll = applyAllSafeText(semSrc, {}); const A4 = analyzeSection(semAll.text, {});
+    ok('Оптимизатор: «все безопасные» сходятся — буферизованный список не буферизуется повторно', semAll.applied.length <= 5 && !/_буфер_буфер/.test(semAll.text) && !lintSection(A4).some(l => l.rule === 'list-buffer'), semAll.applied.length + ' исправлений');
+    const broken = ['section S;\r\nshared A = let\r\n    x = Table.SelectRows(t, each [a] = 1,\r\n    = 2\r\nin\r\n    x;', 'shared B = let a = Sql.Database("s", "d"', 'section S; shared C = let x = List.Contains(L, [k]), in', 'let ( = 1, x = Excel.Workbook(File.Contents("p") in x'];
+    const crash = []; for (const b of broken){ try { const Ab = analyzeSection(b, {}); optimizeSection(b, Ab, lintSection(Ab)); formatM(b); } catch (e){ crash.push(e.message); } }
+    ok('Анализ, линтер и оптимизатор не падают на незаконченном коде', !crash.length, crash.join(' | '));
+    const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
+    const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
+    ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');
@@ -6669,6 +6760,9 @@ async function runSelfTest(){
     let dsErr = ''; try { mEval('Sql.Database("s", "d")'); } catch (e){ dsErr = e.reason; }
     const steps = mRunSteps(book.origSection, 'Продажи', { steps: new Map([['Источник', tableFromRows([['Region', 'Amount', 'OrderDate', 'Код'], ['North', '3000', '2023-06-01', '1'], ['South', '9000', '2023-06-01', '2'], ['North', '100', '2023-06-01', '3']])]]) });
     ok('Песочница: ' + IC.length + ' выражений, источники недоступны, пошаговый прогон запроса на образце', !icBad.length && dsErr === 'DataSource.Error' && !steps.some(s => s.error) && mToText(steps[steps.length - 1].value) === 'Table (1×4)', icBad.join(' | ') + ' · ' + steps.map(s => s.name + (s.error ? '✖' : '✔')).join(' '));
+    const errOf = x => { try { mEval(x, null); return 'нет ошибки'; } catch (e){ return (e instanceof MErr ? '' : 'не MErr: ') + e.message; } };
+    const e1 = errOf('Text.Split(null, ",")'), e2 = errOf('Text.Start("abc")'), e3 = errOf('let f = (n) => @f(n + 1) in f(1)');
+    ok('Песочница: ошибки встроенных функций и рекурсии — понятные ошибки M с именем функции', /^Text\.Split: /.test(e1) && /^Text\.Start: /.test(e2) && /рекурсия/.test(e3) && mLit(mEval('try Text.Split(null, ",") otherwise "ok"', null)) === '"ok"', [e1, e2, e3].join(' | '));
     // ---------- справочник ----------
     ok('Справочник: ' + M_REF.size + ' функций, сигнатуры разобраны', M_REF.size > 300 && M_REF.get('Table.AddColumn').params.length === 4 && M_REF.get('Table.AddColumn').params[3].optional);
     // ---------- состояние, история, документация (с сохранением и восстановлением S) ----------

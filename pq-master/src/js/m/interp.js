@@ -16,6 +16,14 @@ class MErr extends Error {
   constructor(reason, message, detail){ super(message); this.reason = reason || 'Expression.Error'; this.detail = detail == null ? null : detail; }
   get rec(){ return mkRec(['Reason', 'Message', 'Detail'], [this.reason, this.message, this.detail]); }
 }
+/** Любое исключение → ошибка M (name — встроенная функция, в которой оно возникло) */
+function toMErr(e, name){
+  if (e instanceof MErr){ if (name && e.message.startsWith('undefined: ')) e.message = name + e.message.slice(9); return e; }
+  const msg = String(e && e.message || e);
+  if (e instanceof RangeError && /call stack/i.test(msg)) return new MErr('Expression.Error', 'Слишком глубокая рекурсия (переполнение стека)');
+  if (!name) return new MErr('Expression.Error', msg);
+  return new MErr('Expression.Error', name + ': ' + (/\b(null|undefined)\b|is not iterable/.test(msg) ? 'аргумент равен null или пропущен, а функция ожидает значение' : 'недопустимое значение аргумента (' + msg + ')'));
+}
 class Thunk { constructor(f){ this.f = f; this.st = 0; this.v = undefined; this.e = null; } }
 function force(x){
   if (!(x instanceof Thunk)) return x;
@@ -23,7 +31,7 @@ function force(x){
   if (x.st === 3) throw x.e;
   if (x.st === 1) throw new MErr('Expression.Error', 'Циклическая ссылка при вычислении');
   x.st = 1;
-  try { x.v = x.f(); x.st = 2; return x.v; } catch (e){ x.st = 3; x.e = e instanceof MErr ? e : new MErr('Expression.Error', String(e && e.message || e)); throw x.e; }
+  try { x.v = x.f(); x.st = 2; return x.v; } catch (e){ x.st = 3; x.e = toMErr(e); throw x.e; }
 }
 class MRec { constructor(names, vals){ this.names = names; this.vals = vals; } get(n){ const i = this.names.indexOf(n); return i < 0 ? undefined : (this.vals[i] = force(this.vals[i])); } has(n){ return this.names.includes(n); } }
 class MTab { constructor(cols, rows){ this.cols = cols; this.rows = rows; } }
@@ -383,7 +391,9 @@ function colNamesOf(t, spec){ spec = force(spec); return typeof spec === 'string
 /* ---------- Библиотека ---------- */
 const F = (name, arity, f) => new MFn(arity, args => f(...args), name);
 const MLIB = {};
-const def = (name, f) => { MLIB[name] = F(name, f.length, f); };
+/** Встроенная функция. Внутренняя ошибка JS (null там, где нужен текст, недопустимое число…) становится
+    понятной ошибкой M с именем функции; сообщения проверок типов без имени получают его здесь */
+const def = (name, f, arity) => { MLIB[name] = F(name, arity == null ? f.length : arity, (...a) => { try { return f(...a); } catch (e){ throw toMErr(e, name); } }); };
 // --- конструкторы
 def('#date', (y, m, d) => mkDate(num(y), num(m), num(d)));
 def('#datetime', (y, m, d, h, mi, s) => new MDate('datetime', Date.UTC(num(y), num(m) - 1, num(d), num(h), num(mi), 0) + num(s) * 1000));
@@ -452,9 +462,9 @@ def('Number.IsEven', a => num(a) % 2 === 0);
 def('Number.IsOdd', a => Math.abs(num(a) % 2) === 1);
 def('Number.Random', () => Math.random());
 def('Number.RandomBetween', (a, b) => num(a) + Math.random() * (num(b) - num(a)));
-MLIB['Int64.From'] = F('Int64.From', 1, (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 0); });
-MLIB['Decimal.From'] = MLIB['Number.From']; MLIB['Double.From'] = MLIB['Number.From']; MLIB['Currency.From'] = F('Currency.From', 1, (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 4); });
-MLIB['Percentage.From'] = F('Percentage.From', 1, (v, c) => { v = force(v); if (typeof v === 'string' && /%\s*$/.test(v)) return numFromText(v.replace('%', ''), force(c)) / 100; return MLIB['Number.From'].call([v, c]); });
+def('Int64.From', (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 0); }, 1);
+MLIB['Decimal.From'] = MLIB['Number.From']; MLIB['Double.From'] = MLIB['Number.From']; def('Currency.From', (v, c) => { const n = MLIB['Number.From'].call([v, c]); return n === null ? null : roundHalfEven(n, 4); }, 1);
+def('Percentage.From', (v, c) => { v = force(v); if (typeof v === 'string' && /%\s*$/.test(v)) return numFromText(v.replace('%', ''), force(c)) / 100; return MLIB['Number.From'].call([v, c]); }, 1);
 MLIB['Int32.From'] = MLIB['Int64.From'];
 // --- Logical
 def('Logical.From', v => { v = force(v); if (v === null) return null; if (typeof v === 'boolean') return v; if (typeof v === 'number') return v !== 0; if (typeof v === 'string'){ if (/^true$/i.test(v)) return true; if (/^false$/i.test(v)) return false; } throw new MErr('DataFormat.Error', 'Logical.From: нельзя преобразовать «' + mToText(v) + '»'); });
@@ -543,10 +553,10 @@ def('Function.Invoke', (f, args) => callFn(f, lst(args)));
 def('Error.Record', (r, m, d) => mkRec(['Reason', 'Message', 'Detail'], [force(r), force(m) === undefined ? null : force(m), force(d) === undefined ? null : force(d)]));
 def('Expression.Constant', v => mLit(v));
 def('Expression.Identifier', n => mQuoteName(txt(n)));
-MLIB['Comparer.OrdinalIgnoreCase'] = F('Comparer.OrdinalIgnoreCase', 2, (a, b) => Math.sign(mCompare(String(force(a)).toLowerCase(), String(force(b)).toLowerCase())));
-MLIB['Comparer.Ordinal'] = F('Comparer.Ordinal', 2, (a, b) => Math.sign(mCompare(a, b)));
-MLIB['Replacer.ReplaceText'] = F('Replacer.ReplaceText', 3, (v, a, b) => { v = force(v); return typeof v === 'string' ? v.split(txt(a)).join(txt(b)) : v; });
-MLIB['Replacer.ReplaceValue'] = F('Replacer.ReplaceValue', 3, (v, a, b) => mEquals(v, a) ? force(b) : force(v));
+def('Comparer.OrdinalIgnoreCase', (a, b) => Math.sign(mCompare(String(force(a)).toLowerCase(), String(force(b)).toLowerCase())), 2);
+def('Comparer.Ordinal', (a, b) => Math.sign(mCompare(a, b)), 2);
+def('Replacer.ReplaceText', (v, a, b) => { v = force(v); return typeof v === 'string' ? v.split(txt(a)).join(txt(b)) : v; }, 3);
+def('Replacer.ReplaceValue', (v, a, b) => mEquals(v, a) ? force(b) : force(v), 3);
 def('Splitter.SplitTextByDelimiter', (d) => { d = txt(d); return F('Splitter', 1, t => force(t) === null ? [null] : txt(t).split(d)); });
 def('Splitter.SplitTextByAnyDelimiter', (ds) => { ds = lst(ds).map(x => txt(x)); return F('Splitter', 1, t => { t = txt(t); if (t === null) return [null]; const re = new RegExp(ds.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')); return t.split(re); }); });
 def('Splitter.SplitTextByPositions', (ps) => { ps = lst(ps); return F('Splitter', 1, t => { t = txt(t); return ps.map((p, i) => t.slice(p, i + 1 < ps.length ? ps[i + 1] : undefined)); }); });
@@ -556,7 +566,7 @@ def('Combiner.CombineTextByDelimiter', (d) => { d = txt(d); return F('Combiner',
 def('Date.From', (v, c) => { v = force(v); if (v === null) return null; if (v instanceof MDate){ const p = dParts(v); return mkDate(p.y, p.m, p.d); } if (typeof v === 'number') return new MDate('date', Math.floor(v - 25569) * DAY); if (typeof v === 'string'){ const p = parseDateText(v, force(c)); return mkDate(p.y, p.mo, p.d); } throw new MErr('Expression.Error', 'Date.From: нельзя преобразовать ' + mTypeName(v)); });
 def('Date.FromText', (t, o) => { t = txt(t, 'Date.FromText'); if (t === null) return null; const p = parseDateText(t, optCulture(o)); return mkDate(p.y, p.mo, p.d); });
 def('DateTime.From', (v, c) => { v = force(v); if (v === null) return null; if (v instanceof MDate) return new MDate('datetime', v.ms); if (typeof v === 'number') return new MDate('datetime', Math.round((v - 25569) * DAY)); const p = parseDateText(txt(v), force(c)); return new MDate('datetime', Date.UTC(p.y, p.mo - 1, p.d, p.h, p.mi, 0) + p.s * 1000); });
-MLIB['DateTime.FromText'] = F('DateTime.FromText', 2, (t, o) => MLIB['DateTime.From'].call([t, optCulture(o)]));
+def('DateTime.FromText', (t, o) => MLIB['DateTime.From'].call([t, optCulture(o)]), 2);
 def('Date.ToText', (d, o, c) => { d = needDate(d, 'Date.ToText'); if (d === null) return null; return fmtDate(d, optFormat(o) || 'yyyy-MM-dd', optCulture(o) || force(c)); });
 def('DateTime.ToText', (d, o, c) => { d = needDate(d, 'DateTime.ToText'); if (d === null) return null; return fmtDate(d, optFormat(o) || 'yyyy-MM-dd HH:mm:ss', optCulture(o) || force(c)); });
 const dpart = (name, f) => def(name, v => { v = needDate(v, name); return v === null ? null : f(dParts(v), v); });
@@ -595,7 +605,7 @@ def('Table.FromRecords', (rs, cols) => { cols = force(cols); return tableFromRec
 def('Table.FromRows', (rows, cols) => { rows = lst(rows).map(r => lst(r)); cols = force(cols); const n = rows.length ? rows[0].length : 0; const names = cols == null ? Array.from({ length: n }, (_, i) => 'Column' + (i + 1)) : cols instanceof MType ? cols.cols : lst(cols); return new MTab(names, rows); });
 def('Table.FromColumns', (cs, cols) => { cs = lst(cs).map(c => lst(c)); cols = force(cols); const names = cols == null ? cs.map((_, i) => 'Column' + (i + 1)) : lst(cols); const n = Math.max(0, ...cs.map(c => c.length)); return new MTab(names, Array.from({ length: n }, (_, i) => cs.map(c => i < c.length ? c[i] : null))); });
 def('Table.FromList', (l, sp, cols) => { l = lst(l); sp = force(sp); const rows = l.map(x => sp ? lst(callFn(sp, [x])) : (Array.isArray(x) ? x : [x])); cols = force(cols); const n = Math.max(1, ...rows.map(r => r.length)); const names = cols == null ? Array.from({ length: n }, (_, i) => 'Column' + (i + 1)) : typeof cols === 'number' ? Array.from({ length: cols }, (_, i) => 'Column' + (i + 1)) : cols instanceof MType ? cols.cols : lst(cols); return new MTab(names, rows.map(r => names.map((_, i) => i < r.length ? r[i] : null))); });
-MLIB['Splitter.SplitByNothing'] = F('Splitter.SplitByNothing', 0, () => F('Splitter', 1, v => [force(v)]));
+def('Splitter.SplitByNothing', () => F('Splitter', 1, v => [force(v)]), 0);
 def('Table.ToRecords', t => { t = tab(t); return t.rows.map((_, i) => rowRec(t, i)); });
 def('Table.ToRows', t => tab(t).rows.map(r => r.slice()));
 def('Table.ToColumns', t => { t = tab(t); return t.cols.map((_, i) => t.rows.map(r => r[i])); });
@@ -702,7 +712,7 @@ function deepForce(v, depth){
 }
 function mEval(text, sectionText){
   const env = sectionEnv(sectionText);
-  return deepForce(evalNode(mParse(text), env));
+  try { return deepForce(evalNode(mParse(text), env)); } catch (e){ throw toMErr(e); }
 }
 /** Пошаговый прогон запроса: результат каждого шага let или ошибка */
 function mRunSteps(sectionText, member, overrides){
@@ -714,17 +724,17 @@ function mRunSteps(sectionText, member, overrides){
   const ast = mParse(exprText);
   const out = [];
   if (ast.k !== 'let'){
-    const t0 = performance.now(); let value, error = null; try { value = deepForce(evalNode(ast, env)); } catch (e){ error = e; }
+    const t0 = performance.now(); let value, error = null; try { value = deepForce(evalNode(ast, env)); } catch (e){ error = toMErr(e); }
     out.push({ name: '(результат)', value, error, ms: performance.now() - t0 }); return out;
   }
   const vars = new Map(); const e2 = new Env(vars, env);
   for (const [nm, ex] of ast.binds){ const ov = overrides.steps && overrides.steps.get(nm); vars.set(nm, ov !== undefined ? new Thunk(() => ov) : new Thunk(() => evalNode(ex, e2))); }
   for (const [nm] of ast.binds){
     const t0 = performance.now(); let value, error = null;
-    try { value = deepForce(force(vars.get(nm))); } catch (e){ error = e instanceof MErr ? e : new MErr('Expression.Error', String(e.message || e)); }
+    try { value = deepForce(force(vars.get(nm))); } catch (e){ error = toMErr(e); }
     out.push({ name: nm, value, error, ms: performance.now() - t0, overridden: !!(overrides.steps && overrides.steps.has(nm)) });
   }
-  const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = e; }
+  const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = toMErr(e); }
   out.push({ name: 'in → результат', value: fv, error: fe, ms: performance.now() - t0, final: true });
   return out;
 }

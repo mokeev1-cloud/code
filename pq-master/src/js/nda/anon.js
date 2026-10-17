@@ -45,6 +45,11 @@ class TokenDict {
     this.entries.push(e); this.byRaw.set(raw, e); this.byToken.set(e.token, e); this.version++;
     return e.token;
   }
+  /** Метки, уже встречающиеся в исходном тексте и неизвестные словарю, не выдавать заново —
+      иначе обратная подстановка превратит этот чужой текст в значение */
+  reserve(text){
+    for (const m of String(text).matchAll(TOKEN_RE)) if (!this.byToken.has(m[0])) this.counters[m[1]] = Math.max(this.counters[m[1]] || 0, +m[2]);
+  }
   get size(){ return this.entries.length; }
   toJSON(extra){
     return Object.assign({ format: 'pq-master-dictionary', version: 1, created: new Date().toISOString(),
@@ -345,6 +350,7 @@ function anonymizeM(text, cfg, dict){
   return finishSpans(text, C, cfg, dict, colNames);
 }
 function finishSpans(text, C, cfg, dict, colNames){
+  dict.reserve(text);
   let acc = resolveSpans(C.spans);
   const extra = makeCollector(text, cfg);
   const partial = termSpans(text, cfg.blacklist || [], 'NDA', true, acc, extra)
@@ -421,6 +427,7 @@ function anonymizeFree(str, cfg, dict, mode){
   return r;
 }
 function finishSpansFree(text, C, cfg, dict, knownMap){
+  dict.reserve(text);
   let acc = resolveSpans(C.spans);
   const extra = makeCollector(text, cfg);
   termSpans(text, cfg.blacklist || [], 'NDA', true, acc, extra);

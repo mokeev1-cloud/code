@@ -111,8 +111,21 @@ await page.click('[data-view=help]'); await page.click('#helpTabs [data-h=dev]')
 const dev = await page.$eval('#helpDev', e => e.textContent);
 check('Справка для разработчика встроена и отрисована', /Карта модулей/.test(dev));
 await shot('15-help-dev');
-await page.click('#tbTheme'); await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('16-dark-editor');
-await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-dark-optimizer');
+// темы: меню в верхней панели
+for (const th of ['dark', 'calm', 'fun']){
+  await page.click('#tbTheme'); await page.click('#themeMenu [data-theme-id=' + th + ']'); await page.waitForTimeout(150);
+  const cur = await page.evaluate(() => document.documentElement.dataset.theme);
+  check('Тема «' + th + '» включается из меню', cur === th, String(cur));
+  await page.click('[data-view=home]'); await page.waitForTimeout(150); await shot('16-' + th + '-home');
+  await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
+  await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
+}
+// подсказки разделов
+await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
+const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');
+check('Подсказка раздела показывается', hint.length > 20, hint.slice(0, 60));
+await page.click('#view-graph .hintbar button'); await page.waitForTimeout(100);
+check('«Понятно» скрывает подсказку', !(await page.$('#view-graph .hintbar')));
 
 // запись в оригинал: OPFS даёт такие же FileSystemFileHandle, как диалог «Открыть» (нужен http-источник)
 {

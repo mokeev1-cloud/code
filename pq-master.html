@@ -4,66 +4,68 @@
   правьте модуль и пересоберите; нет исходников — разрежьте: node build.mjs --split pq-master.html src-out
   Документация для разработчика: блок <script id="pqm-dev-docs"> (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      68–76     src/html/head.html
-      78–125    src/css/theme.css
-     126–164    src/css/layout.css
-     165–341    src/css/components.css
-     342–398    src/css/editor.css
-     402–422    src/html/shell-top.html
-     423–486    src/html/view-home.html
-     487–524    src/html/view-editor.html
-     525–548    src/html/view-optimizer.html
-     549–571    src/html/view-graph.html
-     572–599    src/html/view-sandbox.html
-     600–611    src/html/view-reference.html
-     612–620    src/html/view-snippets.html
-     621–632    src/html/view-history.html
-     633–696    src/html/view-anon.html
-     697–713    src/html/view-diag.html
-     714–741    src/html/view-ai.html
-     742–774    src/html/view-agent.html
-     775–787    src/html/view-compare.html
-     788–799    src/html/view-docs.html
-     800–806    src/html/view-help.html
-     807–813    src/html/view-selftest.html
-     814–822    src/html/shell-bottom.html
-     824–952    DEV.md
-     864–undefined путь
-     955–970    vendor/codemirror.bundle.js
-     974–1371   src/js/core/zip-mashup.js
-    1372–1642   src/js/m/lang.js
-    1643–1703   src/js/m/format.js
-    1704–2088   src/js/m/reference.js
-    2089–2836   src/js/m/interp.js
-    2837–3317   src/js/nda/anon.js
-    3318–3454   src/js/nda/diag.js
-    3455–3677   src/js/opt/lint.js
-    3678–3900   src/js/opt/optimizer.js
-    3901–3987   src/js/opt/refactor.js
-    3988–4135   src/js/opt/snippets.js
-    4136–4202   src/js/app/state.js
-    4203–4437   src/js/nda/agent.js
-    4438–4534   src/js/app/ui-base.js
-    4535–4700   src/js/app/storage.js
-    4701–4910   src/js/app/shell.js
-    4911–4984   src/js/views/home.js
-    4985–5326   src/js/views/editor.js
-    5327–5436   src/js/views/optimizer.js
-    5437–5520   src/js/views/graph.js
-    5521–5631   src/js/views/sandbox.js
-    5632–5662   src/js/views/reference.js
-    5663–5700   src/js/views/snippets.js
-    5701–5721   src/js/views/history.js
-    5722–5863   src/js/views/anon.js
-    5864–5930   src/js/views/diag.js
-    5931–6044   src/js/views/ai.js
-    6045–6108   src/js/views/agent.js
-    6109–6135   src/js/views/compare.js
-    6136–6189   src/js/views/docs.js
-    6190–6316   src/js/views/help.js
-    6312–6312   DEV\\.md
-    6317–6573   src/js/app/selftest.js
-    6574–6587   src/js/app/main.js
+      70–78     src/html/head.html
+      80–127    src/css/theme.css
+     128–196    src/css/themes.css
+     197–235    src/css/layout.css
+     236–418    src/css/components.css
+     419–475    src/css/editor.css
+     479–500    src/html/shell-top.html
+     501–564    src/html/view-home.html
+     565–602    src/html/view-editor.html
+     603–626    src/html/view-optimizer.html
+     627–649    src/html/view-graph.html
+     650–677    src/html/view-sandbox.html
+     678–689    src/html/view-reference.html
+     690–698    src/html/view-snippets.html
+     699–710    src/html/view-history.html
+     711–774    src/html/view-anon.html
+     775–791    src/html/view-diag.html
+     792–819    src/html/view-ai.html
+     820–852    src/html/view-agent.html
+     853–865    src/html/view-compare.html
+     866–877    src/html/view-docs.html
+     878–884    src/html/view-help.html
+     885–891    src/html/view-selftest.html
+     892–900    src/html/shell-bottom.html
+     902–1038   DEV.md
+     941–undefined путь
+    1041–1056   vendor/codemirror.bundle.js
+    1060–1457   src/js/core/zip-mashup.js
+    1458–1728   src/js/m/lang.js
+    1729–1789   src/js/m/format.js
+    1790–2174   src/js/m/reference.js
+    2175–2922   src/js/m/interp.js
+    2923–3403   src/js/nda/anon.js
+    3404–3540   src/js/nda/diag.js
+    3541–3763   src/js/opt/lint.js
+    3764–3986   src/js/opt/optimizer.js
+    3987–4073   src/js/opt/refactor.js
+    4074–4221   src/js/opt/snippets.js
+    4222–4288   src/js/app/state.js
+    4289–4523   src/js/nda/agent.js
+    4524–4620   src/js/app/ui-base.js
+    4621–4786   src/js/app/storage.js
+    4787–4821   src/js/app/hints.js
+    4822–5039   src/js/app/shell.js
+    5040–5113   src/js/views/home.js
+    5114–5455   src/js/views/editor.js
+    5456–5565   src/js/views/optimizer.js
+    5566–5649   src/js/views/graph.js
+    5650–5760   src/js/views/sandbox.js
+    5761–5791   src/js/views/reference.js
+    5792–5829   src/js/views/snippets.js
+    5830–5850   src/js/views/history.js
+    5851–5992   src/js/views/anon.js
+    5993–6059   src/js/views/diag.js
+    6060–6173   src/js/views/ai.js
+    6174–6237   src/js/views/agent.js
+    6238–6264   src/js/views/compare.js
+    6265–6318   src/js/views/docs.js
+    6319–6451   src/js/views/help.js
+    6447–6447   DEV\\.md
+    6452–6708   src/js/app/selftest.js
+    6709–6722   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -76,7 +78,7 @@
 <!-- ===== END src/html/head.html ===== -->
 <style>
 /* ===== BEGIN src/css/theme.css ===== */
-/* Цветовые токены. Тёмная тема — по системной настройке или data-theme="dark". */
+/* Цветовые токены. Тёмная тема — по системной настройке (атрибут data-theme не задан) или data-theme="dark". Темы «Спокойная» и «Весёлая» — в themes.css. */
 :root{
   --bg:#f4f5f8; --panel:#ffffff; --panel2:#f0f2f6; --panel3:#e7eaf0; --text:#1b2130; --muted:#667085; --border:#dde1e8; --border2:#c9ced8;
   --accent:#2f6fde; --accent-2:#1f57bd; --accent-soft:#e4ecfc; --ok:#178a4c; --ok-soft:#e1f4e9; --warn:#b26a00; --warn-soft:#fdf0d9;
@@ -89,7 +91,7 @@
   --mono:"Cascadia Mono","Cascadia Code",Consolas,"JetBrains Mono","DejaVu Sans Mono",Menlo,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+@media (prefers-color-scheme: dark){ :root:not([data-theme]){
   --bg:#12151b; --panel:#1a1e26; --panel2:#212631; --panel3:#2a303c; --text:#e3e7ef; --muted:#98a1b3; --border:#2f3644; --border2:#3c4455;
   --accent:#6a9dff; --accent-2:#8bb3ff; --accent-soft:#1f2f4d; --ok:#4cc386; --ok-soft:#173627; --warn:#f0b04a; --warn-soft:#3a2d14;
   --bad:#ff7a7a; --bad-soft:#412121; --violet:#c792ea; --violet-soft:#33244a; --code-bg:#161a21; --sel:#2b4370;
@@ -123,6 +125,75 @@ svg .fill{fill:currentColor;stroke:none}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 kbd{border:1px solid var(--border2);border-bottom-width:2px;border-radius:4px;padding:0 4px;font-size:11px;background:var(--panel2);color:var(--muted)}
 /* ===== END src/css/theme.css ===== */
+/* ===== BEGIN src/css/themes.css ===== */
+/* Дополнительные темы. Тема — атрибут data-theme на <html>:
+   light (классика, по умолчанию) · calm (спокойная, монохром) · dark · fun (весёлая, оранжево-голубая).
+   Здесь только переопределения токенов и немногие правила, которые меняют «характер» темы. */
+
+/* ---------- Спокойная: монохром, цвет только там, где он несёт смысл ---------- */
+:root[data-theme="calm"]{
+  --bg:#f6f6f5; --panel:#ffffff; --panel2:#f3f3f2; --panel3:#e9e9e7; --text:#111111; --muted:#76767a; --border:#e6e6e3; --border2:#d6d6d2;
+  --accent:#1f1f1f; --accent-2:#000; --accent-soft:#efefed; --violet:#555; --violet-soft:#efefed;
+  --ok:#1f8a4c; --ok-soft:#eaf6ef; --warn:#b06a00; --warn-soft:#fbf2e2; --bad:#d23c3c; --bad-soft:#fcecec;
+  --code-bg:#fbfbfa; --sel:#e3e3e0;
+  --c-kw:#5b3fa0; --c-str:#9a4a1f; --c-num:#2f6f63; --c-cmt:#9a9a9a; --c-fn:#2d4f8f; --c-qid:#7a5a10; --c-op:#555; --c-type:#2f6f8a;
+  --heat0:#f1f1ef; --heat1:#e4e4e0; --heat2:#f6e7cc; --heat3:#f1d3a0; --heat4:#e9b179; --heat5:#dd8a5a;
+  --shadow:none; --radius:16px; color-scheme:light;
+}
+[data-theme="calm"] h1{font-size:28px;font-weight:700;letter-spacing:-.3px}
+[data-theme="calm"] .card{background:linear-gradient(180deg,#fff 0%,#fafaf9 100%);border-color:var(--border)}
+[data-theme="calm"] .logo{background:#1f1f1f}
+[data-theme="calm"] .hero{background:none;color:var(--text);-webkit-text-fill-color:currentColor}
+[data-theme="calm"] .btn.pri{background:#2b2b2b;border-color:#2b2b2b}
+[data-theme="calm"] .btn:hover:not(:disabled),[data-theme="calm"] label.btn:hover{border-color:#999;color:var(--text)}
+[data-theme="calm"] .nav-item .hk{display:none}
+[data-theme="calm"] .nav-item.on{background:var(--panel);color:var(--text);box-shadow:0 0 0 1px var(--border);font-weight:600}
+[data-theme="calm"] .nav-item .cnt,[data-theme="calm"] .nav-item .cnt.warn,[data-theme="calm"] .nav-item .cnt.bad{background:var(--panel3);color:var(--muted)}
+[data-theme="calm"] .sidebar,[data-theme="calm"] .topbar,[data-theme="calm"] .statusbar{background:#fafaf9}
+/* бейджи и метки — нейтральные, смысл передаёт маленькая цветная точка */
+[data-theme="calm"] .badge,[data-theme="calm"] .badge.acc,[data-theme="calm"] .badge.vio,[data-theme="calm"] .chip,[data-theme="calm"] .imp{background:var(--panel2);color:var(--text);border-color:var(--border)}
+[data-theme="calm"] .sev,[data-theme="calm"] .safety{background:transparent!important;color:var(--text)!important;font-weight:500;padding:0;min-width:0;text-align:left}
+[data-theme="calm"] .sev::before,[data-theme="calm"] .safety::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px;background:var(--muted)}
+[data-theme="calm"] .sev.err::before,[data-theme="calm"] .sev.crit::before{background:var(--bad)}
+[data-theme="calm"] .sev.warn::before,[data-theme="calm"] .safety.check::before{background:var(--warn)}
+[data-theme="calm"] .sev.tip::before,[data-theme="calm"] .safety.safe::before{background:var(--ok)}
+[data-theme="calm"] .sev.info::before{background:#7a8aa8}
+[data-theme="calm"] .ocard{border-left-width:1px}
+[data-theme="calm"] .ocard.err{box-shadow:inset 3px 0 0 var(--bad)}
+[data-theme="calm"] .note{background:var(--panel2);border-left-color:var(--border2)}
+[data-theme="calm"] .note.bad{border-left-color:var(--bad)}[data-theme="calm"] .note.warn{border-left-color:var(--warn)}[data-theme="calm"] .note.ok{border-left-color:var(--ok)}
+[data-theme="calm"] .seg{background:var(--panel2);border-radius:10px;padding:3px;border:0}
+[data-theme="calm"] .seg button{border-radius:8px}
+[data-theme="calm"] .seg button.on{box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--text)}
+[data-theme="calm"] table.t th{background:transparent;color:var(--text);border-bottom:1px solid var(--border2)}
+[data-theme="calm"] .bar{background:#6b6b6b}
+[data-theme="calm"] mark.tk{background:#ececea;color:#111;outline:1px solid #d6d6d2}
+
+/* ---------- Весёлая: оранжево-голубая, тёплая, с градиентами ---------- */
+:root[data-theme="fun"]{
+  --bg:#fff7ef; --panel:#ffffff; --panel2:#fff1e3; --panel3:#ffe3c7; --text:#1d2433; --muted:#7a6a5c; --border:#ffd9b5; --border2:#ffc28a;
+  --accent:#ff7a1a; --accent-2:#e8650a; --accent-soft:#ffe9d6; --violet:#1e9bff; --violet-soft:#dff1ff;
+  --ok:#14a06a; --ok-soft:#dcf7ea; --warn:#e88a00; --warn-soft:#fff0d1; --bad:#e8455a; --bad-soft:#ffe3e7;
+  --code-bg:#fffcf8; --sel:#cfe9ff;
+  --c-kw:#e8650a; --c-str:#1a7fd6; --c-num:#14a06a; --c-cmt:#b79d86; --c-fn:#7a3fd6; --c-qid:#c2410c; --c-op:#7a6a5c; --c-type:#0e8ac2;
+  --tok-bg:#dff1ff; --tok-fg:#0b5394;
+  --heat0:#e3f6ff; --heat1:#bfe8ff; --heat2:#ffe6b8; --heat3:#ffc98a; --heat4:#ff9f5a; --heat5:#ff6a3d;
+  --shadow:0 2px 0 rgba(255,122,26,.12),0 8px 24px rgba(255,122,26,.08); --radius:16px; color-scheme:light;
+}
+[data-theme="fun"] .logo{background:linear-gradient(135deg,#ff7a1a,#1e9bff);border-radius:10px}
+[data-theme="fun"] .hero{background:linear-gradient(90deg,#ff7a1a,#1e9bff);-webkit-background-clip:text;background-clip:text}
+[data-theme="fun"] .btn,[data-theme="fun"] label.btn{border-radius:999px}
+[data-theme="fun"] .btn.pri{background:linear-gradient(135deg,#ff7a1a,#ff9a3d);border-color:#ff7a1a;box-shadow:0 3px 10px rgba(255,122,26,.3)}
+[data-theme="fun"] .topbar{background:linear-gradient(90deg,#fff 0%,#fff3e6 55%,#e6f4ff 100%)}
+[data-theme="fun"] .sidebar{background:#fffaf4}
+[data-theme="fun"] .nav-item.on{background:linear-gradient(90deg,#ffe3c7,#e1f2ff);color:#c2410c}
+[data-theme="fun"] .card{border-width:1.5px}
+[data-theme="fun"] .card h2::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:2px;background:linear-gradient(135deg,#ff7a1a,#1e9bff)}
+[data-theme="fun"] .seg button.on{background:#fff;color:#e8650a;box-shadow:inset 0 -3px 0 #1e9bff}
+[data-theme="fun"] .bar{background:linear-gradient(90deg,#ff7a1a,#1e9bff)}
+[data-theme="fun"] .drop.big{background:linear-gradient(135deg,#fff 0%,#fff3e6 60%,#eaf6ff 100%);border-color:#ffc28a}
+[data-theme="fun"] .gnode.src rect{fill:#e3f6ff}[data-theme="fun"] .gnode.param rect{fill:#ffe9d6}
+/* ===== END src/css/themes.css ===== */
 /* ===== BEGIN src/css/layout.css ===== */
 /* Каркас: верхняя панель, боковое меню, рабочая область, строка состояния */
 .app{display:grid;grid-template-rows:52px 1fr 26px;grid-template-columns:232px 1fr;height:100vh;transition:grid-template-columns .15s}
@@ -338,6 +409,12 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .help code{background:var(--panel2);padding:0 4px;border-radius:4px}
 .pqdoc-preview{max-height:none}
 @media (max-width:1100px){.opt-top,.sb-grid,.sb-steps,.snip-layout,.hist-layout,.anon-layout,.panes{grid-template-columns:1fr}.opt-cards{grid-template-columns:1fr}}
+
+.swatch{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:8px;vertical-align:-3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.hintbar{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;margin:0 0 14px;font-size:13px}
+.view.full .hintbar{margin:8px 10px;flex:none}
+.hintbar .hi-ic{font-size:15px;line-height:1.2}.hintbar .hi-t{flex:1}
+.hintbar button.link{white-space:nowrap;font-size:12.5px}
 /* ===== END src/css/components.css ===== */
 /* ===== BEGIN src/css/editor.css ===== */
 /* Редактор: раскладка и тема CodeMirror */
@@ -415,7 +492,8 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
   <button class="searchbox" id="tbPalette" title="Палитра команд"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg><span>Команды, запросы, функции…</span><kbd>Ctrl K</kbd></button>
   <span class="badge ok" title="Content-Security-Policy запрещает странице любые сетевые запросы (connect-src 'none')">🔒 офлайн</span>
   <button class="iconbtn" id="tbSettings" title="Настройки"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
-  <button class="iconbtn" id="tbTheme" title="Светлая / тёмная тема"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 000 16z" class="fill"/></svg></button>
+  <div class="dropdown"><div class="menu" id="themeMenu" style="min-width:200px"></div></div>
+  <button class="iconbtn" id="tbTheme" title="Тема оформления"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 000 16z" class="fill"/></svg></button>
 </header>
 <nav class="sidebar" id="sidebar" aria-label="Разделы"></nav>
 <main class="main" id="main">
@@ -675,7 +753,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
       </div>
       <div class="card">
         <div class="card-h"><h2>Пакет для ИИ и задача для чата</h2></div>
-        <div class="note small">Большому ИИ стоит отдавать только сложные случаи: встроенный оптимизатор, линтер и рефакторинг закрывают типовые задачи без отправки кода наружу.</div>
+        <div class="note small">Типовые задачи решают встроенные оптимизатор, линтер и рефакторинг — без отправки кода наружу. Внешний ИИ нужен для нестандартных.</div>
         <div class="grid2">
           <div><label class="small muted">Что нужно сделать:</label><textarea id="goal" rows="4" placeholder="Например: ускорить обновление запроса ⟦QRY_1⟧; найти, почему шаг «Объединено» даёт дубли…"></textarea></div>
           <div class="small form-grid">
@@ -824,9 +902,8 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 <!-- ===== BEGIN DEV.md ===== -->
 # Мастер PQ — документация для разработчика (и для Claude)
 
-Этот файл встроен в `pq-master.html` (блок с id `pqm-dev-docs`)
-и лежит в репозитории как `pq-master/DEV.md`. Прочитайте его целиком прежде, чем что-то менять, —
-он написан так, чтобы следующая доработка читала **один-два модуля, а не весь файл на 900 КБ**.
+Встроен в `pq-master.html` (блок `pqm-dev-docs`), исходник — `pq-master/DEV.md`.
+Цель — чтобы доработка читала один-два модуля, а не весь файл (~1 МБ).
 
 ## Что это
 
@@ -888,7 +965,9 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
-| `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки | `registerView`, `showView`, `NAV`, `commands` |
+| `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
+| `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
+| `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
 | `app/selftest.js` | самотест (44 проверки) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
@@ -923,6 +1002,13 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 **Новый раздел интерфейса.** `src/html/view-xxx.html` (`<section class="view" id="view-xxx">`),
 `src/js/views/xxx.js` с `registerView('xxx', …)`, пункт в `NAV` (`app/shell.js`), оба файла — в `MANIFEST`.
 Для разделов, требующих книгу: обёртка `.hasbook` и сообщение `.needbook-msg`.
+
+**Новая тема.** Блок `[data-theme="id"]{…}` в `css/themes.css` (переопределить токены из
+`theme.css`, при необходимости — отдельные компоненты) и строка в `THEMES` (`app/shell.js`).
+Тема хранится в настройках; без атрибута `data-theme` действует системная светлая/тёмная.
+
+**Подсказка раздела.** Текст в `HINTS[id]` (`app/hints.js`). Закрытые подсказки помнятся в
+`localStorage`; «Показать подсказки снова» — в настройках и палитре.
 
 **Новая категория обезличивания.** `CATS` в `nda/anon.js` + классификация в `anonymizeM`
 (контекст строкового литерала: функция/аргумент, поле записи, сравнение). Метка `⟦CAT_N⟧` — заглавные латинские буквы.
@@ -4698,6 +4784,41 @@ async function saveToOriginal(){
   } catch (e){ console.error(e); modal('<h2>Запись не выполнена</h2><p>' + escHtml(e.message || String(e)) + '</p>'); }
 }
 /* ===== END src/js/app/storage.js ===== */
+/* ===== BEGIN src/js/app/hints.js ===== */
+/* =====================================================================
+   app/hints.js — короткие подсказки в начале каждого раздела.
+   Скрываются по одной («Понятно») или все сразу; состояние — в localStorage
+   (pqm-hints-off), общий выключатель — в настройках (settings.hints).
+   ===================================================================== */
+const HINTS = {
+  home: 'Обзор книги: оценка здоровья, источники и запросы. Клик по строке таблицы открывает запрос в редакторе. Новую книгу можно открыть, перетащив файл в окно.',
+  editor: 'Правки применяются к рабочей версии кнопкой «Применить» (Ctrl+Enter), в файл они попадают при сохранении. Ctrl+Space — автодополнение, F1 — справка по функции под курсором.',
+  optimizer: '«Безопасно» — исправление не меняет результат запроса. «Проверьте результат» — зависит от данных. Изменения можно посмотреть заранее, а применённые — отменить кнопкой ↶.',
+  graph: 'Стрелка ведёт от запроса-источника к запросу, который его использует. Параметризатор выносит пути, серверы и адреса в запросы-параметры.',
+  sandbox: 'Выражения вычисляются прямо в браузере. Шаг, который обращается к источнику данных, подмените образцом — CSV, XLSX или таблицей, введённой вручную.',
+  history: 'Каждое изменение кода — отдельная версия. Откат к версии сам записывается в историю, поэтому ничего не теряется.',
+  reference: 'Офлайн-справочник функций M. Функции с отметкой «есть в песочнице» можно сразу вычислить на примере.',
+  snippets: 'Заполните поля — код обновится справа. Готовый шаблон добавляется новым запросом или вставляется в редактор.',
+  docs: 'Документ о запросах книги: граф, шаги, столбцы, замечания. С отметкой «обезличить» его можно передавать за пределы компании.',
+  compare: 'Показывает различия в коде запросов между двумя книгами или между рабочей версией и исходной.',
+  anon: 'Справа — то, что уйдёт наружу. Клик по замене возвращает значение, выделение текста и «Добавить выделенное» скрывает пропущенное. Словарь замен храните у себя.',
+  diag: 'Время, длительности и счётчики сохраняются как есть. Пути, серверы и тексты запросов обезличиваются тем же словарём, что и код.',
+  ai: 'Вставьте ответ ИИ целиком. Метки вернутся к исходным значениям, изменения покажутся по запросам; «Принять» записывает результат в рабочую версию.',
+  agent: 'Claude Code видит только папку обмена: читает outbox, отвечает в inbox. Входящие применяются только после вашего подтверждения.'
+};
+function hintsOff(){ try { return new Set(JSON.parse(localStorage.getItem('pqm-hints-off') || '[]')); } catch { return new Set(); } }
+function setHintsOff(set){ try { localStorage.setItem('pqm-hints-off', JSON.stringify([...set])); } catch { /* приватный режим */ } }
+function resetHints(){ setHintsOff(new Set()); }
+function renderHint(id){
+  const sec = document.getElementById('view-' + id); if (!sec) return;
+  const old = $('.hintbar', sec); if (old) old.remove();
+  if (pqmSettings().hints === false || !HINTS[id] || hintsOff().has(id)) return;
+  const d = document.createElement('div'); d.className = 'hintbar';
+  d.innerHTML = '<span class="hi-ic">💡</span><span class="hi-t">' + escHtml(HINTS[id]) + '</span><button class="link" data-hint="one">Понятно</button><button class="link" data-hint="all">Скрыть все</button>';
+  sec.insertBefore(d, sec.firstChild);
+  d.onclick = e => { const b = e.target.closest('[data-hint]'); if (!b) return; if (b.dataset.hint === 'all'){ saveSettings({ hints: false }); } else { const s = hintsOff(); s.add(id); setHintsOff(s); } d.remove(); };
+}
+/* ===== END src/js/app/hints.js ===== */
 /* ===== BEGIN src/js/app/shell.js ===== */
 /* =====================================================================
    app/shell.js — оболочка: навигация, виды, верхняя панель, строка состояния,
@@ -4746,6 +4867,7 @@ function showView(id){
   curView = id; S.lastView = id;
   $$('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + id));
   renderNav();
+  renderHint(id);
   const v = VIEWS[id]; if (v){ if (v.onShow) v.onShow(); if (_stale.has(id) || v.alwaysRender){ _stale.delete(id); if (v.render) v.render('show'); } }
   $('#main').scrollTop = 0;
 }
@@ -4794,9 +4916,13 @@ $('#tbUndo').onclick = () => histGo(S.histPos - 1);
 $('#tbRedo').onclick = () => histGo(S.histPos + 1);
 $('#tbPalette').onclick = () => openPalette();
 $('#tbSettings').onclick = openSettings;
+const THEMES = [['system', 'Как в системе', 'linear-gradient(135deg,#fff 50%,#1a1e26 50%)'], ['light', 'Классика', 'linear-gradient(135deg,#2f6fde,#7b2fb5)'], ['calm', 'Спокойная', 'linear-gradient(135deg,#f6f6f5,#2b2b2b)'], ['dark', 'Тёмная', 'linear-gradient(135deg,#12151b,#6a9dff)'], ['fun', 'Весёлая', 'linear-gradient(135deg,#ff7a1a,#1e9bff)']];
 function applyTheme(){ const t = pqmSettings().theme; if (t === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; }
-function toggleTheme(){ const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); saveSettings({ theme: cur === 'dark' ? 'light' : 'dark' }); applyTheme(); }
-$('#tbTheme').onclick = toggleTheme;
+function setTheme(t){ saveSettings({ theme: t }); applyTheme(); renderThemeMenu(); }
+function renderThemeMenu(){ const cur = pqmSettings().theme; $('#themeMenu').innerHTML = THEMES.map(([id, label, sw]) => '<button data-theme-id="' + id + '"><span class="swatch" style="background:' + sw + '"></span>' + label + (id === cur ? ' ✓' : '') + '</button>').join(''); }
+$('#tbTheme').onclick = e => { e.stopPropagation(); renderThemeMenu(); const m = $('#themeMenu'); const on = !m.classList.contains('on'); $$('.menu.on').forEach(x => x.classList.remove('on')); m.classList.toggle('on', on); };
+$('#themeMenu').addEventListener('click', e => { const b = e.target.closest('[data-theme-id]'); if (b){ setTheme(b.dataset.themeId); $('#themeMenu').classList.remove('on'); } });
+function toggleTheme(){ const ids = THEMES.map(t => t[0]).slice(1); const i = ids.indexOf(pqmSettings().theme); setTheme(ids[(i + 1) % ids.length]); }
 $('#fileOpen').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openFromFile(f); });
 window.addEventListener('dragover', e => { if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault(); });
 window.addEventListener('drop', e => { if (e.target.closest && e.target.closest('.drop')) return; e.preventDefault(); if (curView === 'diag'){ addDiagFiles([...e.dataTransfer.files]); return; } handleDrop(e); });
@@ -4805,18 +4931,20 @@ window.addEventListener('beforeunload', e => { if (isDirty()){ e.preventDefault(
 async function openSettings(){
   const s = pqmSettings();
   const p = modal('<h2>Настройки</h2><div class="form-grid">' +
-    '<span>Тема</span><select id="stTheme"><option value="system">как в системе</option><option value="light">светлая</option><option value="dark">тёмная</option></select>' +
+    '<span>Тема</span><select id="stTheme">' + THEMES.map(([id, l]) => '<option value="' + id + '">' + l + '</option>').join('') + '</select>' +
+    '<span>Подсказки</span><label><input type="checkbox" id="stHints"> показывать подсказки в разделах</label>' +
     '<span>Культура для исправлений</span><select id="stCulture">' + ['ru-RU', 'en-US', 'de-DE', 'kk-KZ', 'uk-UA', 'be-BY'].map(c => '<option>' + c + '</option>').join('') + '</select>' +
     '<span>Кодировка CSV по умолчанию</span><select id="stEnc"><option value="65001">UTF-8 (65001)</option><option value="1251">Windows-1251</option></select>' +
     '<span>Шрифт редактора, px</span><input type="number" id="stFont" min="10" max="22" step="0.5" style="width:90px">' +
     '<span>Недавние файлы</span><label><input type="checkbox" id="stRecent"> запоминать (только ссылки на файлы, без содержимого)</label>' +
     '<span>Запись в оригинал</span><label><input type="checkbox" id="stBackup"> сначала сохранять резервную копию</label>' +
     '</div><div class="row"><button class="btn danger" id="stClearRecent">Очистить список недавних</button><button class="btn danger" id="stReset">Сбросить все настройки</button></div>', [['cancel', 'Отмена'], ['ok', 'Сохранить', 'pri']]);
-  $('#stTheme').value = s.theme; $('#stCulture').value = s.cultureLocale; $('#stEnc').value = String(s.csvEncoding); $('#stFont').value = s.editorFont; $('#stRecent').checked = s.rememberRecent; $('#stBackup').checked = s.backupOnSave;
+  $('#stTheme').value = s.theme; $('#stCulture').value = s.cultureLocale; $('#stEnc').value = String(s.csvEncoding); $('#stFont').value = s.editorFont; $('#stRecent').checked = s.rememberRecent; $('#stBackup').checked = s.backupOnSave; $('#stHints').checked = s.hints !== false;
   $('#stClearRecent').onclick = async () => { await recentClear(); toast('Список недавних файлов очищен', 'ok'); if (VIEWS.home) VIEWS.home.render('recent'); };
   $('#stReset').onclick = () => { try { localStorage.removeItem('pqm-settings'); } catch { /* нет */ } _settings = null; applyTheme(); toast('Настройки сброшены'); };
   if ((await p) !== 'ok') return;
-  saveSettings({ theme: $('#stTheme').value, cultureLocale: $('#stCulture').value, csvEncoding: +$('#stEnc').value, editorFont: +$('#stFont').value || 13.5, rememberRecent: $('#stRecent').checked, backupOnSave: $('#stBackup').checked });
+  saveSettings({ theme: $('#stTheme').value, cultureLocale: $('#stCulture').value, csvEncoding: +$('#stEnc').value, editorFont: +$('#stFont').value || 13.5, rememberRecent: $('#stRecent').checked, backupOnSave: $('#stBackup').checked, hints: $('#stHints').checked });
+  if ($('#stHints').checked) resetHints(); renderHint(curView);
   if (!$('#stRecent').checked) await recentClear();
   applyTheme(); if (typeof applyEditorFont === 'function') applyEditorFont();
   if (S.work){ reanalyze(); emitState('settings'); }
@@ -4842,7 +4970,8 @@ function commands(){
     c('Документация книги (HTML)', () => { showView('docs'); $('#docHtml').click(); });
     c('Закрыть книгу', closeBook);
   }
-  c('Сменить тему', toggleTheme);
+  for (const [id, l] of THEMES) c('Тема: ' + l, () => setTheme(id));
+  c('Показать подсказки разделов снова', () => { saveSettings({ hints: true }); resetHints(); renderHint(curView); });
   c('Настройки', openSettings);
   c('Запустить самотест', () => { showView('selftest'); $('#runSelfTest').click(); });
   for (const n of NAV) if (n.id) c('Перейти: ' + n.label, () => showView(n.id), { kind: 'раздел', hk: n.hk });
@@ -4961,7 +5090,7 @@ function renderHome(){
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
   if (isDirty()) next.push(['code', 'Сохранить изменения: копия (Ctrl+S) или в оригинал', 'save']);
   next.push(['play', 'Прогнать запрос пошагово на образце данных', 'sandbox']);
-  next.push(['shield', 'Подготовить обезличенный код для ИИ (сложные случаи)', 'anon']);
+  next.push(['shield', 'Подготовить обезличенный код для внешнего ИИ', 'anon']);
   $('#homeNext').innerHTML = '<h2>Что дальше</h2><ul class="next-list">' + next.map(([ic, t, act]) => '<li>' + icon(ic) + '<button class="link" data-act="' + act + '">' + escHtml(t) + '</button></li>').join('') + '</ul>';
   renderQueryTable();
   $$('[data-go]', $('#homeBook')).forEach(x => x.onclick = () => showView(x.dataset.go));
@@ -6200,7 +6329,7 @@ const HELP_HTML = `
 <li><b>Оптимизатор</b> (<kbd>Alt</kbd>+<kbd>3</kbd>): советы с кнопкой «Применить». «Применить все безопасные» исправляет то, что гарантированно не меняет результат.</li>
 <li><b>Редактор</b> (<kbd>Alt</kbd>+<kbd>2</kbd>): правьте запросы с автодополнением и подсказками, затем «Применить» (<kbd>Ctrl</kbd>+<kbd>Enter</kbd>).</li>
 <li><b>Сохраните</b>: «Сохранить копию» (<kbd>Ctrl</kbd>+<kbd>S</kbd>) или «В оригинал» (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, с резервной копией). Затем в Excel: «Данные» → «Обновить всё».</li>
-<li><b>Сложный случай?</b> Раздел «Обезличивание» → «Задача для чата» или «Пакет для ИИ». Ответ ИИ — в раздел «Ответ ИИ». Большому ИИ стоит отдавать только то, что не решают встроенные инструменты.</li>
+<li><b>Нестандартная задача?</b> Раздел «Обезличивание» → «Задача для чата» или «Пакет для ИИ». Ответ ИИ вставьте в раздел «Ответ ИИ» — метки заменятся обратно на ваши значения.</li>
 </ol></div>
 
 <div class="card"><h2>Горячие клавиши</h2>
@@ -6254,6 +6383,12 @@ const HELP_HTML = `
 <li>Неизменённые части книги копируются байт в байт. Меняется только код запросов (Formulas/Section1.m) и длины блоков DataMashup.</li>
 </ul></div>
 
+<div class="card"><h2>Темы и подсказки</h2>
+<ul>
+<li><b>Тема</b> — кнопка ◐ в верхней панели или «Настройки». «Как в системе» следует светлой/тёмной теме ОС; «Классика» — светлая; «Спокойная» — монохромная, без лишних акцентов; «Тёмная»; «Весёлая» — оранжево-голубая. В палитре: <kbd>Ctrl</kbd>+<kbd>K</kbd> → «Тема».</li>
+<li><b>Подсказки</b> — плашка 💡 вверху раздела с кратким описанием. «Понятно» скрывает её в этом разделе, «Скрыть все» — везде. Вернуть: «Настройки» → «Подсказки» или палитра → «Показать подсказки разделов снова».</li>
+</ul></div>
+
 <div class="card"><h2>Недавние файлы и приватность хранения</h2>
 <p>Список недавних хранит в браузере (IndexedDB) <b>только ссылку на файл</b>, имя, размер и дату. Содержимое книг в браузер не копируется. При повторном открытии браузер один раз спросит разрешение на чтение. Очистка: «Очистить список» на «Обзоре» или в настройках. Работает в Chrome и Edge. Настройки (тема, культура) хранятся в localStorage, в них нет данных книг. Чёрный список NDA, словарь и история правок не сохраняются в браузере — только в этой вкладке и в файлах, которые вы скачали сами.</p></div>
 
@@ -6287,7 +6422,7 @@ const HELP_HTML = `
 <li>Шлюз держится на изоляции: запускайте Claude Code из папки обмена, используйте сгенерированный <code>.claude/settings.json</code> (запрет Bash, веба и чтения папок с оригиналами), а лучше — отдельную учётную запись или контейнер.</li>
 </ul></div>
 
-<div class="card"><h2>Ограничения (честно)</h2>
+<div class="card"><h2>Ограничения</h2>
 <ul>
 <li>Автоматический поиск секретов не гарантирует полноту — смотрите «Стало» глазами, пользуйтесь чёрным списком.</li>
 <li>Линтер, оптимизатор и карта тяжести — эвристики по тексту, а не выполнение. Точная картина свёртки — «Просмотреть собственный запрос» и диагностика.</li>

@@ -1,8 +1,7 @@
 # Мастер PQ — документация для разработчика (и для Claude)
 
-Этот файл встроен в `pq-master.html` (блок с id `pqm-dev-docs`)
-и лежит в репозитории как `pq-master/DEV.md`. Прочитайте его целиком прежде, чем что-то менять, —
-он написан так, чтобы следующая доработка читала **один-два модуля, а не весь файл на 900 КБ**.
+Встроен в `pq-master.html` (блок `pqm-dev-docs`), исходник — `pq-master/DEV.md`.
+Цель — чтобы доработка читала один-два модуля, а не весь файл (~1 МБ).
 
 ## Что это
 
@@ -64,7 +63,9 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
-| `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки | `registerView`, `showView`, `NAV`, `commands` |
+| `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
+| `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
+| `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
 | `app/selftest.js` | самотест (44 проверки) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
@@ -99,6 +100,13 @@ node pq-master/test/e2e.mjs         # headless-прогон: самотест + 
 **Новый раздел интерфейса.** `src/html/view-xxx.html` (`<section class="view" id="view-xxx">`),
 `src/js/views/xxx.js` с `registerView('xxx', …)`, пункт в `NAV` (`app/shell.js`), оба файла — в `MANIFEST`.
 Для разделов, требующих книгу: обёртка `.hasbook` и сообщение `.needbook-msg`.
+
+**Новая тема.** Блок `[data-theme="id"]{…}` в `css/themes.css` (переопределить токены из
+`theme.css`, при необходимости — отдельные компоненты) и строка в `THEMES` (`app/shell.js`).
+Тема хранится в настройках; без атрибута `data-theme` действует системная светлая/тёмная.
+
+**Подсказка раздела.** Текст в `HINTS[id]` (`app/hints.js`). Закрытые подсказки помнятся в
+`localStorage`; «Показать подсказки снова» — в настройках и палитре.
 
 **Новая категория обезличивания.** `CATS` в `nda/anon.js` + классификация в `anonymizeM`
 (контекст строкового литерала: функция/аргумент, поле записи, сравнение). Метка `⟦CAT_N⟧` — заглавные латинские буквы.

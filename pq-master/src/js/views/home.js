@@ -50,7 +50,7 @@ function renderHome(){
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
   if (isDirty()) next.push(['code', 'Сохранить изменения: копия (Ctrl+S) или в оригинал', 'save']);
   next.push(['play', 'Прогнать запрос пошагово на образце данных', 'sandbox']);
-  next.push(['shield', 'Подготовить обезличенный код для ИИ (сложные случаи)', 'anon']);
+  next.push(['shield', 'Подготовить обезличенный код для внешнего ИИ', 'anon']);
   $('#homeNext').innerHTML = '<h2>Что дальше</h2><ul class="next-list">' + next.map(([ic, t, act]) => '<li>' + icon(ic) + '<button class="link" data-act="' + act + '">' + escHtml(t) + '</button></li>').join('') + '</ul>';
   renderQueryTable();
   $$('[data-go]', $('#homeBook')).forEach(x => x.onclick = () => showView(x.dataset.go));

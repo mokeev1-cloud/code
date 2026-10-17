@@ -1,4 +1,4 @@
-/* Цветовые токены. Тёмная тема — по системной настройке или data-theme="dark". */
+/* Цветовые токены. Тёмная тема — по системной настройке (атрибут data-theme не задан) или data-theme="dark". Темы «Спокойная» и «Весёлая» — в themes.css. */
 :root{
   --bg:#f4f5f8; --panel:#ffffff; --panel2:#f0f2f6; --panel3:#e7eaf0; --text:#1b2130; --muted:#667085; --border:#dde1e8; --border2:#c9ced8;
   --accent:#2f6fde; --accent-2:#1f57bd; --accent-soft:#e4ecfc; --ok:#178a4c; --ok-soft:#e1f4e9; --warn:#b26a00; --warn-soft:#fdf0d9;
@@ -11,7 +11,7 @@
   --mono:"Cascadia Mono","Cascadia Code",Consolas,"JetBrains Mono","DejaVu Sans Mono",Menlo,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+@media (prefers-color-scheme: dark){ :root:not([data-theme]){
   --bg:#12151b; --panel:#1a1e26; --panel2:#212631; --panel3:#2a303c; --text:#e3e7ef; --muted:#98a1b3; --border:#2f3644; --border2:#3c4455;
   --accent:#6a9dff; --accent-2:#8bb3ff; --accent-soft:#1f2f4d; --ok:#4cc386; --ok-soft:#173627; --warn:#f0b04a; --warn-soft:#3a2d14;
   --bad:#ff7a7a; --bad-soft:#412121; --violet:#c792ea; --violet-soft:#33244a; --code-bg:#161a21; --sel:#2b4370;

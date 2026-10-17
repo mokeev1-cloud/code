@@ -45,6 +45,7 @@ function showView(id){
   curView = id; S.lastView = id;
   $$('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + id));
   renderNav();
+  renderHint(id);
   const v = VIEWS[id]; if (v){ if (v.onShow) v.onShow(); if (_stale.has(id) || v.alwaysRender){ _stale.delete(id); if (v.render) v.render('show'); } }
   $('#main').scrollTop = 0;
 }
@@ -93,9 +94,13 @@ $('#tbUndo').onclick = () => histGo(S.histPos - 1);
 $('#tbRedo').onclick = () => histGo(S.histPos + 1);
 $('#tbPalette').onclick = () => openPalette();
 $('#tbSettings').onclick = openSettings;
+const THEMES = [['system', 'Как в системе', 'linear-gradient(135deg,#fff 50%,#1a1e26 50%)'], ['light', 'Классика', 'linear-gradient(135deg,#2f6fde,#7b2fb5)'], ['calm', 'Спокойная', 'linear-gradient(135deg,#f6f6f5,#2b2b2b)'], ['dark', 'Тёмная', 'linear-gradient(135deg,#12151b,#6a9dff)'], ['fun', 'Весёлая', 'linear-gradient(135deg,#ff7a1a,#1e9bff)']];
 function applyTheme(){ const t = pqmSettings().theme; if (t === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t; }
-function toggleTheme(){ const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); saveSettings({ theme: cur === 'dark' ? 'light' : 'dark' }); applyTheme(); }
-$('#tbTheme').onclick = toggleTheme;
+function setTheme(t){ saveSettings({ theme: t }); applyTheme(); renderThemeMenu(); }
+function renderThemeMenu(){ const cur = pqmSettings().theme; $('#themeMenu').innerHTML = THEMES.map(([id, label, sw]) => '<button data-theme-id="' + id + '"><span class="swatch" style="background:' + sw + '"></span>' + label + (id === cur ? ' ✓' : '') + '</button>').join(''); }
+$('#tbTheme').onclick = e => { e.stopPropagation(); renderThemeMenu(); const m = $('#themeMenu'); const on = !m.classList.contains('on'); $$('.menu.on').forEach(x => x.classList.remove('on')); m.classList.toggle('on', on); };
+$('#themeMenu').addEventListener('click', e => { const b = e.target.closest('[data-theme-id]'); if (b){ setTheme(b.dataset.themeId); $('#themeMenu').classList.remove('on'); } });
+function toggleTheme(){ const ids = THEMES.map(t => t[0]).slice(1); const i = ids.indexOf(pqmSettings().theme); setTheme(ids[(i + 1) % ids.length]); }
 $('#fileOpen').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openFromFile(f); });
 window.addEventListener('dragover', e => { if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault(); });
 window.addEventListener('drop', e => { if (e.target.closest && e.target.closest('.drop')) return; e.preventDefault(); if (curView === 'diag'){ addDiagFiles([...e.dataTransfer.files]); return; } handleDrop(e); });
@@ -104,18 +109,20 @@ window.addEventListener('beforeunload', e => { if (isDirty()){ e.preventDefault(
 async function openSettings(){
   const s = pqmSettings();
   const p = modal('<h2>Настройки</h2><div class="form-grid">' +
-    '<span>Тема</span><select id="stTheme"><option value="system">как в системе</option><option value="light">светлая</option><option value="dark">тёмная</option></select>' +
+    '<span>Тема</span><select id="stTheme">' + THEMES.map(([id, l]) => '<option value="' + id + '">' + l + '</option>').join('') + '</select>' +
+    '<span>Подсказки</span><label><input type="checkbox" id="stHints"> показывать подсказки в разделах</label>' +
     '<span>Культура для исправлений</span><select id="stCulture">' + ['ru-RU', 'en-US', 'de-DE', 'kk-KZ', 'uk-UA', 'be-BY'].map(c => '<option>' + c + '</option>').join('') + '</select>' +
     '<span>Кодировка CSV по умолчанию</span><select id="stEnc"><option value="65001">UTF-8 (65001)</option><option value="1251">Windows-1251</option></select>' +
     '<span>Шрифт редактора, px</span><input type="number" id="stFont" min="10" max="22" step="0.5" style="width:90px">' +
     '<span>Недавние файлы</span><label><input type="checkbox" id="stRecent"> запоминать (только ссылки на файлы, без содержимого)</label>' +
     '<span>Запись в оригинал</span><label><input type="checkbox" id="stBackup"> сначала сохранять резервную копию</label>' +
     '</div><div class="row"><button class="btn danger" id="stClearRecent">Очистить список недавних</button><button class="btn danger" id="stReset">Сбросить все настройки</button></div>', [['cancel', 'Отмена'], ['ok', 'Сохранить', 'pri']]);
-  $('#stTheme').value = s.theme; $('#stCulture').value = s.cultureLocale; $('#stEnc').value = String(s.csvEncoding); $('#stFont').value = s.editorFont; $('#stRecent').checked = s.rememberRecent; $('#stBackup').checked = s.backupOnSave;
+  $('#stTheme').value = s.theme; $('#stCulture').value = s.cultureLocale; $('#stEnc').value = String(s.csvEncoding); $('#stFont').value = s.editorFont; $('#stRecent').checked = s.rememberRecent; $('#stBackup').checked = s.backupOnSave; $('#stHints').checked = s.hints !== false;
   $('#stClearRecent').onclick = async () => { await recentClear(); toast('Список недавних файлов очищен', 'ok'); if (VIEWS.home) VIEWS.home.render('recent'); };
   $('#stReset').onclick = () => { try { localStorage.removeItem('pqm-settings'); } catch { /* нет */ } _settings = null; applyTheme(); toast('Настройки сброшены'); };
   if ((await p) !== 'ok') return;
-  saveSettings({ theme: $('#stTheme').value, cultureLocale: $('#stCulture').value, csvEncoding: +$('#stEnc').value, editorFont: +$('#stFont').value || 13.5, rememberRecent: $('#stRecent').checked, backupOnSave: $('#stBackup').checked });
+  saveSettings({ theme: $('#stTheme').value, cultureLocale: $('#stCulture').value, csvEncoding: +$('#stEnc').value, editorFont: +$('#stFont').value || 13.5, rememberRecent: $('#stRecent').checked, backupOnSave: $('#stBackup').checked, hints: $('#stHints').checked });
+  if ($('#stHints').checked) resetHints(); renderHint(curView);
   if (!$('#stRecent').checked) await recentClear();
   applyTheme(); if (typeof applyEditorFont === 'function') applyEditorFont();
   if (S.work){ reanalyze(); emitState('settings'); }
@@ -141,7 +148,8 @@ function commands(){
     c('Документация книги (HTML)', () => { showView('docs'); $('#docHtml').click(); });
     c('Закрыть книгу', closeBook);
   }
-  c('Сменить тему', toggleTheme);
+  for (const [id, l] of THEMES) c('Тема: ' + l, () => setTheme(id));
+  c('Показать подсказки разделов снова', () => { saveSettings({ hints: true }); resetHints(); renderHint(curView); });
   c('Настройки', openSettings);
   c('Запустить самотест', () => { showView('selftest'); $('#runSelfTest').click(); });
   for (const n of NAV) if (n.id) c('Перейти: ' + n.label, () => showView(n.id), { kind: 'раздел', hk: n.hk });

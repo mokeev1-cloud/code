@@ -25,6 +25,7 @@ const OUT = path.join(ROOT, '..', 'pq-master.html');
 export const MANIFEST = [
   ['html', 'src/html/head.html'],
   ['css', 'src/css/theme.css'],
+  ['css', 'src/css/themes.css'],
   ['css', 'src/css/layout.css'],
   ['css', 'src/css/components.css'],
   ['css', 'src/css/editor.css'],
@@ -63,6 +64,7 @@ export const MANIFEST = [
   ['js', 'src/js/nda/agent.js'],
   ['js', 'src/js/app/ui-base.js'],
   ['js', 'src/js/app/storage.js'],
+  ['js', 'src/js/app/hints.js'],
   ['js', 'src/js/app/shell.js'],
   ['js', 'src/js/views/home.js'],
   ['js', 'src/js/views/editor.js'],

@@ -206,11 +206,6 @@ const mdl = await page.evaluate(() => ({ tiles: $$('#mdlTiles .tile').map(t => t
 await shot('25-model-map');
 await page.evaluate(() => setTheme('dark')); await page.waitForTimeout(200); await shot('26-model-map-dark'); await page.evaluate(() => setTheme('system'));
 check('Карта модели: плитки, поток (таблица книги и файл → запросы → лист), объём, скорость и оценка ускорения', mdl.tiles.length === 6 && mdl.nodes.includes('s:wb:Маппинг') && mdl.nodes.some(n => /^s:f:/.test(n)) && mdl.nodes.includes('q:ОПиУ') && mdl.edges >= 4 && mdl.vol >= 3 && mdl.speed >= 3 && mdl.sp.length >= 1 && /×/.test(mdl.sp[0]), JSON.stringify(mdl).slice(0, 400));
-// показ значений скрыт (демонстрация экрана): вычисления те же, на экране — коды
-await page.evaluate(() => { saveSettings({ hideValues: true }); edDataRender(); });
-const hid = await page.$eval('#edData', e => e.textContent);
-await page.evaluate(() => { saveSettings({ hideValues: false }); edDataRender(); });
-check('Скрытые значения: в панели данных нет текста и сумм из данных, строки и столбцы видны', !/Ромашка|Иванов|1000/.test(hid) && /▒/.test(hid) && /строк × /.test(hid), hid.slice(0, 160));
 // пакет для ИИ — проверка глазами: разделы, сканер, ровно тот текст, что уйдёт
 await page.evaluate(() => dataRunAll());   // после принятия ответа ИИ код изменился — прежняя проверка устарела
 await page.click('[data-view=anon]'); await page.waitForTimeout(300);

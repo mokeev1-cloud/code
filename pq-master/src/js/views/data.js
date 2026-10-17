@@ -119,7 +119,7 @@ function dataFindings(run){
       if (p.txtNum && p.nums) add('info', q.name, 'Числа и числа-текстом вперемешку', 'столбец «' + p.col + '»: ' + fmtN(p.txtNum) + ' значений — текст, похожий на число. Суммы и слияния по такому столбцу неверны; задайте тип столбца.');
       if (p.spaces) add('info', q.name, 'Пробелы по краям', 'столбец «' + p.col + '»: ' + fmtN(p.spaces) + ' значений с пробелами в начале или конце. Если это ключ слияния или маппинга — совпадений не будет; добавьте Text.Trim.');
     }
-    for (const c of q.sums || []) if (c.changes.length) add('info', q.name, 'Контрольная сумма изменилась', '«' + c.col + '»: итог на шаге «' + c.first.step + '» и в результате отличается (' + relChange(c.first.sum, c.last.sum) + '). Где менялся: ' + c.changes.slice(0, 4).map(x => '«' + x.step + '» ' + relChange(x.before, x.after)).join(', ') + (c.changes.length > 4 ? '…' : '') + '. Суммы — в подробностях запроса. Убедитесь, что фильтры и слияния теряют или добавляют именно то, что нужно.');
+    for (const c of q.sums || []) if (c.changes.length) add('info', q.name, 'Контрольная сумма изменилась', '«' + c.col + '»: ' + fmtN(c.first.sum) + ' на шаге «' + c.first.step + '» → ' + fmtN(c.last.sum) + ' в результате (' + relChange(c.first.sum, c.last.sum) + '). Где менялся: ' + c.changes.slice(0, 4).map(x => '«' + x.step + '» ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before)).join(', ') + (c.changes.length > 4 ? '…' : '') + '. Убедитесь, что фильтры и слияния теряют или добавляют именно то, что нужно.');
   }
   const order = { err: 0, warn: 1, info: 2 }; return F.sort((a, b) => order[a.sev] - order[b.sev]);
 }
@@ -159,7 +159,7 @@ function dataNeeds(){
 function pickFiles(multiple, dir){ return new Promise(res => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = !!multiple; if (dir) inp.webkitdirectory = true; inp.onchange = () => res([...inp.files]); inp.click(); }); }
 function renderData(){
   if (!S.book) return;
-  renderDataProgress(); $('#dataHide').textContent = hideVals() ? '🙈 значения скрыты' : '👁 значения видны'; $('#dataHide').classList.toggle('on', hideVals());
+  renderDataProgress();
   // источники
   const needs = dataNeeds(); const wb = DATA.wb;
   const files = [...DATA.files].map(([k, f]) => '<div class="ds-item">📄 <b>' + escHtml(f.name) + '</b> <span class="small muted">' + fmtN(Math.round(f.bytes.length / 1024)) + ' КБ' + (k.startsWith('name:') ? '' : ' · для «' + escHtml(k) + '»') + (f.error ? ' · ⚠ ' + escHtml(f.error) : '') + '</span> <button class="link" data-detach="' + escHtml(k) + '">убрать</button></div>').join('') +
@@ -194,9 +194,9 @@ function renderData(){
   const maxR = Math.max(1, ...q.steps.map(s => s.rows || 0));
   $('#dataDetail').innerHTML = '<div class="card-h"><h2>' + escHtml(q.name) + '</h2><span class="sp"></span><button class="btn sm" id="dataToSb">Открыть в песочнице</button></div>' +
     '<h3>Шаги</h3><table class="t small"><tr><th>Шаг</th><th>Строк</th><th></th><th>Время</th></tr>' + q.steps.map(s => '<tr><td>' + escHtml(s.name) + (s.overridden ? ' 📎' : '') + '</td><td class="num">' + (s.error ? '<span style="color:var(--bad)" title="' + escHtml(s.error.message) + '">' + (s.error.need ? '🔌' : '✖') + '</span>' : fmtN(s.rows)) + '</td><td style="width:40%"><div class="bar"><i style="width:' + ((s.rows || 0) / maxR * 100) + '%"></i></div></td><td class="num">' + (s.ms || 0).toFixed(0) + ' мс</td></tr>').join('') + '</table>' +
-    (q.sums && q.sums.length ? '<h3>Контрольные суммы</h3><table class="t small"><tr><th>Столбец</th><th>Первый шаг</th><th>Результат</th><th>Где менялась</th></tr>' + q.sums.map(c => '<tr><td>' + escHtml(c.col) + '</td><td class="num">' + dispNum(c.first.sum) + '</td><td class="num">' + dispNum(c.last.sum) + '</td><td>' + (c.changes.length ? c.changes.slice(0, 6).map(x => escHtml(x.step) + ' (' + relChange(x.before, x.after) + (hideVals() ? '' : ', ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before)) + ')').join(', ') : '<span class="muted">не менялась</span>') + '</td></tr>').join('') + '</table>' : '') +
+    (q.sums && q.sums.length ? '<h3>Контрольные суммы</h3><table class="t small"><tr><th>Столбец</th><th>Первый шаг</th><th>Результат</th><th>Где менялась</th></tr>' + q.sums.map(c => '<tr><td>' + escHtml(c.col) + '</td><td class="num">' + fmtN(c.first.sum) + '</td><td class="num">' + fmtN(c.last.sum) + '</td><td>' + (c.changes.length ? c.changes.slice(0, 6).map(x => escHtml(x.step) + ' (' + relChange(x.before, x.after) + ', ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before) + ')').join(', ') : '<span class="muted">не менялась</span>') + '</td></tr>').join('') + '</table>' : '') +
     (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + fmtN(p.distinct) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
-    (q.sample ? '<h3>Первые строки результата</h3><div class="table-wrap" style="max-height:40vh"><table class="t small"><tr>' + q.sample.cols.map(c => '<th>' + escHtml(c) + '</th>').join('') + '</tr>' + q.sample.rows.slice(0, 30).map(r => '<tr>' + r.map(v => '<td>' + (v === null ? '<span class="muted">null</span>' : escHtml(v === '⚠' ? v : dispVal(v))) + '</td>').join('') + '</tr>').join('') + '</table></div>' : '');
+    (q.sample ? '<h3>Первые строки результата</h3><div class="table-wrap" style="max-height:40vh"><table class="t small"><tr>' + q.sample.cols.map(c => '<th>' + escHtml(c) + '</th>').join('') + '</tr>' + q.sample.rows.slice(0, 30).map(r => '<tr>' + r.map(v => '<td>' + (v === null ? '<span class="muted">null</span>' : escHtml(v === '⚠' || v === null ? String(v) : mToText(v))) + '</td>').join('') + '</tr>').join('') + '</table></div>' : '');
   $('#dataToSb').onclick = () => { showView('sandbox'); sbRunQuery(q.name); };
 }
 /** Числа проверки для пакета ИИ: без значений, имена — через словарь обезличивания */
@@ -211,7 +211,6 @@ function dataChecksForAi(){
     fixesOnData: ver.map(v => ({ rule: v.rule, query: anonQueryName(v.query), sameResult: v.same })) };
 }
 $('#dataRun').onclick = dataRunAll;
-$('#dataHide').onclick = () => { saveSettings({ hideValues: !hideVals() }); emitState('settings'); };
 wireDrop($('#dataSources'), async e => { const fs = [...e.dataTransfer.files]; if (fs.length){ await attachFiles(fs, '', ''); toast('Прикреплено файлов: ' + fs.length + ' (только в этом браузере)', 'ok'); } });
 $('#dataLimit').onchange = async () => {
   DATA.limit = +$('#dataLimit').value || 0; DATA.wbFor = null; DATA.selfBook = null;

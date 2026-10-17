@@ -87,6 +87,7 @@ export const MANIFEST = [
   ['js', 'src/js/views/sandbox.js'],
   ['js', 'src/js/views/data.js'],
   ['js', 'src/js/views/model.js'],
+  ['js', 'src/js/views/speedup.js'],
   ['js', 'src/js/views/reference.js'],
   ['js', 'src/js/views/snippets.js'],
   ['js', 'src/js/views/history.js'],

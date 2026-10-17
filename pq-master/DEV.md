@@ -10,6 +10,12 @@
 для ИИ и обратная подстановка), запись исправленной книги. Всё работает в браузере, **сеть
 запрещена CSP**. Пользователь работает на десктопе, интерфейс на русском.
 
+Главный сценарий: долгое (час и больше) обновление управленческой отчётности из баз 1С и выгрузок
+с маппингом — ускорить на 1–2 порядка правкой кода M, макросов и настроек; затем дорабатывать
+вручную или через обезличенный обмен с ИИ. Путь пользователя: «Карта модели» → «Посчитать на
+данных» → «⚡ Ускорить книгу» (`views/speedup.js`: проверенные на данных ускорения, безопасные
+исправления, флажки подключений, макрос) → «Отчёт об ускорении» → сохранение.
+
 ## Инварианты (нарушать нельзя)
 
 - **Никакой сети.** CSP `default-src 'none'; connect-src 'none'`. Никаких `fetch`/XHR/WebSocket/CDN.
@@ -103,6 +109,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
 | `views/model.js` | «Карта модели»: плитки, поток источники → запросы → лист/модель, объём и скорость, строки по шагам, оценка ускорения (`mdlSpeedups`: операции Power Query до/после по объёмам) | `renderModel`, `mdlFlow`, `mdlSpeedups` |
+| `views/speedup.js` | «⚡ Ускорить книгу» и «Отчёт об ускорении» (окно и HTML-файл) | `openSpeedup`, `runSpeedup`, `spdReport` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |

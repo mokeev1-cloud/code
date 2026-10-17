@@ -49,7 +49,8 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
-  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', '⚡ Ускорить книгу — всё автоматическое одной кнопкой и отчёт', 'speedup']);
+  next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
   next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
@@ -61,7 +62,7 @@ function renderHome(){
   renderQueryTable();
   $$('[data-go]', $('#homeBook')).forEach(x => x.onclick = () => showView(x.dataset.go));
   if ($('#homeSafe')) $('#homeSafe').onclick = applyAllSafe;
-  $$('[data-act]', $('#homeNext')).forEach(x => x.onclick = () => { const a = x.dataset.act; if (a === 'safe') applyAllSafe(); else if (a === 'save') saveCopy(); else showView(a); });
+  $$('[data-act]', $('#homeNext')).forEach(x => x.onclick = () => { const a = x.dataset.act; if (a === 'safe') applyAllSafe(); else if (a === 'save') saveCopy(); else if (a === 'speedup') openSpeedup(); else showView(a); });
 }
 function renderQueryTable(){
   const f = ($('#homeFilter').value || '').toLowerCase(); const heat = new Map(S.opt.heat.map(h => [h.query, h]));

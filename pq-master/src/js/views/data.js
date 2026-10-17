@@ -95,7 +95,7 @@ async function dataVerifyFixes(run){
       const reuse = new Map(); for (const [n, q] of base) if (n !== f.query && q.value != null && !touched(n)) reuse.set(n, q.value);
       const r2 = dataRunQuery(text, f.query, reuse);
       if (r2.error) res.push({ label: vnt.label, same: false, note: 'после правки ошибка: ' + r2.error.message });
-      else res.push(Object.assign({ label: vnt.label }, tableCompare(base.get(f.query).value, r2.value)));
+      else res.push(Object.assign({ label: vnt.label, o: vnt.o, msBefore: base.get(f.query).ms, msAfter: r2.ms }, tableCompare(base.get(f.query).value, r2.value)));
     }
     out.set(f.id, { title: f.title, query: f.query, rule: f.rule, safety: f.safety, results: res, same: res.every(r => r.same) });
   }

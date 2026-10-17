@@ -206,6 +206,16 @@ const mdl = await page.evaluate(() => ({ tiles: $$('#mdlTiles .tile').map(t => t
 await shot('25-model-map');
 await page.evaluate(() => setTheme('dark')); await page.waitForTimeout(200); await shot('26-model-map-dark'); await page.evaluate(() => setTheme('system'));
 check('Карта модели: плитки, поток (таблица книги и файл → запросы → лист), объём, скорость и оценка ускорения', mdl.tiles.length === 6 && mdl.nodes.includes('s:wb:Маппинг') && mdl.nodes.some(n => /^s:f:/.test(n)) && mdl.nodes.includes('q:ОПиУ') && mdl.edges >= 4 && mdl.vol >= 3 && mdl.speed >= 3 && mdl.sp.length >= 1 && /×/.test(mdl.sp[0]), JSON.stringify(mdl).slice(0, 400));
+// ⚡ Ускорить книгу: всё автоматическое одной кнопкой и отчёт
+await page.click('[data-view=optimizer]'); await page.waitForTimeout(200);
+await page.click('#optSpeedup'); await page.waitForTimeout(300);
+const plan = await page.$eval('#modal', e => e.textContent);
+await shot('27-speedup-plan');
+await page.click('#modal button[data-v=go]'); await page.waitForTimeout(800);
+const rep = await page.evaluate(() => ({ text: $('#modal').textContent, hist: S.hist[S.histPos].label, done: SPD.last && SPD.last.done.length }));
+await shot('28-speedup-report');
+await page.click('#modal button[data-v=close]'); await page.waitForTimeout(100);
+check('⚡ Ускорить книгу: план → исправления в одну правку истории → отчёт «было → стало, что сделано, что осталось, как проверить»', /Безопасные исправления кода/.test(plan) && /Отчёт об ускорении обновления/.test(rep.text) && /Что сделано/.test(rep.text) && /Осталось сделать вручную/.test(rep.text) && /Как проверить результат/.test(rep.text) && /Мастер ускорения/.test(rep.hist) && rep.done > 0, rep.hist + ' · сделано ' + rep.done);
 // пакет для ИИ — проверка глазами: разделы, сканер, ровно тот текст, что уйдёт
 await page.evaluate(() => dataRunAll());   // после принятия ответа ИИ код изменился — прежняя проверка устарела
 await page.click('[data-view=anon]'); await page.waitForTimeout(300);

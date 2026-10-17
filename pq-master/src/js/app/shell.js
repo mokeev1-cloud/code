@@ -142,6 +142,8 @@ function commands(){
     if (canUndo()) c('Отменить: ' + S.hist[S.histPos].label, () => histGo(S.histPos - 1), { hk: 'Ctrl+Alt+Z' });
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
+    c('⚡ Ускорить книгу (мастер)', () => openSpeedup());
+    if (SPD.last) c('Отчёт об ускорении (последний)', showSpeedReport);
     c('Проверить запросы на данных (локально)', () => { showView('data'); dataRunAll(); });
     if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
     c('Форматировать все запросы', formatAllQueries);

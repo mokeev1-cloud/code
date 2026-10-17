@@ -72,6 +72,12 @@ function lintSection(A){
         const t = A.text.slice(toks[open].s, toks[st.match.get(open)].e);
         if (!/Encoding\s*=/.test(t) && !/,\s*\d+\s*,/.test(t)) add('warn', 'csv-encoding', m.name, step && step.name, 'Csv.Document без явной кодировки (Encoding).', 'Укажите [Encoding=65001] для UTF-8 или [Encoding=1251] для Windows-1251, иначе кириллица может стать «кракозябрами» на другом компьютере.');
       }
+      // OData (в том числе стандартный интерфейс OData 1С): без отбора полей и строк объект грузится целиком
+      if (c.fn === 'OData.Feed'){
+        const t = A.text.slice(toks[open].s, toks[st.match.get(open)].e); const next = m.steps ? m.steps.steps.slice(0, 5).map(s => s.fn).join(' ') : '';
+        if (!/\$select|\$filter|Query\s*=/.test(t) && !/Table\.(SelectColumns|SelectRows|RemoveColumns)/.test(next)) add('warn', 'odata-load-all', m.name, step && step.name, 'OData.Feed загружает объект целиком — все поля и все строки' + (/odata\/standard\.odata/i.test(t) ? ' (стандартный интерфейс OData 1С)' : '') + '.',
+          'Сразу после источника оставьте нужные столбцы (Table.SelectColumns) и отфильтруйте строки (Table.SelectRows, например по периоду): OData свернёт это в $select и $filter, и сервер отдаст в разы меньше. Для 1С укажите [Implementation = "2.0"]; табличные части и связанные справочники берите через $expand, а не отдельным запросом на каждую строку.');
+      }
       // повторные чтения одного и того же источника
       const a0 = args[0] || []; const lit = a0.length === 1 && toks[a0[0]].t === 'str' ? toks[a0[0]].v : a0.length === 1 && isName(toks[a0[0]]) ? nameOf(toks[a0[0]]) : null;
       if (lit && EXTERNAL_SOURCES.has(c.fn)){ const key = c.fn + '(' + lit + ')'; if (!srcKeys.has(key)) srcKeys.set(key, new Set()); srcKeys.get(key).add(m.name); }

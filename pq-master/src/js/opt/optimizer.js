@@ -205,6 +205,7 @@ function optimizeSection(text, A, lint){
       case 'folding': add(Object.assign(base, { title: 'Прерывается свёртка запроса', impact: ['speed'], safety: 'manual' })); break;
       case 'firewall': add(Object.assign(base, { title: 'Риск Formula.Firewall', impact: ['reliability'], safety: 'manual' })); break;
       case 'dynamic-source': add(Object.assign(base, { title: 'Динамический источник данных', impact: ['reliability', 'portability'], safety: 'manual' })); break;
+      case 'odata-load-all': add(Object.assign(base, { title: 'Источник OData загружается целиком', impact: ['speed'], safety: 'manual' })); break;
       case 'per-row-call': add(Object.assign(base, { title: 'HTTP-запрос на каждую строку', impact: ['speed'], safety: 'manual' })); break;
       case 'multi-eval': add(Object.assign(base, { title: 'Источник читается несколько раз за обновление', impact: ['speed'], safety: 'manual' })); break;
       case 'hardcoded-types': add(Object.assign(base, { title: 'Хрупкий шаг типов', impact: ['reliability'], safety: 'manual' })); break;

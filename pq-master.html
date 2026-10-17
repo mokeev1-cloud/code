@@ -5,77 +5,78 @@
     node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
   Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      80–88     src/html/head.html
-      90–140    src/css/theme.css
-     141–209    src/css/themes.css
-     210–248    src/css/layout.css
-     249–443    src/css/components.css
-     444–502    src/css/editor.css
-     506–527    src/html/shell-top.html
-     528–591    src/html/view-home.html
-     592–615    src/html/view-model.html
-     616–655    src/html/view-editor.html
-     656–683    src/html/view-optimizer.html
-     684–706    src/html/view-graph.html
-     707–734    src/html/view-sandbox.html
-     735–752    src/html/view-data.html
-     753–764    src/html/view-reference.html
-     765–773    src/html/view-snippets.html
-     774–785    src/html/view-history.html
-     786–850    src/html/view-anon.html
-     851–867    src/html/view-diag.html
-     868–895    src/html/view-ai.html
-     896–928    src/html/view-agent.html
-     929–941    src/html/view-compare.html
-     942–953    src/html/view-docs.html
-     954–960    src/html/view-help.html
-     961–967    src/html/view-selftest.html
-     968–976    src/html/shell-bottom.html
-     978–1214   DEV.md
-    1217–1389   build.mjs
-    1390–1638   test/e2e.mjs
-    1639–1861   test/stress.mjs
-    1862–1875   vendor/codemirror.entry.js
-    1878–1893   vendor/codemirror.bundle.js
-    1897–2335   src/js/core/zip-mashup.js
-    2336–2681   src/js/core/vba.js
-    2682–2778   src/js/core/xlsx-data.js
-    2779–3051   src/js/m/lang.js
-    3052–3114   src/js/m/format.js
-    3115–3499   src/js/m/reference.js
-    3500–4367   src/js/m/interp.js
-    4368–4888   src/js/nda/anon.js
-    4889–5025   src/js/nda/diag.js
-    5026–5440   src/js/opt/lint.js
-    5441–5750   src/js/opt/optimizer.js
-    5751–5837   src/js/opt/refactor.js
-    5838–5985   src/js/opt/snippets.js
-    5986–6054   src/js/app/state.js
-    6055–6145   src/js/app/data.js
-    6146–6383   src/js/nda/agent.js
-    6384–6475   src/js/app/ui-base.js
-    6476–6654   src/js/app/storage.js
-    6655–6691   src/js/app/hints.js
-    6692–6912   src/js/app/shell.js
-    6913–7003   src/js/views/home.js
-    7004–7428   src/js/views/editor.js
-    7429–7683   src/js/views/optimizer.js
-    7684–7767   src/js/views/graph.js
-    7768–7883   src/js/views/sandbox.js
-    7884–8105   src/js/views/data.js
-    8106–8304   src/js/views/model.js
-    8305–8335   src/js/views/reference.js
-    8336–8373   src/js/views/snippets.js
-    8374–8394   src/js/views/history.js
-    8395–8579   src/js/views/anon.js
-    8580–8646   src/js/views/diag.js
-    8647–8778   src/js/views/ai.js
-    8779–8842   src/js/views/agent.js
-    8843–8869   src/js/views/compare.js
-    8870–8927   src/js/views/docs.js
-    8928–9111   src/js/views/help.js
-    9112–9539   src/js/app/selftest.js
-    9540–9553   src/js/app/main.js
+      81–89     src/html/head.html
+      91–141    src/css/theme.css
+     142–210    src/css/themes.css
+     211–249    src/css/layout.css
+     250–446    src/css/components.css
+     447–505    src/css/editor.css
+     509–530    src/html/shell-top.html
+     531–594    src/html/view-home.html
+     595–618    src/html/view-model.html
+     619–658    src/html/view-editor.html
+     659–687    src/html/view-optimizer.html
+     688–710    src/html/view-graph.html
+     711–738    src/html/view-sandbox.html
+     739–756    src/html/view-data.html
+     757–768    src/html/view-reference.html
+     769–777    src/html/view-snippets.html
+     778–789    src/html/view-history.html
+     790–854    src/html/view-anon.html
+     855–871    src/html/view-diag.html
+     872–899    src/html/view-ai.html
+     900–932    src/html/view-agent.html
+     933–945    src/html/view-compare.html
+     946–957    src/html/view-docs.html
+     958–964    src/html/view-help.html
+     965–971    src/html/view-selftest.html
+     972–980    src/html/shell-bottom.html
+     982–1225   DEV.md
+    1228–1401   build.mjs
+    1402–1660   test/e2e.mjs
+    1661–1883   test/stress.mjs
+    1884–1897   vendor/codemirror.entry.js
+    1900–1915   vendor/codemirror.bundle.js
+    1919–2357   src/js/core/zip-mashup.js
+    2358–2703   src/js/core/vba.js
+    2704–2800   src/js/core/xlsx-data.js
+    2801–3073   src/js/m/lang.js
+    3074–3136   src/js/m/format.js
+    3137–3521   src/js/m/reference.js
+    3522–4389   src/js/m/interp.js
+    4390–4910   src/js/nda/anon.js
+    4911–5047   src/js/nda/diag.js
+    5048–5468   src/js/opt/lint.js
+    5469–5779   src/js/opt/optimizer.js
+    5780–5866   src/js/opt/refactor.js
+    5867–6014   src/js/opt/snippets.js
+    6015–6083   src/js/app/state.js
+    6084–6174   src/js/app/data.js
+    6175–6412   src/js/nda/agent.js
+    6413–6504   src/js/app/ui-base.js
+    6505–6683   src/js/app/storage.js
+    6684–6720   src/js/app/hints.js
+    6721–6943   src/js/app/shell.js
+    6944–7035   src/js/views/home.js
+    7036–7460   src/js/views/editor.js
+    7461–7715   src/js/views/optimizer.js
+    7716–7799   src/js/views/graph.js
+    7800–7915   src/js/views/sandbox.js
+    7916–8137   src/js/views/data.js
+    8138–8336   src/js/views/model.js
+    8337–8451   src/js/views/speedup.js
+    8452–8482   src/js/views/reference.js
+    8483–8520   src/js/views/snippets.js
+    8521–8541   src/js/views/history.js
+    8542–8726   src/js/views/anon.js
+    8727–8793   src/js/views/diag.js
+    8794–8925   src/js/views/ai.js
+    8926–8989   src/js/views/agent.js
+    8990–9016   src/js/views/compare.js
+    9017–9074   src/js/views/docs.js
+    9075–9260   src/js/views/help.js
+    9261–9691   src/js/app/selftest.js
+    9692–9705   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -440,6 +441,8 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .sp-hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-bottom:12px}.sp-hero .tv{font-size:34px;font-weight:700;color:var(--accent)}.sp-hero .ts{font-size:12px;color:var(--muted)}
 .dumb{display:grid;gap:4px}.dumb .dr{display:grid;grid-template-columns:minmax(160px,34%) 1fr 70px auto;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--viz-grid);font-size:12.5px}.dumb .dt{position:relative;height:16px}.dumb .dt::before{content:'';position:absolute;left:0;right:0;top:7px;height:1px;background:var(--viz-grid)}.dumb .dl{position:absolute;top:6px;height:3px;background:var(--viz-axis);border-radius:2px}.dumb .dd{position:absolute;top:1px;width:14px;height:14px;margin-left:-7px;border-radius:50%;box-shadow:0 0 0 2px var(--panel)}.dumb .dd.before{background:var(--viz-2)}.dumb .dd.after{background:var(--viz-1)}.dumb .dk{font-size:14px;text-align:right}.dumb .ok{color:var(--ok)}.dumb .bad{color:var(--bad)}
 .viz-tip{position:fixed;z-index:60;max-width:340px;background:var(--panel);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;box-shadow:var(--shadow-lg);pointer-events:none}
+.spd-row{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);margin:8px 0;cursor:pointer}.spd-row.dis{opacity:.6;cursor:default}.spd-row input{margin-top:3px}
+.spd-report header{border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:16px}.spd-report .rk{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:600}.spd-report h1{margin:4px 0 2px;font-size:22px}.spd-report .rd,.spd-report .muted{color:var(--muted)}.spd-report h2{font-size:16px;margin:20px 0 8px}.spd-report h3{font-size:14px;margin:14px 0 6px}.spd-report .rtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.spd-report .rt{border:1px solid var(--border);border-radius:10px;padding:12px 14px}.spd-report .rl{font-size:12px;color:var(--muted)}.spd-report .rv{font-size:22px;font-weight:700;margin:4px 0;color:var(--accent)}.spd-report .rs{font-size:12px;color:var(--muted)}.spd-report table{border-collapse:collapse;width:100%;font-size:13px}.spd-report th,.spd-report td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}.spd-report th{color:var(--muted);font-weight:600}.spd-report ol{padding-left:20px}.spd-report li{margin:6px 0}.spd-report .note{background:var(--panel2);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--muted);margin-top:18px}
 /* ===== END src/css/components.css ===== */
 /* ===== BEGIN src/css/editor.css ===== */
 /* Редактор: раскладка и тема CodeMirror */
@@ -594,7 +597,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
   <div class="needbook-msg">Откройте книгу — здесь появится карта её запросов: источники, объёмы, время и ускорение.</div>
   <div class="hasbook">
     <div class="page-h"><h1>Карта модели</h1><span class="small muted" id="mdlNote"></span><span class="sp"></span>
-      <button class="btn pri" id="mdlRun">▶ Посчитать на данных</button></div>
+      <button class="btn" id="mdlRun">▶ Посчитать на данных</button><button class="btn pri" id="mdlSpeed1">⚡ Ускорить книгу</button></div>
     <div class="tiles" id="mdlTiles"></div>
     <div class="card viz">
       <div class="card-h"><h2>Поток данных</h2><span class="small muted">источники → запросы → куда загружаются · толщина связи — объём, полоса в узле — строк</span><span class="sp"></span><span class="legend" id="mdlLegend"></span></div>
@@ -658,7 +661,8 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
   <div class="needbook-msg">Откройте книгу, чтобы увидеть советы оптимизатора.</div>
   <div class="hasbook">
     <div class="page-h"><h1>Оптимизатор</h1><span class="sp"></span>
-      <button class="btn pri" id="optApplySafe">Применить все безопасные</button>
+      <button class="btn pri" id="optSpeedup" title="Всё автоматическое одной кнопкой: проверенные на данных ускорения, безопасные исправления, настройки подключений — и отчёт">⚡ Ускорить книгу</button>
+      <button class="btn" id="optApplySafe">Применить все безопасные</button>
       <button class="btn" id="optReport" title="Скопировать советы списком">Отчёт</button></div>
     <div class="opt-top">
       <div class="card dash-score" id="optScore"></div>
@@ -988,6 +992,12 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 для ИИ и обратная подстановка), запись исправленной книги. Всё работает в браузере, **сеть
 запрещена CSP**. Пользователь работает на десктопе, интерфейс на русском.
 
+Главный сценарий: долгое (час и больше) обновление управленческой отчётности из баз 1С и выгрузок
+с маппингом — ускорить на 1–2 порядка правкой кода M, макросов и настроек; затем дорабатывать
+вручную или через обезличенный обмен с ИИ. Путь пользователя: «Карта модели» → «Посчитать на
+данных» → «⚡ Ускорить книгу» (`views/speedup.js`: проверенные на данных ускорения, безопасные
+исправления, флажки подключений, макрос) → «Отчёт об ускорении» → сохранение.
+
 ## Инварианты (нарушать нельзя)
 
 - **Никакой сети.** CSP `default-src 'none'; connect-src 'none'`. Никаких `fetch`/XHR/WebSocket/CDN.
@@ -1081,6 +1091,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
 | `views/model.js` | «Карта модели»: плитки, поток источники → запросы → лист/модель, объём и скорость, строки по шагам, оценка ускорения (`mdlSpeedups`: операции Power Query до/после по объёмам) | `renderModel`, `mdlFlow`, `mdlSpeedups` |
+| `views/speedup.js` | «⚡ Ускорить книгу» и «Отчёт об ускорении» (окно и HTML-файл) | `openSpeedup`, `runSpeedup`, `spdReport` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
@@ -1304,6 +1315,7 @@ export const MANIFEST = [
   ['js', 'src/js/views/sandbox.js'],
   ['js', 'src/js/views/data.js'],
   ['js', 'src/js/views/model.js'],
+  ['js', 'src/js/views/speedup.js'],
   ['js', 'src/js/views/reference.js'],
   ['js', 'src/js/views/snippets.js'],
   ['js', 'src/js/views/history.js'],
@@ -1596,6 +1608,16 @@ const mdl = await page.evaluate(() => ({ tiles: $$('#mdlTiles .tile').map(t => t
 await shot('25-model-map');
 await page.evaluate(() => setTheme('dark')); await page.waitForTimeout(200); await shot('26-model-map-dark'); await page.evaluate(() => setTheme('system'));
 check('Карта модели: плитки, поток (таблица книги и файл → запросы → лист), объём, скорость и оценка ускорения', mdl.tiles.length === 6 && mdl.nodes.includes('s:wb:Маппинг') && mdl.nodes.some(n => /^s:f:/.test(n)) && mdl.nodes.includes('q:ОПиУ') && mdl.edges >= 4 && mdl.vol >= 3 && mdl.speed >= 3 && mdl.sp.length >= 1 && /×/.test(mdl.sp[0]), JSON.stringify(mdl).slice(0, 400));
+// ⚡ Ускорить книгу: всё автоматическое одной кнопкой и отчёт
+await page.click('[data-view=optimizer]'); await page.waitForTimeout(200);
+await page.click('#optSpeedup'); await page.waitForTimeout(300);
+const plan = await page.$eval('#modal', e => e.textContent);
+await shot('27-speedup-plan');
+await page.click('#modal button[data-v=go]'); await page.waitForTimeout(800);
+const rep = await page.evaluate(() => ({ text: $('#modal').textContent, hist: S.hist[S.histPos].label, done: SPD.last && SPD.last.done.length }));
+await shot('28-speedup-report');
+await page.click('#modal button[data-v=close]'); await page.waitForTimeout(100);
+check('⚡ Ускорить книгу: план → исправления в одну правку истории → отчёт «было → стало, что сделано, что осталось, как проверить»', /Безопасные исправления кода/.test(plan) && /Отчёт об ускорении обновления/.test(rep.text) && /Что сделано/.test(rep.text) && /Осталось сделать вручную/.test(rep.text) && /Как проверить результат/.test(rep.text) && /Мастер ускорения/.test(rep.hist) && rep.done > 0, rep.hist + ' · сделано ' + rep.done);
 // пакет для ИИ — проверка глазами: разделы, сканер, ровно тот текст, что уйдёт
 await page.evaluate(() => dataRunAll());   // после принятия ответа ИИ код изменился — прежняя проверка устарела
 await page.click('[data-view=anon]'); await page.waitForTimeout(300);
@@ -5098,6 +5120,12 @@ function lintSection(A){
         const t = A.text.slice(toks[open].s, toks[st.match.get(open)].e);
         if (!/Encoding\s*=/.test(t) && !/,\s*\d+\s*,/.test(t)) add('warn', 'csv-encoding', m.name, step && step.name, 'Csv.Document без явной кодировки (Encoding).', 'Укажите [Encoding=65001] для UTF-8 или [Encoding=1251] для Windows-1251, иначе кириллица может стать «кракозябрами» на другом компьютере.');
       }
+      // OData (в том числе стандартный интерфейс OData 1С): без отбора полей и строк объект грузится целиком
+      if (c.fn === 'OData.Feed'){
+        const t = A.text.slice(toks[open].s, toks[st.match.get(open)].e); const next = m.steps ? m.steps.steps.slice(0, 5).map(s => s.fn).join(' ') : '';
+        if (!/\$select|\$filter|Query\s*=/.test(t) && !/Table\.(SelectColumns|SelectRows|RemoveColumns)/.test(next)) add('warn', 'odata-load-all', m.name, step && step.name, 'OData.Feed загружает объект целиком — все поля и все строки' + (/odata\/standard\.odata/i.test(t) ? ' (стандартный интерфейс OData 1С)' : '') + '.',
+          'Сразу после источника оставьте нужные столбцы (Table.SelectColumns) и отфильтруйте строки (Table.SelectRows, например по периоду): OData свернёт это в $select и $filter, и сервер отдаст в разы меньше. Для 1С укажите [Implementation = "2.0"]; табличные части и связанные справочники берите через $expand, а не отдельным запросом на каждую строку.');
+      }
       // повторные чтения одного и того же источника
       const a0 = args[0] || []; const lit = a0.length === 1 && toks[a0[0]].t === 'str' ? toks[a0[0]].v : a0.length === 1 && isName(toks[a0[0]]) ? nameOf(toks[a0[0]]) : null;
       if (lit && EXTERNAL_SOURCES.has(c.fn)){ const key = c.fn + '(' + lit + ')'; if (!srcKeys.has(key)) srcKeys.set(key, new Set()); srcKeys.get(key).add(m.name); }
@@ -5646,6 +5674,7 @@ function optimizeSection(text, A, lint){
       case 'folding': add(Object.assign(base, { title: 'Прерывается свёртка запроса', impact: ['speed'], safety: 'manual' })); break;
       case 'firewall': add(Object.assign(base, { title: 'Риск Formula.Firewall', impact: ['reliability'], safety: 'manual' })); break;
       case 'dynamic-source': add(Object.assign(base, { title: 'Динамический источник данных', impact: ['reliability', 'portability'], safety: 'manual' })); break;
+      case 'odata-load-all': add(Object.assign(base, { title: 'Источник OData загружается целиком', impact: ['speed'], safety: 'manual' })); break;
       case 'per-row-call': add(Object.assign(base, { title: 'HTTP-запрос на каждую строку', impact: ['speed'], safety: 'manual' })); break;
       case 'multi-eval': add(Object.assign(base, { title: 'Источник читается несколько раз за обновление', impact: ['speed'], safety: 'manual' })); break;
       case 'hardcoded-types': add(Object.assign(base, { title: 'Хрупкий шаг типов', impact: ['reliability'], safety: 'manual' })); break;
@@ -6834,6 +6863,8 @@ function commands(){
     if (canUndo()) c('Отменить: ' + S.hist[S.histPos].label, () => histGo(S.histPos - 1), { hk: 'Ctrl+Alt+Z' });
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
+    c('⚡ Ускорить книгу (мастер)', () => openSpeedup());
+    if (SPD.last) c('Отчёт об ускорении (последний)', showSpeedReport);
     c('Проверить запросы на данных (локально)', () => { showView('data'); dataRunAll(); });
     if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
     c('Форматировать все запросы', formatAllQueries);
@@ -6962,7 +6993,8 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
-  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', '⚡ Ускорить книгу — всё автоматическое одной кнопкой и отчёт', 'speedup']);
+  next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
   next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
@@ -6974,7 +7006,7 @@ function renderHome(){
   renderQueryTable();
   $$('[data-go]', $('#homeBook')).forEach(x => x.onclick = () => showView(x.dataset.go));
   if ($('#homeSafe')) $('#homeSafe').onclick = applyAllSafe;
-  $$('[data-act]', $('#homeNext')).forEach(x => x.onclick = () => { const a = x.dataset.act; if (a === 'safe') applyAllSafe(); else if (a === 'save') saveCopy(); else showView(a); });
+  $$('[data-act]', $('#homeNext')).forEach(x => x.onclick = () => { const a = x.dataset.act; if (a === 'safe') applyAllSafe(); else if (a === 'save') saveCopy(); else if (a === 'speedup') openSpeedup(); else showView(a); });
 }
 function renderQueryTable(){
   const f = ($('#homeFilter').value || '').toLowerCase(); const heat = new Map(S.opt.heat.map(h => [h.query, h]));
@@ -7979,7 +8011,7 @@ async function dataVerifyFixes(run){
       const reuse = new Map(); for (const [n, q] of base) if (n !== f.query && q.value != null && !touched(n)) reuse.set(n, q.value);
       const r2 = dataRunQuery(text, f.query, reuse);
       if (r2.error) res.push({ label: vnt.label, same: false, note: 'после правки ошибка: ' + r2.error.message });
-      else res.push(Object.assign({ label: vnt.label }, tableCompare(base.get(f.query).value, r2.value)));
+      else res.push(Object.assign({ label: vnt.label, o: vnt.o, msBefore: base.get(f.query).ms, msAfter: r2.ms }, tableCompare(base.get(f.query).value, r2.value)));
     }
     out.set(f.id, { title: f.title, query: f.query, rule: f.rule, safety: f.safety, results: res, same: res.every(r => r.same) });
   }
@@ -8302,6 +8334,121 @@ $('#view-model').addEventListener('mouseleave', () => $('#vizTip').classList.add
 $('#mdlRun').onclick = async () => { await dataRunAll(); renderModel(); };
 registerView('model', { render: renderModel });
 /* ===== END src/js/views/model.js ===== */
+/* ===== BEGIN src/js/views/speedup.js ===== */
+/* =====================================================================
+   views/speedup.js — «⚡ Ускорить книгу»: всё автоматическое — одной кнопкой, остальное — в отчёт.
+   1) ускорения кода, проверенные на данных (результат до и после совпал) — DATA.verify;
+   2) безопасные исправления кода (applyAllSafeText);
+   3) рекомендуемые флажки подключений в файле (S.bookEdits, запишутся при сохранении);
+   4) макрос PQMaster (по желанию).
+   Итог — «Отчёт об ускорении»: было → стало, что сделано и почему быстрее, что осталось вручную,
+   как проверить. Отчёт — внутренний документ (настоящие имена запросов), наружу не уходит.
+   ===================================================================== */
+const SPD = { last: null };
+/** Пояснение для отчёта: первая фраза, не длиннее ~260 символов */
+const spdShort = t => { t = String(t || ''); if (t.length <= 260) return t; const cut = t.slice(0, 260); const p = cut.lastIndexOf('. '); return (p > 80 ? cut.slice(0, p + 1) : cut + '…'); };
+const SPD_WHY = {
+  'row-lookup': 'поиск в справочнике для каждой строки заменён одним слиянием',
+  'join-buffer': 'справочник в слиянии вычисляется один раз',
+  'list-buffer': 'список больше не пересобирается для каждой строки',
+  'buffer-in-each': 'буфер справочника создаётся один раз, а не на каждой строке'
+};
+/** Рекомендуемые флажки подключений: «при открытии» — выкл; фоновое — выкл при сводных, иначе вкл */
+function pqxRecommendedEdits(){
+  const B = S.book; if (!B || B.family !== 'excel' || !B.conns) return [];
+  const recBg = !(B.pivots > 0); const out = [];
+  for (const c of B.conns.filter(x => x.mashup && !x.deleted)){
+    if (pqxVal(c, 'refreshOnLoad')) out.push({ c, k: 'refreshOnLoad', to: false, what: 'не обновлять при открытии', why: 'открытие книги не ждёт часового обновления' });
+    if (!c.model && pqxVal(c, 'background') !== recBg) out.push({ c, k: 'background', to: recBg, what: recBg ? 'фоновое обновление' : 'синхронное обновление', why: recBg ? 'в Excel можно работать во время обновления' : 'сводные обновятся после данных — хватит одного «Обновить всё»' });
+  }
+  return out;
+}
+function spdPlan(){
+  const ver = DATA.verify && DATA.verify.forWork === S.work ? [...DATA.verify.items].filter(([, v]) => v.safety !== 'safe' && v.results.some(r => r.same)).map(([id, v]) => Object.assign({ id }, v)) : [];
+  const safe = OPT.potentialFor === S.work && OPT.safeResult ? OPT.safeResult : applyAllSafeText(S.work, S.book.meta);
+  return { ver, safe, conns: pqxRecommendedEdits(), sp: mdlSpeedups(), runOk: dataRunValid(), unverified: (S.opt.findings || []).filter(f => f.fix && f.safety === 'check' && !(DATA.verify && DATA.verify.forWork === S.work && DATA.verify.items.has(f.id))).length };
+}
+async function openSpeedup(){
+  if (!S.book || !S.A) return toast('Откройте книгу', 'warn');
+  const P = spdPlan(); const xl = S.book.family === 'excel';
+  const tb = P.sp.reduce((a, x) => a + x.before, 0);
+  const row = (id, on, title, sub, dis) => '<label class="spd-row' + (dis ? ' dis' : '') + '"><input type="checkbox" id="' + id + '"' + (on && !dis ? ' checked' : '') + (dis ? ' disabled' : '') + '><span><b>' + title + '</b><br><span class="small muted">' + sub + '</span></span></label>';
+  const html = '<h2>⚡ Ускорить книгу</h2><p class="small muted">Мастер сделает всё, что можно сделать автоматически без риска изменить результат, а остальное соберёт в отчёт с инструкциями. Каждое изменение попадает в «Историю правок» и отменяется одним шагом; в файл — только при сохранении (с резервной копией).</p>' +
+    (tb ? '<div class="note small">Сейчас тяжёлые места требуют ≈ <b>' + fmtBig(tb) + '</b> операций Power Query (оценка по объёмам ваших данных) — см. «Карту модели».</div>' : '') +
+    row('spdVer', true, 'Ускорения кода, проверенные на ваших данных: ' + P.ver.length, P.ver.length ? P.ver.map(v => escHtml(v.title + ' — ' + v.query)).slice(0, 6).join('<br>') : P.runOk ? 'нет ускорений, у которых результат на данных совпал' : 'сначала посчитайте на данных — тогда мастер применит и замену поиска для каждой строки на слияние, если результат тот же', !P.ver.length) +
+    (!P.runOk && P.unverified ? '<div class="row" style="margin:4px 0 8px 30px"><button class="btn sm pri" id="spdRunData">▶ Посчитать на данных и вернуться</button><span class="small muted">' + P.unverified + ' ускорений ждут проверки</span></div>' : '') +
+    row('spdSafe', true, 'Безопасные исправления кода: ' + P.safe.applied.length, P.safe.applied.length ? P.safe.applied.slice(0, 6).map(escHtml).join('<br>') + (P.safe.applied.length > 6 ? '<br>…и ещё ' + (P.safe.applied.length - 6) : '') : 'нечего исправлять', !P.safe.applied.length) +
+    (xl ? row('spdConn', true, 'Настройки подключений в файле: ' + P.conns.length, P.conns.length ? P.conns.slice(0, 6).map(e => escHtml((e.c.query || e.c.name) + ': ' + e.what)).join('<br>') : 'уже как рекомендуется', !P.conns.length) : '') +
+    (xl ? row('spdMacro', false, 'Скачать макрос PQMaster', 'одно «Обновить всё» с замером времени и замер каждого запроса — чтобы сравнить «до» и «после» в Excel') : '') +
+    '<p class="small muted">Дальше — отчёт: что сделано и почему быстрее, что осталось сделать вручную (перестройка запросов, настройки Excel), как проверить результат.</p>';
+  const p = modal(html, [['cancel', 'Отмена'], ['go', '⚡ Ускорить', 'pri']], { wide: true });
+  if ($('#spdRunData')) $('#spdRunData').onclick = async () => { $('#modal button[data-v=cancel]').click(); showView('model'); await dataRunAll(); openSpeedup(); };
+  const r = await p; if (r !== 'go') return;
+  await runSpeedup(P, { ver: $('#spdVer') && $('#spdVer').checked, safe: $('#spdSafe') && $('#spdSafe').checked, conn: $('#spdConn') && $('#spdConn').checked, macro: $('#spdMacro') && $('#spdMacro').checked });
+}
+async function runSpeedup(P, o){
+  const before = { score: S.opt.score, sp: P.sp, work: S.work, ver: DATA.verify && DATA.verify.forWork === S.work ? DATA.verify.items : null };   // сверка сбрасывается после правки кода — снимок
+  let text = S.work; const done = []; const meta = S.book.meta;
+  if (o.ver) for (const v of P.ver){
+    try {
+      const A = analyzeSection(text, meta); const F = optimizeSection(text, A, lintSection(A)).findings.find(x => x.id === v.id); if (!F || !F.fix) continue;
+      const rr = v.results.find(x => x.same); const t2 = F.fix(text, rr.o || {}); if (syntaxIssues(t2).length) continue;
+      text = t2; done.push({ where: F.query + (F.step ? ' › ' + F.step : ''), what: F.title + (rr.label ? ' (' + rr.label + ')' : ''), why: F.rule === 'row-lookup' && rr.o && rr.o.method === 'buffer' ? 'справочник вычисляется один раз и хранится в памяти (слияние на этих данных дало бы другой результат — проверьте дубли ключей)' : SPD_WHY[F.rule] || spdShort(F.how), check: '✓ на ваших данных результат тот же' + (rr.msBefore != null && rr.msAfter != null && rr.msBefore > 5 ? ' · в браузере ' + fmtSec(rr.msBefore / 1000) + ' → ' + fmtSec(rr.msAfter / 1000) : '') });
+    } catch (e){ console.warn(e); }
+  }
+  if (o.safe){ const sr = applyAllSafeText(text, meta); text = sr.text; for (const a of sr.applied) done.push({ where: '', what: a, why: '', check: 'безопасно — результат не меняется' }); }
+  if (text !== S.work) setWork(text, 'optimizer', 'Мастер ускорения: ' + done.length + ' ' + plural(done.length, 'исправление', 'исправления', 'исправлений'));
+  const conns = []; if (o.conn) for (const e of P.conns){ pqxSet(e.c, e.k, e.to); conns.push({ where: e.c.query || e.c.name, what: e.what, why: e.why }); }
+  if (conns.length) emitState('settings');
+  if (o.macro){ const mo = pqxMacroOpts(true); download('PQMaster.bas', new Blob([encodeCodePage(genPqMacro(mo), mo.codePage)], { type: 'text/plain' })); }
+  SPD.last = spdReport(before, done, conns, !!o.macro);
+  showSpeedReport();
+}
+/** Данные отчёта: было → стало, сделано, осталось, как проверить */
+function spdReport(before, done, conns, macro){
+  const spBefore = before.sp, fixedIds = new Set(); const now = new Set((S.opt.findings || []).map(f => f.id));
+  for (const x of spBefore) if (!now.has(x.f.id)) fixedIds.add(x.f.id);
+  const opsBefore = spBefore.reduce((a, x) => a + x.before, 0), opsAfter = spBefore.reduce((a, x) => a + (fixedIds.has(x.f.id) ? x.after : x.before), 0);
+  const manual = (S.opt.findings || []).filter(f => (f.impact || []).includes('speed') && f.rule !== 'excel-settings' && (f.sev === 'warn' || f.sev === 'err' || f.rule === 'multi-eval')).map(f => ({ where: f.query + (f.step ? ' › ' + f.step : ''), what: f.title, how: spdShort(f.how), fix: !!f.fix }));   // настройки Excel — отдельным чек-листом ниже
+  // тяжёлые места, которые не исправлены автоматически, — первыми: в них основной резерв ускорения
+  const ver = before.ver; const left = spBefore.filter(x => now.has(x.f.id));   // совет остался — место не исправлено (или исправлено буфером, без слияния)
+  manual.unshift(...left.map(x => { const v = ver && ver.get(x.f.id); return { where: x.f.query + (x.f.step ? ' › ' + x.f.step : ''), what: 'Тяжёлое место: ' + x.how + ' — до ×' + fmtBig(Math.round(x.k)) + ' меньше операций', how: x.f.rule === 'multi-eval' ? spdShort(x.f.how) : v && !v.same ? 'Автоматически не исправлено: на ваших данных результат после слияния другой — обычно из-за дублей ключей в справочнике («Проверка на данных» покажет их). Уберите дубли или решите, какую строку брать, затем примените совет в «Оптимизаторе».' : 'Не проверено на данных — посчитайте на данных и запустите мастер снова или примените совет в «Оптимизаторе» и сверьте результат.' }; }));
+  for (let i = manual.length - 1; i >= left.length; i--) if (left.some(x => x.f.query + (x.f.step ? ' › ' + x.f.step : '') === manual[i].where && x.f.title === manual[i].what)) manual.splice(i, 1);
+  const stg = (S.lint || []).filter(f => f.rule === 'loaded-staging').map(f => f.query);
+  const excel = S.book.family === 'excel' ? [
+    ['Уровни конфиденциальности', 'если все источники внутренние: в макросе ThisWorkbook.Queries.FastCombine = True (действует для любого пользователя) или Параметры запроса → Текущая книга → Конфиденциальность → «Игнорировать уровни».'],
+    ['Фоновый предпросмотр', 'Параметры запроса → Текущая книга → Загрузка данных → снять «Разрешить фоновую загрузку данных для предварительного просмотра».'],
+    stg.length ? ['«Только подключение» для промежуточных', stg.join(', ') + ': Данные → Запросы и подключения → правый щелчок → Загрузить в… → «Только создать подключение».'] : null
+  ].filter(Boolean) : [];
+  return { book: S.book.name, date: new Date(), scoreBefore: before.score, scoreAfter: S.opt.score, opsBefore, opsAfter, done, conns, macro, manual, excel, dataOk: !!spBefore.length };
+}
+function spdReportBody(R){
+  const k = R.opsAfter ? R.opsBefore / R.opsAfter : 1;
+  const tile = (l, v, s) => '<div class="rt"><div class="rl">' + l + '</div><div class="rv">' + v + '</div><div class="rs">' + s + '</div></div>';
+  const tbl = (head, rows) => rows.length ? '<table><tr>' + head.map(h => '<th>' + h + '</th>').join('') + '</tr>' + rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</table>' : '';
+  return '<header><div class="rk">Отчёт об ускорении обновления</div><h1>' + escHtml(R.book) + '</h1><div class="rd">' + R.date.toLocaleString('ru-RU') + ' · Мастер PQ</div></header>' +
+    '<div class="rtiles">' + tile('Операций Power Query в тяжёлых местах', R.opsBefore ? fmtBig(R.opsBefore) + ' → ' + fmtBig(R.opsAfter) : '—', R.opsBefore ? (k >= 1.5 ? 'меньше в ×' + fmtBig(Math.round(k)) + ' (оценка по объёмам данных)' : 'тяжёлые места остались — см. «Осталось сделать»') : 'нет оценки: проверка на данных не запускалась') +
+      tile('Здоровье кода', R.scoreBefore + ' → ' + R.scoreAfter, 'из 100, по советам оптимизатора') + tile('Сделано автоматически', R.done.length + R.conns.length, 'исправлений кода: ' + R.done.length + ' · настроек: ' + R.conns.length) + '</div>' +
+    '<h2>Что сделано</h2>' + (R.done.length ? tbl(['Где', 'Что', 'Почему быстрее', 'Проверка'], R.done.map(d => [escHtml(d.where || '—'), escHtml(d.what), escHtml(d.why || '—'), escHtml(d.check)])) : '<p class="muted">Код не менялся.</p>') +
+    (R.conns.length ? '<h3>Настройки подключений (запишутся в файл при сохранении)</h3>' + tbl(['Подключение', 'Что', 'Зачем'], R.conns.map(c => [escHtml(c.where), escHtml(c.what), escHtml(c.why)])) : '') +
+    (R.macro ? '<p>Скачан макрос <b>PQMaster.bas</b>: Alt+F11 → Файл → Импорт файла; запуск — PQ_RefreshAll (одно «Обновить всё» с замером времени), PQ_TimeQueries (время каждого запроса).</p>' : '') +
+    '<h2>Осталось сделать вручную</h2>' + (R.manual.length || R.excel.length ? '<ol>' + R.manual.slice(0, 15).map(m => '<li><b>' + escHtml(m.what) + '</b> <span class="muted">— ' + escHtml(m.where) + '</span>' + (m.how ? '<br>' + escHtml(m.how) : '') + '</li>').join('') + R.excel.map(([t, d]) => '<li><b>' + escHtml(t) + '</b><br>' + escHtml(d) + '</li>').join('') + '</ol>' : '<p class="muted">Ничего — всё, что нашёл анализ, сделано.</p>') +
+    '<h2>Как проверить результат</h2><ol><li>Сохраните книгу: копию (Ctrl+S) или в оригинал с резервной копией (Ctrl+Shift+S).</li><li>Откройте её в Excel и запустите «Данные → Обновить всё» или макрос PQ_RefreshAll — он покажет время.</li><li>Сравните с прежним временем. Подробно по запросам — PQ_TimeQueries или диагностика Power Query (раздел «Диагностика»).</li><li>Если что-то пошло не так — «История правок» в Мастере PQ или резервная копия файла.</li></ol>' +
+    '<p class="note">Оценка операций — не секунды: она показывает, во сколько раз меньше работы у движка Power Query на ваших объёмах. Реальное время зависит от источников (1С, базы, файлы) и машины. Отчёт содержит настоящие имена запросов — это внутренний документ, ИИ его не передавайте.</p>';
+}
+const SPD_CSS = 'body{font:14px/1.5 "Segoe UI",system-ui,sans-serif;color:#1b2130;background:#f4f5f8;margin:0;padding:28px}main{max-width:980px;margin:0 auto;background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 3px 12px rgba(20,30,50,.08)}' + SPD_INNER_CSS();
+function SPD_INNER_CSS(){ return '.spd-report header{border-bottom:1px solid #dde1e8;padding-bottom:12px;margin-bottom:16px}.spd-report .rk{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#2f6fde;font-weight:600}.spd-report h1{margin:4px 0 2px;font-size:24px}.spd-report .rd,.spd-report .muted{color:#667085}.spd-report h2{font-size:17px;margin:22px 0 8px}.spd-report h3{font-size:14px;margin:16px 0 6px}.spd-report .rtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.spd-report .rt{border:1px solid #dde1e8;border-radius:10px;padding:12px 14px}.spd-report .rl{font-size:12px;color:#667085}.spd-report .rv{font-size:24px;font-weight:700;margin:4px 0;color:#2f6fde}.spd-report .rs{font-size:12px;color:#667085}.spd-report table{border-collapse:collapse;width:100%;font-size:13px}.spd-report th,.spd-report td{border-bottom:1px solid #e7eaf0;padding:6px 8px;text-align:left;vertical-align:top}.spd-report th{color:#667085;font-weight:600}.spd-report ol{padding-left:20px}.spd-report li{margin:6px 0}.spd-report .note{background:#f0f2f6;border-radius:8px;padding:10px 12px;font-size:12.5px;color:#475467;margin-top:20px}'; }
+function showSpeedReport(){
+  const R = SPD.last; if (!R) return toast('Отчёта пока нет — запустите «⚡ Ускорить книгу»', 'warn');
+  const p = modal('<div class="spd-report">' + spdReportBody(R) + '</div>', [['close', 'Закрыть'], ['dl', '⬇ Скачать отчёт (HTML)'], ['save', 'Сохранить книгу (копия)', 'pri']], { wide: true });
+  p.then(r => {
+    if (r === 'dl') download('Отчёт об ускорении — ' + R.book.replace(/\.[^.]+$/, '') + '.html', '<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Отчёт об ускорении — ' + escHtml(R.book) + '</title><style>' + SPD_CSS + '</style></head><body><main class="spd-report">' + spdReportBody(R) + '</main></body></html>', 'text/html;charset=utf-8');
+    if (r === 'save') saveCopy();
+  });
+}
+$('#mdlSpeed1').onclick = openSpeedup;
+$('#optSpeedup').onclick = openSpeedup;
+/* ===== END src/js/views/speedup.js ===== */
 /* ===== BEGIN src/js/views/reference.js ===== */
 /* =====================================================================
    views/reference.js — справочник функций M (данные: m/reference.js).
@@ -8931,15 +9078,17 @@ registerView('docs', { render: renderDocs });
    и документация разработчика (DEV.md из встроенного блока с id pqm-dev-docs).
    ===================================================================== */
 const HELP_HTML = `
-<div class="card"><h2>Быстрый старт</h2>
+<div class="card"><h2>Быстрый старт: ускорить обновление</h2>
+<p>Типичный случай: большой запрос собирает управленческую отчётность из нескольких баз 1С (напрямую или из выгрузок) с файлами маппинга, и обновление идёт час и больше. Порядок работы:</p>
 <ol>
-<li><b>Откройте книгу</b> — кнопка «Открыть» (<kbd>Ctrl</kbd>+<kbd>O</kbd>) или перетаскивание файла в окно. Чтобы попробовать без своих данных, на странице «Обзор» есть кнопка «Открыть демо-книгу».</li>
-<li><b>Посмотрите «Обзор»</b>: оценка здоровья книги, факты, таблица запросов с картой тяжести шагов и подсказки «Что дальше».</li>
-<li><b>Оптимизатор</b> (<kbd>Alt</kbd>+<kbd>3</kbd>): советы с кнопкой «Применить». «Применить все безопасные» исправляет то, что гарантированно не меняет результат.</li>
-<li><b>Редактор</b> (<kbd>Alt</kbd>+<kbd>2</kbd>): правьте запросы с автодополнением и подсказками, затем «Применить» (<kbd>Ctrl</kbd>+<kbd>Enter</kbd>).</li>
-<li><b>Сохраните</b>: «Сохранить копию» (<kbd>Ctrl</kbd>+<kbd>S</kbd>) или «В оригинал» (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, с резервной копией). Затем в Excel: «Данные» → «Обновить всё».</li>
-<li><b>Нестандартная задача?</b> Раздел «Обезличивание» → «Задача для чата» или «Пакет для ИИ». Ответ ИИ вставьте в раздел «Ответ ИИ» — метки заменятся обратно на ваши значения.</li>
-</ol></div>
+<li><b>Откройте книгу</b> — «Открыть» (<kbd>Ctrl</kbd>+<kbd>O</kbd>) или перетаскивание файла. Без своих данных — «Открыть демо-книгу» на «Обзоре».</li>
+<li><b>Карта модели</b> — откуда данные, через какие запросы идут, куда загружаются; объёмы, время, повторные вычисления ⟳×N.</li>
+<li><b>Посчитайте на данных</b> — таблицы книги читаются сами; выгрузки, которые читают запросы (CSV, XLSX, папки), прикрепите, когда раздел попросит. Всё — только в этом браузере.</li>
+<li><b>⚡ Ускорить книгу</b> — мастер одной кнопкой применит ускорения, у которых на ваших данных результат тот же, безопасные исправления и рекомендуемые настройки подключений, при желании — даст макрос с замером времени. Затем — отчёт: было → стало, что сделано и почему быстрее, что осталось сделать вручную.</li>
+<li><b>Сохраните</b> — копию (<kbd>Ctrl</kbd>+<kbd>S</kbd>) или в оригинал с резервной копией (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). В Excel запустите «Обновить всё» или макрос PQ_RefreshAll и сравните время.</li>
+<li><b>Дальше — дорабатывайте</b>: в «Редакторе» с живыми данными шага под курсором или через ИИ — «Обезличивание» → «👁 Проверить глазами, что уйдёт» → пакет или задача для чата; ответ — в «Ответ ИИ» → «Сверить на данных» → «Принять и править». Наружу уходит только обезличенное.</li>
+</ol>
+<p class="small muted">Порядки ускорения дают не настройки, а код: поиск в справочнике для каждой строки → одно слияние, один расчёт тяжёлого промежуточного запроса вместо нескольких, ранние фильтры и отбор полей у источника (для OData 1С — $select и $filter). Настройки Excel и макрос убирают ожидание при открытии, двойные обновления и проверки конфиденциальности.</p></div>
 
 <div class="card"><h2>Горячие клавиши</h2>
 <table class="t"><tr><th>Клавиши</th><th>Действие</th></tr>
@@ -9406,6 +9555,9 @@ async function runSelfTest(){
     const lr1 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Ф = Table.SelectRows(Н, each [Год] = 2024),', '    У = Table.RemoveColumns(Ф, {"Комментарий"})', 'in', '    У;']);
     const lr2 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Т = Table.TransformColumnTypes(Н, {{"Год", Int64.Type}}),', '    Ф = Table.SelectRows(Т, (r) => List.Contains(Record.FieldValues(r), 2024))', 'in', '    Ф;']);
     ok('Поздние фильтры и столбцы: совет есть, где перенос не меняет результат, и нет, где меняет', lr1.includes('late-filter') && lr1.includes('late-columns') && !lr2.includes('late-filter'), lr1.join(',') + ' / ' + lr2.join(','));
+    const od1 = lr(['shared Q = let', '    И = OData.Feed("http://srv/base/odata/standard.odata/AccumulationRegister_Продажи", null, [Implementation = "2.0"]),', '    Т = Table.TransformColumnTypes(И, {{"Сумма", type number}})', 'in', '    Т;']);
+    const od2 = lr(['shared Q = let', '    И = OData.Feed("http://srv/base/odata/standard.odata/AccumulationRegister_Продажи", null, [Implementation = "2.0"]),', '    П = Table.SelectColumns(И, {"Period", "Сумма"}),', '    Ф = Table.SelectRows(П, each [Period] >= #datetime(2024, 1, 1, 0, 0, 0))', 'in', '    Ф;']);
+    ok('OData / 1С: совет загрузить только нужные поля и строки — есть без отбора и нет, когда отбор сразу после источника', od1.includes('odata-load-all') && !od2.includes('odata-load-all'), od1.join(',') + ' / ' + od2.join(','));
     // ---------- как обновляется книга: макросы и подключения ----------
     const vbaSrc = 'Attribute VB_Name = "Module1"\n\' Обновление отчёта\nSub ОбновитьВсё()\n    ThisWorkbook.Connections("Запрос — Продажи").OLEDBConnection.BackgroundQuery = False\n    ActiveWorkbook.RefreshAll\n    Sheets("Отчёт").ListObjects(1).QueryTable.Refresh BackgroundQuery:=False\n    ThisWorkbook.RefreshAll \' ещё раз\n    For Each pc In ThisWorkbook.PivotCaches\n        pc.Refresh\n    Next\nEnd Sub';
     const connXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><connection id="1" keepAlive="1" name="Запрос — Продажи" type="5" refreshedVersion="8" background="1" saveData="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи;Extended Properties=&quot;&quot;" command="SELECT * FROM [Продажи]"/></connection></connections>';

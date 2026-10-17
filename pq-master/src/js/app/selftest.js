@@ -48,14 +48,15 @@ const TEST_SECTION = [
 ].join('\r\n');
 const TEST_SECRETS = ['sql-prod-01.corp.local', 'SalesDB', 'fileserver01', 'C:\\Users\\ivanov', 'SECRETKEY123', 'eyJhbGciOiJIUzI1NiJ9', 'analyst@company.ru', 'ivanov@company.ru', '10.20.30.40', '10.1.2.3', 'svc_user', 'P@ssw0rd!', "'North'", '"North"', 'ООО Ромашка', 'D:\\Отчёты'];
 
-async function makeTestBook(extra){
+/** extra — дополнительные части [имя, содержимое] (одноимённые заменяют стандартные), section — свой Section1.m */
+async function makeTestBook(extra, section){
   const x = s => te.encode(s);
   const ctPkg = '<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="m" ContentType="application/x-ms-m" /></Types>';
   const pkgXml = '<?xml version="1.0" encoding="utf-8"?><Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Version>2.141.0</Version><MinVersion>2.21.0</MinVersion><Culture>ru-RU</Culture></Package>';
   const parts = [];
   parts.push(await zipFinalizeNew(zipNewEntry('[Content_Types].xml', x(ctPkg), true)));
   parts.push(await zipFinalizeNew(zipNewEntry('Config/Package.xml', x(pkgXml), true)));
-  parts.push(await zipFinalizeNew(zipNewEntry('Formulas/Section1.m', x(TEST_SECTION), true)));
+  parts.push(await zipFinalizeNew(zipNewEntry('Formulas/Section1.m', x(section || TEST_SECTION), true)));
   const partsZip = zipWrite(parts);
   const perm = encodeText('<?xml version="1.0" encoding="utf-8"?><PermissionList xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanEvaluateFuturePackages>false</CanEvaluateFuturePackages><FirewallEnabled>true</FirewallEnabled></PermissionList>', 'utf-8', true);
   const item = (n, entries) => '<Item><ItemLocation><ItemType>Formula</ItemType><ItemPath>Section1/' + encodeURIComponent(n) + '</ItemPath></ItemLocation><StableEntries>' + entries.map(([t, v]) => '<Entry Type="' + t + '" Value="' + v.replace(/"/g, '&quot;') + '" />').join('') + '</StableEntries></Item>';
@@ -79,7 +80,36 @@ async function makeTestBook(extra){
     ['customXml/_rels/item1.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" Target="itemProps1.xml"/></Relationships>']
   ];
   const ents = [];
-  for (const [n, c] of files.concat(extra || [])) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  const ex = new Map((extra || []).map(([n, c]) => [n, c]));
+  for (const [n, c] of files.map(([n, c]) => [n, ex.has(n) ? ex.get(n) : c]).concat((extra || []).filter(([n]) => !files.some(f => f[0] === n)))) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  return zipWrite(ents);
+}
+/** Тестовая книга .xlsx с данными: листы { name, rows } (строки, числа, даты {d:'ГГГГ-ММ-ДД'}), таблицы { sheet, name, ref, cols, totals }
+    и именованные диапазоны { name, ref } — для проверок Excel.CurrentWorkbook и Excel.Workbook */
+async function makeTestXlsx(spec){
+  const x = s => te.encode(s); const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const ss = []; const ssi = v => { let i = ss.indexOf(v); if (i < 0){ ss.push(v); i = ss.length - 1; } return i; };
+  const colL = i => { let s = ''; i++; while (i){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const serial = d => (Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 86400000) + 25569;
+  const files = [];
+  const sheetXml = rows => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetData>' +
+    rows.map((r, ri) => '<row r="' + (ri + 1) + '">' + r.map((v, ci) => { const ref = colL(ci) + (ri + 1); if (v == null) return ''; if (typeof v === 'number') return '<c r="' + ref + '"><v>' + v + '</v></c>'; if (typeof v === 'object') return '<c r="' + ref + '" s="1"><v>' + serial(v.d) + '</v></c>'; return '<c r="' + ref + '" t="s"><v>' + ssi(v) + '</v></c>'; }).join('') + '</row>').join('') + '</sheetData><tableParts count="0"/></worksheet>';
+  let tn = 0;
+  spec.sheets.forEach((sh, i) => {
+    const tabs = (spec.tables || []).filter(t => t.sheet === sh.name);
+    let xml = sheetXml(sh.rows);
+    if (tabs.length){ xml = xml.replace('<tableParts count="0"/>', '<tableParts count="' + tabs.length + '">' + tabs.map((_, k) => '<tablePart r:id="rT' + k + '"/>').join('') + '</tableParts>');
+      files.push(['xl/worksheets/_rels/sheet' + (i + 1) + '.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + tabs.map((t, k) => '<Relationship Id="rT' + k + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table' + (tn + k + 1) + '.xml"/>').join('') + '</Relationships>']);
+      tabs.forEach((t, k) => files.push(['xl/tables/table' + (tn + k + 1) + '.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" id="' + (tn + k + 1) + '" name="Table' + (tn + k + 1) + '" displayName="' + esc(t.name) + '" ref="' + t.ref + '"' + (t.totals ? ' totalsRowCount="1"' : '') + '><tableColumns count="' + t.cols.length + '">' + t.cols.map((c, j) => '<tableColumn id="' + (j + 1) + '" name="' + esc(c) + '"/>').join('') + '</tableColumns></table>']));
+      tn += tabs.length; }
+    files.push(['xl/worksheets/sheet' + (i + 1) + '.xml', xml]);
+  });
+  files.push(['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + spec.sheets.map((sh, i) => '<sheet name="' + esc(sh.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') + '</sheets>' +
+    ((spec.names || []).length ? '<definedNames>' + spec.names.map(n => '<definedName name="' + esc(n.name) + '">' + esc(n.ref) + '</definedName>').join('') + '<definedName name="_xlnm._FilterDatabase" hidden="1">Лист1!$A$1:$B$2</definedName></definedNames>' : '') + '</workbook>']);
+  files.push(['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + spec.sheets.map((_, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') + '</Relationships>']);
+  files.push(['xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cellXfs count="2"><xf numFmtId="0"/><xf numFmtId="14" applyNumberFormat="1"/></cellXfs></styleSheet>']);
+  files.push(['xl/sharedStrings.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + ss.map(v => '<si><t xml:space="preserve">' + esc(v) + '</t></si>').join('') + '</sst>']);
+  const ents = []; for (const [n, c] of files) ents.push(await zipFinalizeNew(zipNewEntry(n, x(c), true)));
   return zipWrite(ents);
 }
 /** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
@@ -196,7 +226,7 @@ async function runSelfTest(){
     const badBytes = (await makeTestBook()).slice(); const badItem = zipFind(zipRead(badBytes), 'customXml/item1.xml'); badItem.raw[badItem.raw.length >> 1] ^= 0x20;
     let badMsg = ''; try { await loadBookFromBytes('битая.xlsx', badBytes); } catch (err){ badMsg = err.constructor === Error ? err.message : 'не Error: ' + err; }
     ok('Повреждённая часть книги: понятное сообщение, а не внутренняя ошибка', /поврежд/i.test(badMsg), badMsg.slice(0, 90));
-    ok('Содержимое листов не читается: текст ячеек тестовой книги не встречается в модели', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
+    ok('Модель книги хранит только код и метаданные: текст ячеек листа в неё не попадает (данные — отдельно, локально)', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
 
     // ---------- форматер ----------
     const messy = 'let\n  a = 1,\n        b = {1,\n2},\n c = let x = 1 in x\n   in\n c';
@@ -293,6 +323,43 @@ async function runSelfTest(){
     ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
       /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
       mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
+    // ---------- данные на этом компьютере: таблицы книги, выгрузки, соединения, защита от утечки ----------
+    const keepData = { wb: DATA.wb, wbFor: DATA.wbFor, files: DATA.files, folders: DATA.folders, run: DATA.run, verify: DATA.verify, selfBook: DATA.selfBook };
+    try {
+      const dx = await makeTestXlsx({ sheets: [
+        { name: 'Справочники', rows: [['Код', 'Статья', 'ЦФО'], [101, 'Выручка', 'Продажи'], [102, 'Аренда', 'АХО'], [102, 'Аренда дубль', 'АХО'], ['Итого', null, null], [], ['Дата', 'Курс'], [{ d: '2024-03-31' }, 92.5]] },
+        { name: 'Пусто', rows: [] }],
+        tables: [{ sheet: 'Справочники', name: 'Маппинг', ref: 'A1:C5', cols: ['Код', 'Статья', 'ЦФО'], totals: true }], names: [{ name: 'Курсы', ref: 'Справочники!$A$7:$B$8' }] });
+      const xd = await readXlsxData(zipRead(dx), {});
+      const mp = xd.tables.find(t => t.name === 'Маппинг'), kr = xd.names.find(n => n.name === 'Курсы');
+      ok('Таблицы книги: таблица Excel (без строки итогов), именованный диапазон, дата по формату ячейки, используемый диапазон листа',
+        mp && mp.rows.length === 3 && mp.cols.join() === 'Код,Статья,ЦФО' && mp.rows[2][1] === 'Аренда дубль' && kr && kr.rows[1][0].kind === 'date' && xd.sheets[0].rows.length === 8 && xd.sheets[1].rows.length === 0 && !xd.names.some(n => /_xlnm/.test(n.name)), JSON.stringify(mp && mp.rows));
+      DATA.wb = { tables: xd.tables, names: xd.names, sheets: [] }; DATA.files = new Map(); DATA.folders = new Map(); DATA.run = null;
+      const cw = mEval('let М = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content], К = Excel.CurrentWorkbook(){[Name="Курсы"]}[Content] in [Строк = Table.RowCount(М), Итог = List.Sum(М[Код]), Дата = Date.ToText(Table.PromoteHeaders(К){0}[Дата], "dd.MM.yyyy")]', '');
+      ok('Excel.CurrentWorkbook: запрос вычисляется на таблицах книги', cw.get('Строк') === 3 && cw.get('Итог') === 305 && cw.get('Дата') === '31.03.2024', mLit(cw));
+      const csv1251 = encodeCodePage('Счёт;Сумма;Контрагент\r\n90.01;1 000,50;"ООО ""Ромашка-Север"""\r\n62;-200;ИП Иванов\r\n', 1251);
+      DATA.files.set(normPath('C:\\Выгрузки\\ОСВ.csv'), { name: 'ОСВ.csv', bytes: csv1251, mtime: 0 });
+      DATA.folders.set(normPath('D:\\Банк\\'), [{ name: 'выписка1.csv', bytes: te.encode('a,b\n1,2\n'), mtime: 0 }, { name: 'выписка2.csv', bytes: te.encode('a,b\n3,4\n'), mtime: 0 }]);
+      DATA.files.set('name:справочник.xlsx', { name: 'Справочник.xlsx', bytes: dx, mtime: 0, xlsx: xd });
+      const fc = mEval('let Т = Table.PromoteHeaders(Csv.Document(File.Contents("c:/выгрузки/осв.csv"), [Delimiter = ";", Encoding = 1251])), П = Folder.Files("D:\\Банк"), Ф = Table.AddColumn(П, "Д", each Table.PromoteHeaders(Csv.Document([Content]))), Р = Table.Combine(Ф[Д]), К = Excel.Workbook(File.Contents("\\\\srv\\share\\Справочник.xlsx"), true){[Item="Справочники", Kind="Sheet"]}[Data] in [Контрагент = Т{0}[Контрагент], Строк = Table.RowCount(Т), Банк = List.Sum(List.Transform(Р[a], Number.From)), Статья = К{0}[Статья]]', '');
+      let needErr = null; try { mEval('File.Contents("C:\\нет\\файла.csv")', ''); } catch (e){ needErr = e; }
+      ok('Выгрузки на этом компьютере: CSV в cp1251 (кавычки), файлы папки, книга XLSX по имени; чего нет — DataSource.Error с путём',
+        fc.get('Контрагент') === 'ООО "Ромашка-Север"' && fc.get('Строк') === 2 && fc.get('Банк') === 4 && fc.get('Статья') === 'Выручка' && needErr && needErr.reason === 'DataSource.Error' && needErr.need && needErr.need.path === 'C:\\нет\\файла.csv', mLit(fc) + ' / ' + (needErr && needErr.message));
+      // соединение на хеше = перебору; трассировка: дубли ключей, строки без пары, разные типы
+      const jl = []; M_TRACE = { join: j => jl.push(j) };
+      let jv; try { jv = mEval('let Л = #table({"Код","Сумма"}, {{101, 10}, {102, 20}, {"101", 5}, {null, 1}, {103, 7}}), П = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content], С = Table.NestedJoin(Л, {"Код"}, П, {"Код"}, "М", JoinKind.LeftOuter), Р = Table.ExpandTableColumn(С, "М", {"Статья"}) in [Строк = Table.RowCount(Р), Сумма = List.Sum(Р[Сумма]), Без = Table.RowCount(Table.SelectRows(Р, each [Статья] = null)), Г = Table.RowCount(Table.Group(Р, {"Код"}, {{"Н", Table.RowCount}})), Р1 = Р{0}[Статья]]', ''); jv.names.forEach(n => jv.get(n)); } finally { M_TRACE = null; }   // поля записи ленивые — вычислить при включённой трассировке
+      const j0 = jl[0] || {};
+      ok('Слияние и группировка по хешу: результат как у перебора; на данных видны дубли ключей и строки без пары',
+        jv.get('Строк') === 6 && jv.get('Сумма') === 63 && jv.get('Без') === 3 && jv.get('Г') === 5 && jv.get('Р1') === 'Выручка' && j0.dupKeys === 1 && j0.dupRows === 2 && j0.miss === 3 && j0.left === 5, mLit(jv) + ' / ' + JSON.stringify(j0));
+      const lk = mEval('let П = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content] in {П{[Код=101]}[Статья], try П{[Код=102]}[Статья] otherwise "дубль", П{[Код=999]}?}', '');
+      ok('Поиск в справочнике Т{[Код=…]} по индексу: найдено, дубль ключа — ошибка, нет ключа с ? — null', lk[0] === 'Выручка' && lk[1] === 'дубль' && lk[2] === null, mLit(lk));
+      const leaks = dataLeaks('{"query":"⟦Q_1⟧","note":"ООО \\"Ромашка-Север\\"","col":"Контрагент"}\nАренда дубль\n');
+      ok('Защита от утечки: значения из данных в исходящем тексте найдены (JSON и строки), заголовки столбцов — нет',
+        leaks.some(l => l.match === 'ООО "Ромашка-Север"') && leaks.some(l => l.match === 'Аренда дубль') && !leaks.some(l => l.match === 'Контрагент') && !dataLeaks('{"rows": 3, "q": "⟦Q_1⟧"}').length, leaks.map(l => l.match).join(' | '));
+      const T1 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"}})', ''), T2 = mEval('#table({"b","a"}, {{"y",2},{"x",1}})', ''), T3 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"},{2,"y"}})', '');
+      const c1 = tableCompare(T1, T1), c2 = tableCompare(T1, T2), c3 = tableCompare(T1, T3);
+      ok('Сверка результатов до и после исправления: полностью / другой порядок / отличается', c1.same && c1.exact && c2.same && !c2.exact && !c3.same && /появилось 1/.test(c3.note), [c1, c2, c3].map(c => JSON.stringify(c)).join(' '));
+    } finally { Object.assign(DATA, keepData); M_TRACE = null; }
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

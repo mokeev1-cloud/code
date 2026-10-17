@@ -1,0 +1,16 @@
+<section class="view" id="view-data">
+  <div class="needbook-msg">Откройте книгу, чтобы проверить запросы на данных.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Проверка на данных</h1><span class="sp"></span>
+      <label class="small">Строк на лист: <select id="dataLimit"><option value="10000">10 000</option><option value="50000">50 000</option><option value="200000" selected>200 000</option><option value="0">все</option></select></label>
+      <button class="btn pri" id="dataRun">▶ Проверить на данных</button></div>
+    <div class="note small">🔒 Данные читаются и обрабатываются только в этом браузере — сеть запрещена. Наружу (пакет для ИИ, папка обмена) уходят только числа проверок, без значений; если в исходящем тексте окажется значение из данных, сканер заблокирует выпуск.</div>
+    <div class="data-grid">
+      <div class="card" id="dataSources"></div>
+      <div class="card" id="dataSummary"></div>
+    </div>
+    <div class="card" id="dataFindings"></div>
+    <div class="card" id="dataQueries"></div>
+    <div class="card" id="dataDetail"></div>
+  </div>
+</section>

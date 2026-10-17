@@ -151,6 +151,30 @@ const recAfter = await page.$$eval('#modal .pqx-rec[data-rk]', xs => xs.map(x =>
 check('Настройки PQ и Excel: рекомендации у флажков, «Применить рекомендуемое» приводит их к рекомендуемым', recAfter.length >= 2 && recAfter.every(x => /\bok\b/.test(x)) && !(await page.$eval('#modal input[data-k="refreshOnLoad"]', x => x.checked)), recBefore + ' → ' + recAfter.join(' | '));
 await page.click('#modal button[data-v=ok]'); await page.waitForTimeout(100);
 check('Настройки PQ и Excel: снятый флажок «при открытии» ждёт записи и попадает в собранный файл; макрос показан', pqx.code && pqx.dirty && /сохраните/.test(pqx.pend) && pqx.onLoad === false && pqx.same, JSON.stringify(pqx));
+// «Проверка на данных»: маппинг — таблица книги, проводки — выгрузка CSV (cp1251); всё в браузере, наружу — только числа
+const dres = await page.evaluate(async () => {
+  const xz = zipRead(await makeTestXlsx({ sheets: [{ name: 'Справочники', rows: [['Код', 'Статья', 'ЦФО'], [90, 'Выручка', 'Продажи'], [44, 'Аренда', 'АХО'], [44, 'Аренда (дубль)', 'АХО'], [26, 'Зарплата', 'АУП']] }],
+    tables: [{ sheet: 'Справочники', name: 'Маппинг', ref: 'A1:C5', cols: ['Код', 'Статья', 'ЦФО'] }] }));
+  const extra = []; for (const e of xz.entries) extra.push([e.name, await zipEntryBytes(e)]);
+  const sec = ['section Section1;', 'shared Маппинг = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content];',
+    'shared Проводки = let', '    Источник = Csv.Document(File.Contents("C:\\Выгрузки\\Проводки.csv"), [Delimiter = ";", Encoding = 1251]),', '    Заголовки = Table.PromoteHeaders(Источник),',
+    '    Типы = Table.TransformColumnTypes(Заголовки, {{"Счёт", Int64.Type}, {"Сумма", type number}}),', '    Статья = Table.AddColumn(Типы, "Статья", each Маппинг{[Код = [Счёт]]}[Статья])', 'in', '    Статья;',
+    'shared ОПиУ = let', '    Слияние = Table.NestedJoin(Проводки, {"Счёт"}, Маппинг, {"Код"}, "М", JoinKind.LeftOuter),', '    Развернуть = Table.ExpandTableColumn(Слияние, "М", {"ЦФО"}),',
+    '    Итоги = Table.Group(Развернуть, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}})', 'in', '    Итоги;', ''].join('\r\n');
+  await openFromBytes('Учёт.xlsx', await makeTestBook(extra, sec));
+  const csv = encodeCodePage('Дата;Счёт;Сумма;Контрагент\r\n2024-01-10;90;1000;ООО Ромашка-Север\r\n2024-01-11;44;-300;ИП Иванов Пётр\r\n2024-01-12;26;-500;Сотрудники отдела\r\n2024-01-13;51;-50;Банк Альфа-Восток\r\n', 1251);
+  await attachFiles([new File([csv], 'Проводки.csv')], 'C:\\Выгрузки\\Проводки.csv', 'file');
+  showView('data'); await dataRunAll();
+  const titles = DATA.run.findings.map(f => f.title); const sums = DATA.run.findings.filter(f => /Контрольная/.test(f.title)).map(f => f.q + ': ' + f.text.slice(0, 40));
+  const pkg = JSON.stringify(buildPackage()); const prompt = buildPromptText(buildPackage());
+  return { titles, sums, queries: DATA.run.queries.map(q => q.name + ':' + (q.error ? q.error.reason : (q.steps[q.steps.length - 1].rows))), verify: DATA.verify ? [...DATA.verify.items.values()].map(v => v.rule + '=' + v.same) : [],
+    pkgHasData: /Ромашка|Иванов|Альфа-Восток|Сотрудники отдела/.test(pkg + prompt), pkgChecks: !!JSON.parse(pkg).dataChecks, leaks: dataLeaks(pkg).length, leakTest: dataLeaks('{"x":"ИП Иванов Пётр"}').length };
+});
+await page.waitForTimeout(200); await shot('21-data-check');
+check('Проверка на данных: запросы вычислены на таблице книги и выгрузке CSV; найдены дубли ключей, строки без пары и ошибки поиска', dres.queries.every(q => !/Error/.test(q)) && dres.titles.includes('Дубли ключей в присоединяемой таблице') && dres.titles.includes('Строки без пары при слиянии') && dres.titles.includes('Ошибки в ячейках результата'), dres.queries.join(' | ') + ' / ' + dres.titles.join(', '));
+check('Проверка на данных: контрольная сумма — только там, где слияние задвоило строки (ключи и смена типа не считаются)', dres.sums.length === 1 && /^ОПиУ: «Сумма»/.test(dres.sums[0]), dres.sums.join(' | '));
+check('Проверка на данных: исправления оптимизатора сверены до и после', dres.verify.length > 0, dres.verify.join(', '));
+check('Пакет для ИИ: только числа проверки — значений из данных нет, защита находит их в исходящем тексте', dres.pkgChecks && !dres.pkgHasData && dres.leaks === 0 && dres.leakTest === 1, JSON.stringify(dres));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');

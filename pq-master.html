@@ -5,71 +5,75 @@
     node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
   Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      74–82     src/html/head.html
-      84–131    src/css/theme.css
-     132–200    src/css/themes.css
-     201–239    src/css/layout.css
-     240–425    src/css/components.css
-     426–482    src/css/editor.css
-     486–507    src/html/shell-top.html
-     508–571    src/html/view-home.html
-     572–609    src/html/view-editor.html
-     610–637    src/html/view-optimizer.html
-     638–660    src/html/view-graph.html
-     661–688    src/html/view-sandbox.html
-     689–700    src/html/view-reference.html
-     701–709    src/html/view-snippets.html
-     710–721    src/html/view-history.html
-     722–785    src/html/view-anon.html
-     786–802    src/html/view-diag.html
-     803–830    src/html/view-ai.html
-     831–863    src/html/view-agent.html
-     864–876    src/html/view-compare.html
-     877–888    src/html/view-docs.html
-     889–895    src/html/view-help.html
-     896–902    src/html/view-selftest.html
-     903–911    src/html/shell-bottom.html
-     913–1123   DEV.md
-    1126–1292   build.mjs
-    1293–1476   test/e2e.mjs
-    1477–1652   test/stress.mjs
-    1653–1666   vendor/codemirror.entry.js
-    1669–1684   vendor/codemirror.bundle.js
-    1688–2126   src/js/core/zip-mashup.js
-    2127–2472   src/js/core/vba.js
-    2473–2745   src/js/m/lang.js
-    2746–2808   src/js/m/format.js
-    2809–3193   src/js/m/reference.js
-    3194–3951   src/js/m/interp.js
-    3952–4472   src/js/nda/anon.js
-    4473–4609   src/js/nda/diag.js
-    4610–5024   src/js/opt/lint.js
-    5025–5334   src/js/opt/optimizer.js
-    5335–5421   src/js/opt/refactor.js
-    5422–5569   src/js/opt/snippets.js
-    5570–5638   src/js/app/state.js
-    5639–5873   src/js/nda/agent.js
-    5874–5965   src/js/app/ui-base.js
-    5966–6144   src/js/app/storage.js
-    6145–6179   src/js/app/hints.js
-    6180–6397   src/js/app/shell.js
-    6398–6487   src/js/views/home.js
-    6488–6829   src/js/views/editor.js
-    6830–7081   src/js/views/optimizer.js
-    7082–7165   src/js/views/graph.js
-    7166–7276   src/js/views/sandbox.js
-    7277–7307   src/js/views/reference.js
-    7308–7345   src/js/views/snippets.js
-    7346–7366   src/js/views/history.js
-    7367–7508   src/js/views/anon.js
-    7509–7575   src/js/views/diag.js
-    7576–7689   src/js/views/ai.js
-    7690–7753   src/js/views/agent.js
-    7754–7780   src/js/views/compare.js
-    7781–7838   src/js/views/docs.js
-    7839–8006   src/js/views/help.js
-    8007–8367   src/js/app/selftest.js
-    8368–8381   src/js/app/main.js
+      78–86     src/html/head.html
+      88–135    src/css/theme.css
+     136–204    src/css/themes.css
+     205–243    src/css/layout.css
+     244–430    src/css/components.css
+     431–487    src/css/editor.css
+     491–512    src/html/shell-top.html
+     513–576    src/html/view-home.html
+     577–614    src/html/view-editor.html
+     615–642    src/html/view-optimizer.html
+     643–665    src/html/view-graph.html
+     666–693    src/html/view-sandbox.html
+     694–711    src/html/view-data.html
+     712–723    src/html/view-reference.html
+     724–732    src/html/view-snippets.html
+     733–744    src/html/view-history.html
+     745–808    src/html/view-anon.html
+     809–825    src/html/view-diag.html
+     826–853    src/html/view-ai.html
+     854–886    src/html/view-agent.html
+     887–899    src/html/view-compare.html
+     900–911    src/html/view-docs.html
+     912–918    src/html/view-help.html
+     919–925    src/html/view-selftest.html
+     926–934    src/html/shell-bottom.html
+     936–1160   DEV.md
+    1163–1333   build.mjs
+    1334–1541   test/e2e.mjs
+    1542–1764   test/stress.mjs
+    1765–1778   vendor/codemirror.entry.js
+    1781–1796   vendor/codemirror.bundle.js
+    1800–2238   src/js/core/zip-mashup.js
+    2239–2584   src/js/core/vba.js
+    2585–2681   src/js/core/xlsx-data.js
+    2682–2954   src/js/m/lang.js
+    2955–3017   src/js/m/format.js
+    3018–3402   src/js/m/reference.js
+    3403–4270   src/js/m/interp.js
+    4271–4791   src/js/nda/anon.js
+    4792–4928   src/js/nda/diag.js
+    4929–5343   src/js/opt/lint.js
+    5344–5653   src/js/opt/optimizer.js
+    5654–5740   src/js/opt/refactor.js
+    5741–5888   src/js/opt/snippets.js
+    5889–5957   src/js/app/state.js
+    5958–6048   src/js/app/data.js
+    6049–6286   src/js/nda/agent.js
+    6287–6378   src/js/app/ui-base.js
+    6379–6557   src/js/app/storage.js
+    6558–6593   src/js/app/hints.js
+    6594–6813   src/js/app/shell.js
+    6814–6903   src/js/views/home.js
+    6904–7245   src/js/views/editor.js
+    7246–7499   src/js/views/optimizer.js
+    7500–7583   src/js/views/graph.js
+    7584–7699   src/js/views/sandbox.js
+    7700–7919   src/js/views/data.js
+    7920–7950   src/js/views/reference.js
+    7951–7988   src/js/views/snippets.js
+    7989–8009   src/js/views/history.js
+    8010–8151   src/js/views/anon.js
+    8152–8218   src/js/views/diag.js
+    8219–8332   src/js/views/ai.js
+    8333–8396   src/js/views/agent.js
+    8397–8423   src/js/views/compare.js
+    8424–8481   src/js/views/docs.js
+    8482–8660   src/js/views/help.js
+    8661–9088   src/js/app/selftest.js
+    9089–9102   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -422,6 +426,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .heat-q .reads{color:var(--warn);font-weight:700}
 .book-issues{display:grid;gap:10px}.book-issues .bi{border-left:3px solid var(--border2);padding:4px 0 4px 12px}.book-issues .bi.warn{border-left-color:var(--warn)}.book-issues .bi .why{margin-top:4px}.book-issues .bi .fix{color:var(--muted);font-size:13px;margin-top:2px}
 .pqx-rec{display:inline-block;padding:0 6px;border-radius:6px;font-size:12px;margin-left:4px}.pqx-rec.ok{color:var(--ok);background:var(--ok-soft)}.pqx-rec.warn{color:var(--warn);background:var(--warn-soft,var(--panel2))}.pqx-legend td{vertical-align:top}.pqx-legend td:nth-child(2){white-space:nowrap;font-weight:600}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:1100px){.data-grid{grid-template-columns:1fr}}.ds-item{padding:3px 0;font-size:13.5px}.ds-item.need{color:var(--warn)}.bar{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}table.t tr.on td{background:var(--accent-soft)}
 /* ===== END src/css/components.css ===== */
 /* ===== BEGIN src/css/editor.css ===== */
 /* Редактор: раскладка и тема CodeMirror */
@@ -519,7 +524,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
           <button class="btn lg" id="homePaste">Вставить M-код</button>
           <button class="btn lg ghost" id="homeDemo" title="Тестовая книга с типичными проблемами: SQL, папка, веб-API, пароль в строке подключения">Открыть демо-книгу</button>
         </div>
-        <div class="small muted">Читается только M-код и метаданные запросов. Содержимое листов и модель данных не читаются.</div>
+        <div class="small muted">Всё — только в этом браузере, сеть запрещена. Таблицы книги и прикреплённые выгрузки читаются локально — для проверки запросов на данных. Наружу (ИИ, папка обмена) уходит только обезличенное.</div>
       </div>
       <div id="pasteBox" class="card hidden">
         <div class="card-h"><h2>M-код текстом</h2><span class="small muted">из «Расширенного редактора» или section Section1; с несколькими shared</span></div>
@@ -660,7 +665,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 <!-- ===== END src/html/view-graph.html ===== -->
 <!-- ===== BEGIN src/html/view-sandbox.html ===== -->
 <section class="view" id="view-sandbox">
-  <div class="page-h"><h1>Песочница</h1><span class="small muted">Вычисление M прямо в браузере. Источники данных недоступны — подменяйте их образцами.</span></div>
+  <div class="page-h"><h1>Песочница</h1><span class="small muted">Вычисление M прямо в браузере — на таблицах книги и прикреплённых выгрузках. Базы и веб недоступны (сети нет) — подменяйте их образцами.</span></div>
   <div class="seg big" id="sbMode"><button data-m="expr" class="on">Выражение</button><button data-m="query">Пошаговый прогон запроса</button></div>
   <div id="sbExpr">
     <div class="sb-grid">
@@ -686,6 +691,24 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
   </div>
 </section>
 <!-- ===== END src/html/view-sandbox.html ===== -->
+<!-- ===== BEGIN src/html/view-data.html ===== -->
+<section class="view" id="view-data">
+  <div class="needbook-msg">Откройте книгу, чтобы проверить запросы на данных.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Проверка на данных</h1><span class="sp"></span>
+      <label class="small">Строк на лист: <select id="dataLimit"><option value="10000">10 000</option><option value="50000">50 000</option><option value="200000" selected>200 000</option><option value="0">все</option></select></label>
+      <button class="btn pri" id="dataRun">▶ Проверить на данных</button></div>
+    <div class="note small">🔒 Данные читаются и обрабатываются только в этом браузере — сеть запрещена. Наружу (пакет для ИИ, папка обмена) уходят только числа проверок, без значений; если в исходящем тексте окажется значение из данных, сканер заблокирует выпуск.</div>
+    <div class="data-grid">
+      <div class="card" id="dataSources"></div>
+      <div class="card" id="dataSummary"></div>
+    </div>
+    <div class="card" id="dataFindings"></div>
+    <div class="card" id="dataQueries"></div>
+    <div class="card" id="dataDetail"></div>
+  </div>
+</section>
+<!-- ===== END src/html/view-data.html ===== -->
 <!-- ===== BEGIN src/html/view-reference.html ===== -->
 <section class="view full" id="view-reference">
   <div class="ref-layout">
@@ -930,9 +953,13 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 - **Всё, что уходит наружу обезличенным, — через `gate()` + `audit()`** (`app/ui-base.js`).
   В автоматике (агент) — `gate(…, { noOverride: true })`.
 - **Словарь замен и оригиналы никогда не пишутся в папку обмена** (`nda/agent.js`).
-- **Содержимое листов книги не читается.** Читаются DataMashup, метаданные запросов, свойства
-  подключений (`xl/connections.xml`) и исходный текст макросов — последнее только для советов, никуда
-  не выгружается и в пакеты для ИИ не попадает. Код макросов в книге не меняется никогда.
+- **Необезличенные данные не уходят наружу; локально их обрабатывать можно.** Таблицы книги и
+  прикреплённые выгрузки читаются и вычисляются только в браузере (`app/data.js`, `DATA`): песочница,
+  «Проверка на данных». Наружу (пакет для ИИ, папка обмена, буфер «для ИИ») — только числа проверок
+  (`dataChecksForAi`: строки, доли, счётчики; имена — через словарь обезличивания), без значений и сумм.
+  `gate()` дополнительно ищет в исходящем тексте значения из данных (`dataLeaks`) и блокирует выпуск.
+  Модель книги (`S.book`) данных не хранит. Исходный текст макросов — только для советов, наружу не
+  уходит; код макросов в книге не меняется никогда.
 - **Свойства подключений меняются только по явному выбору** пользователя («Настройки PQ и Excel»,
   `S.bookEdits`), правятся только три атрибута, остальной текст — байт в байт. Если код не менялся,
   DataMashup переносится без изменений: иначе Excel сбросит флаг конфиденциальности книги.
@@ -994,6 +1021,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | Модуль | Что внутри | Ключевые функции |
 |---|---|---|
 | `core/zip-mashup.js` | байты, кодировки, SHA-256, CRC32, ZIP, DataMashup, загрузка/сборка книги | `loadBookFromBytes`, `loadBookFromText`, `buildBookWithSection`, `zipRead/zipWrite`, `parseDataMashup`, `parseMashupMetadata` |
+| `core/xlsx-data.js` | листы, таблицы, именованные диапазоны .xlsx (даты по формату ячейки) | `readXlsxData` |
 | `core/vba.js` | макросы (MS-CFB, MS-OVBA), `connections.xml`, советы об обновлении, правка флагов подключений, генератор модуля VBA | `readVbaProject`, `parseConnections`, `bookRefreshIssues`, `applyConnEdits`, `genPqMacro`, `encodeCodePage` |
 | `m/lang.js` | лексер M, скобки, section-документ, шаги let…in, анализ, подсветка | `lexM`, `structure`, `parseSection`, `analyzeSection`, `parseSteps`, `highlightM`, `SOURCE_FNS` |
 | `m/format.js` | форматер (только отступы) | `formatM`, `sigTokens` |
@@ -1007,13 +1035,14 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `opt/refactor.js` | рефакторинг (чистые функции над текстом) | `renameStep`, `renameQuery`, `extractSteps`, `toFunction`, `addQuery`, `deleteQuery` |
 | `opt/snippets.js` | сниппеты и мастера | `SNIPPETS` |
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
+| `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
 | `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
 | `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
-| `app/selftest.js` | самотест (60 проверок) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
+| `app/selftest.js` | самотест (67 проверок) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
 
 ## Поток данных
@@ -1026,7 +1055,13 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 4. Любая правка (редактор, оптимизатор, ИИ, рефакторинг, сниппет) → `setWork(новыйТекст, источник, подпись)`.
 5. Сохранение: `buildBookWithSection(S.book, S.work, S.bookEdits)` → контрольное чтение (код и флаги
    подключений) → запись (копия или оригинал). После записи в оригинал `S.bookEdits` очищается.
-6. Обезличивание считается лениво: `ensureAnon()` (`views/anon.js`) по ключу «рабочая версия + настройки».
+6. Данные: `dataPrepare()` читает таблицы книги (один раз на версию файла); интерпретатор берёт их и
+   прикреплённые файлы через `M_DATA` (`Excel.CurrentWorkbook`, `File.Contents`, `Folder.Files`, `Csv.Document`,
+   `Excel.Workbook`, `Json.Document`). Нет файла — `DataSource.Error` с `e.need = { kind, path }`, интерфейс
+   предлагает прикрепить его. «Проверка на данных» (`views/data.js`): запросы по порядку зависимостей
+   (результат переиспользуется), `M_TRACE.join` — сводка каждого слияния, профиль, контрольные суммы,
+   сверка исправлений оптимизатора до и после (`tableCompare`); итог — `DATA.run`, `DATA.verify`.
+7. Обезличивание считается лениво: `ensureAnon()` (`views/anon.js`) по ключу «рабочая версия + настройки».
 
 ## Рецепты
 
@@ -1087,8 +1122,10 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 
 ## Известные ограничения и следующие шаги
 
-- Интерпретатор — подмножество M: нет свёртки, нет источников, часть функций отсутствует;
-  числа — double. Новые функции легко добавлять в `MLIB`.
+- Интерпретатор — подмножество M: нет свёртки; из источников — только данные этого компьютера (таблицы
+  книги, файлы CSV/XLSX/JSON, папки); базы и веб подменяются выгрузкой. Числа — double. Слияния,
+  группировки, Distinct и поиск `Т{[Ключ=…]}` — по хешу (100 тыс. × 10 тыс. строк — доли секунды).
+  Ошибка вычисления ячейки остаётся в ячейке (`cellOf`), как в Power Query. .xls/.xlsb не читаются. Новые функции легко добавлять в `MLIB`.
 - Линтер, оптимизатор и карта тяжести — эвристики по тексту; реальное время даёт только
   загруженная диагностика Power Query.
 - .pbix нового формата (запросы в модели VertiPaq) не читается; запись Power BI экспериментальная.
@@ -1166,6 +1203,7 @@ export const MANIFEST = [
   ['html', 'src/html/view-optimizer.html'],
   ['html', 'src/html/view-graph.html'],
   ['html', 'src/html/view-sandbox.html'],
+  ['html', 'src/html/view-data.html'],
   ['html', 'src/html/view-reference.html'],
   ['html', 'src/html/view-snippets.html'],
   ['html', 'src/html/view-history.html'],
@@ -1186,6 +1224,7 @@ export const MANIFEST = [
   ['vendor', 'vendor/codemirror.bundle.js'],
   ['js', 'src/js/core/zip-mashup.js'],
   ['js', 'src/js/core/vba.js'],
+  ['js', 'src/js/core/xlsx-data.js'],
   ['js', 'src/js/m/lang.js'],
   ['js', 'src/js/m/format.js'],
   ['js', 'src/js/m/reference.js'],
@@ -1197,6 +1236,7 @@ export const MANIFEST = [
   ['js', 'src/js/opt/refactor.js'],
   ['js', 'src/js/opt/snippets.js'],
   ['js', 'src/js/app/state.js'],
+  ['js', 'src/js/app/data.js'],
   ['js', 'src/js/nda/agent.js'],
   ['js', 'src/js/app/ui-base.js'],
   ['js', 'src/js/app/storage.js'],
@@ -1207,6 +1247,7 @@ export const MANIFEST = [
   ['js', 'src/js/views/optimizer.js'],
   ['js', 'src/js/views/graph.js'],
   ['js', 'src/js/views/sandbox.js'],
+  ['js', 'src/js/views/data.js'],
   ['js', 'src/js/views/reference.js'],
   ['js', 'src/js/views/snippets.js'],
   ['js', 'src/js/views/history.js'],
@@ -1444,6 +1485,30 @@ const recAfter = await page.$$eval('#modal .pqx-rec[data-rk]', xs => xs.map(x =>
 check('Настройки PQ и Excel: рекомендации у флажков, «Применить рекомендуемое» приводит их к рекомендуемым', recAfter.length >= 2 && recAfter.every(x => /\bok\b/.test(x)) && !(await page.$eval('#modal input[data-k="refreshOnLoad"]', x => x.checked)), recBefore + ' → ' + recAfter.join(' | '));
 await page.click('#modal button[data-v=ok]'); await page.waitForTimeout(100);
 check('Настройки PQ и Excel: снятый флажок «при открытии» ждёт записи и попадает в собранный файл; макрос показан', pqx.code && pqx.dirty && /сохраните/.test(pqx.pend) && pqx.onLoad === false && pqx.same, JSON.stringify(pqx));
+// «Проверка на данных»: маппинг — таблица книги, проводки — выгрузка CSV (cp1251); всё в браузере, наружу — только числа
+const dres = await page.evaluate(async () => {
+  const xz = zipRead(await makeTestXlsx({ sheets: [{ name: 'Справочники', rows: [['Код', 'Статья', 'ЦФО'], [90, 'Выручка', 'Продажи'], [44, 'Аренда', 'АХО'], [44, 'Аренда (дубль)', 'АХО'], [26, 'Зарплата', 'АУП']] }],
+    tables: [{ sheet: 'Справочники', name: 'Маппинг', ref: 'A1:C5', cols: ['Код', 'Статья', 'ЦФО'] }] }));
+  const extra = []; for (const e of xz.entries) extra.push([e.name, await zipEntryBytes(e)]);
+  const sec = ['section Section1;', 'shared Маппинг = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content];',
+    'shared Проводки = let', '    Источник = Csv.Document(File.Contents("C:\\Выгрузки\\Проводки.csv"), [Delimiter = ";", Encoding = 1251]),', '    Заголовки = Table.PromoteHeaders(Источник),',
+    '    Типы = Table.TransformColumnTypes(Заголовки, {{"Счёт", Int64.Type}, {"Сумма", type number}}),', '    Статья = Table.AddColumn(Типы, "Статья", each Маппинг{[Код = [Счёт]]}[Статья])', 'in', '    Статья;',
+    'shared ОПиУ = let', '    Слияние = Table.NestedJoin(Проводки, {"Счёт"}, Маппинг, {"Код"}, "М", JoinKind.LeftOuter),', '    Развернуть = Table.ExpandTableColumn(Слияние, "М", {"ЦФО"}),',
+    '    Итоги = Table.Group(Развернуть, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}})', 'in', '    Итоги;', ''].join('\r\n');
+  await openFromBytes('Учёт.xlsx', await makeTestBook(extra, sec));
+  const csv = encodeCodePage('Дата;Счёт;Сумма;Контрагент\r\n2024-01-10;90;1000;ООО Ромашка-Север\r\n2024-01-11;44;-300;ИП Иванов Пётр\r\n2024-01-12;26;-500;Сотрудники отдела\r\n2024-01-13;51;-50;Банк Альфа-Восток\r\n', 1251);
+  await attachFiles([new File([csv], 'Проводки.csv')], 'C:\\Выгрузки\\Проводки.csv', 'file');
+  showView('data'); await dataRunAll();
+  const titles = DATA.run.findings.map(f => f.title); const sums = DATA.run.findings.filter(f => /Контрольная/.test(f.title)).map(f => f.q + ': ' + f.text.slice(0, 40));
+  const pkg = JSON.stringify(buildPackage()); const prompt = buildPromptText(buildPackage());
+  return { titles, sums, queries: DATA.run.queries.map(q => q.name + ':' + (q.error ? q.error.reason : (q.steps[q.steps.length - 1].rows))), verify: DATA.verify ? [...DATA.verify.items.values()].map(v => v.rule + '=' + v.same) : [],
+    pkgHasData: /Ромашка|Иванов|Альфа-Восток|Сотрудники отдела/.test(pkg + prompt), pkgChecks: !!JSON.parse(pkg).dataChecks, leaks: dataLeaks(pkg).length, leakTest: dataLeaks('{"x":"ИП Иванов Пётр"}').length };
+});
+await page.waitForTimeout(200); await shot('21-data-check');
+check('Проверка на данных: запросы вычислены на таблице книги и выгрузке CSV; найдены дубли ключей, строки без пары и ошибки поиска', dres.queries.every(q => !/Error/.test(q)) && dres.titles.includes('Дубли ключей в присоединяемой таблице') && dres.titles.includes('Строки без пары при слиянии') && dres.titles.includes('Ошибки в ячейках результата'), dres.queries.join(' | ') + ' / ' + dres.titles.join(', '));
+check('Проверка на данных: контрольная сумма — только там, где слияние задвоило строки (ключи и смена типа не считаются)', dres.sums.length === 1 && /^ОПиУ: «Сумма»/.test(dres.sums[0]), dres.sums.join(' | '));
+check('Проверка на данных: исправления оптимизатора сверены до и после', dres.verify.length > 0, dres.verify.join(', '));
+check('Пакет для ИИ: только числа проверки — значений из данных нет, защита находит их в исходящем тексте', dres.pkgChecks && !dres.pkgHasData && dres.leaks === 0 && dres.leakTest === 1, JSON.stringify(dres));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');
@@ -1506,7 +1571,7 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 const grab = (src, re) => { const m = re.exec(src); if (!m) throw new Error('не найдено в исходниках: ' + re); return m[0]; };
 
 // ядро без DOM + чистые функции из видов (syntaxIssues, applyAllSafeText) и тестовая книга из самотеста
-const CORE = ['core/zip-mashup.js', 'core/vba.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
+const CORE = ['core/zip-mashup.js', 'core/vba.js', 'core/xlsx-data.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
 const selftest = JS('app/selftest.js');
 const ctx = vm.createContext({ console, TextEncoder, TextDecoder, CompressionStream, DecompressionStream, Blob, Response, crypto, performance, setTimeout, atob, btoa });
 vm.runInContext(CORE.map(JS).join('\n') + '\n' +
@@ -1515,7 +1580,8 @@ vm.runInContext(CORE.map(JS).join('\n') + '\n' +
   grab(selftest, /const TEST_SECTION = \[[\s\S]*?\]\.join\([^)]*\);/) + '\n' +
   grab(selftest, /async function makeTestBook[\s\S]*?\n}\n/) +
   grab(selftest, /function makeTestVba[\s\S]*?\n}\n/) +
-  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, makeTestVba, readVbaProject, vbaRefreshCalls, bookRefreshIssues, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
+  grab(selftest, /async function makeTestXlsx[\s\S]*?\n}\n/) +
+  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, makeTestVba, readVbaProject, vbaRefreshCalls, bookRefreshIssues, loadBookFromBytes, buildBookWithSection, makeTestXlsx, readXlsxData, zipRead, mHashKey, mEquals, MTab, MDate, force, setTrace: t => { M_TRACE = t; } };', ctx, { filename: 'pq-core.js' });
 const a = ctx.api;
 const semSrc = eval(grab(selftest, /const semSrc = '[^\n]*';/).replace(/^const semSrc = /, '').replace(/;$/, ''));
 const uaSrc = eval(grab(selftest, /const ua = \[[\s\S]*?\]\.join\('\\r\\n'\);/).replace(/^const ua = /, '').replace(/;$/, ''));   // сценарий учёта на выгрузках
@@ -1632,6 +1698,44 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
   report('Повреждённые макросы', F, n + ' файлов');
 }
 
+// ---------- 4в. повреждённые данные книги (листы, таблицы, общие строки) ----------
+{
+  const good = await a.makeTestXlsx({ sheets: [{ name: 'Л', rows: [['Код', 'Имя', 'Дата'], [1, 'а', { d: '2024-01-01' }], [2, 'б', { d: '2024-02-01' }]] }], tables: [{ sheet: 'Л', name: 'Т', ref: 'A1:C3', cols: ['Код', 'Имя', 'Дата'] }], names: [{ name: 'Н', ref: 'Л!$A$1:$B$2' }] });
+  const base = await a.readXlsxData(a.zipRead(good), {}); const [F, fail] = failer(); const n = Math.max(300, ITER / 2);
+  if (base.tables[0].rows.length !== 2 || base.names[0].rows.length !== 2) fail('исходная книга читается неверно', '(байты)');
+  const z = a.zipRead(good); const parts = await Promise.all(z.entries.map(async e => [e.name, new TextDecoder().decode(await ctx.zipEntryBytes(e))]));
+  for (let it = 0; it < n; it++){
+    // портим XML: вырезаем, дублируем или заменяем кусок текста в одной из частей
+    const [name, text] = parts[Math.floor(rnd() * parts.length)]; const i = Math.floor(rnd() * text.length), len = 1 + Math.floor(rnd() * 40);
+    const bad = rnd() < 0.4 ? text.slice(0, i) + text.slice(i + len) : rnd() < 0.5 ? text.slice(0, i) + text.slice(i, i + len).repeat(3) + text.slice(i) : text.slice(0, i) + '<c r="ZZZ9999999"><v>' + rnd() + '</v></c>' + text.slice(i);
+    const ents = []; for (const [nm, t] of parts) ents.push(await ctx.zipFinalizeNew(ctx.zipNewEntry(nm, new TextEncoder().encode(nm === name ? bad : t), true)));
+    const t0 = performance.now();
+    try { await a.readXlsxData(a.zipRead(ctx.zipWrite(ents)), { maxRows: 1000 }); } catch (e){ if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, name, e.message); }
+    if (performance.now() - t0 > 2000) fail('чтение дольше 2 с', name);
+  }
+  report('Повреждённые данные книги', F, n + ' файлов');
+}
+
+// ---------- 4г. соединения, группировки, Distinct по хешу = перебору ----------
+{
+  const [F, fail] = failer(); const n = Math.max(300, ITER / 2);
+  const dom = [null, 1, 2, 3, 1.5, '1', '2', 'a', 'A', true, false, -0, 0];
+  const pick = () => dom[Math.floor(rnd() * dom.length)];
+  const tbl = (rows, cols) => new a.MTab(cols, Array.from({ length: rows }, () => cols.map(() => pick())));
+  const naiveJoin = (L, R, kind) => { const out = []; const used = new Set(); for (const r of L.rows){ const m = R.rows.filter(s => a.mEquals(r[0], s[0]) && a.mEquals(r[1], s[1])); m.forEach(x => used.add(x)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; out.push(r.map(String).join('|') + '#' + m.length); } if (kind === 3) for (const s of R.rows) if (!used.has(s)) out.push('null|null|null#1'); return out.sort().join(';'); };
+  for (let it = 0; it < n; it++){
+    const L = tbl(Math.floor(rnd() * 30), ['k1', 'k2', 'v']), R = tbl(Math.floor(rnd() * 30), ['k1', 'k2', 'w']); const kind = [0, 1, 3, 4][Math.floor(rnd() * 4)];
+    const got = a.MLIB['Table.NestedJoin'].call([L, ['k1', 'k2'], R, ['k1', 'k2'], 'J', kind]);
+    const g = got.rows.map(r => r.slice(0, 3).map(x => String(a.force(x))).join('|') + '#' + a.force(r[3]).rows.length).sort().join(';');
+    if (g !== naiveJoin(L, R, kind)) fail('NestedJoin по хешу ≠ перебору (вид ' + kind + ')', JSON.stringify([L.rows, R.rows]));
+    const grp = a.MLIB['Table.Group'].call([L, ['k1', 'k2'], [['n', a.MLIB['Table.RowCount']]]]);
+    const keys = []; for (const r of L.rows) if (!keys.some(k => a.mEquals(k[0], r[0]) && a.mEquals(k[1], r[1]))) keys.push(r);
+    if (grp.rows.length !== keys.length || grp.rows.reduce((s2, r) => s2 + a.force(r[2]), 0) !== L.rows.length) fail('Table.Group по хешу ≠ перебору', JSON.stringify(L.rows));
+    if (a.MLIB['Table.Distinct'].call([L, ['k1', 'k2']]).rows.length !== keys.length) fail('Table.Distinct по хешу ≠ перебору', JSON.stringify(L.rows));
+  }
+  report('Соединения и группировки по хешу', F, n + ' пар таблиц');
+}
+
 // ---------- 5. скорость ----------
 {
   const body = a.TEST_SECTION.replace(/^section Section1;\s*/, ''); const names = [...body.matchAll(/shared\s+(#"[^"]+"|[\p{L}_][\p{L}\p{N}_]*)\s*=/gu)].map(m => m[1]);
@@ -1646,6 +1750,14 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
   t('formatM', () => a.formatM(big));
   const r = t('applyAllSafeText', () => a.applyAllSafeText(big, {}));
   console.log('   (безопасных исправлений: ' + r.applied.length + ')');
+  // вычисления на данных: 100 тыс. проводок, справочник 10 тыс. строк
+  const N = 100000, M = 10000;
+  const rows = []; for (let i = 0; i < N; i++) rows.push([i % (M + 500), (i * 7919) % 100000 / 7]);
+  const map = []; for (let i = 0; i < M; i++) map.push([i, 'Статья ' + i]);
+  const P = new a.MTab(['Счёт', 'Сумма'], rows), S2 = new a.MTab(['Код', 'Статья'], map);
+  t('NestedJoin 100 тыс. × 10 тыс.', () => a.MLIB['Table.NestedJoin'].call([P, ['Счёт'], S2, ['Код'], 'М', 1]).rows.length);
+  t('Group 100 тыс. → 10,5 тыс.', () => a.MLIB['Table.Group'].call([P, ['Счёт'], [['n', a.MLIB['Table.RowCount']]]]).rows.length);
+  t('Поиск Т{[Код=…]} ×100 тыс.', () => { const rec = a.mEval('[Код = 0]', ''); let hit = 0; for (let i = 0; i < N; i++){ rec.vals[0] = i % M; hit += ctx.tableKeyHits(S2, rec).length; } return hit; });
 }
 console.log(violations ? '\nНАРУШЕНИЙ: ' + violations : '\nВсе стресс-проверки пройдены.');
 process.exit(violations ? 1 : 0);
@@ -2470,6 +2582,103 @@ function bookRefreshIssues(book){
   return out;
 }
 /* ===== END src/js/core/vba.js ===== */
+/* ===== BEGIN src/js/core/xlsx-data.js ===== */
+/* =====================================================================
+   core/xlsx-data.js — данные книги .xlsx/.xlsm: листы, таблицы (ListObject) и именованные диапазоны.
+   Нужно для вычислений на этом компьютере: Excel.CurrentWorkbook (таблицы открытой книги) и
+   Excel.Workbook (прикреплённые выгрузки). Значения не выгружаются: наружу (ИИ, папка обмена,
+   буфер) уходит только обезличенное — см. DEV.md, «Данные — только локально».
+   readXlsxData(zip, { only, maxRows }) → { sheets, tables, names, truncated }
+     sheets: [{ name, hidden, cols, rows }] — используемый диапазон листа, столбцы Column1…N;
+     tables: [{ name, sheet, cols, rows }]; names: [{ name, cols, rows }].
+   Значение ячейки: число, текст, логическое, null, { xd: серийный номер, kind: date|datetime|time }
+   или { err: '#N/A' } (преобразует в M xlsxValueToM, m/interp.js).
+   ===================================================================== */
+function xlsxCol(s){ let n = 0; for (let i = 0; i < s.length; i++) n = n * 26 + s.charCodeAt(i) - 64; return n - 1; }
+function xlsxRef(ref){ const m = /^\$?([A-Z]{1,3})\$?(\d+)$/.exec(ref); return m ? { c: xlsxCol(m[1]), r: +m[2] - 1 } : null; }
+function xlsxRange(ref){ const [a, b] = String(ref).split(':'); const p = xlsxRef(a), q = b ? xlsxRef(b) : p; return p && q ? { r0: Math.min(p.r, q.r), c0: Math.min(p.c, q.c), r1: Math.max(p.r, q.r), c1: Math.max(p.c, q.c) } : null; }
+/** Форматы дат: встроенные номера и пользовательские коды с d/m/y/h/s (без учёта текста в кавычках и [цвета]) */
+function xlsxDateKinds(stylesXml){
+  const custom = {}; let m; const reF = /<numFmt\b[^>]*numFmtId="(\d+)"[^>]*formatCode="([^"]*)"/g;
+  while ((m = reF.exec(stylesXml))) custom[m[1]] = xmlUnescape(m[2]);
+  const kindOf = id => {
+    if ((id >= 14 && id <= 17) || id === 22 || (id >= 27 && id <= 31) || (id >= 34 && id <= 36) || (id >= 50 && id <= 58)) return id === 22 ? 'datetime' : 'date';
+    if ((id >= 18 && id <= 21) || (id >= 45 && id <= 47) || id === 32 || id === 33) return 'time';
+    const code = custom[id]; if (!code) return null;
+    const c = code.split(';')[0].replace(/"[^"]*"|\\.|\[[^\]]*\]/g, '');
+    const d = /[dy]/i.test(c) || /m{3,}/i.test(c), t = /[hs]/i.test(c);
+    return d && t ? 'datetime' : d ? 'date' : t ? 'time' : null;
+  };
+  const xfs = /<cellXfs\b[^>]*>([\s\S]*?)<\/cellXfs>/.exec(stylesXml || ''); const kinds = [];
+  if (xfs){ const reX = /<xf\b([^>]*?)\/?>/g; while ((m = reX.exec(xfs[1]))){ const id = /numFmtId="(\d+)"/.exec(m[1]); kinds.push(id ? kindOf(+id[1]) : null); } }
+  return kinds;
+}
+function xlsxSharedStrings(xml){
+  const out = []; if (!xml) return out; const reS = /<si>([\s\S]*?)<\/si>|<si\/>/g; let m;
+  while ((m = reS.exec(xml))){ const body = (m[1] || '').replace(/<rPh\b[\s\S]*?<\/rPh>/g, ''); let s = ''; const reT = /<t\b[^>]*>([\s\S]*?)<\/t>/g; let t; while ((t = reT.exec(body))) s += t[1]; out.push(xmlUnescape(s)); }
+  return out;
+}
+/** Сетка листа: grid[строка][столбец] (абсолютные индексы с 0) и границы используемого диапазона */
+function xlsxParseSheet(xml, ss, kinds, date1904, maxRows){
+  const grid = []; let r0 = Infinity, c0 = Infinity, r1 = -1, c1 = -1, truncated = false;
+  const reRow = /<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g; let rm, nextRow = 0;
+  while ((rm = reRow.exec(xml))){
+    const ra = /\br="(\d+)"/.exec(rm[1]); const r = ra ? +ra[1] - 1 : nextRow; nextRow = r + 1;
+    if (maxRows && r >= maxRows){ truncated = true; break; }
+    if (!rm[2]) continue;
+    const reC = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let cm, nextCol = 0;
+    while ((cm = reC.exec(rm[2]))){
+      const a = cm[1]; const ref = /\br="([A-Z]+)\d*"/.exec(a); const c = ref ? xlsxCol(ref[1]) : nextCol; nextCol = c + 1;
+      const body = cm[2] || ''; const t = (/\bt="(\w+)"/.exec(a) || [])[1]; const si = /\bs="(\d+)"/.exec(a);
+      let v = null; const vm = /<v>([\s\S]*?)<\/v>/.exec(body);
+      if (t === 'inlineStr'){ let s = ''; const reT = /<t\b[^>]*>([\s\S]*?)<\/t>/g; let x; while ((x = reT.exec(body))) s += x[1]; v = xmlUnescape(s); }
+      else if (!vm) continue;
+      else if (t === 's') v = ss[+vm[1]] != null ? ss[+vm[1]] : '';
+      else if (t === 'str') v = xmlUnescape(vm[1]);
+      else if (t === 'b') v = vm[1] === '1';
+      else if (t === 'e') v = { err: xmlUnescape(vm[1]) };
+      else { const n = +vm[1]; const k = si ? kinds[+si[1]] : null; v = k && isFinite(n) ? { xd: n + (date1904 ? 1462 : 0), kind: k } : n; }
+      (grid[r] || (grid[r] = []))[c] = v;
+      if (r < r0) r0 = r; if (r > r1) r1 = r; if (c < c0) c0 = c; if (c > c1) c1 = c;
+    }
+  }
+  return { grid, r0, c0, r1, c1, truncated };
+}
+function xlsxSlice(grid, g){ const rows = []; for (let r = g.r0; r <= g.r1; r++){ const src = grid[r] || []; const row = new Array(g.c1 - g.c0 + 1); for (let c = g.c0; c <= g.c1; c++) row[c - g.c0] = src[c] === undefined ? null : src[c]; rows.push(row); } return rows; }
+const xlsxColumns = n => Array.from({ length: Math.max(0, n) }, (_, i) => 'Column' + (i + 1));
+async function readXlsxData(zip, opts){
+  opts = opts || {};
+  const get = async n => { const e = zipFind(zip, n); return e ? decodeText(await zipEntryBytes(e)).text : null; };
+  const resolve = (base, target) => { if (target.startsWith('/')) return target.slice(1); const parts = base.split('/').slice(0, -1); for (const s of target.split('/')){ if (s === '..') parts.pop(); else if (s !== '.') parts.push(s); } return parts.join('/'); };
+  const relsOf = async part => { const xml = await get(part.replace(/([^/]+)$/, '_rels/$1.rels')) || ''; const out = []; const re = /<Relationship\b([^>]*?)\/?>/g; let m; while ((m = re.exec(xml))){ const a = xmlAttrs(m[1]); out.push({ id: a.Id, type: a.Type || '', target: resolve(part, a.Target || '') }); } return out; };
+  const wb = await get('xl/workbook.xml'); if (!wb) throw new Error('Не книга Excel: нет xl/workbook.xml (формат .xls и .xlsb не читается).');
+  const date1904 = /<workbookPr\b[^>]*date1904="(1|true)"/.test(wb);
+  const wbRels = await relsOf('xl/workbook.xml');
+  const ss = xlsxSharedStrings(await get('xl/sharedStrings.xml'));
+  const kinds = xlsxDateKinds(await get('xl/styles.xml') || '');
+  const sheetDefs = []; let m; const reSh = /<sheet\b([^>]*?)\/?>/g;
+  while ((m = reSh.exec(wb))){ const a = xmlAttrs(m[1]); const rid = a['r:id'] || Object.entries(a).find(([k]) => /:id$/.test(k))?.[1]; const rel = wbRels.find(x => x.id === rid); if (rel) sheetDefs.push({ name: a.name, hidden: !!a.state && a.state !== 'visible', part: rel.target }); }
+  // именованные диапазоны: только простые ссылки Лист!$A$1:$C$9, без служебных _xlnm и скрытых
+  const names = []; const reN = /<definedName\b([^>]*)>([\s\S]*?)<\/definedName>/g;
+  while ((m = reN.exec(wb))){ const a = xmlAttrs(m[1]); if (/^_xlnm\./i.test(a.name) || a.hidden === '1' || a.localSheetId != null) continue; const f = xmlUnescape(m[2]).trim(); const fm = /^(?:'((?:[^']|'')+)'|([^'!]+))!(\$?[A-Z]{1,3}\$?\d+(?::\$?[A-Z]{1,3}\$?\d+)?)$/.exec(f); if (fm) names.push({ name: a.name, sheet: fm[1] != null ? fm[1].replace(/''/g, "'") : fm[2], range: xlsxRange(fm[3]) }); }
+  const out = { sheets: [], tables: [], names: [], truncated: false };
+  for (const sd of sheetDefs){
+    const tParts = (await relsOf(sd.part)).filter(r => /\/table$/.test(r.type));
+    const tdefs = [];
+    for (const tp of tParts){ const tx = await get(tp.target); if (!tx) continue; const ta = xmlAttrs((/<table\b([^>]*)>/.exec(tx) || [, ''])[1]); const cols = []; const reTc = /<tableColumn\b([^>]*?)\/?>/g; let c; while ((c = reTc.exec(tx))) cols.push(xmlAttrs(c[1]).name || ''); tdefs.push({ name: ta.displayName || ta.name, range: xlsxRange(ta.ref), header: ta.headerRowCount == null ? 1 : +ta.headerRowCount, totals: +(ta.totalsRowCount || 0), cols }); }
+    const myNames = names.filter(n => n.sheet === sd.name);
+    if (opts.only === 'objects' && !tdefs.length && !myNames.length) continue;
+    const xml = await get(sd.part); if (xml == null) continue;
+    const g = xlsxParseSheet(xml, ss, kinds, date1904, opts.maxRows); if (g.truncated) out.truncated = true;
+    if (opts.only !== 'objects'){ const ok = g.r1 >= 0; out.sheets.push({ name: sd.name, hidden: sd.hidden, cols: xlsxColumns(ok ? g.c1 - g.c0 + 1 : 0), rows: ok ? xlsxSlice(g.grid, g) : [] }); }
+    for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: t.range.r1 - t.totals, c1: t.range.c1 }; const w = rg.c1 - rg.c0 + 1;
+      out.tables.push({ name: t.name, sheet: sd.name, cols: t.cols.length === w ? t.cols : xlsxColumns(w), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
+    for (const n of myNames) if (n.range){ const rg = Object.assign({}, n.range, { r1: Math.min(n.range.r1, g.r1), c1: Math.min(n.range.c1, Math.max(g.c1, n.range.c0)) });   // «A1:C1048576» — до последней заполненной строки
+      out.names.push({ name: n.name, cols: xlsxColumns(rg.c1 - rg.c0 + 1), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
+  }
+  return out;
+}
+/* ===== END src/js/core/xlsx-data.js ===== */
 /* ===== BEGIN src/js/m/lang.js ===== */
 /* =====================================================================
    Язык M: лексер, структура скобок, section-документ, шаги let…in
@@ -3198,8 +3407,10 @@ const M_REF_CATS = (() => { const c = new Map(); for (const f of M_REF.values())
    error, записи, списки (в т. ч. {1..5}), таблицы, доступ [поле], {индекс},
    ?, операторы, #date/#datetime/#duration/#time/#table и ~200 функций
    библиотеки (Text, Number, List, Record, Table, Date, Duration, Logical…).
-   Источники данных намеренно недоступны: шаг с источником подменяется
-   образцом (mOverride). Это НЕ полноценный движок Power Query: нет свёртки,
+   Источники: таблицы открытой книги (Excel.CurrentWorkbook) и файлы, прикреплённые на этом
+   компьютере (File.Contents, Folder.Files → Csv.Document, Excel.Workbook, Json.Document), — через
+   M_DATA (app/data.js); базы и веб недоступны (сети нет) — такой шаг подменяется выгрузкой или
+   образцом. Данные не покидают компьютер. Это НЕ полноценный движок Power Query: нет свёртки,
    типы проверяются упрощённо, часть функций отсутствует (будет понятная ошибка).
    API: mParse(text) → AST; mEval(text, sectionText?) → значение;
         mRunSteps(sectionText, member, overrides) → результаты по шагам;
@@ -3232,6 +3443,8 @@ class MTab { constructor(cols, rows){ this.cols = cols; this.rows = rows; } }
 class MFn { constructor(arity, call, name){ this.arity = arity; this.call = call; this.name = name || ''; } }
 class MDate { constructor(kind, ms, tz){ this.kind = kind; this.ms = ms; this.tz = tz || 0; } }
 class MDur { constructor(ms){ this.ms = ms; } }
+/** Двоичное значение (содержимое прикреплённого файла); xlsx — заранее разобранная книга для Excel.Workbook */
+class MBin { constructor(bytes, name, xlsx){ this.bytes = bytes; this.name = name || ''; this.xlsx = xlsx || null; } }
 class MType { constructor(name, nullable, cols){ this.name = name; this.nullable = !!nullable; this.cols = cols || null; } }
 const mkRec = (names, vals) => new MRec(names.slice(), vals.slice());
 const DAY = 86400000;
@@ -3348,7 +3561,7 @@ function unescapeM(s){ return s.replace(/""/g, '"').replace(/#\(([^)]*)\)/g, (m,
 function mTypeName(v){
   if (v === null) return 'null'; if (typeof v === 'boolean') return 'logical'; if (typeof v === 'number') return 'number'; if (typeof v === 'string') return 'text';
   if (Array.isArray(v)) return 'list'; if (v instanceof MRec) return 'record'; if (v instanceof MTab) return 'table'; if (v instanceof MFn) return 'function';
-  if (v instanceof MDate) return v.kind; if (v instanceof MDur) return 'duration'; if (v instanceof MType) return 'type'; return 'any';
+  if (v instanceof MDate) return v.kind; if (v instanceof MDur) return 'duration'; if (v instanceof MType) return 'type'; if (v instanceof MBin) return 'binary'; return 'any';
 }
 function mEquals(a, b){
   a = force(a); b = force(b);
@@ -3360,6 +3573,29 @@ function mEquals(a, b){
   if (a instanceof MRec && b instanceof MRec) return a.names.length === b.names.length && a.names.every(n => b.has(n) && mEquals(a.get(n), b.get(n)));
   if (a instanceof MTab && b instanceof MTab) return a.cols.join('\u0001') === b.cols.join('\u0001') && a.rows.length === b.rows.length && a.rows.every((r, i) => r.every((x, j) => mEquals(x, b.rows[i][j])));
   return false;
+}
+/** Ключ для хеш-таблиц соединений, группировок и Distinct: значения, равные по mEquals, дают равные ключи;
+    null — значение не хешируется (список, запись…), тогда сравнение идёт перебором */
+function mHashKey(v){
+  v = force(v);
+  if (v === null) return 'n'; const t = typeof v;
+  if (t === 'number') return 'd' + (v === 0 ? 0 : v); if (t === 'string') return 's' + v; if (t === 'boolean') return v ? 'T' : 'F';
+  if (v instanceof MDate) return 'D' + v.kind + v.ms; if (v instanceof MDur) return 'U' + v.ms;
+  return null;
+}
+function rowKey(r, ix){ let k = ''; for (const i of ix){ const h = mHashKey(r[i]); if (h === null) return null; k += h.length + ':' + h; } return k; }
+/** Строки таблицы, где столбцы записи равны её полям (Т{[Код = …]}): хеш-индекс по набору столбцов
+    строится один раз на таблицу — поиск в справочнике для каждой строки остаётся линейным по объёму */
+const TAB_INDEX = new WeakMap();
+function tableKeyHits(t, rec){
+  const ci = rec.names.map(k => t.cols.indexOf(k)); if (ci.some(i => i < 0)) return [];
+  const vals = rec.names.map(k => rec.get(k)); const k = rowKey(vals, vals.map((_, i) => i));
+  if (k === null){ const hits = []; t.rows.forEach((r, ri) => { if (ci.every((c, j) => mEquals(r[c], vals[j]))) hits.push(ri); }); return hits; }
+  let byCols = TAB_INDEX.get(t); if (!byCols) TAB_INDEX.set(t, byCols = new Map());
+  const ck = ci.join(','); let idx = byCols.get(ck);
+  if (!idx){ idx = new Map(); idx.slow = []; t.rows.forEach((r, ri) => { const rk = rowKey(r, ci); if (rk === null) idx.slow.push(ri); else { let l = idx.get(rk); if (!l) idx.set(rk, l = []); l.push(ri); } }); byCols.set(ck, idx); }
+  const hit = idx.get(k) || [];
+  return idx.slow.length ? hit.concat(idx.slow.filter(ri => ci.every((c, j) => mEquals(t.rows[ri][c], vals[j])))).sort((a, b) => a - b) : hit;
 }
 function mCompare(a, b){
   a = force(a); b = force(b);
@@ -3380,6 +3616,7 @@ function mToText(v){
     return v.kind === 'date' ? dt : v.kind === 'time' ? tm : v.kind === 'datetimezone' ? dt + ' ' + tm + (v.tz >= 0 ? ' +' : ' -') + pad2(Math.abs(v.tz)) + ':00' : dt + ' ' + tm; }
   if (v instanceof MDur){ const s = Math.abs(v.ms) / 1000; const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60; return (v.ms < 0 ? '-' : '') + d + '.' + pad2(h) + ':' + pad2(m) + ':' + pad2(Math.floor(sec)); }
   if (v instanceof MType) return 'type ' + v.name;
+  if (v instanceof MBin) return '#binary(' + v.bytes.length + ' байт' + (v.name ? ', ' + v.name : '') + ')';
   if (Array.isArray(v)) return '{' + v.map(x => mLit(x)).join(', ') + '}';
   if (v instanceof MRec) return '[' + v.names.map(n => n + '=' + mLit(v.get(n))).join(', ') + ']';
   if (v instanceof MTab) return 'Table (' + v.rows.length + '×' + v.cols.length + ')';
@@ -3452,7 +3689,7 @@ function evalNode(n, env){
       if (Array.isArray(v)){ if (typeof ix !== 'number') throw new MErr('Expression.Error', 'Индекс списка должен быть числом'); if (ix < 0 || ix >= v.length){ if (n.opt) return null; throw new MErr('Expression.Error', 'В перечислении недостаточно элементов: индекс ' + ix + ', элементов ' + v.length); } return force(v[ix]); }
       if (v instanceof MTab){
         if (typeof ix === 'number'){ if (ix < 0 || ix >= v.rows.length){ if (n.opt) return null; throw new MErr('Expression.Error', 'В таблице нет строки ' + ix); } return rowRec(v, ix); }
-        if (ix instanceof MRec){ const hits = []; v.rows.forEach((r, ri) => { if (ix.names.every(k => { const ci = v.cols.indexOf(k); return ci >= 0 && mEquals(r[ci], ix.get(k)); })) hits.push(ri); });
+        if (ix instanceof MRec){ const hits = tableKeyHits(v, ix);
           if (hits.length === 1) return rowRec(v, hits[0]); if (n.opt && !hits.length) return null;
           throw new MErr('Expression.Error', hits.length ? 'Ключ совпал с несколькими строками таблицы' : 'Ключ не совпал ни с одной строкой таблицы'); } }
       throw new MErr('Expression.Error', 'Доступ {…} применим к списку или таблице, а не к ' + mTypeName(v)); }
@@ -3580,6 +3817,8 @@ const cmpOpt = c => { c = force(c); return c instanceof MFn && c.name === 'Compa
 const lower = (s, ci) => ci ? s.toLowerCase() : s;
 const roundHalfEven = (x, d) => { const f = Math.pow(10, d || 0); const v = x * f; const r = Math.round(v); const diff = Math.abs(v % 1); return (diff === 0.5 ? (r % 2 === 0 ? r : r - 1) : r) / f; };
 const listStats = (l, fn) => { const v = lst(l, fn).filter(x => x !== null); return v; };
+/** Значение ячейки: ошибка остаётся в ячейке (как в Power Query), а не роняет весь шаг */
+const cellOf = f => { try { return f(); } catch (e){ const err = toMErr(e); return new Thunk(() => { throw err; }); } };
 function colNamesOf(t, spec){ spec = force(spec); return typeof spec === 'string' ? [spec] : lst(spec, 'columns'); }
 
 /* ---------- Библиотека ---------- */
@@ -3688,7 +3927,7 @@ def('List.Transform', (l, f) => lst(l, 'List.Transform').map(x => callFn(f, [x])
 def('List.TransformMany', (l, cf, rf) => lst(l).flatMap(x => lst(callFn(cf, [x])).map(y => callFn(rf, [x, y]))));
 def('List.Accumulate', (l, seed, f) => lst(l, 'List.Accumulate').reduce((s, x) => callFn(f, [s, x]), force(seed)));
 def('List.Generate', (init, cond, next, sel) => { const out = []; let s = callFn(init, []); let guard = 0; while (callFn(cond, [s]) === true){ out.push(force(sel) == null ? s : callFn(sel, [s])); s = callFn(next, [s]); if (++guard > 100000) throw new MErr('Expression.Error', 'List.Generate: более 100 000 шагов — похоже на бесконечный цикл'); } return out; });
-def('List.Distinct', l => { const out = []; for (const x of lst(l, 'List.Distinct')) if (!out.some(y => mEquals(x, y))) out.push(x); return out; });
+def('List.Distinct', l => { const out = [], seen = new Set(); for (const x of lst(l, 'List.Distinct')){ const k = mHashKey(x); if (k !== null){ if (!seen.has(k)){ seen.add(k); out.push(x); } } else if (!out.some(y => mEquals(x, y))) out.push(x); } return out; });
 def('List.Sort', (l, c) => { l = lst(l, 'List.Sort'); c = force(c); const desc = c === 1; const f = c instanceof MFn ? c : null; return l.slice().sort((a, b) => f ? (f.arity === 1 ? mCompare(callFn(f, [a]), callFn(f, [b])) : callFn(f, [a, b])) : (desc ? -mCompare(a, b) : mCompare(a, b))); });
 def('List.Reverse', l => lst(l).slice().reverse());
 def('List.Contains', (l, v, c) => { const ci = cmpOpt(c); v = force(v); return lst(l, 'List.Contains').some(x => ci && typeof x === 'string' && typeof v === 'string' ? x.toLowerCase() === v.toLowerCase() : mEquals(x, v)); });
@@ -3816,18 +4055,18 @@ def('Table.SelectColumns', (t, c, mf) => selectCols(tab(t, 'Table.SelectColumns'
 def('Table.RemoveColumns', (t, c, mf) => { t = tab(t, 'Table.RemoveColumns'); const cs = colNamesOf(t, c); if (!force(mf)) cs.forEach(x => colIdx(t, x)); const keep = t.cols.filter(x => !cs.includes(x)); return selectCols(t, keep, 0); });
 def('Table.ReorderColumns', (t, c, mf) => { t = tab(t); const cs = colNamesOf(t, c).filter(x => t.cols.includes(x) || !force(mf)); cs.forEach(x => colIdx(t, x)); const pos = t.cols.map((x, i) => cs.includes(x) ? i : -1).filter(i => i >= 0); const order = t.cols.slice(); pos.forEach((p, k) => { order[p] = cs[k]; }); return selectCols(t, order, 0); });
 def('Table.RenameColumns', (t, ren, mf) => { t = tab(t, 'Table.RenameColumns'); let pairs = lst(ren); if (pairs.length === 2 && typeof pairs[0] === 'string') pairs = [pairs]; const cols = t.cols.slice(); for (const p of pairs){ const [a, b] = lst(p); const i = cols.indexOf(a); if (i < 0){ if (!force(mf)) throw new MErr('Expression.Error', 'Столбец «' + a + '» таблицы не найден. Есть: ' + cols.slice(0, 12).join(', ')); continue; } cols[i] = b; } if (new Set(cols).size !== cols.length) throw new MErr('Expression.Error', 'После переименования имена столбцов повторяются'); return new MTab(cols, t.rows); });
-def('Table.AddColumn', (t, name, f) => { t = tab(t, 'Table.AddColumn'); name = txt(name); if (t.cols.includes(name)) throw new MErr('Expression.Error', 'Столбец «' + name + '» уже существует'); return new MTab(t.cols.concat([name]), t.rows.map((r, i) => r.concat([callFn(f, [rowRec(t, i)])]))); });
+def('Table.AddColumn', (t, name, f) => { t = tab(t, 'Table.AddColumn'); name = txt(name); if (t.cols.includes(name)) throw new MErr('Expression.Error', 'Столбец «' + name + '» уже существует'); return new MTab(t.cols.concat([name]), t.rows.map((r, i) => r.concat([cellOf(() => callFn(f, [rowRec(t, i)]))]))); });
 def('Table.AddIndexColumn', (t, name, s, inc) => { t = tab(t); s = force(s) == null ? 0 : num(s); inc = force(inc) == null ? 1 : num(inc); return new MTab(t.cols.concat([txt(name)]), t.rows.map((r, i) => r.concat([s + i * inc]))); });
 def('Table.DuplicateColumn', (t, c, n) => { t = tab(t); const i = colIdx(t, txt(c)); return new MTab(t.cols.concat([txt(n)]), t.rows.map(r => r.concat([r[i]]))); });
-def('Table.TransformColumns', (t, ops, def0, mf) => { t = tab(t, 'Table.TransformColumns'); let pairs = lst(ops); if (pairs.length >= 2 && typeof pairs[0] === 'string') pairs = [pairs]; const m = new Map(); for (const p of pairs){ const pp = lst(p); if (colIdx(t, pp[0], force(mf)) >= 0) m.set(pp[0], pp[1]); } const df = force(def0); return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? callFn(m.get(t.cols[i]), [v]) : df ? callFn(df, [v]) : v))); });
+def('Table.TransformColumns', (t, ops, def0, mf) => { t = tab(t, 'Table.TransformColumns'); let pairs = lst(ops); if (pairs.length >= 2 && typeof pairs[0] === 'string') pairs = [pairs]; const m = new Map(); for (const p of pairs){ const pp = lst(p); if (colIdx(t, pp[0], force(mf)) >= 0) m.set(pp[0], pp[1]); } const df = force(def0); return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? cellOf(() => callFn(m.get(t.cols[i]), [v])) : df ? cellOf(() => callFn(df, [v])) : v))); });
 def('Table.TransformColumnTypes', (t, ops, culture) => { t = tab(t, 'Table.TransformColumnTypes'); let pairs = lst(ops); if (pairs.length === 2 && typeof pairs[0] === 'string') pairs = [pairs]; const cu = force(culture); const m = new Map(pairs.map(p => { const pp = lst(p); colIdx(t, pp[0]); return [pp[0], force(pp[1])]; }));
   const conv = (v, ty) => { if (v === null) return null; const n = ty.name; try {
     if (['number', 'int64', 'int32', 'decimal', 'double', 'currency', 'percentage'].includes(n)){ const x = typeof v === 'string' ? numFromText(v, cu) : MLIB['Number.From'].call([v]); return n === 'int64' || n === 'int32' ? roundHalfEven(x, 0) : n === 'currency' ? roundHalfEven(x, 4) : x; }
     if (n === 'text') return mToText(v); if (n === 'date') return MLIB['Date.From'].call([v, cu]); if (n === 'datetime') return MLIB['DateTime.From'].call([v, cu]); if (n === 'logical') return MLIB['Logical.From'].call([v]); return v;
   } catch (e){ return new Thunk(() => { throw e; }); } };
-  return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? conv(force(v), m.get(t.cols[i])) : v))); });
+  return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? cellOf(() => conv(force(v), m.get(t.cols[i]))) : v))); });
 def('Table.Sort', (t, c) => sortRows(tab(t, 'Table.Sort'), c));
-def('Table.Distinct', (t, c) => { t = tab(t, 'Table.Distinct'); c = force(c); const ix = c == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); const out = []; for (const r of t.rows) if (!out.some(o => ix.every(i => mEquals(o[i], r[i])))) out.push(r); return new MTab(t.cols.slice(), out); });
+def('Table.Distinct', (t, c) => { t = tab(t, 'Table.Distinct'); c = force(c); const ix = c == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); const out = [], seen = new Set(); for (const r of t.rows){ const k = rowKey(r, ix); if (k !== null){ if (!seen.has(k)){ seen.add(k); out.push(r); } } else if (!out.some(o => ix.every(i => mEquals(o[i], r[i])))) out.push(r); } return new MTab(t.cols.slice(), out); });
 def('Table.FirstN', (t, n) => { t = tab(t); n = force(n); if (typeof n === 'number') return new MTab(t.cols.slice(), t.rows.slice(0, n)); const out = []; for (let i = 0; i < t.rows.length; i++){ if (callFn(n, [rowRec(t, i)]) !== true) break; out.push(t.rows[i]); } return new MTab(t.cols.slice(), out); });
 def('Table.LastN', (t, n) => { t = tab(t); return new MTab(t.cols.slice(), t.rows.slice(Math.max(0, t.rows.length - num(n)))); });
 def('Table.Skip', (t, n) => { t = tab(t); n = force(n); if (n == null) n = 1; if (typeof n === 'number') return new MTab(t.cols.slice(), t.rows.slice(n)); let k = 0; while (k < t.rows.length && callFn(n, [rowRec(t, k)]) === true) k++; return new MTab(t.cols.slice(), t.rows.slice(k)); });
@@ -3850,18 +4089,23 @@ def('Table.ReplaceErrorValues', (t, reps) => { t = tab(t); let pairs = lst(reps)
 def('Table.RemoveRowsWithErrors', (t, c) => { t = tab(t); const ix = force(c) == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); return new MTab(t.cols.slice(), t.rows.filter(r => ix.every(i => { try { force(r[i]); return true; } catch { return false; } }))); });
 def('Table.SelectRowsWithErrors', (t, c) => { t = tab(t); const ix = force(c) == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); return new MTab(t.cols.slice(), t.rows.filter(r => ix.some(i => { try { force(r[i]); return false; } catch { return true; } }))); });
 def('Table.Group', (t, keys, aggs) => { t = tab(t, 'Table.Group'); const ks = colNamesOf(t, keys); const ki = ks.map(k => colIdx(t, k)); let ag = lst(aggs); if (ag.length && typeof ag[0] === 'string') ag = [ag]; ag = ag.map(a => lst(a));
-  const groups = []; for (const r of t.rows){ let g = groups.find(x => ki.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { key: ki.map(i => r[i]), rows: [] }; groups.push(g); } g.rows.push(r); }
+  const groups = [], gm = new Map(); for (const r of t.rows){ const hk = rowKey(r, ki); let g = hk !== null ? gm.get(hk) : groups.find(x => x.hk === null && ki.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { hk, key: ki.map(i => r[i]), rows: [] }; groups.push(g); if (hk !== null) gm.set(hk, g); } g.rows.push(r); }
   return new MTab(ks.concat(ag.map(a => a[0])), groups.map(g => g.key.concat(ag.map(a => callFn(a[1], [new MTab(t.cols.slice(), g.rows)]))))); });
 def('Table.UnpivotOtherColumns', (t, keep, an, vn) => { t = tab(t); const k = colNamesOf(t, keep); const other = t.cols.filter(c => !k.includes(c)); const ki = k.map(c => colIdx(t, c)); const rows = []; for (const r of t.rows) for (const c of other){ const v = force(r[t.cols.indexOf(c)]); if (v !== null) rows.push(ki.map(i => r[i]).concat([c, v])); } return new MTab(k.concat([txt(an), txt(vn)]), rows); });
 def('Table.Unpivot', (t, piv, an, vn) => { t = tab(t); const p = colNamesOf(t, piv); return MLIB['Table.UnpivotOtherColumns'].call([t, t.cols.filter(c => !p.includes(c)), an, vn]); });
 def('Table.Pivot', (t, vals, an, vn, agg) => { t = tab(t); vals = lst(vals).map(x => mToText(x)); const ai = colIdx(t, txt(an)), vi = colIdx(t, txt(vn)); const keyCols = t.cols.filter((_, i) => i !== ai && i !== vi); const kix = keyCols.map(c => t.cols.indexOf(c)); const groups = [];
-  for (const r of t.rows){ let g = groups.find(x => kix.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { key: kix.map(i => r[i]), cells: new Map() }; groups.push(g); } const a = mToText(r[ai]); if (!g.cells.has(a)) g.cells.set(a, []); g.cells.get(a).push(r[vi]); }
+  const gm = new Map(); for (const r of t.rows){ const hk = rowKey(r, kix); let g = hk !== null ? gm.get(hk) : groups.find(x => x.hk === null && kix.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { hk, key: kix.map(i => r[i]), cells: new Map() }; groups.push(g); if (hk !== null) gm.set(hk, g); } const a = mToText(r[ai]); if (!g.cells.has(a)) g.cells.set(a, []); g.cells.get(a).push(r[vi]); }
   return new MTab(keyCols.concat(vals), groups.map(g => g.key.concat(vals.map(v => { const c = g.cells.get(v); if (!c) return null; if (force(agg)) return callFn(agg, [c]); if (c.length > 1) return new Thunk(() => { throw new MErr('Expression.Error', 'Table.Pivot: несколько значений без функции агрегирования'); }); return c[0]; })))); });
 def('Table.NestedJoin', (a, ka, b, kb, name, kind) => { a = tab(a, 'Table.NestedJoin'); b = tab(b, 'Table.NestedJoin'); const ia = colNamesOf(a, ka).map(c => colIdx(a, c)), ib = colNamesOf(b, kb).map(c => colIdx(b, c)); kind = force(kind) == null ? 1 : force(kind);
-  const match = r => b.rows.filter(s => ia.every((i, k) => mEquals(r[i], s[ib[k]])));
-  const rows = []; const usedB = new Set();
-  for (const r of a.rows){ const m = match(r); m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
+  const idx = new Map(), slow = []; for (const s of b.rows){ const k = rowKey(s, ib); if (k === null) slow.push(s); else { let l = idx.get(k); if (!l) idx.set(k, l = []); l.push(s); } }   // хеш-индекс правой таблицы
+  const eq = r => s => ia.every((i, k) => mEquals(r[i], s[ib[k]]));
+  const match = r => { const k = rowKey(r, ia); if (k === null) return b.rows.filter(eq(r)); const hit = idx.get(k) || []; return slow.length ? hit.concat(slow.filter(eq(r))) : hit; };
+  const rows = []; const usedB = new Set(); let miss = 0;
+  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
   if (kind === 2 || kind === 3 || kind === 5) for (const s of b.rows) if (!usedB.has(s)) rows.push(a.cols.map(() => null).concat([new MTab(b.cols.slice(), [s])]));
+  if (M_TRACE){ let dupKeys = 0, dupRows = 0; for (const l of idx.values()) if (l.length > 1){ dupKeys++; dupRows += l.length; }
+    const typeOf = (t, ix) => { const ts = new Set(); for (const r of t.rows.slice(0, 500)) for (const i of ix){ try { const x = force(r[i]); if (x !== null) ts.add(mTypeName(x)); } catch { ts.add('error'); } } return [...ts].join('/'); };
+    M_TRACE.join({ keysA: colNamesOf(a, ka), keysB: colNamesOf(b, kb), kind, left: a.rows.length, right: b.rows.length, matched: usedB.size, miss, dupKeys, dupRows, typeA: typeOf(a, ia), typeB: typeOf(b, ib) }); }
   return new MTab(a.cols.concat([txt(name)]), rows); });
 def('Table.Join', (a, ka, b, kb, kind) => { a = tab(a); b = tab(b); const dup = a.cols.filter(c => b.cols.includes(c)); if (dup.length) throw new MErr('Expression.Error', 'Table.Join: одинаковые имена столбцов (' + dup.join(', ') + ') — переименуйте или используйте NestedJoin'); const nj = MLIB['Table.NestedJoin'].call([a, ka, b, kb, '__j', kind]); return MLIB['Table.ExpandTableColumn'].call([nj, '__j', b.cols]); });
 def('Table.ExpandTableColumn', (t, c, names, newNames) => { t = tab(t, 'Table.ExpandTableColumn'); const ci = colIdx(t, txt(c)); names = lst(names); const nn2 = force(newNames) == null ? names : lst(newNames);
@@ -3885,6 +4129,79 @@ def('Table.Schema', t => { t = tab(t); return new MTab(['Name', 'Position', 'Typ
 def('Table.Profile', t => { t = tab(t); return new MTab(['Column', 'Min', 'Max', 'Count', 'NullCount', 'DistinctCount'], t.cols.map((c, i) => { const v = t.rows.map(r => { try { return force(r[i]); } catch { return null; } }); const nnv = v.filter(x => x !== null); let mn = null, mx = null; try { mn = nnv.length ? nnv.reduce((a, b) => mCompare(a, b) <= 0 ? a : b) : null; mx = nnv.length ? nnv.reduce((a, b) => mCompare(a, b) >= 0 ? a : b) : null; } catch { /* разнотипные */ } return [c, mn, mx, v.length, v.length - nnv.length, MLIB['List.Distinct'].call([nnv]).length]; })); });
 def('Table.Keys', () => []);
 def('Table.AddKey', t => tab(t));
+// --- источники: только данные этого компьютера (M_DATA задаёт app/data.js). Чего нет — DataSource.Error с e.need
+let M_DATA = null;
+/** Наблюдатель за вычислением (раздел «Данные»): M_TRACE.join(сводка соединения) — только числа */
+let M_TRACE = null;
+const needSrc = (kind, path, msg) => { const e = new MErr('DataSource.Error', msg); e.need = { kind, path }; return e; };
+const binOf = (v, fn) => { v = force(v); if (v instanceof MBin) return v; if (typeof v === 'string') return new MBin(te.encode(v), ''); throw new MErr('Expression.Error', fn + ': ожидалось binary, получено ' + mTypeName(v)); };
+/** Текст из байтов: кодовая страница M (65001, 1251, 1200…) или по BOM; без BOM — UTF-8, если он корректен, иначе 1251 */
+function decodeBin(u8, enc){
+  enc = force(enc); if (enc instanceof MRec) enc = enc.has('Encoding') ? force(enc.get('Encoding')) : null;
+  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); try { return new TextDecoder('windows-' + enc).decode(u8); } catch { /* ниже */ } }
+  if (u8[0] === 0xEF && u8[1] === 0xBB && u8[2] === 0xBF) return td8.decode(u8.subarray(3));
+  if (u8[0] === 0xFF && u8[1] === 0xFE) return new TextDecoder('utf-16le').decode(u8.subarray(2));
+  if (enc === 65001) return td8.decode(u8);
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); } catch { return new TextDecoder('windows-1251').decode(u8); }
+}
+/** Значение ячейки xlsx (core/xlsx-data.js) → значение M; ошибка ячейки — ошибка при обращении */
+function xlsxValueToM(v){
+  if (v === undefined || v === null || typeof v !== 'object') return v === undefined ? null : v;
+  if (v.err) return new Thunk(() => { throw new MErr('DataFormat.Error', 'Ошибка в ячейке: ' + v.err); });
+  const ms = Math.round((v.xd - 25569) * 86400000);
+  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.round(ms / 86400000) * 86400000 : ms);
+}
+const xlsxTable = (cols, rows) => new MTab(cols, rows.map(r => cols.map((_, i) => xlsxValueToM(r[i]))));
+def('Excel.CurrentWorkbook', () => {
+  const l = M_DATA && M_DATA.currentWorkbook(); if (!l) throw needSrc('workbook', '', 'Excel.CurrentWorkbook: таблицы книги не прочитаны (книга не открыта или формат .xlsb).');
+  return new MTab(['Content', 'Name'], l.map(x => [xlsxTable(x.cols, x.rows), x.name]));
+}, 0);
+def('File.Contents', p => { p = txt(p, 'File.Contents'); const f = M_DATA && M_DATA.file(p); if (!f) throw needSrc('file', p, 'File.Contents: файл «' + p + '» не прикреплён. Прикрепите его в разделе «Данные» — он прочитается только на этом компьютере.'); return new MBin(f.bytes, f.name, f.xlsx); }, 1);
+def('Folder.Files', p => { p = txt(p, 'Folder.Files'); const fs = M_DATA && M_DATA.folder(p); if (!fs) throw needSrc('folder', p, 'Folder.Files: файлы папки «' + p + '» не прикреплены. Прикрепите их в разделе «Данные» — они прочитаются только на этом компьютере.');
+  const dir = p.replace(/[\\/]*$/, '\\'); const dt = ms => ms ? new MDate('datetime', ms) : null;
+  return new MTab(['Content', 'Name', 'Extension', 'Date accessed', 'Date modified', 'Date created', 'Attributes', 'Folder Path'], fs.map(f => [new MBin(f.bytes, f.name, f.xlsx), f.name, (/\.[^.]+$/.exec(f.name) || [''])[0].toLowerCase(), dt(f.mtime), dt(f.mtime), dt(f.mtime), mkRec(['Size', 'Hidden'], [f.bytes.length, false]), dir]));
+}, 1);
+def('Folder.Contents', p => MLIB['Folder.Files'].call([p]), 1);
+def('Binary.Buffer', b => binOf(b, 'Binary.Buffer'), 1);
+def('Binary.Length', b => binOf(b, 'Binary.Length').bytes.length, 1);
+def('Text.FromBinary', (b, enc) => decodeBin(binOf(b, 'Text.FromBinary').bytes, enc), 1);
+def('Lines.FromBinary', (b, q, inc, enc) => { const t = decodeBin(binOf(b, 'Lines.FromBinary').bytes, enc).split(/\r\n|\n|\r/); if (t.length && t[t.length - 1] === '') t.pop(); return t; }, 1);
+/** CSV по правилам Csv.Document: кавычки удваиваются, перевод строки внутри кавычек — часть значения; все значения — текст */
+function csvRows(text, delim){
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (q){ if (ch === '"'){ if (text[i + 1] === '"'){ cur += '"'; i++; } else q = false; } else cur += ch; continue; }
+    if (ch === '"' && cur === '') q = true;
+    else if (text.startsWith(delim, i)){ row.push(cur); cur = ''; i += delim.length - 1; }
+    else if (ch === '\r' || ch === '\n'){ if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+def('Csv.Document', (src, cols, delim, extra, enc) => {
+  let o = force(cols); let names = null, n = null, d = force(delim), e = force(enc);
+  if (o instanceof MRec){ const g = k => o.has(k) ? force(o.get(k)) : null; d = g('Delimiter'); e = g('Encoding'); o = g('Columns'); }
+  if (typeof o === 'number') n = o; else if (Array.isArray(o)) names = o.map(force).map(String);
+  const sv = force(src); const text = typeof sv === 'string' ? sv : decodeBin(binOf(sv, 'Csv.Document').bytes, e);
+  const rows = csvRows(text, typeof d === 'string' && d ? d : ',');
+  const w = names ? names.length : n || rows.reduce((m, r) => Math.max(m, r.length), 0);
+  const H = names || Array.from({ length: w }, (_, i) => 'Column' + (i + 1));
+  return new MTab(H, rows.map(r => H.map((_, i) => i < r.length ? r[i] : null)));
+}, 1);
+const jsonToM = v => v === null || typeof v !== 'object' ? v : Array.isArray(v) ? v.map(jsonToM) : mkRec(Object.keys(v), Object.values(v).map(jsonToM));
+def('Json.Document', (src, enc) => { const sv = force(src); const t = typeof sv === 'string' ? sv : decodeBin(binOf(sv, 'Json.Document').bytes, enc); try { return jsonToM(JSON.parse(t)); } catch (x){ throw new MErr('DataFormat.Error', 'Json.Document: неверный JSON (' + x.message + ')'); } }, 1);
+def('Excel.Workbook', (src, useHeaders) => {
+  const b = binOf(src, 'Excel.Workbook'); const x = b.xlsx;
+  if (!x) throw new MErr('DataFormat.Error', 'Excel.Workbook: «' + (b.name || 'двоичные данные') + '» — не книга .xlsx/.xlsm (формат .xls и .xlsb не читается).');
+  const hdr = force(useHeaders) === true; const out = [];
+  const promote = (cols, rows) => hdr && rows.length ? [rows[0].map((h, i) => h == null || h === '' ? 'Column' + (i + 1) : mToText(xlsxValueToM(h))), rows.slice(1)] : [cols, rows];
+  for (const sh of x.sheets){ const [c, r] = promote(sh.cols, sh.rows); out.push([sh.name, new Thunk(() => xlsxTable(c, r)), sh.name, 'Sheet', !!sh.hidden]); }
+  for (const t of x.tables) out.push([t.name, new Thunk(() => xlsxTable(t.cols, t.rows)), t.name, 'Table', false]);
+  for (const nm of x.names){ const [c, r] = promote(nm.cols, nm.rows); out.push([nm.name, new Thunk(() => xlsxTable(c, r)), nm.name, 'DefinedName', false]); }
+  return new MTab(['Name', 'Data', 'Item', 'Kind', 'Hidden'], out);
+}, 1);
 // синонимы и константы
 
 /* ---------- Публичное API ---------- */
@@ -3924,10 +4241,12 @@ function mRunSteps(sectionText, member, overrides){
   const vars = new Map(); const e2 = new Env(vars, env);
   for (const [nm, ex] of ast.binds){ const ov = overrides.steps && overrides.steps.get(nm); vars.set(nm, ov !== undefined ? new Thunk(() => ov) : new Thunk(() => evalNode(ex, e2))); }
   for (const [nm] of ast.binds){
+    if (overrides.onStep) overrides.onStep(nm);
     const t0 = performance.now(); let value, error = null;
     try { value = deepForce(force(vars.get(nm))); } catch (e){ error = toMErr(e); }
     out.push({ name: nm, value, error, ms: performance.now() - t0, overridden: !!(overrides.steps && overrides.steps.has(nm)) });
   }
+  if (overrides.onStep) overrides.onStep('in → результат');
   const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = toMErr(e); }
   out.push({ name: 'in → результат', value: fv, error: fe, ms: performance.now() - t0, final: true });
   return out;
@@ -5636,6 +5955,97 @@ function closeBookState(){
   emitState('book');
 }
 /* ===== END src/js/app/state.js ===== */
+/* ===== BEGIN src/js/app/data.js ===== */
+/* =====================================================================
+   app/data.js — данные на этом компьютере: таблицы открытой книги и прикреплённые выгрузки.
+   Инвариант: необезличенные значения никуда не уходят. Вычисления (песочница, «Данные»)
+   идут только в браузере; наружу — пакет для ИИ, папка обмена, буфер «для ИИ» — попадают
+   только числа проверок, а gate() дополнительно ищет значения из данных в исходящем тексте
+   (dataLeaks) и блокирует выпуск.
+   Интерпретатор получает данные через M_DATA (m/interp.js): currentWorkbook(), file(путь), folder(путь).
+   ===================================================================== */
+const DATA = { limit: 200000, wb: null, wbFor: null, wbError: '', files: new Map(), folders: new Map(), selfBook: null, run: null, verify: null };
+const normPath = p => String(p || '').trim().replace(/\//g, '\\').replace(/\\+$/, '').toLowerCase();
+const pathBase = p => normPath(p).replace(/^.*\\/, '');
+/** Файл с диска → { name, bytes, mtime, xlsx } (книги .xlsx/.xlsm разбираются сразу: Excel.Workbook синхронный) */
+async function dataFile(f, bytes){
+  const u8 = bytes || await readFileBytes(f); const out = { name: f.name, bytes: u8, mtime: f.lastModified || 0, xlsx: null, error: '' };
+  if (/\.(xlsx|xlsm)$/i.test(f.name)){ try { out.xlsx = await readXlsxData(zipRead(u8), { maxRows: DATA.limit }); } catch (e){ out.error = e.message; } }
+  return out;
+}
+/** Прикрепить файлы: к пути из кода (kind file/folder) или просто по имени (path пустой) */
+async function attachFiles(list, path, kind){
+  const fs = []; for (const f of list) fs.push(await dataFile(f));
+  if (kind === 'folder') DATA.folders.set(normPath(path), fs.concat(DATA.folders.get(normPath(path)) || []).filter((x, i, a) => a.findIndex(y => y.name === x.name) === i));
+  else for (const x of fs) DATA.files.set(kind === 'file' && path ? normPath(path) : 'name:' + x.name.toLowerCase(), x);
+  dataChanged();
+  return fs;
+}
+function detachData(key, folder){ (folder ? DATA.folders : DATA.files).delete(key); dataChanged(); }
+/** Любое изменение данных или кода делает прежние результаты проверок неактуальными */
+function dataChanged(){ DATA.run = null; DATA.verify = null; emitState('data'); }
+/** Таблицы книги (ListObject и именованные диапазоны) — читаются один раз на версию файла */
+async function dataPrepare(){
+  const b = S.book;
+  if (!b || b.family !== 'excel' || !b.zip){ DATA.wb = null; DATA.wbError = b && b.ext === 'xlsb' ? 'Книга .xlsb хранит листы в двоичном виде — её таблицы здесь не читаются. Сохраните копию как .xlsx или прикрепите выгрузки.' : ''; return; }
+  const key = b.sha + ':' + DATA.limit;
+  if (DATA.wbFor !== key){
+    try { DATA.wb = await readXlsxData(b.zip, { only: 'objects', maxRows: DATA.limit }); DATA.wbError = ''; } catch (e){ DATA.wb = null; DATA.wbError = e.message; }
+    DATA.wbFor = key; DATA.selfBook = null;
+  }
+  // запрос читает сам этот файл: Excel.Workbook(File.Contents("…\Книга.xlsx")) — нужен полный разбор листов
+  if (!DATA.selfBook && /Excel\.Workbook\s*\(\s*File\.Contents/.test(S.work || '')){
+    DATA.selfBook = { name: b.name, bytes: b.bytes, mtime: 0, xlsx: null };
+    try { DATA.selfBook.xlsx = await readXlsxData(b.zip, { maxRows: DATA.limit }); } catch { /* Excel.Workbook сообщит */ }
+  }
+}
+M_DATA = {
+  currentWorkbook: () => DATA.wb ? DATA.wb.tables.concat(DATA.wb.names) : null,
+  file(p){
+    const n = normPath(p), base = pathBase(p);
+    if (DATA.files.has(n)) return DATA.files.get(n);
+    if (DATA.files.has('name:' + base)) return DATA.files.get('name:' + base);
+    for (const fs of DATA.folders.values()){ const f = fs.find(x => x.name.toLowerCase() === base); if (f) return f; }
+    if (DATA.selfBook && S.book && S.book.name.toLowerCase() === base) return DATA.selfBook;
+    return null;
+  },
+  folder: p => DATA.folders.get(normPath(p)) || null
+};
+function dataSummaryText(){
+  const t = DATA.wb ? DATA.wb.tables.length + DATA.wb.names.length : 0, f = DATA.files.size + [...DATA.folders.values()].reduce((s, x) => s + x.length, 0);
+  return (t ? 'таблиц книги: ' + t : 'таблиц книги нет') + (f ? ', прикреплено файлов: ' + f : '');
+}
+
+/* ---- Защита от утечки: значения из данных в исходящем тексте ---- */
+/** Строковые значения (≥ 4 символов) из таблиц книги, прикреплённых файлов и результатов проверок.
+    Не считаются утечкой: заголовки столбцов и строки, которые уже есть в обезличенном коде. */
+function dataValueSet(){
+  const vals = new Set(), skip = new Set(); const CAP = 400000;
+  const addRows = (cols, rows) => { for (const c of cols || []) skip.add(String(c)); for (const r of rows || []){ for (const v of r){ if (typeof v === 'string' && v.length >= 4 && v.length <= 400) vals.add(v.trim()); } if (vals.size > CAP) return; } };
+  if (DATA.wb) for (const t of DATA.wb.tables.concat(DATA.wb.names)) addRows(t.cols, t.rows);
+  const files = [...DATA.files.values(), ...[].concat(...DATA.folders.values())];
+  for (const f of files){
+    if (f.xlsx) for (const t of f.xlsx.sheets.concat(f.xlsx.tables)) addRows(t.cols, t.rows);
+    else if (f.bytes && f.bytes.length < 50e6 && /\.(csv|txt|tsv)$/i.test(f.name)){   // первая строка — заголовки
+      decodeBin(f.bytes).split(/\r?\n/).forEach((line, li) => { for (const cell of line.split(/[;,\t|]/)){ const v = cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"').trim(); if (li === 0) skip.add(v); else if (v.length >= 4 && v.length <= 400) vals.add(v); } }); }
+  }
+  if (DATA.run) for (const q of DATA.run.queries) if (q.sample) addRows(q.sample.cols, q.sample.rows);
+  if (S.anon && S.anon.out){ const re = /"((?:[^"]|"")*)"/g; let m; while ((m = re.exec(S.anon.out))) skip.add(m[1].replace(/""/g, '"')); }
+  for (const s of skip) vals.delete(s);
+  return vals;
+}
+/** Найденные в тексте значения из данных: строки в кавычках (JSON, M) и целые строки текста */
+function dataLeaks(text){
+  if (!DATA.wb && !DATA.files.size && !DATA.folders.size && !DATA.run) return [];
+  const vals = dataValueSet(); if (!vals.size) return [];
+  const out = []; const seen = new Set(); const hit = (v, s) => { if (vals.has(v) && !seen.has(v)){ seen.add(v); out.push({ sev: 'crit', label: 'значение из данных', match: v, s }); } };
+  const re = /"((?:[^"\\\r\n]|\\.|"")*)"/g; let m;
+  while ((m = re.exec(text))){ let v = m[1]; if (v.includes('\\')){ try { v = JSON.parse('"' + v + '"'); } catch { /* как есть */ } } hit(v.replace(/""/g, '"').trim(), m.index + 1); }
+  let pos = 0; for (const line of text.split('\n')){ hit(line.trim(), pos); pos += line.length + 1; }
+  return out;
+}
+onState(reason => { if (reason === 'book'){ DATA.wb = null; DATA.wbFor = null; DATA.selfBook = null; DATA.run = null; DATA.verify = null; } else if (reason === 'work'){ DATA.run = null; DATA.verify = null; } });
+/* ===== END src/js/app/data.js ===== */
 /* ===== BEGIN src/js/nda/agent.js ===== */
 /* =====================================================================
    nda/agent.js — пакет для ИИ, шаблон задачи, протокол папки обмена (Claude Code).
@@ -5753,6 +6163,7 @@ function buildPackage(){
     })),
     lint: S.lint.map(l => ({ severity: l.sev, rule: l.rule, query: anonQueryName(l.query), step: sanitizeName(l.step), message: sanitizeName(l.msg), suggestion: sanitizeName(l.fix) })),
     diagnostics: $('#pkgDiag').checked ? diagSummary() : null,
+    dataChecks: dataChecksForAi(),   // проверка на данных пользователя: только числа, без значений
     debugData: debugData(dbg),
     reply: {
       howTo: 'Ответ — JSON-файл в папке inbox/ (режим агента) или текст в чате. Формат патча ниже. Значения members — полный текст выражения запроса (то, что после «shared Имя =», без завершающей «;»).',
@@ -5774,6 +6185,8 @@ function buildPromptText(pkg){
     'Задача: ' + (pkg.goal || '(не указана — проанализируй код, найди ошибки и узкие места производительности)') + '\n\n' +
     'Запросы:\n' + q + '\n' + (l ? '\nЗамечания локального линтера (эвристики):\n' + l + '\n' : '');
   if (pkg.diagnostics) t += '\nДиагностика (самые долгие шаги, обезличено):\n' + pkg.diagnostics.map(d => d.topSteps.slice(0, 12).map(s => '- ' + s.query + ' › ' + s.step + ': ' + s.seconds + ' с').join('\n')).join('\n') + '\n';
+  if (pkg.dataChecks){ const dc = pkg.dataChecks.queries.filter(q => q.error || q.joins.some(j => j.duplicateKeysRight || j.unmatchedLeft));
+    t += '\nПроверка на данных пользователя (локально, только числа): ' + pkg.dataChecks.queries.length + ' запросов вычислено' + (dc.length ? '; внимание:\n' + dc.slice(0, 20).map(q => '- ' + q.query + (q.error ? ': ошибка ' + q.error : '') + q.joins.filter(j => j.duplicateKeysRight || j.unmatchedLeft).map(j => ' · шаг ' + j.step + ': дублей ключей справа ' + j.duplicateKeysRight + ', строк без пары ' + j.unmatchedLeft + ' из ' + j.left).join('')).join('\n') : '.') + '\n'; }
   if (pkg.debugData) t += '\nСхема и отладочные данные (JSON):\n```json\n' + JSON.stringify(pkg.debugData, null, 1) + '\n```\n';
   t += '\nКод (Section1.m):\n```m\n' + pkg.section + '\n```\n';
   return t;
@@ -5937,7 +6350,7 @@ function stringsOf(o, acc){
 async function gate(textOrObj, what, opts){
   opts = opts || {};
   const text = typeof textOrObj === 'string' ? textOrObj : stringsOf(textOrObj).join('\n');
-  const f = scanLeaks(text, S.cfg, S.dict);
+  const f = scanLeaks(text, S.cfg, S.dict).concat(typeof dataLeaks === 'function' ? dataLeaks(text) : []);   // + значения из данных книги и прикреплённых файлов
   const crit = f.filter(x => x.sev === 'crit');
   if (!crit.length){ if (f.length && !opts.quiet) toast(what + ': сканер — ' + f.length + ' некритичных предупреждений (см. «Обезличивание»).', 'warn'); return true; }
   if (opts.noOverride){ toast(what + ': заблокировано — сканер нашёл ' + crit.length + ' критичных совпадений.', 'bad'); return false; }
@@ -6153,7 +6566,8 @@ const HINTS = {
   editor: 'Правки применяются к рабочей версии кнопкой «Применить» (Ctrl+Enter), в файл они попадают при сохранении. Ctrl+Space — автодополнение, F1 — справка по функции под курсором.',
   optimizer: '«Безопасно» — исправление не меняет результат запроса. «Проверьте результат» — зависит от данных. Изменения можно посмотреть заранее, а применённые — отменить кнопкой ↶.',
   graph: 'Стрелка ведёт от запроса-источника к запросу, который его использует. Параметризатор выносит пути, серверы и адреса в запросы-параметры.',
-  sandbox: 'Выражения вычисляются прямо в браузере. Шаг, который обращается к источнику данных, подмените образцом — CSV, XLSX или таблицей, введённой вручную.',
+  data: 'Запросы вычисляются на таблицах книги и прикреплённых выгрузках — только в этом браузере. Видно то, чего не видно по коду: дубли ключей в справочниках, строки без пары, потерю сумм, ошибки в ячейках; исправления оптимизатора сверяются до и после.',
+  sandbox: 'Выражения и запросы вычисляются прямо в браузере — на таблицах книги и прикреплённых выгрузках (раздел «Проверка на данных»). Шаг с базой данных или веб-источником подмените выгрузкой — CSV, XLSX или таблицей, введённой вручную.',
   history: 'Каждое изменение кода — отдельная версия. Откат к версии сам записывается в историю, поэтому ничего не теряется.',
   reference: 'Офлайн-справочник функций M. Функции с отметкой «есть в песочнице» можно сразу вычислить на примере.',
   snippets: 'Заполните поля — код обновится справа. Готовый шаблон добавляется новым запросом или вставляется в редактор.',
@@ -6192,7 +6606,7 @@ const ICONS = {
   puzzle: '<path d="M10 3h4v3a2 2 0 104 0V3h3v7h-3a2 2 0 100 4h3v7h-7v-3a2 2 0 10-4 0v3H3v-7h3a2 2 0 100-4H3V3z"/>', doc: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h8"/>',
   diff: '<path d="M6 3v12M3 6h6M15 18h6M18 9v12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/>', shield: '<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
   pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>', reply: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v4"/>', robot: '<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/>',
-  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>', check: '<path d="M4 12l5 5L20 6"/>'
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>', check: '<path d="M4 12l5 5L20 6"/>', table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'
 };
 const icon = n => '<svg viewBox="0 0 24 24">' + (ICONS[n] || '') + '</svg>';
 const NAV = [
@@ -6202,6 +6616,7 @@ const NAV = [
   { id: 'optimizer', icon: 'bolt', label: 'Оптимизатор', hk: 'Alt+3', cnt: () => S.opt ? S.opt.findings.filter(f => f.sev === 'err' || f.sev === 'warn').length : 0, cls: () => S.opt && S.opt.findings.some(f => f.sev === 'err') ? 'bad' : 'warn' },
   { id: 'graph', icon: 'graph', label: 'Граф и параметры', hk: 'Alt+4' },
   { id: 'sandbox', icon: 'play', label: 'Песочница', hk: 'Alt+5' },
+  { id: 'data', icon: 'table', label: 'Проверка на данных', cnt: () => dataRunValid() ? DATA.run.findings.filter(f => f.sev !== 'info').length : 0 },
   { id: 'history', icon: 'clock', label: 'История правок', cnt: () => Math.max(0, S.hist.length - 1) },
   { g: 'Инструменты' },
   { id: 'reference', icon: 'book', label: 'Справочник M' },
@@ -6320,6 +6735,7 @@ function commands(){
     if (canUndo()) c('Отменить: ' + S.hist[S.histPos].label, () => histGo(S.histPos - 1), { hk: 'Ctrl+Alt+Z' });
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
+    c('Проверить запросы на данных (локально)', () => { showView('data'); dataRunAll(); });
     if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
     c('Форматировать все запросы', formatAllQueries);
     c('Новый запрос…', () => { showView('editor'); newQueryDialog(); });
@@ -6963,7 +7379,9 @@ function renderOptCards(){
   const enc = String(pqmSettings().csvEncoding);
   $('#optCards').innerHTML = list.length ? list.slice(0, OPT.limit).map(f => {
     const opts = (f.options || []).map(o => '<label class="small">' + escHtml(o.label) + ': <select data-fopt="' + escHtml(f.id) + '" data-k="' + o.key + '">' + o.values.map(([v, l]) => '<option value="' + v + '"' + (enc === v ? ' selected' : '') + '>' + escHtml(l) + '</option>').join('') + '</select></label>').join('');
-    return '<div class="ocard ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span><span class="safety ' + f.safety + '">' + SAFETY_LABEL[f.safety] + '</span></div>' +
+    const vd = DATA.verify && DATA.verify.forWork === S.work && DATA.verify.items.get(f.id);   // сверка на данных (раздел «Проверка на данных»)
+    const vb = vd ? '<span class="pqx-rec ' + (vd.same ? 'ok' : 'warn') + '" title="' + escHtml(vd.results.map(r => (r.label ? r.label + ': ' : '') + (r.same ? 'совпадает' : 'отличается') + (r.note ? ' — ' + r.note : '')).join('; ')) + '">' + (vd.same ? '✓ на данных — тот же результат' : '✖ на данных — результат другой') + '</span>' : '';
+    return '<div class="ocard ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span><span class="safety ' + f.safety + '">' + SAFETY_LABEL[f.safety] + '</span>' + vb + '</div>' +
       '<div class="where"><button class="link" data-oq="' + escHtml(f.query) + '" data-os="' + escHtml(f.step && !f.step.includes(' + ') ? f.step : '') + '">' + escHtml(f.query) + (f.step ? ' › ' + escHtml(f.step) : '') + '</button> · ' + (f.impact || []).map(i => '<span class="imp">' + IMPACT_LABEL[i] + '</span>').join(' ') + '</div>' +
       (f.why && f.why !== f.title ? '<div class="why">' + escHtml(f.why) + '</div>' : '') + (f.how ? '<div class="fix">→ ' + escHtml(f.how) + '</div>' : '') +
       '<div class="oa">' + opts + (f.fix ? '<button class="btn sm" data-prev="' + escHtml(f.id) + '">Показать изменения</button><button class="btn sm pri" data-apply="' + escHtml(f.id) + '">' + escHtml(f.fixLabel || 'Применить') + '</button>' : '<span class="small muted">исправляется вручную</span>') + '</div></div>';
@@ -7166,7 +7584,8 @@ registerView('graph', { render: renderGraph });
 /* ===== BEGIN src/js/views/sandbox.js ===== */
 /* =====================================================================
    views/sandbox.js — песочница: вычисление выражений M и пошаговый прогон
-   запроса с подменой шагов-источников образцами данных (всё локально).
+   запроса на таблицах книги и прикреплённых выгрузках (app/data.js); шаги с базами и вебом
+   подменяются образцами. Всё локально: данные не покидают браузер.
    ===================================================================== */
 const SB = { exprView: null, query: null, steps: new Map(), queries: new Map(), results: null, sel: null };
 const SB_EXAMPLES = [
@@ -7180,7 +7599,8 @@ const SB_EXAMPLES = [
 $('#sbExamples').innerHTML = '<option value="">примеры…</option>' + SB_EXAMPLES.map((e, i) => '<option value="' + i + '">' + escHtml(e[0]) + '</option>').join('');
 $('#sbExamples').onchange = () => { const e = SB_EXAMPLES[+$('#sbExamples').value]; if (e && SB.exprView) SB.exprView.dispatch({ changes: { from: 0, to: SB.exprView.state.doc.length, insert: e[1] } }); $('#sbExamples').value = ''; };
 $('#sbMode').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; $$('#sbMode button').forEach(x => x.classList.toggle('on', x === b)); $('#sbExpr').classList.toggle('hidden', b.dataset.m !== 'expr'); $('#sbQuery').classList.toggle('hidden', b.dataset.m !== 'query'); if (b.dataset.m === 'query') renderSbQuery(); });
-function sbEval(){
+async function sbEval(){
+  await dataPrepare();
   const t0 = performance.now(); const text = SB.exprView.state.doc.toString();
   try { const v = mEval(text, S.work); $('#sbExprOut').innerHTML = mRender(v); }
   catch (e){ $('#sbExprOut').innerHTML = '<div class="note bad"><b>' + escHtml(e.reason || 'Ошибка') + '</b><br>' + escHtml(e.message || String(e)) + '</div>'; }
@@ -7225,10 +7645,12 @@ function renderSbQuery(){
   SB.query = sel.value;
   renderSbSteps();
 }
-function sbRun(){
+/** Подмены песочницы для запроса — их учитывает и «Проверка на данных» */
+function sbOverrides(q){ return { steps: new Map([...SB.steps].filter(([k]) => k.startsWith(q + '\u0001')).map(([k, v]) => [k.split('\u0001')[1], v.value])), queries: new Map([...SB.queries].map(([k, v]) => [k, v.value])) }; }
+async function sbRun(){
   if (!S.A || !SB.query) return;
-  const steps = new Map([...SB.steps].filter(([k]) => k.startsWith(SB.query + '\u0001')).map(([k, v]) => [k.split('\u0001')[1], v.value]));
-  const queries = new Map([...SB.queries].map(([k, v]) => [k, v.value]));
+  await dataPrepare();
+  const { steps, queries } = sbOverrides(SB.query);
   try { SB.results = mRunSteps(S.work, SB.query, { steps, queries }); }
   catch (e){ SB.results = [{ name: '(разбор)', error: e, ms: 0 }]; }
   SB.results.query = SB.query;
@@ -7261,8 +7683,9 @@ function renderSbSteps(){
   if (!res || SB.sel == null || !res[SB.sel]){ out.innerHTML = '<div class="muted small">Здесь появится результат выбранного шага.</div>'; return; }
   const r = res[SB.sel];
   out.innerHTML = '<div class="card-h"><h2>' + escHtml(r.name) + '</h2>' + (r.overridden ? '<span class="badge vio">подменён образцом</span>' : '') + '<span class="sp"></span>' + (r.name !== '(разбор)' && !r.final ? '<button class="btn sm" data-goto="' + escHtml(r.name) + '">Открыть в редакторе</button>' : '') + '</div>' +
-    (r.error ? '<div class="note ' + (r.error.reason === 'DataSource.Error' ? 'warn' : 'bad') + '"><b>' + escHtml(r.error.reason || 'Ошибка') + '</b><br>' + escHtml(r.error.message || String(r.error)) + (r.error.reason === 'DataSource.Error' ? '<div class="row"><button class="btn pri sm" data-ov2="' + escHtml(r.name) + '">Подменить образцом</button></div>' : '') + '</div>' : '<div class="sb-out">' + mRender(r.value) + '</div>');
+    (r.error ? '<div class="note ' + (r.error.reason === 'DataSource.Error' ? 'warn' : 'bad') + '"><b>' + escHtml(r.error.reason || 'Ошибка') + '</b><br>' + escHtml(r.error.message || String(r.error)) + (r.error.reason === 'DataSource.Error' ? '<div class="row">' + (r.error.need && r.error.need.kind !== 'workbook' ? '<button class="btn pri sm" data-attach="' + escHtml(r.error.need.kind) + '" data-path="' + escHtml(r.error.need.path) + '">' + (r.error.need.kind === 'folder' ? 'Прикрепить файлы папки…' : 'Прикрепить файл…') + '</button>' : '') + '<button class="btn sm" data-ov2="' + escHtml(r.name) + '">Подменить образцом</button></div>' : '') + '</div>' : '<div class="sb-out">' + mRender(r.value) + '</div>');
   $$('[data-goto]', out).forEach(b => b.onclick = () => openInEditor(SB.query, b.dataset.goto));
+  $$('[data-attach]', out).forEach(b => b.onclick = async () => { const folder = b.dataset.attach === 'folder'; const fs = await pickFiles(folder); if (!fs.length) return; await attachFiles(fs, b.dataset.path, folder ? 'folder' : 'file'); sbRun(); });
   $$('[data-ov2]', out).forEach(b => b.onclick = async () => { const v = await sbOverrideDialog('step', b.dataset.ov2); if (v){ SB.steps.set(SB.query + '\u0001' + b.dataset.ov2, v); sbRun(); } });
 }
 $('#sbQSel').addEventListener('change', () => { SB.query = $('#sbQSel').value; SB.results = null; renderSbSteps(); });
@@ -7274,6 +7697,226 @@ function sbRunQuery(name){
 }
 registerView('sandbox', { render: () => { if (!$('#sbQuery').classList.contains('hidden')) renderSbQuery(); }, onShow: () => { sbEnsureEditor(); setTimeout(() => SB.exprView.requestMeasure(), 0); } });
 /* ===== END src/js/views/sandbox.js ===== */
+/* ===== BEGIN src/js/views/data.js ===== */
+/* =====================================================================
+   views/data.js — «Проверка на данных»: запросы книги вычисляются на её таблицах и прикреплённых
+   выгрузках (только в этом браузере). Строки и время по шагам, контрольные суммы, соединения
+   (дубли ключей, строки без пары, разные типы ключей), профиль результата и проверка исправлений
+   оптимизатора: результат до и после совпадает или нет.
+   Результаты — DATA.run / DATA.verify (app/data.js); в пакет для ИИ — только числа (dataChecksForAi).
+   ===================================================================== */
+const DV = { sel: null, busy: false, progress: '' };
+const pct = (a, b) => b ? (a / b * 100).toFixed(a / b < 0.01 ? 2 : 1).replace('.', ',') + '%' : '—';
+const fmtN = n => n == null ? '—' : Number(n).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+const tick = () => new Promise(r => setTimeout(r, 0));
+/** Порядок вычисления: сначала запросы, на которые ссылаются другие (их результат переиспользуется) */
+function dataOrder(members){
+  const by = new Map(members.map(m => [m.name, m])); const out = [], seen = new Set();
+  const visit = (m, stack) => { if (seen.has(m.name) || stack.has(m.name)) return; stack.add(m.name); for (const r of m.refs) if (by.has(r)) visit(by.get(r), stack); seen.add(m.name); out.push(m); };
+  for (const m of members) visit(m, new Set());
+  return out;
+}
+/** Профиль таблицы: по столбцу — типы, пустые, ошибки, различных, числа-текстом, пробелы по краям */
+function tableProfile(t){
+  const n = Math.min(t.rows.length, 200000);
+  return t.cols.map((c, i) => {
+    const types = new Map(); let nulls = 0, errs = 0, txtNum = 0, spaces = 0, sum = 0, nums = 0; const dist = new Set();
+    for (let r = 0; r < n; r++){ let v; try { v = force(t.rows[r][i]); } catch { errs++; continue; }
+      if (v === null){ nulls++; continue; } const tn = mTypeName(v); types.set(tn, (types.get(tn) || 0) + 1);
+      if (dist.size < 100001){ const k = mHashKey(v); if (k !== null) dist.add(k); }
+      if (typeof v === 'number'){ nums++; sum += v; }
+      else if (typeof v === 'string'){ if (/^\s*-?[\d  ]+([.,]\d+)?\s*$/.test(v)) txtNum++; if (v !== v.trim()) spaces++; } }
+    return { col: c, types: [...types].sort((a, b) => b[1] - a[1]).map(([k, x]) => k + (types.size > 1 ? ' ' + x : '')).join(', ') || 'null', nulls, errs, distinct: dist.size > 100000 ? '>100000' : dist.size, txtNum, spaces, sum: nums ? sum : null, nums, rows: n };
+  });
+}
+/** Сумма числового столбца в каждом шаге-таблице: где итог изменился */
+function controlSums(steps, finalTab){
+  if (!(finalTab instanceof MTab)) return [];
+  const prof = tableProfile(finalTab); const out = [];
+  for (const p of prof){ if (!p.nums || p.nums < (p.rows - p.nulls - p.errs) * 0.8) continue;
+    const series = []; for (const s of steps){ const v = s.value; if (!(v instanceof MTab)) continue; const ci = v.cols.indexOf(p.col); if (ci < 0) continue; let sum = 0, nn = 0, filled = 0; for (const r of v.rows){ try { const x = force(r[ci]); if (x !== null) filled++; if (typeof x === 'number'){ sum += x; nn++; } } catch { filled++; } }
+      if (filled && nn >= filled * 0.8) series.push({ step: s.name, sum, rows: v.rows.length }); }   // шаги, где столбец ещё текст, не сравниваются
+    if (series.length < 2) continue;
+    const changes = []; for (let i = 1; i < series.length; i++){ const a = series[i - 1].sum, b = series[i].sum; if (Math.abs(a - b) > Math.max(1e-6, Math.abs(a) * 1e-9)) changes.push({ step: series[i].step, before: a, after: b }); }
+    out.push({ col: p.col, first: series[0], last: series[series.length - 1], changes });
+  }
+  return out;
+}
+/** Одна запуск запроса: шаги, соединения, профиль. queries — уже вычисленные результаты других запросов */
+function dataRunQuery(section, name, queries){
+  const joins = []; let cur = '';
+  const ov = typeof sbOverrides === 'function' ? sbOverrides(name) : { steps: new Map(), queries: new Map() };
+  const qs = new Map([...(queries || new Map()), ...ov.queries]);
+  M_TRACE = { join: j => joins.push(Object.assign({ step: cur }, j)) };
+  const t0 = performance.now(); let res;
+  try { res = mRunSteps(section, name, { steps: ov.steps, queries: qs, onStep: s => { cur = s; } }); }
+  catch (e){ res = [{ name: '(разбор)', error: toMErr(e), ms: 0, final: true }]; }
+  finally { M_TRACE = null; }
+  const ms = performance.now() - t0;
+  const fin = res[res.length - 1]; const value = fin && !fin.error ? fin.value : null;
+  const err = res.find(r => r.error);   // первый шаг с ошибкой — источник ошибки (следующие наследуют её)
+  return { name, ms, value, steps: res.map(r => ({ name: r.name, value: r.value, rows: r.value instanceof MTab ? r.value.rows.length : null, cols: r.value instanceof MTab ? r.value.cols.length : null, ms: r.ms, error: r.error ? { reason: r.error.reason, message: r.error.message, need: r.error.need || null } : null, overridden: r.overridden })),
+    error: fin && fin.error ? { reason: fin.error.reason, message: fin.error.message, need: fin.error.need || null, step: err ? err.name : '' } : null, joins };
+}
+/** Сравнение результатов до и после исправления: полностью / с другим порядком строк / отличается */
+function tableCompare(a, b){
+  const lit = x => { try { return mLit(x); } catch (e){ return '⚠' + (e.reason || 'Error'); } };
+  if (!(a instanceof MTab) || !(b instanceof MTab)) return lit(a) === lit(b) ? { same: true, exact: true } : { same: false, note: 'значение изменилось' };
+  const ca = a.cols.slice().sort().join('\u0001'), cb = b.cols.slice().sort().join('\u0001');
+  if (ca !== cb) return { same: false, note: 'другие столбцы: было ' + a.cols.length + ', стало ' + b.cols.length };
+  const ib = a.cols.map(c => b.cols.indexOf(c));
+  const keyA = r => r.map(lit).join('\u0001'), keyB = r => ib.map(i => lit(r[i])).join('\u0001');
+  const exact = a.cols.join('\u0001') === b.cols.join('\u0001') && a.rows.length === b.rows.length && a.rows.every((r, i) => keyA(r) === keyB(b.rows[i]));
+  if (exact) return { same: true, exact: true };
+  const cnt = new Map(); for (const r of a.rows){ const k = keyA(r); cnt.set(k, (cnt.get(k) || 0) + 1); }
+  let extra = 0; for (const r of b.rows){ const k = keyB(r); const c = cnt.get(k); if (c) cnt.set(k, c - 1); else extra++; }
+  let lost = 0; for (const c of cnt.values()) lost += c;
+  if (!extra && !lost) return { same: true, exact: false, note: 'те же строки, другой порядок' + (ca === cb && a.cols.join() !== b.cols.join() ? ' и порядок столбцов' : '') };
+  return { same: false, note: 'строк было ' + fmtN(a.rows.length) + ', стало ' + fmtN(b.rows.length) + ' · пропало ' + fmtN(lost) + ', появилось ' + fmtN(extra) };
+}
+/** Проверка исправлений оптимизатора на данных: запрос до и после правки */
+async function dataVerifyFixes(run){
+  const out = new Map(); const base = new Map(run.queries.map(q => [q.name, q]));
+  const fs = (S.opt ? S.opt.findings : []).filter(f => f.fix && base.has(f.query) && !base.get(f.query).error).slice(0, 40);
+  for (const f of fs){
+    const opt = f.options && f.options[0]; const variants = opt ? opt.values.map(([v, l]) => ({ o: { [opt.key]: v }, label: l })) : [{ o: {}, label: '' }];
+    const res = [];
+    for (const vnt of variants){
+      DV.progress = 'Проверка исправлений: ' + f.title.slice(0, 50) + '…'; renderDataProgress(); await tick();
+      let text; try { text = f.fix(S.work, vnt.o); } catch (e){ res.push({ label: vnt.label, same: false, note: 'исправление не применилось: ' + e.message }); continue; }
+      // результаты запросов, не затронутых правкой, переиспользуются
+      const before = parseSection(S.work).members, after = parseSection(text).members;
+      const exprOf = (t, ms) => new Map(ms.map(m => [m.name, t.slice(m.exprStart, m.exprEnd)]));
+      const eb = exprOf(S.work, before), ea = exprOf(text, after);
+      const changed = new Set([...ea].filter(([n, e]) => eb.get(n) !== e).map(([n]) => n));
+      const touched = n => { if (changed.has(n)) return true; const m = S.A.byName.get(n); return !!m && [...m.refs].some(r => r !== n && changed.has(r)); };
+      const reuse = new Map(); for (const [n, q] of base) if (n !== f.query && q.value != null && !touched(n)) reuse.set(n, q.value);
+      const r2 = dataRunQuery(text, f.query, reuse);
+      if (r2.error) res.push({ label: vnt.label, same: false, note: 'после правки ошибка: ' + r2.error.message });
+      else res.push(Object.assign({ label: vnt.label }, tableCompare(base.get(f.query).value, r2.value)));
+    }
+    out.set(f.id, { title: f.title, query: f.query, rule: f.rule, safety: f.safety, results: res, same: res.every(r => r.same) });
+  }
+  return out;
+}
+/** Находки на данных — то, что видно только по реальным значениям */
+function dataFindings(run){
+  const F = []; const add = (sev, q, title, text) => F.push({ sev, q, title, text });
+  for (const q of run.queries){
+    if (q.error && !q.error.need) add('err', q.name, 'Ошибка при вычислении', (q.error.step ? 'шаг «' + q.error.step + '»: ' : '') + q.error.message);
+    for (const j of q.joins){
+      const where = 'шаг «' + j.step + '»: ' + j.keysA.join(', ') + ' ↔ ' + j.keysB.join(', ');
+      if (j.dupKeys) add('warn', q.name, 'Дубли ключей в присоединяемой таблице', where + ' — ' + fmtN(j.dupKeys) + ' ключей встречаются несколько раз (' + fmtN(j.dupRows) + ' строк). Строки слияния размножаются, суммы задваиваются. Уберите дубли (Table.Distinct по ключу) или проверьте справочник.');
+      if (j.typeA && j.typeB && j.typeA !== j.typeB) add('warn', q.name, 'Разные типы ключей', where + ' — слева ' + j.typeA + ', справа ' + j.typeB + ': значения не совпадут. Приведите ключи к одному типу до слияния.');
+      if (j.miss && j.kind !== 4) add(j.miss / j.left > 0.05 ? 'warn' : 'info', q.name, 'Строки без пары при слиянии', where + ' — ' + fmtN(j.miss) + ' из ' + fmtN(j.left) + ' строк (' + pct(j.miss, j.left) + ') не нашли пары' + (j.kind === 0 ? ' и выпали из результата (внутреннее соединение).' : ': присоединённые столбцы у них пустые. Проверьте справочник или маппинг.'));
+    }
+    let prev = null;
+    for (const s of q.steps){ if (s.rows == null) continue; if (prev && prev.rows >= 100 && s.rows > prev.rows * 1.5) add('info', q.name, 'Резкий рост строк', 'шаг «' + s.name + '»: ' + fmtN(prev.rows) + ' → ' + fmtN(s.rows) + ' строк (×' + (s.rows / prev.rows).toFixed(1).replace('.', ',') + ').'); prev = s; }
+    for (const p of q.profile || []){
+      if (p.errs) add('warn', q.name, 'Ошибки в ячейках результата', 'столбец «' + p.col + '»: ' + fmtN(p.errs) + ' ошибок из ' + fmtN(p.rows) + ' строк. В Excel такие ячейки загружаются пустыми или прерывают обновление.');
+      if (p.txtNum && p.nums) add('info', q.name, 'Числа и числа-текстом вперемешку', 'столбец «' + p.col + '»: ' + fmtN(p.txtNum) + ' значений — текст, похожий на число. Суммы и слияния по такому столбцу неверны; задайте тип столбца.');
+      if (p.spaces) add('info', q.name, 'Пробелы по краям', 'столбец «' + p.col + '»: ' + fmtN(p.spaces) + ' значений с пробелами в начале или конце. Если это ключ слияния или маппинга — совпадений не будет; добавьте Text.Trim.');
+    }
+    for (const c of q.sums || []) if (c.changes.length) add('info', q.name, 'Контрольная сумма изменилась', '«' + c.col + '»: ' + fmtN(c.first.sum) + ' на шаге «' + c.first.step + '» → ' + fmtN(c.last.sum) + ' в результате. Изменения: ' + c.changes.slice(0, 4).map(x => '«' + x.step + '» ' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before)).join(', ') + (c.changes.length > 4 ? '…' : '') + '. Убедитесь, что фильтры и слияния теряют или добавляют именно то, что нужно.');
+  }
+  const order = { err: 0, warn: 1, info: 2 }; return F.sort((a, b) => order[a.sev] - order[b.sev]);
+}
+async function dataRunAll(){
+  if (!S.A || DV.busy) return;
+  DV.busy = true; DATA.run = null; DATA.verify = null; renderData();
+  try {
+    DV.progress = 'Чтение таблиц книги…'; renderDataProgress(); await tick();
+    await dataPrepare();
+    const ms = dataOrder(S.A.members.filter(m => !m.isFn && !m.isParam));
+    const run = { forWork: S.work, queries: [] }; const done = new Map();
+    for (const m of ms){
+      DV.progress = 'Вычисление «' + m.name + '» (' + (run.queries.length + 1) + ' из ' + ms.length + ')…'; renderDataProgress(); await tick();
+      const q = dataRunQuery(S.work, m.name, done);
+      if (q.value instanceof MTab){ q.profile = tableProfile(q.value); q.sums = controlSums(q.steps, q.value); q.sample = { cols: q.value.cols, rows: q.value.rows.slice(0, 100).map(r => r.map(x => { try { const v = force(x); return v === null || typeof v === 'string' ? v : mToText(v); } catch { return '⚠'; } })) }; }
+      if (q.value != null) done.set(m.name, q.value);
+      run.queries.push(q);
+    }
+    // суммы по ключам (коды счетов, статей) бессмысленны: столбцы слияний и поиска Т{[Ключ = [Столбец]]} не сравниваются
+    const keyCols = new Set(); for (const q of run.queries) for (const j of q.joins) j.keysA.concat(j.keysB).forEach(k => keyCols.add(k));
+    for (const m of S.work.matchAll(/\{\s*\[\s*([^=\]]+?)\s*=\s*\[([^\]]+)\]/g)){ keyCols.add(m[1].replace(/^#"|"$/g, '')); keyCols.add(m[2].replace(/^#"|"$/g, '')); }
+    for (const q of run.queries) if (q.sums) q.sums = q.sums.filter(c => !keyCols.has(c.col));
+    run.findings = dataFindings(run);
+    DATA.run = run;
+    DATA.verify = { forWork: S.work, items: await dataVerifyFixes(run) };
+    DV.sel = DV.sel && run.queries.some(q => q.name === DV.sel) ? DV.sel : (run.queries.find(q => q.error) || run.queries[0] || {}).name;
+  } catch (e){ console.error(e); toast('Проверка на данных: ' + e.message, 'bad'); }
+  finally { DV.busy = false; DV.progress = ''; emitState('data'); }
+}
+function renderDataProgress(){ const b = $('#dataRun'); if (b){ b.disabled = DV.busy; b.textContent = DV.busy ? '⏳ ' + (DV.progress || 'Вычисление…') : '▶ Проверить на данных'; } }
+const dataRunValid = () => DATA.run && DATA.run.forWork === S.work;
+function dataNeeds(){
+  const out = new Map(); if (!dataRunValid()) return out;
+  for (const q of DATA.run.queries) for (const s of q.steps) if (s.error && s.error.need){ const k = s.error.need.kind + '|' + s.error.need.path; if (!out.has(k)) out.set(k, Object.assign({ queries: new Set() }, s.error.need)); out.get(k).queries.add(q.name); }
+  return out;
+}
+function pickFiles(multiple, dir){ return new Promise(res => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = !!multiple; if (dir) inp.webkitdirectory = true; inp.onchange = () => res([...inp.files]); inp.click(); }); }
+function renderData(){
+  if (!S.book) return;
+  renderDataProgress();
+  // источники
+  const needs = dataNeeds(); const wb = DATA.wb;
+  const files = [...DATA.files].map(([k, f]) => '<div class="ds-item">📄 <b>' + escHtml(f.name) + '</b> <span class="small muted">' + fmtN(Math.round(f.bytes.length / 1024)) + ' КБ' + (k.startsWith('name:') ? '' : ' · для «' + escHtml(k) + '»') + (f.error ? ' · ⚠ ' + escHtml(f.error) : '') + '</span> <button class="link" data-detach="' + escHtml(k) + '">убрать</button></div>').join('') +
+    [...DATA.folders].map(([k, fs]) => '<div class="ds-item">📁 <b>' + escHtml(k) + '</b> <span class="small muted">' + fs.length + ' файл(ов)</span> <button class="link" data-detachf="' + escHtml(k) + '">убрать</button></div>').join('');
+  $('#dataSources').innerHTML = '<div class="card-h"><h2>Источники</h2><span class="sp"></span><button class="btn sm" id="dataAttach">Прикрепить файлы…</button></div>' +
+    '<h3>Таблицы книги</h3>' + (DATA.wbError ? '<div class="small muted">' + escHtml(DATA.wbError) + '</div>' : wb ? (wb.tables.concat(wb.names).map(t => '<div class="ds-item">▦ <b>' + escHtml(t.name) + '</b> <span class="small muted">' + fmtN(t.rows.length) + ' × ' + t.cols.length + '</span></div>').join('') || '<div class="small muted">Таблиц и именованных диапазонов нет.</div>') + (wb.truncated ? '<div class="small muted">Прочитаны не все строки — см. «Строк на лист».</div>' : '') : '<div class="small muted">' + (S.book.family === 'excel' ? 'Прочитаются при проверке.' : 'Только для книг Excel.') + '</div>') +
+    '<h3>Прикреплённые выгрузки</h3>' + (files || '<div class="small muted">Нет. Прикрепите CSV, XLSX, JSON, которые читают запросы (File.Contents, Folder.Files), — или перетащите их сюда.</div>') +
+    (needs.size ? '<h3>Нужны для запросов</h3>' + [...needs.values()].map(n => '<div class="ds-item need">' + (n.kind === 'folder' ? '📁 папка' : n.kind === 'workbook' ? '▦ таблицы книги' : '📄 файл') + ' <b>' + escHtml(n.path || '') + '</b> <span class="small muted">' + [...n.queries].map(escHtml).join(', ') + '</span>' + (n.kind === 'workbook' ? '' : ' <button class="btn sm pri" data-need="' + escHtml(n.kind) + '" data-path="' + escHtml(n.path) + '">Прикрепить…</button>') + '</div>').join('') : '') +
+    '<p class="small muted">Базы данных и веб-источники недоступны (сети нет): подмените такой шаг выгрузкой в «Песочнице» — подмена действует и здесь.</p>';
+  $('#dataAttach').onclick = async () => { const fs = await pickFiles(true); if (fs.length){ await attachFiles(fs, '', ''); toast('Прикреплено файлов: ' + fs.length, 'ok'); } };
+  $$('[data-detach]').forEach(b => b.onclick = () => detachData(b.dataset.detach, false));
+  $$('[data-detachf]').forEach(b => b.onclick = () => detachData(b.dataset.detachf, true));
+  $$('[data-need]').forEach(b => b.onclick = async () => { const folder = b.dataset.need === 'folder'; const fs = await pickFiles(folder, false); if (!fs.length) return; await attachFiles(fs, b.dataset.path, folder ? 'folder' : 'file'); toast('Прикреплено. Запустите проверку снова.', 'ok'); });
+  // итоги
+  const run = dataRunValid() ? DATA.run : null; const ver = DATA.verify && DATA.verify.forWork === S.work ? [...DATA.verify.items.values()] : [];
+  $('#dataSummary').innerHTML = '<div class="card-h"><h2>Итог</h2></div>' + (!run ? '<div class="small muted">' + (DV.busy ? escHtml(DV.progress) : 'Нажмите «Проверить на данных»: каждый запрос вычислится на таблицах книги и прикреплённых файлах, а исправления оптимизатора — до и после правки.') + '</div>' :
+    '<div class="kv"><span>Запросов вычислено</span><b>' + run.queries.filter(q => !q.error).length + ' из ' + run.queries.length + '</b><span>Нужно источников</span><b>' + needs.size + '</b><span>Находок</span><b>' + run.findings.length + '</b><span>Исправлений проверено</span><b>' + ver.length + (ver.length ? ' · совпадают ' + ver.filter(v => v.same).length : '') + '</b><span>Время</span><b>' + (run.queries.reduce((s, q) => s + q.ms, 0) / 1000).toFixed(1).replace('.', ',') + ' с</b></div>' +
+    '<p class="small muted">Время — в браузере, не в Excel: важны соотношения шагов, а не секунды. Реальное время даёт диагностика Power Query.</p>');
+  // находки и исправления
+  $('#dataFindings').innerHTML = !run ? '<div class="card-h"><h2>Находки на данных</h2></div><div class="small muted">Появятся после проверки.</div>' :
+    '<div class="card-h"><h2>Находки на данных</h2><span class="sp"></span><span class="small muted">видно только по реальным значениям</span></div>' + (run.findings.length ? '<div class="book-issues">' + run.findings.slice(0, 80).map(f => '<div class="bi ' + f.sev + '"><div class="oh"><span class="sev ' + f.sev + '">' + SEV_LABEL[f.sev] + '</span><span class="ot">' + escHtml(f.title) + '</span> <button class="link" data-dq="' + escHtml(f.q) + '">' + escHtml(f.q) + '</button></div><div class="why">' + escHtml(f.text) + '</div></div>').join('') + '</div>' : '<div class="note ok small">Ошибок, дублей ключей, потерь при слияниях и смешанных типов не найдено.</div>') +
+    (ver.length ? '<h3>Исправления оптимизатора на данных</h3><table class="t small"><tr><th>Совет</th><th>Запрос</th><th>Результат до и после</th></tr>' + ver.map(v => '<tr><td>' + escHtml(v.title) + '</td><td>' + escHtml(v.query) + '</td><td>' + v.results.map(r => '<div>' + (r.same ? '<span class="pqx-rec ok">✓ совпадает</span>' : '<span class="pqx-rec warn">✖ отличается</span>') + (r.label ? ' <b>' + escHtml(r.label) + '</b>' : '') + (r.note ? ' <span class="muted">' + escHtml(r.note) + '</span>' : '') + '</div>').join('') + '</td></tr>').join('') + '</table>' : '');
+  // запросы
+  $('#dataQueries').innerHTML = !run ? '' : '<div class="card-h"><h2>Запросы</h2></div><table class="t small"><tr><th>Запрос</th><th>Строк</th><th>Столбцов</th><th>Время</th><th>Состояние</th></tr>' + run.queries.map(q => { const f = q.steps[q.steps.length - 1];
+    return '<tr class="click' + (q.name === DV.sel ? ' on' : '') + '" data-dsel="' + escHtml(q.name) + '"><td>' + escHtml(q.name) + '</td><td class="num">' + fmtN(f && f.rows) + '</td><td class="num">' + fmtN(f && f.cols) + '</td><td class="num">' + (q.ms / 1000).toFixed(2).replace('.', ',') + ' с</td><td>' + (q.error ? (q.error.need ? '🔌 нужен источник' : '<span style="color:var(--bad)">✖ ' + escHtml(q.error.reason) + '</span>') : '✔') + '</td></tr>'; }).join('') + '</table>';
+  $$('[data-dsel]').forEach(x => x.onclick = () => { DV.sel = x.dataset.dsel; renderData(); });
+  $$('[data-dq]').forEach(x => x.onclick = () => { DV.sel = x.dataset.dq; renderData(); $('#dataDetail').scrollIntoView({ block: 'start' }); });
+  // подробности по запросу
+  const q = run && run.queries.find(x => x.name === DV.sel);
+  $('#dataDetail').classList.toggle('hidden', !q);
+  if (!q) return;
+  const maxR = Math.max(1, ...q.steps.map(s => s.rows || 0));
+  $('#dataDetail').innerHTML = '<div class="card-h"><h2>' + escHtml(q.name) + '</h2><span class="sp"></span><button class="btn sm" id="dataToSb">Открыть в песочнице</button></div>' +
+    '<h3>Шаги</h3><table class="t small"><tr><th>Шаг</th><th>Строк</th><th></th><th>Время</th></tr>' + q.steps.map(s => '<tr><td>' + escHtml(s.name) + (s.overridden ? ' 📎' : '') + '</td><td class="num">' + (s.error ? '<span style="color:var(--bad)" title="' + escHtml(s.error.message) + '">' + (s.error.need ? '🔌' : '✖') + '</span>' : fmtN(s.rows)) + '</td><td style="width:40%"><div class="bar"><i style="width:' + ((s.rows || 0) / maxR * 100) + '%"></i></div></td><td class="num">' + (s.ms || 0).toFixed(0) + ' мс</td></tr>').join('') + '</table>' +
+    (q.sums && q.sums.length ? '<h3>Контрольные суммы</h3><table class="t small"><tr><th>Столбец</th><th>Первый шаг</th><th>Результат</th><th>Где менялась</th></tr>' + q.sums.map(c => '<tr><td>' + escHtml(c.col) + '</td><td class="num">' + fmtN(c.first.sum) + '</td><td class="num">' + fmtN(c.last.sum) + '</td><td>' + (c.changes.length ? c.changes.slice(0, 6).map(x => escHtml(x.step) + ' (' + (x.after - x.before > 0 ? '+' : '') + fmtN(x.after - x.before) + ')').join(', ') : '<span class="muted">не менялась</span>') + '</td></tr>').join('') + '</table>' : '') +
+    (q.profile ? '<h3>Профиль результата</h3><table class="t small"><tr><th>Столбец</th><th>Типы</th><th>Пустых</th><th>Ошибок</th><th>Различных</th><th>Числа-текстом</th><th>Пробелы</th></tr>' + q.profile.map(p => '<tr><td>' + escHtml(p.col) + '</td><td>' + escHtml(p.types) + '</td><td class="num">' + pct(p.nulls, p.rows) + '</td><td class="num">' + (p.errs ? '<b style="color:var(--bad)">' + fmtN(p.errs) + '</b>' : '0') + '</td><td class="num">' + fmtN(p.distinct) + '</td><td class="num">' + fmtN(p.txtNum) + '</td><td class="num">' + fmtN(p.spaces) + '</td></tr>').join('') + '</table>' : '') +
+    (q.sample ? '<h3>Первые строки результата</h3><div class="table-wrap" style="max-height:40vh"><table class="t small"><tr>' + q.sample.cols.map(c => '<th>' + escHtml(c) + '</th>').join('') + '</tr>' + q.sample.rows.slice(0, 30).map(r => '<tr>' + r.map(v => '<td>' + (v === null ? '<span class="muted">null</span>' : escHtml(String(v))) + '</td>').join('') + '</tr>').join('') + '</table></div>' : '');
+  $('#dataToSb').onclick = () => { showView('sandbox'); sbRunQuery(q.name); };
+}
+/** Числа проверки для пакета ИИ: без значений, имена — через словарь обезличивания */
+function dataChecksForAi(){
+  if (!dataRunValid()) return null;
+  const ver = DATA.verify && DATA.verify.forWork === S.work ? [...DATA.verify.items.values()] : [];
+  return { note: 'Проверка на данных пользователя (выполнена локально). Только числа: значений данных здесь нет.',
+    queries: DATA.run.queries.map(q => ({ query: anonQueryName(q.name), error: q.error ? (q.error.need ? 'нужен источник ' + q.error.need.kind : q.error.reason) : null,
+      steps: q.steps.map(s => ({ step: sanitizeName(s.name), rows: s.rows, ms: Math.round(s.ms || 0), error: s.error ? s.error.reason : undefined })),
+      joins: q.joins.map(j => ({ step: sanitizeName(j.step), keys: j.keysA.map(anonColName), left: j.left, right: j.right, unmatchedLeft: j.miss, duplicateKeysRight: j.dupKeys, keyTypes: j.typeA + ' / ' + j.typeB })),
+      columns: (q.profile || []).map(p => ({ name: anonColName(p.col), types: p.types, nullShare: p.rows ? +(p.nulls / p.rows).toFixed(4) : 0, errors: p.errs, textNumbers: p.txtNum, edgeSpaces: p.spaces })) })),
+    fixesOnData: ver.map(v => ({ rule: v.rule, query: anonQueryName(v.query), sameResult: v.same })) };
+}
+$('#dataRun').onclick = dataRunAll;
+wireDrop($('#dataSources'), async e => { const fs = [...e.dataTransfer.files]; if (fs.length){ await attachFiles(fs, '', ''); toast('Прикреплено файлов: ' + fs.length + ' (только в этом браузере)', 'ok'); } });
+$('#dataLimit').onchange = async () => {
+  DATA.limit = +$('#dataLimit').value || 0; DATA.wbFor = null; DATA.selfBook = null;
+  for (const f of [...DATA.files.values(), ...[].concat(...DATA.folders.values())]) if (f.xlsx) f.xlsx = await readXlsxData(zipRead(f.bytes), { maxRows: DATA.limit });
+  dataChanged();
+};
+registerView('data', { render: renderData });
+/* ===== END src/js/views/data.js ===== */
 /* ===== BEGIN src/js/views/reference.js ===== */
 /* =====================================================================
    views/reference.js — справочник функций M (данные: m/reference.js).
@@ -7904,6 +8547,17 @@ const HELP_HTML = `
 </ul>
 <p>Синхронное обновление (BackgroundQuery = False) не замедляет работу — Excel просто не отвечает, пока идёт обновление. Флаг книги «игнорировать уровни конфиденциальности» Excel сбрасывает при любом изменении кода; <code>ThisWorkbook.Queries.FastCombine = True</code> в макросе действует всегда. «Только подключение» экономит лишь собственное вычисление промежуточного запроса: запросы, которые на него ссылаются, вычисляют его заново.</p></div>
 
+<div class="card"><h2>Проверка на данных</h2>
+<p>Раздел вычисляет все запросы книги на её таблицах (Excel.CurrentWorkbook) и на выгрузках, которые вы прикрепите (File.Contents, Folder.Files: CSV, XLSX, JSON). Данные читаются и обрабатываются <b>только в этом браузере</b>; наружу уходят только числа проверок, а сканер блокирует выпуск, если в тексте для ИИ окажется значение из данных. Базы данных и веб недоступны — подмените такой шаг выгрузкой в «Песочнице».</p>
+<ul>
+<li><b>Строки по шагам</b> — где слияние или раскрытие размножает строки, где фильтр отрезает лишнее.</li>
+<li><b>Слияния</b> — дубли ключей в справочнике (суммы задваиваются), строки без пары, разные типы ключей (число и текст не совпадут).</li>
+<li><b>Профиль результата</b> — пустые, ошибки в ячейках, числа-текстом, пробелы по краям.</li>
+<li><b>Контрольные суммы</b> — на каком шаге изменился итог числового столбца.</li>
+<li><b>Исправления оптимизатора</b> — запрос вычисляется до и после правки; на карточке совета появляется «✓ на данных — тот же результат» или «✖ результат другой».</li>
+</ul>
+<p>Время в браузере — не время Excel: смотрите на соотношения шагов. Реальное время даёт диагностика Power Query.</p></div>
+
 <div class="card"><h2>Песочница</h2>
 <p>Мини-интерпретатор M прямо в браузере: <code>let</code>, <code>each</code>, функции, <code>try/otherwise</code>, записи, списки, таблицы и около 200 функций библиотеки (Text, Number, List, Record, Table, Date, Duration…).</p>
 <ul>
@@ -8055,14 +8709,15 @@ const TEST_SECTION = [
 ].join('\r\n');
 const TEST_SECRETS = ['sql-prod-01.corp.local', 'SalesDB', 'fileserver01', 'C:\\Users\\ivanov', 'SECRETKEY123', 'eyJhbGciOiJIUzI1NiJ9', 'analyst@company.ru', 'ivanov@company.ru', '10.20.30.40', '10.1.2.3', 'svc_user', 'P@ssw0rd!', "'North'", '"North"', 'ООО Ромашка', 'D:\\Отчёты'];
 
-async function makeTestBook(extra){
+/** extra — дополнительные части [имя, содержимое] (одноимённые заменяют стандартные), section — свой Section1.m */
+async function makeTestBook(extra, section){
   const x = s => te.encode(s);
   const ctPkg = '<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="m" ContentType="application/x-ms-m" /></Types>';
   const pkgXml = '<?xml version="1.0" encoding="utf-8"?><Package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Version>2.141.0</Version><MinVersion>2.21.0</MinVersion><Culture>ru-RU</Culture></Package>';
   const parts = [];
   parts.push(await zipFinalizeNew(zipNewEntry('[Content_Types].xml', x(ctPkg), true)));
   parts.push(await zipFinalizeNew(zipNewEntry('Config/Package.xml', x(pkgXml), true)));
-  parts.push(await zipFinalizeNew(zipNewEntry('Formulas/Section1.m', x(TEST_SECTION), true)));
+  parts.push(await zipFinalizeNew(zipNewEntry('Formulas/Section1.m', x(section || TEST_SECTION), true)));
   const partsZip = zipWrite(parts);
   const perm = encodeText('<?xml version="1.0" encoding="utf-8"?><PermissionList xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanEvaluateFuturePackages>false</CanEvaluateFuturePackages><FirewallEnabled>true</FirewallEnabled></PermissionList>', 'utf-8', true);
   const item = (n, entries) => '<Item><ItemLocation><ItemType>Formula</ItemType><ItemPath>Section1/' + encodeURIComponent(n) + '</ItemPath></ItemLocation><StableEntries>' + entries.map(([t, v]) => '<Entry Type="' + t + '" Value="' + v.replace(/"/g, '&quot;') + '" />').join('') + '</StableEntries></Item>';
@@ -8086,7 +8741,36 @@ async function makeTestBook(extra){
     ['customXml/_rels/item1.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXmlProps" Target="itemProps1.xml"/></Relationships>']
   ];
   const ents = [];
-  for (const [n, c] of files.concat(extra || [])) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  const ex = new Map((extra || []).map(([n, c]) => [n, c]));
+  for (const [n, c] of files.map(([n, c]) => [n, ex.has(n) ? ex.get(n) : c]).concat((extra || []).filter(([n]) => !files.some(f => f[0] === n)))) ents.push(await zipFinalizeNew(zipNewEntry(n, typeof c === 'string' ? x(c) : c, true)));
+  return zipWrite(ents);
+}
+/** Тестовая книга .xlsx с данными: листы { name, rows } (строки, числа, даты {d:'ГГГГ-ММ-ДД'}), таблицы { sheet, name, ref, cols, totals }
+    и именованные диапазоны { name, ref } — для проверок Excel.CurrentWorkbook и Excel.Workbook */
+async function makeTestXlsx(spec){
+  const x = s => te.encode(s); const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const ss = []; const ssi = v => { let i = ss.indexOf(v); if (i < 0){ ss.push(v); i = ss.length - 1; } return i; };
+  const colL = i => { let s = ''; i++; while (i){ const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const serial = d => (Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 86400000) + 25569;
+  const files = [];
+  const sheetXml = rows => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetData>' +
+    rows.map((r, ri) => '<row r="' + (ri + 1) + '">' + r.map((v, ci) => { const ref = colL(ci) + (ri + 1); if (v == null) return ''; if (typeof v === 'number') return '<c r="' + ref + '"><v>' + v + '</v></c>'; if (typeof v === 'object') return '<c r="' + ref + '" s="1"><v>' + serial(v.d) + '</v></c>'; return '<c r="' + ref + '" t="s"><v>' + ssi(v) + '</v></c>'; }).join('') + '</row>').join('') + '</sheetData><tableParts count="0"/></worksheet>';
+  let tn = 0;
+  spec.sheets.forEach((sh, i) => {
+    const tabs = (spec.tables || []).filter(t => t.sheet === sh.name);
+    let xml = sheetXml(sh.rows);
+    if (tabs.length){ xml = xml.replace('<tableParts count="0"/>', '<tableParts count="' + tabs.length + '">' + tabs.map((_, k) => '<tablePart r:id="rT' + k + '"/>').join('') + '</tableParts>');
+      files.push(['xl/worksheets/_rels/sheet' + (i + 1) + '.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + tabs.map((t, k) => '<Relationship Id="rT' + k + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/table" Target="../tables/table' + (tn + k + 1) + '.xml"/>').join('') + '</Relationships>']);
+      tabs.forEach((t, k) => files.push(['xl/tables/table' + (tn + k + 1) + '.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" id="' + (tn + k + 1) + '" name="Table' + (tn + k + 1) + '" displayName="' + esc(t.name) + '" ref="' + t.ref + '"' + (t.totals ? ' totalsRowCount="1"' : '') + '><tableColumns count="' + t.cols.length + '">' + t.cols.map((c, j) => '<tableColumn id="' + (j + 1) + '" name="' + esc(c) + '"/>').join('') + '</tableColumns></table>']));
+      tn += tabs.length; }
+    files.push(['xl/worksheets/sheet' + (i + 1) + '.xml', xml]);
+  });
+  files.push(['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + spec.sheets.map((sh, i) => '<sheet name="' + esc(sh.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') + '</sheets>' +
+    ((spec.names || []).length ? '<definedNames>' + spec.names.map(n => '<definedName name="' + esc(n.name) + '">' + esc(n.ref) + '</definedName>').join('') + '<definedName name="_xlnm._FilterDatabase" hidden="1">Лист1!$A$1:$B$2</definedName></definedNames>' : '') + '</workbook>']);
+  files.push(['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + spec.sheets.map((_, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') + '</Relationships>']);
+  files.push(['xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cellXfs count="2"><xf numFmtId="0"/><xf numFmtId="14" applyNumberFormat="1"/></cellXfs></styleSheet>']);
+  files.push(['xl/sharedStrings.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + ss.map(v => '<si><t xml:space="preserve">' + esc(v) + '</t></si>').join('') + '</sst>']);
+  const ents = []; for (const [n, c] of files) ents.push(await zipFinalizeNew(zipNewEntry(n, x(c), true)));
   return zipWrite(ents);
 }
 /** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
@@ -8203,7 +8887,7 @@ async function runSelfTest(){
     const badBytes = (await makeTestBook()).slice(); const badItem = zipFind(zipRead(badBytes), 'customXml/item1.xml'); badItem.raw[badItem.raw.length >> 1] ^= 0x20;
     let badMsg = ''; try { await loadBookFromBytes('битая.xlsx', badBytes); } catch (err){ badMsg = err.constructor === Error ? err.message : 'не Error: ' + err; }
     ok('Повреждённая часть книги: понятное сообщение, а не внутренняя ошибка', /поврежд/i.test(badMsg), badMsg.slice(0, 90));
-    ok('Содержимое листов не читается: текст ячеек тестовой книги не встречается в модели', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
+    ok('Модель книги хранит только код и метаданные: текст ячеек листа в неё не попадает (данные — отдельно, локально)', !JSON.stringify({ s: book.origSection, w: book.warnings, m: book.meta }).includes('Секретные данные листа'));
 
     // ---------- форматер ----------
     const messy = 'let\n  a = 1,\n        b = {1,\n2},\n c = let x = 1 in x\n   in\n c';
@@ -8300,6 +8984,43 @@ async function runSelfTest(){
     ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
       /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
       mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
+    // ---------- данные на этом компьютере: таблицы книги, выгрузки, соединения, защита от утечки ----------
+    const keepData = { wb: DATA.wb, wbFor: DATA.wbFor, files: DATA.files, folders: DATA.folders, run: DATA.run, verify: DATA.verify, selfBook: DATA.selfBook };
+    try {
+      const dx = await makeTestXlsx({ sheets: [
+        { name: 'Справочники', rows: [['Код', 'Статья', 'ЦФО'], [101, 'Выручка', 'Продажи'], [102, 'Аренда', 'АХО'], [102, 'Аренда дубль', 'АХО'], ['Итого', null, null], [], ['Дата', 'Курс'], [{ d: '2024-03-31' }, 92.5]] },
+        { name: 'Пусто', rows: [] }],
+        tables: [{ sheet: 'Справочники', name: 'Маппинг', ref: 'A1:C5', cols: ['Код', 'Статья', 'ЦФО'], totals: true }], names: [{ name: 'Курсы', ref: 'Справочники!$A$7:$B$8' }] });
+      const xd = await readXlsxData(zipRead(dx), {});
+      const mp = xd.tables.find(t => t.name === 'Маппинг'), kr = xd.names.find(n => n.name === 'Курсы');
+      ok('Таблицы книги: таблица Excel (без строки итогов), именованный диапазон, дата по формату ячейки, используемый диапазон листа',
+        mp && mp.rows.length === 3 && mp.cols.join() === 'Код,Статья,ЦФО' && mp.rows[2][1] === 'Аренда дубль' && kr && kr.rows[1][0].kind === 'date' && xd.sheets[0].rows.length === 8 && xd.sheets[1].rows.length === 0 && !xd.names.some(n => /_xlnm/.test(n.name)), JSON.stringify(mp && mp.rows));
+      DATA.wb = { tables: xd.tables, names: xd.names, sheets: [] }; DATA.files = new Map(); DATA.folders = new Map(); DATA.run = null;
+      const cw = mEval('let М = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content], К = Excel.CurrentWorkbook(){[Name="Курсы"]}[Content] in [Строк = Table.RowCount(М), Итог = List.Sum(М[Код]), Дата = Date.ToText(Table.PromoteHeaders(К){0}[Дата], "dd.MM.yyyy")]', '');
+      ok('Excel.CurrentWorkbook: запрос вычисляется на таблицах книги', cw.get('Строк') === 3 && cw.get('Итог') === 305 && cw.get('Дата') === '31.03.2024', mLit(cw));
+      const csv1251 = encodeCodePage('Счёт;Сумма;Контрагент\r\n90.01;1 000,50;"ООО ""Ромашка-Север"""\r\n62;-200;ИП Иванов\r\n', 1251);
+      DATA.files.set(normPath('C:\\Выгрузки\\ОСВ.csv'), { name: 'ОСВ.csv', bytes: csv1251, mtime: 0 });
+      DATA.folders.set(normPath('D:\\Банк\\'), [{ name: 'выписка1.csv', bytes: te.encode('a,b\n1,2\n'), mtime: 0 }, { name: 'выписка2.csv', bytes: te.encode('a,b\n3,4\n'), mtime: 0 }]);
+      DATA.files.set('name:справочник.xlsx', { name: 'Справочник.xlsx', bytes: dx, mtime: 0, xlsx: xd });
+      const fc = mEval('let Т = Table.PromoteHeaders(Csv.Document(File.Contents("c:/выгрузки/осв.csv"), [Delimiter = ";", Encoding = 1251])), П = Folder.Files("D:\\Банк"), Ф = Table.AddColumn(П, "Д", each Table.PromoteHeaders(Csv.Document([Content]))), Р = Table.Combine(Ф[Д]), К = Excel.Workbook(File.Contents("\\\\srv\\share\\Справочник.xlsx"), true){[Item="Справочники", Kind="Sheet"]}[Data] in [Контрагент = Т{0}[Контрагент], Строк = Table.RowCount(Т), Банк = List.Sum(List.Transform(Р[a], Number.From)), Статья = К{0}[Статья]]', '');
+      let needErr = null; try { mEval('File.Contents("C:\\нет\\файла.csv")', ''); } catch (e){ needErr = e; }
+      ok('Выгрузки на этом компьютере: CSV в cp1251 (кавычки), файлы папки, книга XLSX по имени; чего нет — DataSource.Error с путём',
+        fc.get('Контрагент') === 'ООО "Ромашка-Север"' && fc.get('Строк') === 2 && fc.get('Банк') === 4 && fc.get('Статья') === 'Выручка' && needErr && needErr.reason === 'DataSource.Error' && needErr.need && needErr.need.path === 'C:\\нет\\файла.csv', mLit(fc) + ' / ' + (needErr && needErr.message));
+      // соединение на хеше = перебору; трассировка: дубли ключей, строки без пары, разные типы
+      const jl = []; M_TRACE = { join: j => jl.push(j) };
+      let jv; try { jv = mEval('let Л = #table({"Код","Сумма"}, {{101, 10}, {102, 20}, {"101", 5}, {null, 1}, {103, 7}}), П = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content], С = Table.NestedJoin(Л, {"Код"}, П, {"Код"}, "М", JoinKind.LeftOuter), Р = Table.ExpandTableColumn(С, "М", {"Статья"}) in [Строк = Table.RowCount(Р), Сумма = List.Sum(Р[Сумма]), Без = Table.RowCount(Table.SelectRows(Р, each [Статья] = null)), Г = Table.RowCount(Table.Group(Р, {"Код"}, {{"Н", Table.RowCount}})), Р1 = Р{0}[Статья]]', ''); jv.names.forEach(n => jv.get(n)); } finally { M_TRACE = null; }   // поля записи ленивые — вычислить при включённой трассировке
+      const j0 = jl[0] || {};
+      ok('Слияние и группировка по хешу: результат как у перебора; на данных видны дубли ключей и строки без пары',
+        jv.get('Строк') === 6 && jv.get('Сумма') === 63 && jv.get('Без') === 3 && jv.get('Г') === 5 && jv.get('Р1') === 'Выручка' && j0.dupKeys === 1 && j0.dupRows === 2 && j0.miss === 3 && j0.left === 5, mLit(jv) + ' / ' + JSON.stringify(j0));
+      const lk = mEval('let П = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content] in {П{[Код=101]}[Статья], try П{[Код=102]}[Статья] otherwise "дубль", П{[Код=999]}?}', '');
+      ok('Поиск в справочнике Т{[Код=…]} по индексу: найдено, дубль ключа — ошибка, нет ключа с ? — null', lk[0] === 'Выручка' && lk[1] === 'дубль' && lk[2] === null, mLit(lk));
+      const leaks = dataLeaks('{"query":"⟦Q_1⟧","note":"ООО \\"Ромашка-Север\\"","col":"Контрагент"}\nАренда дубль\n');
+      ok('Защита от утечки: значения из данных в исходящем тексте найдены (JSON и строки), заголовки столбцов — нет',
+        leaks.some(l => l.match === 'ООО "Ромашка-Север"') && leaks.some(l => l.match === 'Аренда дубль') && !leaks.some(l => l.match === 'Контрагент') && !dataLeaks('{"rows": 3, "q": "⟦Q_1⟧"}').length, leaks.map(l => l.match).join(' | '));
+      const T1 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"}})', ''), T2 = mEval('#table({"b","a"}, {{"y",2},{"x",1}})', ''), T3 = mEval('#table({"a","b"}, {{1,"x"},{2,"y"},{2,"y"}})', '');
+      const c1 = tableCompare(T1, T1), c2 = tableCompare(T1, T2), c3 = tableCompare(T1, T3);
+      ok('Сверка результатов до и после исправления: полностью / другой порядок / отличается', c1.same && c1.exact && c2.same && !c2.exact && !c3.same && /появилось 1/.test(c3.note), [c1, c2, c3].map(c => JSON.stringify(c)).join(' '));
+    } finally { Object.assign(DATA, keepData); M_TRACE = null; }
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

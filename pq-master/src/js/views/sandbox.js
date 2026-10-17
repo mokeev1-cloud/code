@@ -1,6 +1,7 @@
 /* =====================================================================
    views/sandbox.js — песочница: вычисление выражений M и пошаговый прогон
-   запроса с подменой шагов-источников образцами данных (всё локально).
+   запроса на таблицах книги и прикреплённых выгрузках (app/data.js); шаги с базами и вебом
+   подменяются образцами. Всё локально: данные не покидают браузер.
    ===================================================================== */
 const SB = { exprView: null, query: null, steps: new Map(), queries: new Map(), results: null, sel: null };
 const SB_EXAMPLES = [
@@ -14,7 +15,8 @@ const SB_EXAMPLES = [
 $('#sbExamples').innerHTML = '<option value="">примеры…</option>' + SB_EXAMPLES.map((e, i) => '<option value="' + i + '">' + escHtml(e[0]) + '</option>').join('');
 $('#sbExamples').onchange = () => { const e = SB_EXAMPLES[+$('#sbExamples').value]; if (e && SB.exprView) SB.exprView.dispatch({ changes: { from: 0, to: SB.exprView.state.doc.length, insert: e[1] } }); $('#sbExamples').value = ''; };
 $('#sbMode').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; $$('#sbMode button').forEach(x => x.classList.toggle('on', x === b)); $('#sbExpr').classList.toggle('hidden', b.dataset.m !== 'expr'); $('#sbQuery').classList.toggle('hidden', b.dataset.m !== 'query'); if (b.dataset.m === 'query') renderSbQuery(); });
-function sbEval(){
+async function sbEval(){
+  await dataPrepare();
   const t0 = performance.now(); const text = SB.exprView.state.doc.toString();
   try { const v = mEval(text, S.work); $('#sbExprOut').innerHTML = mRender(v); }
   catch (e){ $('#sbExprOut').innerHTML = '<div class="note bad"><b>' + escHtml(e.reason || 'Ошибка') + '</b><br>' + escHtml(e.message || String(e)) + '</div>'; }
@@ -59,10 +61,12 @@ function renderSbQuery(){
   SB.query = sel.value;
   renderSbSteps();
 }
-function sbRun(){
+/** Подмены песочницы для запроса — их учитывает и «Проверка на данных» */
+function sbOverrides(q){ return { steps: new Map([...SB.steps].filter(([k]) => k.startsWith(q + '\u0001')).map(([k, v]) => [k.split('\u0001')[1], v.value])), queries: new Map([...SB.queries].map(([k, v]) => [k, v.value])) }; }
+async function sbRun(){
   if (!S.A || !SB.query) return;
-  const steps = new Map([...SB.steps].filter(([k]) => k.startsWith(SB.query + '\u0001')).map(([k, v]) => [k.split('\u0001')[1], v.value]));
-  const queries = new Map([...SB.queries].map(([k, v]) => [k, v.value]));
+  await dataPrepare();
+  const { steps, queries } = sbOverrides(SB.query);
   try { SB.results = mRunSteps(S.work, SB.query, { steps, queries }); }
   catch (e){ SB.results = [{ name: '(разбор)', error: e, ms: 0 }]; }
   SB.results.query = SB.query;
@@ -95,8 +99,9 @@ function renderSbSteps(){
   if (!res || SB.sel == null || !res[SB.sel]){ out.innerHTML = '<div class="muted small">Здесь появится результат выбранного шага.</div>'; return; }
   const r = res[SB.sel];
   out.innerHTML = '<div class="card-h"><h2>' + escHtml(r.name) + '</h2>' + (r.overridden ? '<span class="badge vio">подменён образцом</span>' : '') + '<span class="sp"></span>' + (r.name !== '(разбор)' && !r.final ? '<button class="btn sm" data-goto="' + escHtml(r.name) + '">Открыть в редакторе</button>' : '') + '</div>' +
-    (r.error ? '<div class="note ' + (r.error.reason === 'DataSource.Error' ? 'warn' : 'bad') + '"><b>' + escHtml(r.error.reason || 'Ошибка') + '</b><br>' + escHtml(r.error.message || String(r.error)) + (r.error.reason === 'DataSource.Error' ? '<div class="row"><button class="btn pri sm" data-ov2="' + escHtml(r.name) + '">Подменить образцом</button></div>' : '') + '</div>' : '<div class="sb-out">' + mRender(r.value) + '</div>');
+    (r.error ? '<div class="note ' + (r.error.reason === 'DataSource.Error' ? 'warn' : 'bad') + '"><b>' + escHtml(r.error.reason || 'Ошибка') + '</b><br>' + escHtml(r.error.message || String(r.error)) + (r.error.reason === 'DataSource.Error' ? '<div class="row">' + (r.error.need && r.error.need.kind !== 'workbook' ? '<button class="btn pri sm" data-attach="' + escHtml(r.error.need.kind) + '" data-path="' + escHtml(r.error.need.path) + '">' + (r.error.need.kind === 'folder' ? 'Прикрепить файлы папки…' : 'Прикрепить файл…') + '</button>' : '') + '<button class="btn sm" data-ov2="' + escHtml(r.name) + '">Подменить образцом</button></div>' : '') + '</div>' : '<div class="sb-out">' + mRender(r.value) + '</div>');
   $$('[data-goto]', out).forEach(b => b.onclick = () => openInEditor(SB.query, b.dataset.goto));
+  $$('[data-attach]', out).forEach(b => b.onclick = async () => { const folder = b.dataset.attach === 'folder'; const fs = await pickFiles(folder); if (!fs.length) return; await attachFiles(fs, b.dataset.path, folder ? 'folder' : 'file'); sbRun(); });
   $$('[data-ov2]', out).forEach(b => b.onclick = async () => { const v = await sbOverrideDialog('step', b.dataset.ov2); if (v){ SB.steps.set(SB.query + '\u0001' + b.dataset.ov2, v); sbRun(); } });
 }
 $('#sbQSel').addEventListener('change', () => { SB.query = $('#sbQSel').value; SB.results = null; renderSbSteps(); });

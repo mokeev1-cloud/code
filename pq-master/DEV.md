@@ -17,9 +17,13 @@
 - **Всё, что уходит наружу обезличенным, — через `gate()` + `audit()`** (`app/ui-base.js`).
   В автоматике (агент) — `gate(…, { noOverride: true })`.
 - **Словарь замен и оригиналы никогда не пишутся в папку обмена** (`nda/agent.js`).
-- **Содержимое листов книги не читается.** Читаются DataMashup, метаданные запросов, свойства
-  подключений (`xl/connections.xml`) и исходный текст макросов — последнее только для советов, никуда
-  не выгружается и в пакеты для ИИ не попадает. Код макросов в книге не меняется никогда.
+- **Необезличенные данные не уходят наружу; локально их обрабатывать можно.** Таблицы книги и
+  прикреплённые выгрузки читаются и вычисляются только в браузере (`app/data.js`, `DATA`): песочница,
+  «Проверка на данных». Наружу (пакет для ИИ, папка обмена, буфер «для ИИ») — только числа проверок
+  (`dataChecksForAi`: строки, доли, счётчики; имена — через словарь обезличивания), без значений и сумм.
+  `gate()` дополнительно ищет в исходящем тексте значения из данных (`dataLeaks`) и блокирует выпуск.
+  Модель книги (`S.book`) данных не хранит. Исходный текст макросов — только для советов, наружу не
+  уходит; код макросов в книге не меняется никогда.
 - **Свойства подключений меняются только по явному выбору** пользователя («Настройки PQ и Excel»,
   `S.bookEdits`), правятся только три атрибута, остальной текст — байт в байт. Если код не менялся,
   DataMashup переносится без изменений: иначе Excel сбросит флаг конфиденциальности книги.
@@ -81,6 +85,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | Модуль | Что внутри | Ключевые функции |
 |---|---|---|
 | `core/zip-mashup.js` | байты, кодировки, SHA-256, CRC32, ZIP, DataMashup, загрузка/сборка книги | `loadBookFromBytes`, `loadBookFromText`, `buildBookWithSection`, `zipRead/zipWrite`, `parseDataMashup`, `parseMashupMetadata` |
+| `core/xlsx-data.js` | листы, таблицы, именованные диапазоны .xlsx (даты по формату ячейки) | `readXlsxData` |
 | `core/vba.js` | макросы (MS-CFB, MS-OVBA), `connections.xml`, советы об обновлении, правка флагов подключений, генератор модуля VBA | `readVbaProject`, `parseConnections`, `bookRefreshIssues`, `applyConnEdits`, `genPqMacro`, `encodeCodePage` |
 | `m/lang.js` | лексер M, скобки, section-документ, шаги let…in, анализ, подсветка | `lexM`, `structure`, `parseSection`, `analyzeSection`, `parseSteps`, `highlightM`, `SOURCE_FNS` |
 | `m/format.js` | форматер (только отступы) | `formatM`, `sigTokens` |
@@ -94,13 +99,14 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `opt/refactor.js` | рефакторинг (чистые функции над текстом) | `renameStep`, `renameQuery`, `extractSteps`, `toFunction`, `addQuery`, `deleteQuery` |
 | `opt/snippets.js` | сниппеты и мастера | `SNIPPETS` |
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
+| `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
 | `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
 | `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
-| `app/selftest.js` | самотест (60 проверок) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
+| `app/selftest.js` | самотест (67 проверок) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
 
 ## Поток данных
@@ -113,7 +119,13 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 4. Любая правка (редактор, оптимизатор, ИИ, рефакторинг, сниппет) → `setWork(новыйТекст, источник, подпись)`.
 5. Сохранение: `buildBookWithSection(S.book, S.work, S.bookEdits)` → контрольное чтение (код и флаги
    подключений) → запись (копия или оригинал). После записи в оригинал `S.bookEdits` очищается.
-6. Обезличивание считается лениво: `ensureAnon()` (`views/anon.js`) по ключу «рабочая версия + настройки».
+6. Данные: `dataPrepare()` читает таблицы книги (один раз на версию файла); интерпретатор берёт их и
+   прикреплённые файлы через `M_DATA` (`Excel.CurrentWorkbook`, `File.Contents`, `Folder.Files`, `Csv.Document`,
+   `Excel.Workbook`, `Json.Document`). Нет файла — `DataSource.Error` с `e.need = { kind, path }`, интерфейс
+   предлагает прикрепить его. «Проверка на данных» (`views/data.js`): запросы по порядку зависимостей
+   (результат переиспользуется), `M_TRACE.join` — сводка каждого слияния, профиль, контрольные суммы,
+   сверка исправлений оптимизатора до и после (`tableCompare`); итог — `DATA.run`, `DATA.verify`.
+7. Обезличивание считается лениво: `ensureAnon()` (`views/anon.js`) по ключу «рабочая версия + настройки».
 
 ## Рецепты
 
@@ -174,8 +186,10 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 
 ## Известные ограничения и следующие шаги
 
-- Интерпретатор — подмножество M: нет свёртки, нет источников, часть функций отсутствует;
-  числа — double. Новые функции легко добавлять в `MLIB`.
+- Интерпретатор — подмножество M: нет свёртки; из источников — только данные этого компьютера (таблицы
+  книги, файлы CSV/XLSX/JSON, папки); базы и веб подменяются выгрузкой. Числа — double. Слияния,
+  группировки, Distinct и поиск `Т{[Ключ=…]}` — по хешу (100 тыс. × 10 тыс. строк — доли секунды).
+  Ошибка вычисления ячейки остаётся в ячейке (`cellOf`), как в Power Query. .xls/.xlsb не читаются. Новые функции легко добавлять в `MLIB`.
 - Линтер, оптимизатор и карта тяжести — эвристики по тексту; реальное время даёт только
   загруженная диагностика Power Query.
 - .pbix нового формата (запросы в модели VertiPaq) не читается; запись Power BI экспериментальная.

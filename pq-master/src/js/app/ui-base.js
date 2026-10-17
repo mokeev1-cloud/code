@@ -63,7 +63,7 @@ function stringsOf(o, acc){
 async function gate(textOrObj, what, opts){
   opts = opts || {};
   const text = typeof textOrObj === 'string' ? textOrObj : stringsOf(textOrObj).join('\n');
-  const f = scanLeaks(text, S.cfg, S.dict);
+  const f = scanLeaks(text, S.cfg, S.dict).concat(typeof dataLeaks === 'function' ? dataLeaks(text) : []);   // + значения из данных книги и прикреплённых файлов
   const crit = f.filter(x => x.sev === 'crit');
   if (!crit.length){ if (f.length && !opts.quiet) toast(what + ': сканер — ' + f.length + ' некритичных предупреждений (см. «Обезличивание»).', 'warn'); return true; }
   if (opts.noOverride){ toast(what + ': заблокировано — сканер нашёл ' + crit.length + ' критичных совпадений.', 'bad'); return false; }

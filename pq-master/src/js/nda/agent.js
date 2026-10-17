@@ -114,6 +114,7 @@ function buildPackage(){
     })),
     lint: S.lint.map(l => ({ severity: l.sev, rule: l.rule, query: anonQueryName(l.query), step: sanitizeName(l.step), message: sanitizeName(l.msg), suggestion: sanitizeName(l.fix) })),
     diagnostics: $('#pkgDiag').checked ? diagSummary() : null,
+    dataChecks: dataChecksForAi(),   // проверка на данных пользователя: только числа, без значений
     debugData: debugData(dbg),
     reply: {
       howTo: 'Ответ — JSON-файл в папке inbox/ (режим агента) или текст в чате. Формат патча ниже. Значения members — полный текст выражения запроса (то, что после «shared Имя =», без завершающей «;»).',
@@ -135,6 +136,8 @@ function buildPromptText(pkg){
     'Задача: ' + (pkg.goal || '(не указана — проанализируй код, найди ошибки и узкие места производительности)') + '\n\n' +
     'Запросы:\n' + q + '\n' + (l ? '\nЗамечания локального линтера (эвристики):\n' + l + '\n' : '');
   if (pkg.diagnostics) t += '\nДиагностика (самые долгие шаги, обезличено):\n' + pkg.diagnostics.map(d => d.topSteps.slice(0, 12).map(s => '- ' + s.query + ' › ' + s.step + ': ' + s.seconds + ' с').join('\n')).join('\n') + '\n';
+  if (pkg.dataChecks){ const dc = pkg.dataChecks.queries.filter(q => q.error || q.joins.some(j => j.duplicateKeysRight || j.unmatchedLeft));
+    t += '\nПроверка на данных пользователя (локально, только числа): ' + pkg.dataChecks.queries.length + ' запросов вычислено' + (dc.length ? '; внимание:\n' + dc.slice(0, 20).map(q => '- ' + q.query + (q.error ? ': ошибка ' + q.error : '') + q.joins.filter(j => j.duplicateKeysRight || j.unmatchedLeft).map(j => ' · шаг ' + j.step + ': дублей ключей справа ' + j.duplicateKeysRight + ', строк без пары ' + j.unmatchedLeft + ' из ' + j.left).join('')).join('\n') : '.') + '\n'; }
   if (pkg.debugData) t += '\nСхема и отладочные данные (JSON):\n```json\n' + JSON.stringify(pkg.debugData, null, 1) + '\n```\n';
   t += '\nКод (Section1.m):\n```m\n' + pkg.section + '\n```\n';
   return t;

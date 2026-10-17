@@ -4,8 +4,10 @@
    error, записи, списки (в т. ч. {1..5}), таблицы, доступ [поле], {индекс},
    ?, операторы, #date/#datetime/#duration/#time/#table и ~200 функций
    библиотеки (Text, Number, List, Record, Table, Date, Duration, Logical…).
-   Источники данных намеренно недоступны: шаг с источником подменяется
-   образцом (mOverride). Это НЕ полноценный движок Power Query: нет свёртки,
+   Источники: таблицы открытой книги (Excel.CurrentWorkbook) и файлы, прикреплённые на этом
+   компьютере (File.Contents, Folder.Files → Csv.Document, Excel.Workbook, Json.Document), — через
+   M_DATA (app/data.js); базы и веб недоступны (сети нет) — такой шаг подменяется выгрузкой или
+   образцом. Данные не покидают компьютер. Это НЕ полноценный движок Power Query: нет свёртки,
    типы проверяются упрощённо, часть функций отсутствует (будет понятная ошибка).
    API: mParse(text) → AST; mEval(text, sectionText?) → значение;
         mRunSteps(sectionText, member, overrides) → результаты по шагам;
@@ -38,6 +40,8 @@ class MTab { constructor(cols, rows){ this.cols = cols; this.rows = rows; } }
 class MFn { constructor(arity, call, name){ this.arity = arity; this.call = call; this.name = name || ''; } }
 class MDate { constructor(kind, ms, tz){ this.kind = kind; this.ms = ms; this.tz = tz || 0; } }
 class MDur { constructor(ms){ this.ms = ms; } }
+/** Двоичное значение (содержимое прикреплённого файла); xlsx — заранее разобранная книга для Excel.Workbook */
+class MBin { constructor(bytes, name, xlsx){ this.bytes = bytes; this.name = name || ''; this.xlsx = xlsx || null; } }
 class MType { constructor(name, nullable, cols){ this.name = name; this.nullable = !!nullable; this.cols = cols || null; } }
 const mkRec = (names, vals) => new MRec(names.slice(), vals.slice());
 const DAY = 86400000;
@@ -154,7 +158,7 @@ function unescapeM(s){ return s.replace(/""/g, '"').replace(/#\(([^)]*)\)/g, (m,
 function mTypeName(v){
   if (v === null) return 'null'; if (typeof v === 'boolean') return 'logical'; if (typeof v === 'number') return 'number'; if (typeof v === 'string') return 'text';
   if (Array.isArray(v)) return 'list'; if (v instanceof MRec) return 'record'; if (v instanceof MTab) return 'table'; if (v instanceof MFn) return 'function';
-  if (v instanceof MDate) return v.kind; if (v instanceof MDur) return 'duration'; if (v instanceof MType) return 'type'; return 'any';
+  if (v instanceof MDate) return v.kind; if (v instanceof MDur) return 'duration'; if (v instanceof MType) return 'type'; if (v instanceof MBin) return 'binary'; return 'any';
 }
 function mEquals(a, b){
   a = force(a); b = force(b);
@@ -166,6 +170,29 @@ function mEquals(a, b){
   if (a instanceof MRec && b instanceof MRec) return a.names.length === b.names.length && a.names.every(n => b.has(n) && mEquals(a.get(n), b.get(n)));
   if (a instanceof MTab && b instanceof MTab) return a.cols.join('\u0001') === b.cols.join('\u0001') && a.rows.length === b.rows.length && a.rows.every((r, i) => r.every((x, j) => mEquals(x, b.rows[i][j])));
   return false;
+}
+/** Ключ для хеш-таблиц соединений, группировок и Distinct: значения, равные по mEquals, дают равные ключи;
+    null — значение не хешируется (список, запись…), тогда сравнение идёт перебором */
+function mHashKey(v){
+  v = force(v);
+  if (v === null) return 'n'; const t = typeof v;
+  if (t === 'number') return 'd' + (v === 0 ? 0 : v); if (t === 'string') return 's' + v; if (t === 'boolean') return v ? 'T' : 'F';
+  if (v instanceof MDate) return 'D' + v.kind + v.ms; if (v instanceof MDur) return 'U' + v.ms;
+  return null;
+}
+function rowKey(r, ix){ let k = ''; for (const i of ix){ const h = mHashKey(r[i]); if (h === null) return null; k += h.length + ':' + h; } return k; }
+/** Строки таблицы, где столбцы записи равны её полям (Т{[Код = …]}): хеш-индекс по набору столбцов
+    строится один раз на таблицу — поиск в справочнике для каждой строки остаётся линейным по объёму */
+const TAB_INDEX = new WeakMap();
+function tableKeyHits(t, rec){
+  const ci = rec.names.map(k => t.cols.indexOf(k)); if (ci.some(i => i < 0)) return [];
+  const vals = rec.names.map(k => rec.get(k)); const k = rowKey(vals, vals.map((_, i) => i));
+  if (k === null){ const hits = []; t.rows.forEach((r, ri) => { if (ci.every((c, j) => mEquals(r[c], vals[j]))) hits.push(ri); }); return hits; }
+  let byCols = TAB_INDEX.get(t); if (!byCols) TAB_INDEX.set(t, byCols = new Map());
+  const ck = ci.join(','); let idx = byCols.get(ck);
+  if (!idx){ idx = new Map(); idx.slow = []; t.rows.forEach((r, ri) => { const rk = rowKey(r, ci); if (rk === null) idx.slow.push(ri); else { let l = idx.get(rk); if (!l) idx.set(rk, l = []); l.push(ri); } }); byCols.set(ck, idx); }
+  const hit = idx.get(k) || [];
+  return idx.slow.length ? hit.concat(idx.slow.filter(ri => ci.every((c, j) => mEquals(t.rows[ri][c], vals[j])))).sort((a, b) => a - b) : hit;
 }
 function mCompare(a, b){
   a = force(a); b = force(b);
@@ -186,6 +213,7 @@ function mToText(v){
     return v.kind === 'date' ? dt : v.kind === 'time' ? tm : v.kind === 'datetimezone' ? dt + ' ' + tm + (v.tz >= 0 ? ' +' : ' -') + pad2(Math.abs(v.tz)) + ':00' : dt + ' ' + tm; }
   if (v instanceof MDur){ const s = Math.abs(v.ms) / 1000; const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60; return (v.ms < 0 ? '-' : '') + d + '.' + pad2(h) + ':' + pad2(m) + ':' + pad2(Math.floor(sec)); }
   if (v instanceof MType) return 'type ' + v.name;
+  if (v instanceof MBin) return '#binary(' + v.bytes.length + ' байт' + (v.name ? ', ' + v.name : '') + ')';
   if (Array.isArray(v)) return '{' + v.map(x => mLit(x)).join(', ') + '}';
   if (v instanceof MRec) return '[' + v.names.map(n => n + '=' + mLit(v.get(n))).join(', ') + ']';
   if (v instanceof MTab) return 'Table (' + v.rows.length + '×' + v.cols.length + ')';
@@ -258,7 +286,7 @@ function evalNode(n, env){
       if (Array.isArray(v)){ if (typeof ix !== 'number') throw new MErr('Expression.Error', 'Индекс списка должен быть числом'); if (ix < 0 || ix >= v.length){ if (n.opt) return null; throw new MErr('Expression.Error', 'В перечислении недостаточно элементов: индекс ' + ix + ', элементов ' + v.length); } return force(v[ix]); }
       if (v instanceof MTab){
         if (typeof ix === 'number'){ if (ix < 0 || ix >= v.rows.length){ if (n.opt) return null; throw new MErr('Expression.Error', 'В таблице нет строки ' + ix); } return rowRec(v, ix); }
-        if (ix instanceof MRec){ const hits = []; v.rows.forEach((r, ri) => { if (ix.names.every(k => { const ci = v.cols.indexOf(k); return ci >= 0 && mEquals(r[ci], ix.get(k)); })) hits.push(ri); });
+        if (ix instanceof MRec){ const hits = tableKeyHits(v, ix);
           if (hits.length === 1) return rowRec(v, hits[0]); if (n.opt && !hits.length) return null;
           throw new MErr('Expression.Error', hits.length ? 'Ключ совпал с несколькими строками таблицы' : 'Ключ не совпал ни с одной строкой таблицы'); } }
       throw new MErr('Expression.Error', 'Доступ {…} применим к списку или таблице, а не к ' + mTypeName(v)); }
@@ -386,6 +414,8 @@ const cmpOpt = c => { c = force(c); return c instanceof MFn && c.name === 'Compa
 const lower = (s, ci) => ci ? s.toLowerCase() : s;
 const roundHalfEven = (x, d) => { const f = Math.pow(10, d || 0); const v = x * f; const r = Math.round(v); const diff = Math.abs(v % 1); return (diff === 0.5 ? (r % 2 === 0 ? r : r - 1) : r) / f; };
 const listStats = (l, fn) => { const v = lst(l, fn).filter(x => x !== null); return v; };
+/** Значение ячейки: ошибка остаётся в ячейке (как в Power Query), а не роняет весь шаг */
+const cellOf = f => { try { return f(); } catch (e){ const err = toMErr(e); return new Thunk(() => { throw err; }); } };
 function colNamesOf(t, spec){ spec = force(spec); return typeof spec === 'string' ? [spec] : lst(spec, 'columns'); }
 
 /* ---------- Библиотека ---------- */
@@ -494,7 +524,7 @@ def('List.Transform', (l, f) => lst(l, 'List.Transform').map(x => callFn(f, [x])
 def('List.TransformMany', (l, cf, rf) => lst(l).flatMap(x => lst(callFn(cf, [x])).map(y => callFn(rf, [x, y]))));
 def('List.Accumulate', (l, seed, f) => lst(l, 'List.Accumulate').reduce((s, x) => callFn(f, [s, x]), force(seed)));
 def('List.Generate', (init, cond, next, sel) => { const out = []; let s = callFn(init, []); let guard = 0; while (callFn(cond, [s]) === true){ out.push(force(sel) == null ? s : callFn(sel, [s])); s = callFn(next, [s]); if (++guard > 100000) throw new MErr('Expression.Error', 'List.Generate: более 100 000 шагов — похоже на бесконечный цикл'); } return out; });
-def('List.Distinct', l => { const out = []; for (const x of lst(l, 'List.Distinct')) if (!out.some(y => mEquals(x, y))) out.push(x); return out; });
+def('List.Distinct', l => { const out = [], seen = new Set(); for (const x of lst(l, 'List.Distinct')){ const k = mHashKey(x); if (k !== null){ if (!seen.has(k)){ seen.add(k); out.push(x); } } else if (!out.some(y => mEquals(x, y))) out.push(x); } return out; });
 def('List.Sort', (l, c) => { l = lst(l, 'List.Sort'); c = force(c); const desc = c === 1; const f = c instanceof MFn ? c : null; return l.slice().sort((a, b) => f ? (f.arity === 1 ? mCompare(callFn(f, [a]), callFn(f, [b])) : callFn(f, [a, b])) : (desc ? -mCompare(a, b) : mCompare(a, b))); });
 def('List.Reverse', l => lst(l).slice().reverse());
 def('List.Contains', (l, v, c) => { const ci = cmpOpt(c); v = force(v); return lst(l, 'List.Contains').some(x => ci && typeof x === 'string' && typeof v === 'string' ? x.toLowerCase() === v.toLowerCase() : mEquals(x, v)); });
@@ -622,18 +652,18 @@ def('Table.SelectColumns', (t, c, mf) => selectCols(tab(t, 'Table.SelectColumns'
 def('Table.RemoveColumns', (t, c, mf) => { t = tab(t, 'Table.RemoveColumns'); const cs = colNamesOf(t, c); if (!force(mf)) cs.forEach(x => colIdx(t, x)); const keep = t.cols.filter(x => !cs.includes(x)); return selectCols(t, keep, 0); });
 def('Table.ReorderColumns', (t, c, mf) => { t = tab(t); const cs = colNamesOf(t, c).filter(x => t.cols.includes(x) || !force(mf)); cs.forEach(x => colIdx(t, x)); const pos = t.cols.map((x, i) => cs.includes(x) ? i : -1).filter(i => i >= 0); const order = t.cols.slice(); pos.forEach((p, k) => { order[p] = cs[k]; }); return selectCols(t, order, 0); });
 def('Table.RenameColumns', (t, ren, mf) => { t = tab(t, 'Table.RenameColumns'); let pairs = lst(ren); if (pairs.length === 2 && typeof pairs[0] === 'string') pairs = [pairs]; const cols = t.cols.slice(); for (const p of pairs){ const [a, b] = lst(p); const i = cols.indexOf(a); if (i < 0){ if (!force(mf)) throw new MErr('Expression.Error', 'Столбец «' + a + '» таблицы не найден. Есть: ' + cols.slice(0, 12).join(', ')); continue; } cols[i] = b; } if (new Set(cols).size !== cols.length) throw new MErr('Expression.Error', 'После переименования имена столбцов повторяются'); return new MTab(cols, t.rows); });
-def('Table.AddColumn', (t, name, f) => { t = tab(t, 'Table.AddColumn'); name = txt(name); if (t.cols.includes(name)) throw new MErr('Expression.Error', 'Столбец «' + name + '» уже существует'); return new MTab(t.cols.concat([name]), t.rows.map((r, i) => r.concat([callFn(f, [rowRec(t, i)])]))); });
+def('Table.AddColumn', (t, name, f) => { t = tab(t, 'Table.AddColumn'); name = txt(name); if (t.cols.includes(name)) throw new MErr('Expression.Error', 'Столбец «' + name + '» уже существует'); return new MTab(t.cols.concat([name]), t.rows.map((r, i) => r.concat([cellOf(() => callFn(f, [rowRec(t, i)]))]))); });
 def('Table.AddIndexColumn', (t, name, s, inc) => { t = tab(t); s = force(s) == null ? 0 : num(s); inc = force(inc) == null ? 1 : num(inc); return new MTab(t.cols.concat([txt(name)]), t.rows.map((r, i) => r.concat([s + i * inc]))); });
 def('Table.DuplicateColumn', (t, c, n) => { t = tab(t); const i = colIdx(t, txt(c)); return new MTab(t.cols.concat([txt(n)]), t.rows.map(r => r.concat([r[i]]))); });
-def('Table.TransformColumns', (t, ops, def0, mf) => { t = tab(t, 'Table.TransformColumns'); let pairs = lst(ops); if (pairs.length >= 2 && typeof pairs[0] === 'string') pairs = [pairs]; const m = new Map(); for (const p of pairs){ const pp = lst(p); if (colIdx(t, pp[0], force(mf)) >= 0) m.set(pp[0], pp[1]); } const df = force(def0); return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? callFn(m.get(t.cols[i]), [v]) : df ? callFn(df, [v]) : v))); });
+def('Table.TransformColumns', (t, ops, def0, mf) => { t = tab(t, 'Table.TransformColumns'); let pairs = lst(ops); if (pairs.length >= 2 && typeof pairs[0] === 'string') pairs = [pairs]; const m = new Map(); for (const p of pairs){ const pp = lst(p); if (colIdx(t, pp[0], force(mf)) >= 0) m.set(pp[0], pp[1]); } const df = force(def0); return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? cellOf(() => callFn(m.get(t.cols[i]), [v])) : df ? cellOf(() => callFn(df, [v])) : v))); });
 def('Table.TransformColumnTypes', (t, ops, culture) => { t = tab(t, 'Table.TransformColumnTypes'); let pairs = lst(ops); if (pairs.length === 2 && typeof pairs[0] === 'string') pairs = [pairs]; const cu = force(culture); const m = new Map(pairs.map(p => { const pp = lst(p); colIdx(t, pp[0]); return [pp[0], force(pp[1])]; }));
   const conv = (v, ty) => { if (v === null) return null; const n = ty.name; try {
     if (['number', 'int64', 'int32', 'decimal', 'double', 'currency', 'percentage'].includes(n)){ const x = typeof v === 'string' ? numFromText(v, cu) : MLIB['Number.From'].call([v]); return n === 'int64' || n === 'int32' ? roundHalfEven(x, 0) : n === 'currency' ? roundHalfEven(x, 4) : x; }
     if (n === 'text') return mToText(v); if (n === 'date') return MLIB['Date.From'].call([v, cu]); if (n === 'datetime') return MLIB['DateTime.From'].call([v, cu]); if (n === 'logical') return MLIB['Logical.From'].call([v]); return v;
   } catch (e){ return new Thunk(() => { throw e; }); } };
-  return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? conv(force(v), m.get(t.cols[i])) : v))); });
+  return new MTab(t.cols.slice(), t.rows.map(r => r.map((v, i) => m.has(t.cols[i]) ? cellOf(() => conv(force(v), m.get(t.cols[i]))) : v))); });
 def('Table.Sort', (t, c) => sortRows(tab(t, 'Table.Sort'), c));
-def('Table.Distinct', (t, c) => { t = tab(t, 'Table.Distinct'); c = force(c); const ix = c == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); const out = []; for (const r of t.rows) if (!out.some(o => ix.every(i => mEquals(o[i], r[i])))) out.push(r); return new MTab(t.cols.slice(), out); });
+def('Table.Distinct', (t, c) => { t = tab(t, 'Table.Distinct'); c = force(c); const ix = c == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); const out = [], seen = new Set(); for (const r of t.rows){ const k = rowKey(r, ix); if (k !== null){ if (!seen.has(k)){ seen.add(k); out.push(r); } } else if (!out.some(o => ix.every(i => mEquals(o[i], r[i])))) out.push(r); } return new MTab(t.cols.slice(), out); });
 def('Table.FirstN', (t, n) => { t = tab(t); n = force(n); if (typeof n === 'number') return new MTab(t.cols.slice(), t.rows.slice(0, n)); const out = []; for (let i = 0; i < t.rows.length; i++){ if (callFn(n, [rowRec(t, i)]) !== true) break; out.push(t.rows[i]); } return new MTab(t.cols.slice(), out); });
 def('Table.LastN', (t, n) => { t = tab(t); return new MTab(t.cols.slice(), t.rows.slice(Math.max(0, t.rows.length - num(n)))); });
 def('Table.Skip', (t, n) => { t = tab(t); n = force(n); if (n == null) n = 1; if (typeof n === 'number') return new MTab(t.cols.slice(), t.rows.slice(n)); let k = 0; while (k < t.rows.length && callFn(n, [rowRec(t, k)]) === true) k++; return new MTab(t.cols.slice(), t.rows.slice(k)); });
@@ -656,18 +686,23 @@ def('Table.ReplaceErrorValues', (t, reps) => { t = tab(t); let pairs = lst(reps)
 def('Table.RemoveRowsWithErrors', (t, c) => { t = tab(t); const ix = force(c) == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); return new MTab(t.cols.slice(), t.rows.filter(r => ix.every(i => { try { force(r[i]); return true; } catch { return false; } }))); });
 def('Table.SelectRowsWithErrors', (t, c) => { t = tab(t); const ix = force(c) == null ? t.cols.map((_, i) => i) : colNamesOf(t, c).map(x => colIdx(t, x)); return new MTab(t.cols.slice(), t.rows.filter(r => ix.some(i => { try { force(r[i]); return false; } catch { return true; } }))); });
 def('Table.Group', (t, keys, aggs) => { t = tab(t, 'Table.Group'); const ks = colNamesOf(t, keys); const ki = ks.map(k => colIdx(t, k)); let ag = lst(aggs); if (ag.length && typeof ag[0] === 'string') ag = [ag]; ag = ag.map(a => lst(a));
-  const groups = []; for (const r of t.rows){ let g = groups.find(x => ki.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { key: ki.map(i => r[i]), rows: [] }; groups.push(g); } g.rows.push(r); }
+  const groups = [], gm = new Map(); for (const r of t.rows){ const hk = rowKey(r, ki); let g = hk !== null ? gm.get(hk) : groups.find(x => x.hk === null && ki.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { hk, key: ki.map(i => r[i]), rows: [] }; groups.push(g); if (hk !== null) gm.set(hk, g); } g.rows.push(r); }
   return new MTab(ks.concat(ag.map(a => a[0])), groups.map(g => g.key.concat(ag.map(a => callFn(a[1], [new MTab(t.cols.slice(), g.rows)]))))); });
 def('Table.UnpivotOtherColumns', (t, keep, an, vn) => { t = tab(t); const k = colNamesOf(t, keep); const other = t.cols.filter(c => !k.includes(c)); const ki = k.map(c => colIdx(t, c)); const rows = []; for (const r of t.rows) for (const c of other){ const v = force(r[t.cols.indexOf(c)]); if (v !== null) rows.push(ki.map(i => r[i]).concat([c, v])); } return new MTab(k.concat([txt(an), txt(vn)]), rows); });
 def('Table.Unpivot', (t, piv, an, vn) => { t = tab(t); const p = colNamesOf(t, piv); return MLIB['Table.UnpivotOtherColumns'].call([t, t.cols.filter(c => !p.includes(c)), an, vn]); });
 def('Table.Pivot', (t, vals, an, vn, agg) => { t = tab(t); vals = lst(vals).map(x => mToText(x)); const ai = colIdx(t, txt(an)), vi = colIdx(t, txt(vn)); const keyCols = t.cols.filter((_, i) => i !== ai && i !== vi); const kix = keyCols.map(c => t.cols.indexOf(c)); const groups = [];
-  for (const r of t.rows){ let g = groups.find(x => kix.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { key: kix.map(i => r[i]), cells: new Map() }; groups.push(g); } const a = mToText(r[ai]); if (!g.cells.has(a)) g.cells.set(a, []); g.cells.get(a).push(r[vi]); }
+  const gm = new Map(); for (const r of t.rows){ const hk = rowKey(r, kix); let g = hk !== null ? gm.get(hk) : groups.find(x => x.hk === null && kix.every((i, k) => mEquals(x.key[k], r[i]))); if (!g){ g = { hk, key: kix.map(i => r[i]), cells: new Map() }; groups.push(g); if (hk !== null) gm.set(hk, g); } const a = mToText(r[ai]); if (!g.cells.has(a)) g.cells.set(a, []); g.cells.get(a).push(r[vi]); }
   return new MTab(keyCols.concat(vals), groups.map(g => g.key.concat(vals.map(v => { const c = g.cells.get(v); if (!c) return null; if (force(agg)) return callFn(agg, [c]); if (c.length > 1) return new Thunk(() => { throw new MErr('Expression.Error', 'Table.Pivot: несколько значений без функции агрегирования'); }); return c[0]; })))); });
 def('Table.NestedJoin', (a, ka, b, kb, name, kind) => { a = tab(a, 'Table.NestedJoin'); b = tab(b, 'Table.NestedJoin'); const ia = colNamesOf(a, ka).map(c => colIdx(a, c)), ib = colNamesOf(b, kb).map(c => colIdx(b, c)); kind = force(kind) == null ? 1 : force(kind);
-  const match = r => b.rows.filter(s => ia.every((i, k) => mEquals(r[i], s[ib[k]])));
-  const rows = []; const usedB = new Set();
-  for (const r of a.rows){ const m = match(r); m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
+  const idx = new Map(), slow = []; for (const s of b.rows){ const k = rowKey(s, ib); if (k === null) slow.push(s); else { let l = idx.get(k); if (!l) idx.set(k, l = []); l.push(s); } }   // хеш-индекс правой таблицы
+  const eq = r => s => ia.every((i, k) => mEquals(r[i], s[ib[k]]));
+  const match = r => { const k = rowKey(r, ia); if (k === null) return b.rows.filter(eq(r)); const hit = idx.get(k) || []; return slow.length ? hit.concat(slow.filter(eq(r))) : hit; };
+  const rows = []; const usedB = new Set(); let miss = 0;
+  for (const r of a.rows){ const m = match(r); if (!m.length) miss++; m.forEach(s => usedB.add(s)); if (kind === 0 && !m.length) continue; if (kind === 4 && m.length) continue; if (kind === 5) continue; rows.push(r.concat([new MTab(b.cols.slice(), m)])); }
   if (kind === 2 || kind === 3 || kind === 5) for (const s of b.rows) if (!usedB.has(s)) rows.push(a.cols.map(() => null).concat([new MTab(b.cols.slice(), [s])]));
+  if (M_TRACE){ let dupKeys = 0, dupRows = 0; for (const l of idx.values()) if (l.length > 1){ dupKeys++; dupRows += l.length; }
+    const typeOf = (t, ix) => { const ts = new Set(); for (const r of t.rows.slice(0, 500)) for (const i of ix){ try { const x = force(r[i]); if (x !== null) ts.add(mTypeName(x)); } catch { ts.add('error'); } } return [...ts].join('/'); };
+    M_TRACE.join({ keysA: colNamesOf(a, ka), keysB: colNamesOf(b, kb), kind, left: a.rows.length, right: b.rows.length, matched: usedB.size, miss, dupKeys, dupRows, typeA: typeOf(a, ia), typeB: typeOf(b, ib) }); }
   return new MTab(a.cols.concat([txt(name)]), rows); });
 def('Table.Join', (a, ka, b, kb, kind) => { a = tab(a); b = tab(b); const dup = a.cols.filter(c => b.cols.includes(c)); if (dup.length) throw new MErr('Expression.Error', 'Table.Join: одинаковые имена столбцов (' + dup.join(', ') + ') — переименуйте или используйте NestedJoin'); const nj = MLIB['Table.NestedJoin'].call([a, ka, b, kb, '__j', kind]); return MLIB['Table.ExpandTableColumn'].call([nj, '__j', b.cols]); });
 def('Table.ExpandTableColumn', (t, c, names, newNames) => { t = tab(t, 'Table.ExpandTableColumn'); const ci = colIdx(t, txt(c)); names = lst(names); const nn2 = force(newNames) == null ? names : lst(newNames);
@@ -691,6 +726,79 @@ def('Table.Schema', t => { t = tab(t); return new MTab(['Name', 'Position', 'Typ
 def('Table.Profile', t => { t = tab(t); return new MTab(['Column', 'Min', 'Max', 'Count', 'NullCount', 'DistinctCount'], t.cols.map((c, i) => { const v = t.rows.map(r => { try { return force(r[i]); } catch { return null; } }); const nnv = v.filter(x => x !== null); let mn = null, mx = null; try { mn = nnv.length ? nnv.reduce((a, b) => mCompare(a, b) <= 0 ? a : b) : null; mx = nnv.length ? nnv.reduce((a, b) => mCompare(a, b) >= 0 ? a : b) : null; } catch { /* разнотипные */ } return [c, mn, mx, v.length, v.length - nnv.length, MLIB['List.Distinct'].call([nnv]).length]; })); });
 def('Table.Keys', () => []);
 def('Table.AddKey', t => tab(t));
+// --- источники: только данные этого компьютера (M_DATA задаёт app/data.js). Чего нет — DataSource.Error с e.need
+let M_DATA = null;
+/** Наблюдатель за вычислением (раздел «Данные»): M_TRACE.join(сводка соединения) — только числа */
+let M_TRACE = null;
+const needSrc = (kind, path, msg) => { const e = new MErr('DataSource.Error', msg); e.need = { kind, path }; return e; };
+const binOf = (v, fn) => { v = force(v); if (v instanceof MBin) return v; if (typeof v === 'string') return new MBin(te.encode(v), ''); throw new MErr('Expression.Error', fn + ': ожидалось binary, получено ' + mTypeName(v)); };
+/** Текст из байтов: кодовая страница M (65001, 1251, 1200…) или по BOM; без BOM — UTF-8, если он корректен, иначе 1251 */
+function decodeBin(u8, enc){
+  enc = force(enc); if (enc instanceof MRec) enc = enc.has('Encoding') ? force(enc.get('Encoding')) : null;
+  if (typeof enc === 'number' && enc !== 65001){ if (enc === 1200) return new TextDecoder('utf-16le').decode(u8); if (enc === 1201) return new TextDecoder('utf-16be').decode(u8); try { return new TextDecoder('windows-' + enc).decode(u8); } catch { /* ниже */ } }
+  if (u8[0] === 0xEF && u8[1] === 0xBB && u8[2] === 0xBF) return td8.decode(u8.subarray(3));
+  if (u8[0] === 0xFF && u8[1] === 0xFE) return new TextDecoder('utf-16le').decode(u8.subarray(2));
+  if (enc === 65001) return td8.decode(u8);
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); } catch { return new TextDecoder('windows-1251').decode(u8); }
+}
+/** Значение ячейки xlsx (core/xlsx-data.js) → значение M; ошибка ячейки — ошибка при обращении */
+function xlsxValueToM(v){
+  if (v === undefined || v === null || typeof v !== 'object') return v === undefined ? null : v;
+  if (v.err) return new Thunk(() => { throw new MErr('DataFormat.Error', 'Ошибка в ячейке: ' + v.err); });
+  const ms = Math.round((v.xd - 25569) * 86400000);
+  return v.kind === 'time' ? new MDate('time', ((ms % 86400000) + 86400000) % 86400000) : new MDate(v.kind, v.kind === 'date' ? Math.round(ms / 86400000) * 86400000 : ms);
+}
+const xlsxTable = (cols, rows) => new MTab(cols, rows.map(r => cols.map((_, i) => xlsxValueToM(r[i]))));
+def('Excel.CurrentWorkbook', () => {
+  const l = M_DATA && M_DATA.currentWorkbook(); if (!l) throw needSrc('workbook', '', 'Excel.CurrentWorkbook: таблицы книги не прочитаны (книга не открыта или формат .xlsb).');
+  return new MTab(['Content', 'Name'], l.map(x => [xlsxTable(x.cols, x.rows), x.name]));
+}, 0);
+def('File.Contents', p => { p = txt(p, 'File.Contents'); const f = M_DATA && M_DATA.file(p); if (!f) throw needSrc('file', p, 'File.Contents: файл «' + p + '» не прикреплён. Прикрепите его в разделе «Данные» — он прочитается только на этом компьютере.'); return new MBin(f.bytes, f.name, f.xlsx); }, 1);
+def('Folder.Files', p => { p = txt(p, 'Folder.Files'); const fs = M_DATA && M_DATA.folder(p); if (!fs) throw needSrc('folder', p, 'Folder.Files: файлы папки «' + p + '» не прикреплены. Прикрепите их в разделе «Данные» — они прочитаются только на этом компьютере.');
+  const dir = p.replace(/[\\/]*$/, '\\'); const dt = ms => ms ? new MDate('datetime', ms) : null;
+  return new MTab(['Content', 'Name', 'Extension', 'Date accessed', 'Date modified', 'Date created', 'Attributes', 'Folder Path'], fs.map(f => [new MBin(f.bytes, f.name, f.xlsx), f.name, (/\.[^.]+$/.exec(f.name) || [''])[0].toLowerCase(), dt(f.mtime), dt(f.mtime), dt(f.mtime), mkRec(['Size', 'Hidden'], [f.bytes.length, false]), dir]));
+}, 1);
+def('Folder.Contents', p => MLIB['Folder.Files'].call([p]), 1);
+def('Binary.Buffer', b => binOf(b, 'Binary.Buffer'), 1);
+def('Binary.Length', b => binOf(b, 'Binary.Length').bytes.length, 1);
+def('Text.FromBinary', (b, enc) => decodeBin(binOf(b, 'Text.FromBinary').bytes, enc), 1);
+def('Lines.FromBinary', (b, q, inc, enc) => { const t = decodeBin(binOf(b, 'Lines.FromBinary').bytes, enc).split(/\r\n|\n|\r/); if (t.length && t[t.length - 1] === '') t.pop(); return t; }, 1);
+/** CSV по правилам Csv.Document: кавычки удваиваются, перевод строки внутри кавычек — часть значения; все значения — текст */
+function csvRows(text, delim){
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (q){ if (ch === '"'){ if (text[i + 1] === '"'){ cur += '"'; i++; } else q = false; } else cur += ch; continue; }
+    if (ch === '"' && cur === '') q = true;
+    else if (text.startsWith(delim, i)){ row.push(cur); cur = ''; i += delim.length - 1; }
+    else if (ch === '\r' || ch === '\n'){ if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+def('Csv.Document', (src, cols, delim, extra, enc) => {
+  let o = force(cols); let names = null, n = null, d = force(delim), e = force(enc);
+  if (o instanceof MRec){ const g = k => o.has(k) ? force(o.get(k)) : null; d = g('Delimiter'); e = g('Encoding'); o = g('Columns'); }
+  if (typeof o === 'number') n = o; else if (Array.isArray(o)) names = o.map(force).map(String);
+  const sv = force(src); const text = typeof sv === 'string' ? sv : decodeBin(binOf(sv, 'Csv.Document').bytes, e);
+  const rows = csvRows(text, typeof d === 'string' && d ? d : ',');
+  const w = names ? names.length : n || rows.reduce((m, r) => Math.max(m, r.length), 0);
+  const H = names || Array.from({ length: w }, (_, i) => 'Column' + (i + 1));
+  return new MTab(H, rows.map(r => H.map((_, i) => i < r.length ? r[i] : null)));
+}, 1);
+const jsonToM = v => v === null || typeof v !== 'object' ? v : Array.isArray(v) ? v.map(jsonToM) : mkRec(Object.keys(v), Object.values(v).map(jsonToM));
+def('Json.Document', (src, enc) => { const sv = force(src); const t = typeof sv === 'string' ? sv : decodeBin(binOf(sv, 'Json.Document').bytes, enc); try { return jsonToM(JSON.parse(t)); } catch (x){ throw new MErr('DataFormat.Error', 'Json.Document: неверный JSON (' + x.message + ')'); } }, 1);
+def('Excel.Workbook', (src, useHeaders) => {
+  const b = binOf(src, 'Excel.Workbook'); const x = b.xlsx;
+  if (!x) throw new MErr('DataFormat.Error', 'Excel.Workbook: «' + (b.name || 'двоичные данные') + '» — не книга .xlsx/.xlsm (формат .xls и .xlsb не читается).');
+  const hdr = force(useHeaders) === true; const out = [];
+  const promote = (cols, rows) => hdr && rows.length ? [rows[0].map((h, i) => h == null || h === '' ? 'Column' + (i + 1) : mToText(xlsxValueToM(h))), rows.slice(1)] : [cols, rows];
+  for (const sh of x.sheets){ const [c, r] = promote(sh.cols, sh.rows); out.push([sh.name, new Thunk(() => xlsxTable(c, r)), sh.name, 'Sheet', !!sh.hidden]); }
+  for (const t of x.tables) out.push([t.name, new Thunk(() => xlsxTable(t.cols, t.rows)), t.name, 'Table', false]);
+  for (const nm of x.names){ const [c, r] = promote(nm.cols, nm.rows); out.push([nm.name, new Thunk(() => xlsxTable(c, r)), nm.name, 'DefinedName', false]); }
+  return new MTab(['Name', 'Data', 'Item', 'Kind', 'Hidden'], out);
+}, 1);
 // синонимы и константы
 
 /* ---------- Публичное API ---------- */
@@ -730,10 +838,12 @@ function mRunSteps(sectionText, member, overrides){
   const vars = new Map(); const e2 = new Env(vars, env);
   for (const [nm, ex] of ast.binds){ const ov = overrides.steps && overrides.steps.get(nm); vars.set(nm, ov !== undefined ? new Thunk(() => ov) : new Thunk(() => evalNode(ex, e2))); }
   for (const [nm] of ast.binds){
+    if (overrides.onStep) overrides.onStep(nm);
     const t0 = performance.now(); let value, error = null;
     try { value = deepForce(force(vars.get(nm))); } catch (e){ error = toMErr(e); }
     out.push({ name: nm, value, error, ms: performance.now() - t0, overridden: !!(overrides.steps && overrides.steps.has(nm)) });
   }
+  if (overrides.onStep) overrides.onStep('in → результат');
   const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = toMErr(e); }
   out.push({ name: 'in → результат', value: fv, error: fe, ms: performance.now() - t0, final: true });
   return out;

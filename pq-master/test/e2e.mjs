@@ -110,6 +110,8 @@ await page.click('[data-view=snippets]'); await page.click('[data-sn=calendar]')
 await page.click('[data-view=help]'); await page.click('#helpTabs [data-h=dev]'); await page.waitForTimeout(200);
 const dev = await page.$eval('#helpDev', e => e.textContent);
 check('Справка для разработчика встроена и отрисована', /Карта модулей/.test(dev));
+const devBtns = await page.$$eval('#helpDev [data-devfile]', l => l.map(b => b.dataset.devfile));
+check('Файлы разработки встроены: сборщик, тесты, точка входа CodeMirror', ['build.mjs', 'test/e2e.mjs', 'test/stress.mjs', 'vendor/codemirror.entry.js'].every(f => devBtns.includes(f)), devBtns.join(', '));
 await shot('15-help-dev');
 // темы: меню в верхней панели
 for (const th of ['dark', 'calm', 'fun']){

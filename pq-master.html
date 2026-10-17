@@ -1,71 +1,74 @@
 <!doctype html>
 <!--
-  Мастер PQ — собрано из модулей (pq-master/build.mjs). НЕ РЕДАКТИРУЙТЕ этот файл вручную —
-  правьте модуль и пересоберите; нет исходников — разрежьте: node build.mjs --split pq-master.html src-out
-  Документация для разработчика: блок <script id="pqm-dev-docs"> (DEV.md) ниже.
+  Мастер PQ — собрано из модулей (build.mjs). НЕ РЕДАКТИРУЙТЕ этот файл вручную — правьте модуль и пересоберите.
+  Есть только этот HTML? Справка → «Для разработчика» → «⬇ build.mjs», затем:
+    node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
+  Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      70–78     src/html/head.html
-      80–127    src/css/theme.css
-     128–196    src/css/themes.css
-     197–235    src/css/layout.css
-     236–418    src/css/components.css
-     419–475    src/css/editor.css
-     479–500    src/html/shell-top.html
-     501–564    src/html/view-home.html
-     565–602    src/html/view-editor.html
-     603–626    src/html/view-optimizer.html
-     627–649    src/html/view-graph.html
-     650–677    src/html/view-sandbox.html
-     678–689    src/html/view-reference.html
-     690–698    src/html/view-snippets.html
-     699–710    src/html/view-history.html
-     711–774    src/html/view-anon.html
-     775–791    src/html/view-diag.html
-     792–819    src/html/view-ai.html
-     820–852    src/html/view-agent.html
-     853–865    src/html/view-compare.html
-     866–877    src/html/view-docs.html
-     878–884    src/html/view-help.html
-     885–891    src/html/view-selftest.html
-     892–900    src/html/shell-bottom.html
-     902–1045   DEV.md
-     942–undefined путь
-    1048–1063   vendor/codemirror.bundle.js
-    1067–1477   src/js/core/zip-mashup.js
-    1478–1750   src/js/m/lang.js
-    1751–1813   src/js/m/format.js
-    1814–2198   src/js/m/reference.js
-    2199–2956   src/js/m/interp.js
-    2957–3477   src/js/nda/anon.js
-    3478–3614   src/js/nda/diag.js
-    3615–3843   src/js/opt/lint.js
-    3844–4076   src/js/opt/optimizer.js
-    4077–4163   src/js/opt/refactor.js
-    4164–4311   src/js/opt/snippets.js
-    4312–4378   src/js/app/state.js
-    4379–4613   src/js/nda/agent.js
-    4614–4710   src/js/app/ui-base.js
-    4711–4876   src/js/app/storage.js
-    4877–4911   src/js/app/hints.js
-    4912–5129   src/js/app/shell.js
-    5130–5203   src/js/views/home.js
-    5204–5545   src/js/views/editor.js
-    5546–5696   src/js/views/optimizer.js
-    5697–5780   src/js/views/graph.js
-    5781–5891   src/js/views/sandbox.js
-    5892–5922   src/js/views/reference.js
-    5923–5960   src/js/views/snippets.js
-    5961–5981   src/js/views/history.js
-    5982–6123   src/js/views/anon.js
-    6124–6190   src/js/views/diag.js
-    6191–6304   src/js/views/ai.js
-    6305–6368   src/js/views/agent.js
-    6369–6395   src/js/views/compare.js
-    6396–6453   src/js/views/docs.js
-    6454–6586   src/js/views/help.js
-    6582–6582   DEV\\.md
-    6587–6865   src/js/app/selftest.js
-    6866–6879   src/js/app/main.js
+      73–81     src/html/head.html
+      83–130    src/css/theme.css
+     131–199    src/css/themes.css
+     200–238    src/css/layout.css
+     239–421    src/css/components.css
+     422–478    src/css/editor.css
+     482–503    src/html/shell-top.html
+     504–567    src/html/view-home.html
+     568–605    src/html/view-editor.html
+     606–629    src/html/view-optimizer.html
+     630–652    src/html/view-graph.html
+     653–680    src/html/view-sandbox.html
+     681–692    src/html/view-reference.html
+     693–701    src/html/view-snippets.html
+     702–713    src/html/view-history.html
+     714–777    src/html/view-anon.html
+     778–794    src/html/view-diag.html
+     795–822    src/html/view-ai.html
+     823–855    src/html/view-agent.html
+     856–868    src/html/view-compare.html
+     869–880    src/html/view-docs.html
+     881–887    src/html/view-help.html
+     888–894    src/html/view-selftest.html
+     895–903    src/html/shell-bottom.html
+     905–1089   DEV.md
+    1092–1257   build.mjs
+    1258–1412   test/e2e.mjs
+    1413–1572   test/stress.mjs
+    1573–1586   vendor/codemirror.entry.js
+    1589–1604   vendor/codemirror.bundle.js
+    1608–2018   src/js/core/zip-mashup.js
+    2019–2291   src/js/m/lang.js
+    2292–2354   src/js/m/format.js
+    2355–2739   src/js/m/reference.js
+    2740–3495   src/js/m/interp.js
+    3496–4016   src/js/nda/anon.js
+    4017–4153   src/js/nda/diag.js
+    4154–4381   src/js/opt/lint.js
+    4382–4614   src/js/opt/optimizer.js
+    4615–4701   src/js/opt/refactor.js
+    4702–4849   src/js/opt/snippets.js
+    4850–4916   src/js/app/state.js
+    4917–5151   src/js/nda/agent.js
+    5152–5243   src/js/app/ui-base.js
+    5244–5409   src/js/app/storage.js
+    5410–5444   src/js/app/hints.js
+    5445–5661   src/js/app/shell.js
+    5662–5735   src/js/views/home.js
+    5736–6077   src/js/views/editor.js
+    6078–6228   src/js/views/optimizer.js
+    6229–6312   src/js/views/graph.js
+    6313–6423   src/js/views/sandbox.js
+    6424–6454   src/js/views/reference.js
+    6455–6492   src/js/views/snippets.js
+    6493–6513   src/js/views/history.js
+    6514–6655   src/js/views/anon.js
+    6656–6722   src/js/views/diag.js
+    6723–6836   src/js/views/ai.js
+    6837–6900   src/js/views/agent.js
+    6901–6927   src/js/views/compare.js
+    6928–6985   src/js/views/docs.js
+    6986–7135   src/js/views/help.js
+    7136–7414   src/js/app/selftest.js
+    7415–7428   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -902,8 +905,8 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 <!-- ===== BEGIN DEV.md ===== -->
 # Мастер PQ — документация для разработчика (и для Claude)
 
-Встроен в `pq-master.html` (блок `pqm-dev-docs`), исходник — `pq-master/DEV.md`.
-Цель — чтобы доработка читала один-два модуля, а не весь файл (~1 МБ).
+Встроен в `pq-master.html` (блок `pqm-dev-docs`). Цель — чтобы доработка читала один-два модуля,
+а не весь файл (~1 МБ).
 
 ## Что это
 
@@ -927,23 +930,49 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 - Любые данные в `innerHTML` — только через `escHtml()`. Ответы агента и файлы — недоверенные данные.
 - В IndexedDB — только ссылки на файлы (`FileSystemFileHandle`), не содержимое.
 
-## Сборка, разрезка, тесты
+## Файлы и сборка
+
+Всё нужное для разработки встроено в сам HTML; папка `pq-master/` в репозитории — его разрезанная копия.
+
+| Путь | Где в HTML | Что это |
+|---|---|---|
+| `src/html`, `src/css`, `src/js` | разметка, `<style>`, блок `pqm-app` | модули приложения |
+| `DEV.md` | блок `pqm-dev-docs` | этот документ (Справка → «Для разработчика») |
+| `build.mjs` | блок `pqm-dev-files` | сборщик и разрезчик, без зависимостей (Node ≥ 18) |
+| `test/e2e.mjs`, `test/stress.mjs` | блок `pqm-dev-files` | сквозной прогон в браузере; стресс-проверки ядра |
+| `vendor/codemirror.entry.js` | блок `pqm-dev-files` | точка входа сборки CodeMirror |
+| `vendor/codemirror.bundle.js` | блок `pqm-vendor` | CodeMirror 6 (MIT), уже собран |
+
+**Есть только HTML.** Справка → «Для разработчика» → «⬇ build.mjs», затем
+`node build.mjs --split pq-master.html pq-master` — восстановятся все исходники, тесты и сам сборщик.
+Для чтения хватит оглавления в начале HTML: номера строк каждого модуля.
 
 ```
-node pq-master/build.mjs            # собрать ../pq-master.html из src/
-node pq-master/build.mjs --check    # + проверить, что разрезка восстанавливает модули байт в байт
-node pq-master/build.mjs --split pq-master.html out/   # нет исходников? разрежьте готовый HTML
-node pq-master/test/e2e.mjs         # headless-прогон: самотест + сценарии UI (нужен playwright-core)
+node pq-master/build.mjs            # собрать ../pq-master.html
+node pq-master/build.mjs --check    # + разрезка восстанавливает все модули байт в байт
+node pq-master/test/e2e.mjs         # headless Chromium: самотест + сценарии UI (нужен playwright-core)
 node pq-master/test/stress.mjs      # фаззинг ядра, утечки, библиотека M, битые файлы, скорость (только Node)
 ```
 
-В начале `pq-master.html` — **оглавление с номерами строк каждого модуля**. Если у вас только HTML:
-откройте оглавление, прочитайте нужный диапазон строк, а для правки разрежьте файл (`--split`),
-измените модуль и соберите обратно. Каждый модуль обёрнут маркерами `===== BEGIN путь =====` / `END`.
-Порядок модулей задаёт `MANIFEST` в `build.mjs` — новый модуль нужно добавить туда.
+Порядок модулей задаёт `MANIFEST` в `build.mjs`; новый файл добавляйте туда. Модули типов `js`,
+`vendor`, `file` не должны содержать закрывающий тег script и начало HTML-комментария (сборщик
+проверяет) — такие строки собирайте из частей: `'<' + '/script>'`.
 
 Встроенный самотест (раздел «Самотест» или `runSelfTest()` в консоли) должен проходить полностью.
-Он создаёт тестовую книгу в памяти, прогоняет её через все модули и **сохраняет/восстанавливает `S`**.
+Он создаёт тестовую книгу в памяти, прогоняет её через все модули и сохраняет/восстанавливает `S`.
+
+**Размер.** Сейчас ~1 МБ: CodeMirror ~400 КБ, интерпретатор ~90 КБ, справочник функций ~57 КБ,
+самотест ~40 КБ, файлы разработки ~40 КБ. Новые данные — компактными строками, не JSON-объектами;
+не встраивайте то, что можно вычислить. Пересборка CodeMirror почти ничего не даёт: неиспользуемые
+экспорты — внутренние части ядра, которые попадают в бандл в любом случае. Если версию всё же надо
+обновить:
+
+```
+npm i @codemirror/state@6 @codemirror/view@6 @codemirror/language@6 @codemirror/commands@6 \
+      @codemirror/autocomplete@6 @codemirror/search@6 @codemirror/lint@6 @lezer/highlight@1 esbuild
+npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=es2019 \
+      --legal-comments=none --outfile=vendor/codemirror.bundle.js
+```
 
 ## Карта модулей
 
@@ -990,8 +1019,11 @@ node pq-master/test/stress.mjs      # фаззинг ядра, утечки, б�
 Карточку с автоисправлением — в `optimizeSection`: ветка `case 'rule':` или собственное правило ниже.
 Исправление — чистая функция `fix(text, opts) → новыйText`, считающая позиции **по тому же тексту**, на
 котором построен анализ (`A`). Обязательно задайте `safety`: `safe` — только если результат запроса
-гарантированно не меняется. Добавьте проверку в самотест: фикс даёт корректный синтаксис, а для
+гарантированно не меняется. Если исправление меняет другие запросы или добавляет/удаляет запросы,
+впишите правило в `NONLOCAL_FIX_RULES`: остальные «Применить все безопасные» применяет пачкой — по
+одному на запрос за проход. Добавьте проверку в самотест: фикс даёт корректный синтаксис, а для
 `safe` — тот же результат в песочнице (см. проверку «безопасные исправления не меняют результат»).
+Всё, что считается на каждую отрисовку, — линейно по размеру книги (`candidatesOf` в оптимизаторе).
 
 **Новая функция в справочник.** Строка в `M_REF_SRC` (`m/reference.js`). Если её можно вычислять,
 добавьте реализацию в `MLIB` (`m/interp.js`) через `def(имя, (a, b) => …)` — аргументы приходят
@@ -1013,6 +1045,10 @@ node pq-master/test/stress.mjs      # фаззинг ядра, утечки, б�
 
 **Новая категория обезличивания.** `CATS` в `nda/anon.js` + классификация в `anonymizeM`
 (контекст строкового литерала: функция/аргумент, поле записи, сравнение). Метка `⟦CAT_N⟧` — заглавные латинские буквы.
+Строки, привязанные к именам (`Сервер = "…"` в шаге, запрос-строка, параметр с `meta`), классифицируются
+по месту использования имени в аргументе функции-источника (`binds`/`useLocal`/`useGlobal`, `paramStr`);
+поля записей-настроек — по имени поля (`FIELD_ROLES`). Новую конструкцию добавьте в генератор утечек
+`test/stress.mjs`.
 
 ## Методология проверки
 
@@ -1034,15 +1070,520 @@ node pq-master/test/stress.mjs      # фаззинг ядра, утечки, б�
 - В headless-Chromium контейнера без UTF-8 локали кириллические имена скачиваний превращаются
   в `download` — это окружение, не баг (с `LANG=C.UTF-8` всё корректно).
 
-## Известные ограничения и идеи
+## Известные ограничения и следующие шаги
 
 - Интерпретатор — подмножество M: нет свёртки, нет источников, часть функций отсутствует;
   числа — double. Новые функции легко добавлять в `MLIB`.
-- Линтер, оптимизатор и карта тяжести — эвристики по тексту.
+- Линтер, оптимизатор и карта тяжести — эвристики по тексту; реальное время даёт только
+  загруженная диагностика Power Query.
 - .pbix нового формата (запросы в модели VertiPaq) не читается; запись Power BI экспериментальная.
+- **Целевой сценарий пользователя**: управленческий учёт группы компаний на выгрузках 1С (БП и
+  самописные) + таблицы Excel, маппинг статей, разметка по ЦФО и проектам; обновление ~1 час, цель —
+  ускорить на порядок. Оптимизатор пока НЕ ловит главные причины такого времени:
+  построчный поиск в справочнике внутри `each` (`Table.SelectRows(Маппинг, …)`, `Маппинг{[Ключ=…]}`) —
+  замена на одно слияние с буферизованным справочником; одни и те же выгрузки, читаемые несколькими
+  запросами; настройки Excel (уровни конфиденциальности, фоновая загрузка предпросмотра). Это следующий
+  шаг; дальше — по обезличенному пакету и диагностике с реальной книги.
 - Идеи: перенос фильтров выше точки разрыва свёртки (нужен анализ используемых столбцов);
   разбор `Value.NativeQuery` для свёртки; типы столбцов по шагам (вывод схемы) — для автодополнения.
 <!-- ===== END DEV.md ===== -->
+</script>
+<script type="text/plain" id="pqm-dev-files">
+/* ===== BEGIN build.mjs ===== */
+#!/usr/bin/env node
+/*
+  Сборщик «Мастера PQ».
+  Исходники — модули (порядок задаёт MANIFEST ниже), результат — ОДИН файл ../pq-master.html.
+
+  node build.mjs                   собрать ../pq-master.html
+  node build.mjs --check           собрать и проверить, что разрезка даёт исходники байт в байт
+  node build.mjs --split FILE DIR  разрезать готовый pq-master.html обратно на модули в DIR
+                                   (DIR получает всё: src/, DEV.md, vendor/, test/ и сам build.mjs)
+
+  Каждый модуль в итоговом файле обёрнут маркерами BEGIN/END с путём модуля: для CSS/JS и файлов
+  разработки — в комментарии вида «/* … *\/», для HTML и Markdown — в HTML-комментарии.
+  В начале файла — оглавление с номерами строк, чтобы читать только нужный модуль.
+  Типы модулей: html (разметка), css, md (DEV.md, блок pqm-dev-docs), vendor (CodeMirror),
+  js (приложение), file (сборщик, тесты, точка входа CodeMirror — блок pqm-dev-files, не исполняется).
+  Зависимостей нет: только Node.js ≥ 18.
+*/
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.dirname(fileURLToPath(import.meta.url));
+const OUT = path.join(ROOT, '..', 'pq-master.html');
+// сборщик сам встроен в HTML, поэтому в его тексте не должно быть закрывающего тега script и начала HTML-комментария
+const LT = '<';
+const END_SCRIPT = LT + '/script>';
+const HC = [LT + '!-- ', ' -->'];
+
+// [тип, путь]. Тип определяет, в какой контейнер попадёт модуль.
+export const MANIFEST = [
+  ['html', 'src/html/head.html'],
+  ['css', 'src/css/theme.css'],
+  ['css', 'src/css/themes.css'],
+  ['css', 'src/css/layout.css'],
+  ['css', 'src/css/components.css'],
+  ['css', 'src/css/editor.css'],
+  ['html', 'src/html/shell-top.html'],
+  ['html', 'src/html/view-home.html'],
+  ['html', 'src/html/view-editor.html'],
+  ['html', 'src/html/view-optimizer.html'],
+  ['html', 'src/html/view-graph.html'],
+  ['html', 'src/html/view-sandbox.html'],
+  ['html', 'src/html/view-reference.html'],
+  ['html', 'src/html/view-snippets.html'],
+  ['html', 'src/html/view-history.html'],
+  ['html', 'src/html/view-anon.html'],
+  ['html', 'src/html/view-diag.html'],
+  ['html', 'src/html/view-ai.html'],
+  ['html', 'src/html/view-agent.html'],
+  ['html', 'src/html/view-compare.html'],
+  ['html', 'src/html/view-docs.html'],
+  ['html', 'src/html/view-help.html'],
+  ['html', 'src/html/view-selftest.html'],
+  ['html', 'src/html/shell-bottom.html'],
+  ['md', 'DEV.md'],
+  ['file', 'build.mjs'],
+  ['file', 'test/e2e.mjs'],
+  ['file', 'test/stress.mjs'],
+  ['file', 'vendor/codemirror.entry.js'],
+  ['vendor', 'vendor/codemirror.bundle.js'],
+  ['js', 'src/js/core/zip-mashup.js'],
+  ['js', 'src/js/m/lang.js'],
+  ['js', 'src/js/m/format.js'],
+  ['js', 'src/js/m/reference.js'],
+  ['js', 'src/js/m/interp.js'],
+  ['js', 'src/js/nda/anon.js'],
+  ['js', 'src/js/nda/diag.js'],
+  ['js', 'src/js/opt/lint.js'],
+  ['js', 'src/js/opt/optimizer.js'],
+  ['js', 'src/js/opt/refactor.js'],
+  ['js', 'src/js/opt/snippets.js'],
+  ['js', 'src/js/app/state.js'],
+  ['js', 'src/js/nda/agent.js'],
+  ['js', 'src/js/app/ui-base.js'],
+  ['js', 'src/js/app/storage.js'],
+  ['js', 'src/js/app/hints.js'],
+  ['js', 'src/js/app/shell.js'],
+  ['js', 'src/js/views/home.js'],
+  ['js', 'src/js/views/editor.js'],
+  ['js', 'src/js/views/optimizer.js'],
+  ['js', 'src/js/views/graph.js'],
+  ['js', 'src/js/views/sandbox.js'],
+  ['js', 'src/js/views/reference.js'],
+  ['js', 'src/js/views/snippets.js'],
+  ['js', 'src/js/views/history.js'],
+  ['js', 'src/js/views/anon.js'],
+  ['js', 'src/js/views/diag.js'],
+  ['js', 'src/js/views/ai.js'],
+  ['js', 'src/js/views/agent.js'],
+  ['js', 'src/js/views/compare.js'],
+  ['js', 'src/js/views/docs.js'],
+  ['js', 'src/js/views/help.js'],
+  ['js', 'src/js/app/selftest.js'],
+  ['js', 'src/js/app/main.js']
+];
+
+const wrap = (type, p, body) => {
+  const c = type === 'html' || type === 'md' ? HC : ['/* ', ' */'];
+  return `${c[0]}===== BEGIN ${p} =====${c[1]}\n${body}\n${c[0]}===== END ${p} =====${c[1]}`;
+};
+const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8').replace(/\n$/, '');
+// строка-маркер целиком (\x3c — это «<»): только такие строки считаются границами модулей
+const MARK = (kind, name) => new RegExp('^(?:\\/\\* |\\x3c!-- )===== ' + kind + ' (' + (name || '\\S+') + ') =====(?: \\*\\/| -->)$');
+
+export function build(){
+  const parts = { html: [], css: [], bottom: [], md: [], file: [], vendor: [], js: [] };
+  let seenShellBottom = false;
+  for (const [type, p] of MANIFEST){
+    const body = read(p);
+    if (type === 'md' && /<\/?script/i.test(body)) throw new Error(p + ': в Markdown не должно быть тегов script (ломает разбор HTML)');
+    if ((type === 'js' || type === 'vendor' || type === 'file') && (/<\/script/i.test(body) || body.includes(HC[0].trim()))) throw new Error(p + ': в коде не должно быть закрывающего тега script и начала HTML-комментария — соберите строку из частей: "<" + "/script>"');
+    const w = wrap(type, p, body);
+    if (type === 'html'){ if (p.endsWith('shell-bottom.html')) seenShellBottom = true; (seenShellBottom ? parts.bottom : parts.html).push(w); }
+    else parts[type].push(w);
+  }
+  const [head, ...bodyHtml] = parts.html;
+  const block = (attrs, items) => '\n' + LT + 'script ' + attrs + '>\n' + items.join('\n') + '\n' + END_SCRIPT;
+  let out = head + '\n' + LT + 'style>\n' + parts.css.join('\n') + '\n' + LT + '/style>\n' + LT + '/head>\n' + LT + 'body>\n' + bodyHtml.join('\n') + '\n' + parts.bottom.join('\n') +
+    block('type="text/markdown" id="pqm-dev-docs"', parts.md) +
+    block('type="text/plain" id="pqm-dev-files"', parts.file) +
+    block('id="pqm-vendor"', parts.vendor) +
+    block('id="pqm-app"', ["'use strict';", ...parts.js]) + '\n' + LT + '/body>\n' + LT + '/html>\n';
+  // оглавление с номерами строк (номера считаются с учётом самого оглавления)
+  const tocFor = text => {
+    const lines = text.split('\n'); const items = []; const ends = {};
+    lines.forEach((l, i) => { let m = MARK('BEGIN').exec(l); if (m) items.push([m[1], i + 1]); m = MARK('END').exec(l); if (m) ends[m[1]] = i + 1; });
+    return items.map(([p, s]) => `  ${String(s).padStart(6)}–${String(ends[p]).padEnd(6)} ${p}`).join('\n');
+  };
+  const tocHead = n => HC[0].trim() + `\n  Мастер PQ — собрано из модулей (build.mjs). НЕ РЕДАКТИРУЙТЕ этот файл вручную — правьте модуль и пересоберите.\n  Есть только этот HTML? Справка → «Для разработчика» → «⬇ build.mjs», затем:\n    node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)\n  Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.\n  ОГЛАВЛЕНИЕ (строки этого файла → модуль):\n${n}\n` + HC[1].trim() + '\n';
+  const DT = LT + '!doctype html>\n';
+  let toc = tocHead(tocFor(DT + out));
+  for (let i = 0; i < 3; i++){ const shift = toc.split('\n').length - 1; const t2 = tocHead(tocFor(DT + '\n'.repeat(shift) + out)); if (t2 === toc) break; toc = t2; }
+  return DT + toc + out;
+}
+export function split(html){
+  const lines = html.split('\n'); const files = {};
+  for (let i = 0; i < lines.length; i++){
+    const m = MARK('BEGIN').exec(lines[i]); if (!m) continue;
+    const name = m[1], endRe = MARK('END', name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    let j = i + 1; while (j < lines.length && !endRe.test(lines[j])) j++;
+    if (j >= lines.length) throw new Error('Нет конца модуля ' + name);
+    files[name] = lines.slice(i + 1, j).join('\n') + '\n'; i = j;
+  }
+  return files;
+}
+
+const args = process.argv.slice(2);
+if (args[0] === '--split'){
+  const html = fs.readFileSync(args[1], 'utf8'); const dir = args[2] || 'src-out';
+  const files = split(html);
+  for (const [p, c] of Object.entries(files)){ const f = path.join(dir, p); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, c); }
+  console.log('Модулей извлечено:', Object.keys(files).length, '→', dir);
+} else if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])){
+  const html = build();
+  fs.writeFileSync(OUT, html);
+  console.log('Собрано:', path.relative(process.cwd(), OUT), (html.length / 1024).toFixed(0) + ' КБ,', html.split('\n').length, 'строк,', MANIFEST.length, 'модулей');
+  if (args.includes('--check')){
+    const files = split(html); let bad = 0;
+    for (const [, p] of MANIFEST){ if (files[p] !== read(p) + '\n'){ console.error('Расхождение при разрезке:', p); bad++; } }
+    if (Object.keys(files).length !== MANIFEST.length){ console.error('Модулей в файле:', Object.keys(files).length, 'а в MANIFEST:', MANIFEST.length); bad++; }
+    if (bad) process.exit(1);
+    console.log('Проверка разрезки: все', MANIFEST.length, 'модулей восстанавливаются байт в байт.');
+  }
+}
+/* ===== END build.mjs ===== */
+/* ===== BEGIN test/e2e.mjs ===== */
+#!/usr/bin/env node
+/*
+  Сквозной прогон «Мастера PQ» в headless Chromium.
+  node pq-master/test/e2e.mjs [папка-для-скриншотов]
+  Требуется playwright-core (npm i playwright-core) и Chromium.
+  Путь к Chromium: переменная CHROMIUM или /opt/pw-browsers/chromium-NNNN/chrome-linux/chrome.
+  Проверяет: нет ошибок и сетевых запросов, самотест проходит целиком, основные сценарии UI,
+  собранная книга читается Python zipfile (если есть python3).
+*/
+import { chromium } from 'playwright-core';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import http from 'node:http';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const OUT = path.resolve(process.argv[2] || path.join(ROOT, 'pq-master', 'test', 'out'));
+fs.mkdirSync(OUT, { recursive: true });
+const exe = process.env.CHROMIUM || (() => { const base = '/opt/pw-browsers'; try { const d = fs.readdirSync(base).find(x => /^chromium-\d+/.test(x)); return d ? path.join(base, d, 'chrome-linux', 'chrome') : undefined; } catch { return undefined; } })();
+const browser = await chromium.launch({ executablePath: exe, env: { ...process.env, LANG: 'C.UTF-8', LC_ALL: 'C.UTF-8' } });
+const ctx = await browser.newContext({ acceptDownloads: true, viewport: { width: 1500, height: 950 } });
+const page = await ctx.newPage();
+const problems = [];
+page.on('pageerror', e => problems.push('pageerror: ' + e.message));
+page.on('console', m => { if (m.type() === 'error') problems.push('console.error: ' + m.text()); });
+page.on('request', r => { if (!/^(file|data|blob):/.test(r.url())) problems.push('СЕТЬ: ' + r.url()); });
+let failed = 0; const check = (name, cond, detail) => { console.log((cond ? 'PASS ' : 'FAIL ') + name + (detail ? ' — ' + detail : '')); if (!cond) failed++; };
+const shot = n => page.screenshot({ path: path.join(OUT, n + '.png') });
+
+await page.goto('file://' + path.join(ROOT, 'pq-master.html'));
+await page.waitForTimeout(300);
+await shot('01-welcome');
+check('Загрузка без ошибок', !problems.length, problems.join(' | '));
+
+// самотест
+const st = await page.evaluate(async () => { const r = await runSelfTest(); return { passed: r.passed, total: r.total, bad: r.R.filter(x => !x.pass).map(x => x.name + ' :: ' + x.detail) }; });
+check('Самотест ' + st.passed + '/' + st.total, st.passed === st.total, st.bad.join(' || '));
+
+// демо-книга
+await page.click('#homeDemo'); await page.waitForSelector('#homeBook:not(.hidden)');
+await shot('02-overview');
+const score0 = await page.evaluate(() => S.opt.score);
+check('Обзор: книга открыта, оценка посчитана', score0 > 0 && score0 < 100, 'оценка ' + score0);
+
+// редактор: автодополнение и применение
+await page.click('[data-view=editor]'); await page.waitForSelector('.cm-editor');
+await page.click('#edQList li[data-q="Курсы"]'); await page.waitForTimeout(200);
+await page.click('.cm-content'); await page.keyboard.press('Control+End'); await page.keyboard.press('Enter'); await page.keyboard.type('// проверка Table.Sel');
+await page.keyboard.press('Control+Space'); await page.waitForTimeout(300);
+const ac = await page.$$eval('.cm-tooltip-autocomplete li', l => l.slice(0, 5).map(x => x.textContent));
+check('Редактор: автодополнение предлагает функции', ac.some(x => /Table\.Select/.test(x)), ac.join(', '));
+await page.keyboard.press('Escape');
+await shot('03-editor');
+await page.keyboard.press('Control+Enter'); await page.waitForTimeout(200);
+const histLen = await page.evaluate(() => S.hist.length);
+check('Редактор: Ctrl+Enter применяет правку (история)', histLen === 2, 'записей ' + histLen);
+
+// подсказка сигнатуры
+await page.keyboard.press('Enter'); await page.keyboard.type('x = Table.AddColumn(t, "a", ');
+await page.waitForTimeout(200);
+const sig = await page.$eval('.sig-tip', e => e.textContent).catch(() => '');
+check('Редактор: подсказка сигнатуры с текущим аргументом', /columnGenerator/.test(sig), sig.slice(0, 80));
+await page.click('#edRevert');
+
+// оптимизатор
+await page.click('[data-view=optimizer]'); await page.waitForTimeout(300); await shot('04-optimizer');
+await page.click('#optApplySafe'); await page.waitForSelector('#modal button[data-v=go]'); await page.click('#modal button[data-v=go]'); await page.waitForTimeout(400);
+const score1 = await page.evaluate(() => S.opt.score);
+check('Оптимизатор: «все безопасные» повышают оценку', score1 > score0, score0 + ' → ' + score1);
+await shot('05-optimizer-after');
+
+// граф, песочница
+await page.click('[data-view=graph]'); await page.waitForTimeout(200); await shot('06-graph');
+await page.click('[data-view=sandbox]'); await page.waitForTimeout(200);
+await page.click('#sbEval'); await page.waitForTimeout(200);
+const sbOut = await page.$eval('#sbExprOut', e => e.textContent);
+check('Песочница: выражение вычисляется', /Север/.test(sbOut), sbOut.slice(0, 80));
+await shot('07-sandbox');
+await page.click('#sbMode [data-m=query]'); await page.waitForTimeout(100);
+await page.selectOption('#sbQSel', 'Продажи'); await page.click('#sbQRun'); await page.waitForTimeout(200);
+const srcErr = await page.$eval('#sbStepOut', e => e.textContent);
+check('Песочница: шаг-источник просит подмену образцом', /DataSource\.Error/.test(srcErr));
+await shot('08-sandbox-steps');
+
+// палитра
+await page.keyboard.press('Control+k'); await page.keyboard.type('?Text.Pad'); await page.waitForTimeout(150);
+const pal = await page.$$eval('.pal-item .lbl', l => l.map(x => x.textContent));
+check('Палитра: поиск функций', pal.some(x => /Text\.PadStart/.test(x)), pal.slice(0, 3).join(', '));
+await shot('09-palette'); await page.keyboard.press('Escape');
+
+// сохранить копию → проверка Python
+const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => { window.showSaveFilePicker = undefined; delete window.showSaveFilePicker; return saveCopy(); })]);
+const saved = path.join(OUT, 'saved.xlsx'); await dl.saveAs(saved);
+check('Сохранение копии: имя файла', /_исправлено\.xlsx$/.test(dl.suggestedFilename()), dl.suggestedFilename());
+try {
+  const py = execFileSync('python3', ['-I', '-c', 'import zipfile,sys,base64,struct,io\nz=zipfile.ZipFile(sys.argv[1]);assert z.testzip() is None\nraw=z.read("customXml/item1.xml")[2:].decode("utf-16le")\nb=base64.b64decode(raw.split(">",2)[2].split("<")[0]);n=struct.unpack("<I",b[4:8])[0]\np=zipfile.ZipFile(io.BytesIO(b[8:8+n]));assert p.testzip() is None\nprint(len(p.read("Formulas/Section1.m")))', saved]).toString().trim();
+  const workLen = await page.evaluate(() => new TextEncoder().encode(S.work).length);
+  check('Сохранённая книга читается Python zipfile, Section1.m = рабочей версии', +py === workLen, py + ' / ' + workLen + ' байт');
+} catch (e){ console.log('SKIP python-проверка: ' + e.message.split('\n')[0]); }
+
+// обезличивание, документация, история, справка
+await page.click('[data-view=anon]'); await page.waitForTimeout(300); await shot('10-anon');
+const leaks = await page.evaluate(() => S.scan.filter(f => f.sev === 'crit').length);
+check('Обезличивание: сканер без критичных находок', leaks === 0, String(leaks));
+await page.click('[data-view=docs]'); await page.waitForTimeout(300); await shot('11-docs');
+await page.click('[data-view=history]'); await page.waitForTimeout(200); await shot('12-history');
+await page.click('[data-view=reference]'); await page.waitForTimeout(200); await shot('13-reference');
+await page.click('[data-view=snippets]'); await page.click('[data-sn=calendar]'); await page.waitForTimeout(200); await shot('14-snippets');
+await page.click('[data-view=help]'); await page.click('#helpTabs [data-h=dev]'); await page.waitForTimeout(200);
+const dev = await page.$eval('#helpDev', e => e.textContent);
+check('Справка для разработчика встроена и отрисована', /Карта модулей/.test(dev));
+const devBtns = await page.$$eval('#helpDev [data-devfile]', l => l.map(b => b.dataset.devfile));
+check('Файлы разработки встроены: сборщик, тесты, точка входа CodeMirror', ['build.mjs', 'test/e2e.mjs', 'test/stress.mjs', 'vendor/codemirror.entry.js'].every(f => devBtns.includes(f)), devBtns.join(', '));
+await shot('15-help-dev');
+// темы: меню в верхней панели
+for (const th of ['dark', 'calm', 'fun']){
+  await page.click('#tbTheme'); await page.click('#themeMenu [data-theme-id=' + th + ']'); await page.waitForTimeout(150);
+  const cur = await page.evaluate(() => document.documentElement.dataset.theme);
+  check('Тема «' + th + '» включается из меню', cur === th, String(cur));
+  await page.click('[data-view=home]'); await page.waitForTimeout(150); await shot('16-' + th + '-home');
+  await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
+  await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
+}
+// подсказки разделов
+await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
+const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');
+check('Подсказка раздела показывается', hint.length > 20, hint.slice(0, 60));
+await page.click('#view-graph .hintbar button'); await page.waitForTimeout(100);
+check('«Понятно» скрывает подсказку', !(await page.$('#view-graph .hintbar')));
+
+// запись в оригинал: OPFS даёт такие же FileSystemFileHandle, как диалог «Открыть» (нужен http-источник)
+{
+  const srv = http.createServer((q, r) => { r.setHeader('content-type', 'text/html; charset=utf-8'); r.end(fs.readFileSync(path.join(ROOT, 'pq-master.html'))); }).listen(0);
+  const p2 = await ctx.newPage(); p2.on('pageerror', e => problems.push('pageerror(http): ' + e.message));
+  await p2.goto('http://127.0.0.1:' + srv.address().port + '/');
+  const ev = fn => p2.evaluate(fn);
+  const clickModal = async (v) => { await p2.waitForSelector('#modalBg.on', { timeout: 3000 }); const t = await p2.$eval('#modal', e => e.innerText); await p2.click('#modal button[data-v=' + v + ']'); return t; };
+  await ev(async () => { saveSettings({ backupOnSave: false }); const root = await navigator.storage.getDirectory(); const h = await root.getFileHandle('book.xlsx', { create: true }); const w = await h.createWritable(); await w.write(await makeTestBook()); await w.close(); window.__h = h; await openFromHandle(h, true); setWork(applyAllSafeText(S.work, S.book.meta).text, 'optimizer', 'e2e'); });
+  const pr = ev(() => saveToOriginal()); await clickModal('go'); await pr;
+  const saved1 = await ev(async () => { const f = await window.__h.getFile(); const re = await loadBookFromBytes('x', new Uint8Array(await f.arrayBuffer())); return re.origSection === S.work && !isDirty(); });
+  check('В оригинал: файл перезаписан, перечитан и совпадает с рабочей версией', saved1);
+  await ev(async () => { setWork(S.work + '\r\n// ещё\r\n', 'editor', 'e2e 2'); const w = await window.__h.createWritable(); await w.write(await makeTestBook()); await w.close(); });
+  const pr2 = ev(() => saveToOriginal()); await clickModal('go'); const warn = await clickModal('ok'); await pr2;
+  const untouched = await ev(async () => { const f = await window.__h.getFile(); return (await loadBookFromBytes('x', new Uint8Array(await f.arrayBuffer()))).origSection === TEST_SECTION; });
+  check('В оригинал: если файл изменился на диске — запись блокируется', /изменился/.test(warn) && untouched);
+  await p2.close(); srv.close();
+}
+
+check('Итог: нет ошибок консоли и сетевых запросов', !problems.length, problems.join(' | '));
+await browser.close();
+console.log(failed ? '\nПРОВАЛЕНО проверок: ' + failed : '\nВсе проверки пройдены. Скриншоты: ' + OUT);
+process.exit(failed ? 1 : 0);
+/* ===== END test/e2e.mjs ===== */
+/* ===== BEGIN test/stress.mjs ===== */
+#!/usr/bin/env node
+/*
+  Стресс-проверки ядра «Мастера PQ» в Node.js, без браузера и зависимостей.
+  node pq-master/test/stress.mjs [итераций=2000] [зерно=1]
+
+  1. Фаззинг M-кода: случайно испорченные варианты тестовых запросов. Анализ, линтер, оптимизатор,
+     подсветка, форматер не должны падать; лексер — терять символы; форматер — менять значимые
+     токены и должен быть идемпотентен; обезличивание → обратная подстановка — побайтно;
+     автоисправления на синтаксически целом коде не должны ломать скобки.
+  2. Утечки: секреты в типичных конструкциях M (литералы, параметры, переменные шагов, записи-
+     настройки, строки подключения, заголовки, SQL, комментарии) не проходят в обезличенный текст.
+  3. Библиотека интерпретатора: каждая функция с аргументами неподходящих типов — только ошибки M
+     (MErr) с именем функции, никаких внутренних ошибок JS и зависаний.
+  4. Повреждённые .xlsx: чтение без зависаний, только понятные сообщения (класс Error).
+  5. Скорость на большой книге (~3800 строк): время анализа, оптимизатора, «всех безопасных».
+  Код возврата 1, если найдено хоть одно нарушение в пп. 1–4.
+*/
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const JS = p => fs.readFileSync(path.join(ROOT, 'src/js', p), 'utf8');
+const ITER = +(process.argv[2] || 2000);
+let seed = +(process.argv[3] || 1);
+const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+const pick = a => a[Math.floor(rnd() * a.length)];
+const grab = (src, re) => { const m = re.exec(src); if (!m) throw new Error('не найдено в исходниках: ' + re); return m[0]; };
+
+// ядро без DOM + чистые функции из видов (syntaxIssues, applyAllSafeText) и тестовая книга из самотеста
+const CORE = ['core/zip-mashup.js', 'm/lang.js', 'm/format.js', 'm/reference.js', 'm/interp.js', 'nda/anon.js', 'nda/diag.js', 'opt/lint.js', 'opt/optimizer.js', 'opt/refactor.js', 'opt/snippets.js'];
+const selftest = JS('app/selftest.js');
+const ctx = vm.createContext({ console, TextEncoder, TextDecoder, CompressionStream, DecompressionStream, Blob, Response, crypto, performance, setTimeout, atob, btoa });
+vm.runInContext(CORE.map(JS).join('\n') + '\n' +
+  grab(JS('views/ai.js'), /function syntaxIssues[\s\S]*?\n}\n/) +
+  grab(JS('views/optimizer.js'), /function applyAllSafeText[\s\S]*?\n}\n/) +
+  grab(selftest, /const TEST_SECTION = \[[\s\S]*?\]\.join\([^)]*\);/) + '\n' +
+  grab(selftest, /async function makeTestBook[\s\S]*?\n}\n/) +
+  '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
+const a = ctx.api;
+const semSrc = eval(grab(selftest, /const semSrc = '[^\n]*';/).replace(/^const semSrc = /, '').replace(/;$/, ''));
+let violations = 0;
+const report = (title, fails, total) => {
+  console.log((fails.size ? '✗ ' : '✓ ') + title + ' — ' + total + (fails.size ? ', нарушений: ' + [...fails.values()].reduce((s, v) => s + v.n, 0) : ', нарушений нет'));
+  for (const [k, v] of fails){ violations += v.n; console.log('   • ' + k + ' ×' + v.n + (v.detail ? '\n     ' + v.detail : '') + '\n     вход: ' + JSON.stringify(v.input.length > 300 ? v.input.slice(0, 300) + '…' : v.input)); }
+};
+const failer = () => { const m = new Map(); return [m, (kind, input, detail) => { if (!m.has(kind)) m.set(kind, { n: 0, input, detail: detail ? String(detail).split('\n').slice(0, 2).join(' | ') : '' }); m.get(kind).n++; }]; };
+
+// ---------- 1. фаззинг M-кода ----------
+{
+  const BITS = ['"', '""', '#"', '//', '/*', '*/', '(', ')', '[', ']', '{', '}', ',', ';', '=', ' each ', ' let ', ' in ', '\n', '\r\n', '\t', '   ', ' // c  ', '"x\ny"', 'é', '😀', '⟦TXT_1⟧', '⟦UNC_1⟧', '⟦', '⟧', '#date(2020,1,1)', 'shared X = 1;', '\\', '..', '=>', '0x1F', '1e5', '.5',
+    'Table.SelectRows(', 'List.Contains(Список, [k])', 'Sql.Database("a","b")', 'password=x', '\u2028', '\u00A0', '\uFEFF', ' meta [IsParameterQuery=true]'];
+  const bases = [a.TEST_SECTION, semSrc, a.TEST_SECTION.replace(/\r\n/g, '\n')];
+  const mutate = s => { for (let i = 0, k = 1 + Math.floor(rnd() * 4); i < k; i++){ const p = Math.floor(rnd() * (s.length + 1)), r = rnd();
+    if (r < 0.15) s = s.slice(0, p);
+    else if (r < 0.4) s = s.slice(0, p) + s.slice(Math.min(s.length, p + Math.floor(rnd() * 40)));
+    else if (r < 0.55){ const q = Math.min(s.length, p + Math.floor(rnd() * 80)); s = s.slice(0, q) + s.slice(p, q) + s.slice(q); }
+    else s = s.slice(0, p) + pick(BITS) + s.slice(p); } return s; };
+  const cfgAll = () => { const c = a.defaultConfig(); for (const k of Object.keys(c.cats)) c.cats[k] = true; return c; };
+  const [F, fail] = failer();
+  for (let it = 0; it < ITER; it++){
+    const src = mutate(pick(bases));
+    try { if (a.lexM(src).map(t => t.v).join('') !== src) fail('лексер теряет символы', src); } catch (e){ fail('lexM бросает', src, e.stack); continue; }
+    let A, O; try { A = a.analyzeSection(src, {}); O = a.optimizeSection(src, A, a.lintSection(A)); a.highlightM(src); } catch (e){ fail('анализ/линтер/оптимизатор бросает', src, e.stack); continue; }
+    try { const f = a.formatM(src); if (JSON.stringify(a.sigTokens(f)) !== JSON.stringify(a.sigTokens(src))) fail('форматер меняет значимые токены', src); else if (a.formatM(f) !== f) fail('форматер не идемпотентен', src); } catch (e){ fail('formatM бросает', src, e.stack); }
+    for (const cfg of [a.defaultConfig(), cfgAll()]){ try { const d = new a.TokenDict(); const an = a.anonymizeM(src, cfg, d); if (a.restoreTokens(an.out, d).out !== src) fail('обезличивание → подстановка не побайтно', src); a.scanLeaks(an.out, cfg, d); } catch (e){ fail('обезличивание бросает', src, e.stack); } }
+    if (!a.syntaxIssues(src).length) for (const f of O.findings) if (f.fix){ try { if (a.syntaxIssues(f.fix(src)).length) fail('исправление ломает синтаксис: ' + f.rule, src); } catch (e){ fail('исправление бросает: ' + f.rule, src, e.stack); } }
+  }
+  report('Фаззинг M-кода', F, ITER + ' вариантов');
+}
+
+// ---------- 2. утечки ----------
+{
+  const id = () => Math.floor(rnd() * 1e9).toString(36).toUpperCase();
+  const CASES = {
+    'Sql.Database, FQDN': S => `shared Q = Sql.Database("${S.fq}", "${S.db}");`,
+    'Sql.Database, короткое имя': S => `shared Q = Sql.Database("${S.bare}", "${S.db}");`,
+    'параметры с meta': S => `shared P1 = "${S.bare}" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true];\r\nshared P2 = "${S.db}" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true];\r\nshared Q = Sql.Database(P1, P2);`,
+    'запросы-строки без meta': S => `shared Сервер = "${S.bare}";\r\nshared База = "${S.db}";\r\nshared Q = Sql.Database(Сервер, База);`,
+    'переменные шагов': S => `shared Q = let\r\n    Сервер = "${S.bare}",\r\n    База = "${S.db}",\r\n    Источник = Sql.Database(Сервер, База)\r\nin\r\n    Источник;`,
+    'запись-настройка в функцию': S => `shared F = (cfg as record) => Sql.Database(cfg[Server], cfg[Database]);\r\nshared Q = F([Server = "${S.bare}", Database = "${S.db}"]);`,
+    'строка подключения ODBC': S => `shared Q = Odbc.Query("Driver={SQL Server};Server=${S.bare};Database=${S.db};UID=${S.user};PWD=${S.pw}", "SELECT 1");`,
+    'DSN с паролем': S => `shared Q = Odbc.DataSource("dsn=${S.bare};uid=${S.user};pwd=${S.pw}", [HierarchicalNavigation=true]);`,
+    'пароль в переменной шага': S => `shared Q = let\r\n    Password = "${S.pw}",\r\n    x = Odbc.DataSource("dsn=x;pwd=" & Password)\r\nin\r\n    x;`,
+    'токен в переменной (по имени)': S => `shared Q = let\r\n    Токен = "${S.key}",\r\n    r = Web.Contents("https://${S.host}", [Headers=[Authorization="Bearer " & Токен]])\r\nin\r\n    r;`,
+    'ключ в URL': S => `shared Q = Web.Contents("https://${S.host}/v1/data?apikey=${S.key}");`,
+    'заголовок Bearer': S => `shared Q = Web.Contents("https://${S.host}/v1", [Headers=[Authorization="Bearer ${S.key}"]]);`,
+    'заголовок X-Api-Key': S => `shared Q = Web.Contents("https://${S.host}/v1", [Headers=[#"X-Api-Key"="${S.key}"]]);`,
+    'Query=[…]': S => `shared Q = Web.Contents("https://${S.host}/v1", [Query=[apikey="${S.key}", client="${S.client}"]]);`,
+    'RelativePath': S => `shared Q = Web.Contents("https://${S.host}", [RelativePath="clients/${S.client}/orders"]);`,
+    'URL конкатенацией': S => `shared Q = Web.Contents("https://${S.host}/api/" & "items?token=${S.key}");`,
+    'локальный путь': S => `shared Q = Excel.Workbook(File.Contents("C:\\Users\\${S.user}\\Docs\\${S.client}.xlsx"), null, true);`,
+    'UNC': S => `shared Q = Folder.Files("\\\\${S.bare}\\share$\\${S.client}");`,
+    'путь и файл в переменных': S => `shared Q = let\r\n    Папка = "D:\\Отчёты\\",\r\n    Файл = "${S.client}.xlsx",\r\n    Источник = Excel.Workbook(File.Contents(Папка & Файл))\r\nin\r\n    Источник;`,
+    'SharePoint': S => `shared Q = SharePoint.Files("https://${S.tenant}.sharepoint.com/sites/${S.client}", [ApiVersion = 15]);`,
+    'литерал в SQL': S => `shared Q = Value.NativeQuery(Sql.Database("${S.fq}", "${S.db}"), "SELECT * FROM dbo.Orders WHERE Client = '${S.client}'");`,
+    'фильтр по тексту': S => `shared Q = let\r\n    t = #table({"Client"}, {{"a"}}),\r\n    f = Table.SelectRows(t, each [Client] = "${S.client}")\r\nin\r\n    f;`,
+    'e-mail в комментарии': S => `shared Q = let\r\n    // ответственный: ${S.email}\r\n    x = 1\r\nin\r\n    x;`,
+    'IP вместо сервера': S => `shared Q = Sql.Database("${S.ip}", "${S.db}");`,
+    'OData с ключом': S => `shared Q = OData.Feed("https://${S.host}/odata/", null, [Headers=[apikey="${S.key}"]]);`
+  };
+  const [F, fail] = failer(); const per = Math.max(5, Math.round(ITER / 100));
+  for (const [name, gen] of Object.entries(CASES)) for (let i = 0; i < per; i++){
+    const S = { fq: 'sqlx' + id().toLowerCase() + '.corp.local', bare: 'SRVX' + id(), db: 'DBX' + id(), user: 'usrx' + id().toLowerCase(), pw: 'Pw' + id() + '!x', host: 'apix' + id().toLowerCase() + '.example.com', key: 'K' + id() + id(), client: 'Клиент' + id(), email: 'm' + id().toLowerCase() + '@firm.ru', ip: '10.' + (1 + Math.floor(rnd() * 250)) + '.' + Math.floor(rnd() * 250) + '.' + (1 + Math.floor(rnd() * 250)), tenant: 'tn' + id().toLowerCase() };
+    const src = 'section Section1;\r\n\r\n' + gen(S) + '\r\n'; const d = new a.TokenDict(); const an = a.anonymizeM(src, a.defaultConfig(), d);
+    const hit = Object.entries(S).filter(([, v]) => src.includes(v) && an.out.includes(v)).map(([k]) => k);
+    if (hit.length) fail(name + ': ' + hit.join(', '), an.out);
+    if (a.restoreTokens(an.out, d).out !== src) fail(name + ': подстановка не побайтно', src);
+  }
+  report('Утечки при обезличивании', F, Object.keys(CASES).length + ' конструкций × ' + per);
+}
+
+// ---------- 3. библиотека интерпретатора ----------
+{
+  const ARGS = ['null', '1', '-2.5', '"abc"', '""', '{1, 2, 3}', '{}', '[a = 1]', '#table({"a"}, {{1}, {2}})', '#date(2024, 2, 29)', '#duration(1, 2, 3, 4)', 'true', '(x) => x', 'each _', '{"a", "b"}', '#datetime(2024,1,1,10,0,0)', 'type text', '"a,b;c"', '0'];
+  const [F, fail] = failer(); let calls = 0;
+  for (const fn of Object.keys(a.MLIB)) for (let n = 0; n <= 4; n++) for (let r = 0; r < (n ? 8 : 1); r++){
+    const expr = fn + '(' + Array.from({ length: n }, () => pick(ARGS)).join(', ') + ')'; calls++;
+    try { ctx.__e = expr; vm.runInContext('api.mEval(__e, null)', ctx, { timeout: 2000 }); }
+    catch (e){ const msg = String(e && e.message || e);
+      if (/timed out/.test(msg)) fail('зависание', expr);
+      else if (!(e instanceof a.MErr)) fail('не ошибка M: ' + (e && e.constructor && e.constructor.name), expr, msg);
+      else if (/^undefined:/.test(msg)) fail('сообщение без имени функции', expr, msg); }
+  }
+  report('Библиотека интерпретатора', F, Object.keys(a.MLIB).length + ' функций, ' + calls + ' вызовов');
+}
+
+// ---------- 4. повреждённые книги ----------
+{
+  const good = await a.makeTestBook(); const [F, fail] = failer(); const n = Math.max(200, Math.round(ITER / 2));
+  const timeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('ТАЙМАУТ')), ms))]);
+  for (let it = 0; it < n; it++){
+    let b = good.slice(); for (let i = 0, k = 1 + Math.floor(rnd() * 6); i < k; i++) b[Math.floor(rnd() * b.length)] = Math.floor(rnd() * 256);
+    if (rnd() < 0.1) b = b.slice(0, Math.floor(rnd() * b.length));
+    try { const bk = await timeout(a.loadBookFromBytes('t.xlsx', b), 5000); await timeout(a.buildBookWithSection(bk, bk.origSection + '\r\n'), 5000); }
+    catch (e){ if (/ТАЙМАУТ/.test(e.message)) fail('зависание', '(байты)'); else if (e.constructor.name !== 'Error') fail('внутренняя ошибка ' + e.constructor.name, '(байты)', e.message); }
+  }
+  report('Повреждённые книги', F, n + ' файлов');
+}
+
+// ---------- 5. скорость ----------
+{
+  const body = a.TEST_SECTION.replace(/^section Section1;\s*/, ''); const names = [...body.matchAll(/shared\s+(#"[^"]+"|[\p{L}_][\p{L}\p{N}_]*)\s*=/gu)].map(m => m[1]);
+  let big = 'section Section1;\r\n\r\n';
+  for (let i = 0; i < 100; i++){ let b = body; for (const nm of names){ const bare = nm.startsWith('#"') ? nm.slice(2, -1) : nm; b = b.split(nm).join('#"' + bare + ' ' + i + '"'); } big += b + '\r\n'; }
+  const t = (label, fn) => { const s = performance.now(); const r = fn(); console.log('   ' + label.padEnd(30) + (performance.now() - s).toFixed(0).padStart(6) + ' мс'); return r; };
+  console.log('⏱ Скорость: книга ' + big.split('\n').length + ' строк');
+  const A = t('analyzeSection', () => a.analyzeSection(big, {}));
+  const L = t('lintSection', () => a.lintSection(A));
+  t('optimizeSection', () => a.optimizeSection(big, A, L));
+  t('anonymizeM', () => a.anonymizeM(big, a.defaultConfig(), new a.TokenDict()));
+  t('formatM', () => a.formatM(big));
+  const r = t('applyAllSafeText', () => a.applyAllSafeText(big, {}));
+  console.log('   (безопасных исправлений: ' + r.applied.length + ')');
+}
+console.log(violations ? '\nНАРУШЕНИЙ: ' + violations : '\nВсе стресс-проверки пройдены.');
+process.exit(violations ? 1 : 0);
+/* ===== END test/stress.mjs ===== */
+/* ===== BEGIN vendor/codemirror.entry.js ===== */
+import { EditorState, StateEffect, StateField, Compartment, Prec } from '@codemirror/state';
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightSpecialChars, Decoration, ViewPlugin, hoverTooltip, showTooltip, tooltips } from '@codemirror/view';
+import { StreamLanguage, syntaxHighlighting, HighlightStyle, bracketMatching, foldGutter, indentOnInput, indentUnit, foldService } from '@codemirror/language';
+import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo } from '@codemirror/commands';
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap, snippetCompletion } from '@codemirror/autocomplete';
+import { searchKeymap, highlightSelectionMatches, openSearchPanel } from '@codemirror/search';
+import { linter, lintGutter, lintKeymap, forceLinting } from '@codemirror/lint';
+import { tags } from '@lezer/highlight';
+window.CM = { EditorState, StateEffect, StateField, Compartment, Prec, EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightSpecialChars, Decoration, ViewPlugin, hoverTooltip, showTooltip, tooltips,
+  StreamLanguage, syntaxHighlighting, HighlightStyle, bracketMatching, foldGutter, indentOnInput, indentUnit, foldService,
+  defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap, snippetCompletion,
+  searchKeymap, highlightSelectionMatches, openSearchPanel, linter, lintGutter, lintKeymap, forceLinting, tags };
+/* ===== END vendor/codemirror.entry.js ===== */
 </script>
 <script id="pqm-vendor">
 /* ===== BEGIN vendor/codemirror.bundle.js ===== */
@@ -2392,7 +2933,6 @@ function mToText(v){
   return String(v);
 }
 function mLit(v){ v = force(v); return typeof v === 'string' ? '"' + v.replace(/"/g, '""') + '"' : mToText(v); }
-function needType(v, t, fn){ if (mTypeName(v) !== t && !(t === 'date' && v instanceof MDate)) throw new MErr('Expression.Error', (fn ? fn + ': ' : '') + 'ожидался ' + t + ', получен ' + mTypeName(v) + ' (' + mToText(v).slice(0, 40) + ')'); return v; }
 function typeIs(v, ty){
   if (!(ty instanceof MType)) return false; const n = ty.name; const tn = mTypeName(v);
   if (v === null) return ty.nullable || n === 'any' || n === 'null' || n === 'nullable';
@@ -2580,7 +3120,6 @@ const num = (v, fn) => { v = force(v); if (typeof v !== 'number') throw new MErr
 const lst = (v, fn) => { v = force(v); if (!Array.isArray(v)) throw new MErr('Expression.Error', fn + ': ожидался list, получено ' + mTypeName(v)); return v.map(force); };
 const tab = (v, fn) => { v = force(v); if (!(v instanceof MTab)) throw new MErr('Expression.Error', fn + ': ожидалась table, получено ' + mTypeName(v)); return v; };
 const rec = (v, fn) => { v = force(v); if (!(v instanceof MRec)) throw new MErr('Expression.Error', fn + ': ожидалась record, получено ' + mTypeName(v)); return v; };
-const fnArg = v => { v = force(v); if (!(v instanceof MFn)) throw new MErr('Expression.Error', 'Ожидалась функция'); return v; };
 const cmpOpt = c => { c = force(c); return c instanceof MFn && c.name === 'Comparer.OrdinalIgnoreCase' || (c instanceof MFn && /IgnoreCase/.test(c.name)); };
 const lower = (s, ci) => ci ? s.toLowerCase() : s;
 const roundHalfEven = (x, d) => { const f = Math.pow(10, d || 0); const v = x * f; const r = Math.round(v); const diff = Math.abs(v % 1); return (diff === 0.5 ? (r % 2 === 0 ? r : r - 1) : r) / f; };
@@ -3617,7 +4156,6 @@ function diagVizData(rows){
    Линтер / оптимизатор, параметризатор, diff
    ===================================================================== */
 const FOLD_BREAKERS = new Set(['Table.Buffer','List.Buffer','Table.AddIndexColumn','Table.FromRows','Table.FromRecords','Table.FromList','Table.FromColumns','Table.TransformRows','Table.SplitColumn','Table.FillDown','Table.FillUp','Table.ReplaceErrorValues','Table.PromoteHeaders','Table.DemoteHeaders','Table.Transpose','Table.ReverseRows','Table.Repeat','Table.AlternateRows','List.Generate','List.Accumulate','Table.RemoveRowsWithErrors','Table.InsertRows','Table.Profile','Table.Partition','Table.FuzzyNestedJoin','Table.FuzzyJoin','Table.AddFuzzyClusterColumn','Table.StopFolding','Table.ToRows','Table.ToRecords','Table.ToList']);
-const FOLDABLE_OPS = new Set(['Table.SelectRows','Table.SelectColumns','Table.RemoveColumns','Table.Group','Table.Sort','Table.Distinct','Table.FirstN','Table.RenameColumns','Table.TransformColumnTypes','Table.NestedJoin','Table.Join','Table.ExpandTableColumn','Table.AddColumn','Table.Skip','Table.RowCount','Table.ReorderColumns']);
 const LOCALE_FNS = ['Date.FromText','DateTime.FromText','DateTimeZone.FromText','Number.FromText','Currency.From','Time.FromText','Duration.FromText','Percentage.From'];
 
 function callArgs(toks, st, openTi){
@@ -4692,11 +5230,6 @@ function wireDrop(el, handler){
   el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('hot'); handler(e); });
 }
 function markTokens(s){ return escHtml(s).replace(/⟦[A-Z]+_\d+⟧/g, m => '<mark class="tk">' + m + '</mark>'); }
-function lintTable(list, withQuery){
-  if (!list.length) return '<div class="note ok small">Замечаний нет.</div>';
-  return '<table class="t"><tr><th>Уровень</th>' + (withQuery ? '<th>Запрос</th>' : '') + '<th>Шаг</th><th>Что не так</th><th>Что сделать</th></tr>' + list.map(l =>
-    '<tr><td><span class="sev ' + l.sev + '">' + SEV_LABEL[l.sev] + '</span></td>' + (withQuery ? '<td><button class="link" data-open="' + escHtml(l.query) + '">' + escHtml(l.query) + '</button></td>' : '') + '<td>' + escHtml(l.step) + '</td><td>' + escHtml(l.msg) + '</td><td class="small muted">' + escHtml(l.fix) + '</td></tr>').join('') + '</table>';
-}
 /** SVG-шкала оценки 0–100 */
 function gaugeSvg(score, size){
   size = size || 112; const r = size / 2 - 9, c = Math.PI * r * 1.5; const v = Math.max(0, Math.min(100, score)) / 100;
@@ -5012,7 +5545,6 @@ function setTheme(t){ saveSettings({ theme: t }); applyTheme(); renderThemeMenu(
 function renderThemeMenu(){ const cur = pqmSettings().theme; $('#themeMenu').innerHTML = THEMES.map(([id, label, sw]) => '<button data-theme-id="' + id + '"><span class="swatch" style="background:' + sw + '"></span>' + label + (id === cur ? ' ✓' : '') + '</button>').join(''); }
 $('#tbTheme').onclick = e => { e.stopPropagation(); renderThemeMenu(); const m = $('#themeMenu'); const on = !m.classList.contains('on'); $$('.menu.on').forEach(x => x.classList.remove('on')); m.classList.toggle('on', on); };
 $('#themeMenu').addEventListener('click', e => { const b = e.target.closest('[data-theme-id]'); if (b){ setTheme(b.dataset.themeId); $('#themeMenu').classList.remove('on'); } });
-function toggleTheme(){ const ids = THEMES.map(t => t[0]).slice(1); const i = ids.indexOf(pqmSettings().theme); setTheme(ids[(i + 1) % ids.length]); }
 $('#fileOpen').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openFromFile(f); });
 window.addEventListener('dragover', e => { if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault(); });
 window.addEventListener('drop', e => { if (e.target.closest && e.target.closest('.drop')) return; e.preventDefault(); if (curView === 'diag'){ addDiagFiles([...e.dataTransfer.files]); return; } handleDrop(e); });
@@ -6580,8 +7112,25 @@ function mdToHtml(md){
   return h;
 }
 function devDocsText(){ const el = document.getElementById('pqm-dev-docs'); if (!el) return ''; const t = el.textContent; const lt = '<'; const m = new RegExp(lt + '!-- ===== BEGIN DEV\\.md ===== -->\\n([\\s\\S]*?)\\n' + lt + '!-- ===== END DEV\\.md ===== -->').exec(t); return m ? m[1] : t; }
+/** Файлы разработки, встроенные в блок pqm-dev-files (сборщик, тесты, точка входа CodeMirror) */
+function devFiles(){
+  const el = document.getElementById('pqm-dev-files'); if (!el) return [];
+  const out = []; const re = /^\/\* ===== BEGIN (\S+) ===== \*\/\n([\s\S]*?)\n\/\* ===== END \1 ===== \*\/$/gm; let m;
+  while ((m = re.exec(el.textContent))) out.push({ path: m[1], text: m[2] + '\n' });
+  return out;
+}
+function renderDevTab(){
+  const files = devFiles();
+  $('#helpDev').innerHTML = '<div class="card">' + mdToHtml(devDocsText()) + '</div>' +
+    '<div class="card"><h2>Файлы разработки в этом HTML</h2><p class="small muted">Начните с build.mjs: <code>node build.mjs --split pq-master.html pq-master</code> восстановит все исходники.</p>' +
+    '<div class="row"><button class="btn" data-devfile="DEV.md">⬇ DEV.md</button>' + files.map(f => '<button class="btn" data-devfile="' + escHtml(f.path) + '" title="' + escHtml(f.path) + ' · ' + (f.text.length / 1024).toFixed(0) + ' КБ">⬇ ' + escHtml(f.path.split('/').pop()) + '</button>').join('') + '</div></div>';
+  $$('[data-devfile]', $('#helpDev')).forEach(b => b.onclick = () => {
+    const p = b.dataset.devfile; if (p === 'DEV.md') return download('DEV.md', devDocsText(), 'text/markdown;charset=utf-8');
+    const f = files.find(x => x.path === p); if (f) download(p.split('/').pop(), f.text, 'text/javascript;charset=utf-8');
+  });
+}
 $('#helpUser').innerHTML = HELP_HTML;
-$('#helpTabs').addEventListener('click', e => { const b = e.target.closest('[data-h]'); if (!b) return; $$('#helpTabs button').forEach(x => x.classList.toggle('on', x === b)); $('#helpUser').classList.toggle('hidden', b.dataset.h !== 'user'); $('#helpDev').classList.toggle('hidden', b.dataset.h !== 'dev'); if (b.dataset.h === 'dev' && !$('#helpDev').innerHTML) $('#helpDev').innerHTML = '<div class="card">' + mdToHtml(devDocsText()) + '<div class="row"><button class="btn" id="dlDevDocs">⬇ DEV.md</button></div></div>'; const d = $('#dlDevDocs'); if (d) d.onclick = () => download('DEV.md', devDocsText(), 'text/markdown;charset=utf-8'); });
+$('#helpTabs').addEventListener('click', e => { const b = e.target.closest('[data-h]'); if (!b) return; $$('#helpTabs button').forEach(x => x.classList.toggle('on', x === b)); $('#helpUser').classList.toggle('hidden', b.dataset.h !== 'user'); $('#helpDev').classList.toggle('hidden', b.dataset.h !== 'dev'); if (b.dataset.h === 'dev' && !$('#helpDev').innerHTML) renderDevTab(); });
 registerView('help', { render: () => {} });
 /* ===== END src/js/views/help.js ===== */
 /* ===== BEGIN src/js/app/selftest.js ===== */

@@ -193,7 +193,6 @@ function mToText(v){
   return String(v);
 }
 function mLit(v){ v = force(v); return typeof v === 'string' ? '"' + v.replace(/"/g, '""') + '"' : mToText(v); }
-function needType(v, t, fn){ if (mTypeName(v) !== t && !(t === 'date' && v instanceof MDate)) throw new MErr('Expression.Error', (fn ? fn + ': ' : '') + 'ожидался ' + t + ', получен ' + mTypeName(v) + ' (' + mToText(v).slice(0, 40) + ')'); return v; }
 function typeIs(v, ty){
   if (!(ty instanceof MType)) return false; const n = ty.name; const tn = mTypeName(v);
   if (v === null) return ty.nullable || n === 'any' || n === 'null' || n === 'nullable';
@@ -381,7 +380,6 @@ const num = (v, fn) => { v = force(v); if (typeof v !== 'number') throw new MErr
 const lst = (v, fn) => { v = force(v); if (!Array.isArray(v)) throw new MErr('Expression.Error', fn + ': ожидался list, получено ' + mTypeName(v)); return v.map(force); };
 const tab = (v, fn) => { v = force(v); if (!(v instanceof MTab)) throw new MErr('Expression.Error', fn + ': ожидалась table, получено ' + mTypeName(v)); return v; };
 const rec = (v, fn) => { v = force(v); if (!(v instanceof MRec)) throw new MErr('Expression.Error', fn + ': ожидалась record, получено ' + mTypeName(v)); return v; };
-const fnArg = v => { v = force(v); if (!(v instanceof MFn)) throw new MErr('Expression.Error', 'Ожидалась функция'); return v; };
 const cmpOpt = c => { c = force(c); return c instanceof MFn && c.name === 'Comparer.OrdinalIgnoreCase' || (c instanceof MFn && /IgnoreCase/.test(c.name)); };
 const lower = (s, ci) => ci ? s.toLowerCase() : s;
 const roundHalfEven = (x, d) => { const f = Math.pow(10, d || 0); const v = x * f; const r = Math.round(v); const diff = Math.abs(v % 1); return (diff === 0.5 ? (r % 2 === 0 ? r : r - 1) : r) / f; };

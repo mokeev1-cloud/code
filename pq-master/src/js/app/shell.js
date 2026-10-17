@@ -100,7 +100,6 @@ function setTheme(t){ saveSettings({ theme: t }); applyTheme(); renderThemeMenu(
 function renderThemeMenu(){ const cur = pqmSettings().theme; $('#themeMenu').innerHTML = THEMES.map(([id, label, sw]) => '<button data-theme-id="' + id + '"><span class="swatch" style="background:' + sw + '"></span>' + label + (id === cur ? ' ✓' : '') + '</button>').join(''); }
 $('#tbTheme').onclick = e => { e.stopPropagation(); renderThemeMenu(); const m = $('#themeMenu'); const on = !m.classList.contains('on'); $$('.menu.on').forEach(x => x.classList.remove('on')); m.classList.toggle('on', on); };
 $('#themeMenu').addEventListener('click', e => { const b = e.target.closest('[data-theme-id]'); if (b){ setTheme(b.dataset.themeId); $('#themeMenu').classList.remove('on'); } });
-function toggleTheme(){ const ids = THEMES.map(t => t[0]).slice(1); const i = ids.indexOf(pqmSettings().theme); setTheme(ids[(i + 1) % ids.length]); }
 $('#fileOpen').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openFromFile(f); });
 window.addEventListener('dragover', e => { if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault(); });
 window.addEventListener('drop', e => { if (e.target.closest && e.target.closest('.drop')) return; e.preventDefault(); if (curView === 'diag'){ addDiagFiles([...e.dataTransfer.files]); return; } handleDrop(e); });

@@ -126,6 +126,23 @@ function mdToHtml(md){
   return h;
 }
 function devDocsText(){ const el = document.getElementById('pqm-dev-docs'); if (!el) return ''; const t = el.textContent; const lt = '<'; const m = new RegExp(lt + '!-- ===== BEGIN DEV\\.md ===== -->\\n([\\s\\S]*?)\\n' + lt + '!-- ===== END DEV\\.md ===== -->').exec(t); return m ? m[1] : t; }
+/** Файлы разработки, встроенные в блок pqm-dev-files (сборщик, тесты, точка входа CodeMirror) */
+function devFiles(){
+  const el = document.getElementById('pqm-dev-files'); if (!el) return [];
+  const out = []; const re = /^\/\* ===== BEGIN (\S+) ===== \*\/\n([\s\S]*?)\n\/\* ===== END \1 ===== \*\/$/gm; let m;
+  while ((m = re.exec(el.textContent))) out.push({ path: m[1], text: m[2] + '\n' });
+  return out;
+}
+function renderDevTab(){
+  const files = devFiles();
+  $('#helpDev').innerHTML = '<div class="card">' + mdToHtml(devDocsText()) + '</div>' +
+    '<div class="card"><h2>Файлы разработки в этом HTML</h2><p class="small muted">Начните с build.mjs: <code>node build.mjs --split pq-master.html pq-master</code> восстановит все исходники.</p>' +
+    '<div class="row"><button class="btn" data-devfile="DEV.md">⬇ DEV.md</button>' + files.map(f => '<button class="btn" data-devfile="' + escHtml(f.path) + '" title="' + escHtml(f.path) + ' · ' + (f.text.length / 1024).toFixed(0) + ' КБ">⬇ ' + escHtml(f.path.split('/').pop()) + '</button>').join('') + '</div></div>';
+  $$('[data-devfile]', $('#helpDev')).forEach(b => b.onclick = () => {
+    const p = b.dataset.devfile; if (p === 'DEV.md') return download('DEV.md', devDocsText(), 'text/markdown;charset=utf-8');
+    const f = files.find(x => x.path === p); if (f) download(p.split('/').pop(), f.text, 'text/javascript;charset=utf-8');
+  });
+}
 $('#helpUser').innerHTML = HELP_HTML;
-$('#helpTabs').addEventListener('click', e => { const b = e.target.closest('[data-h]'); if (!b) return; $$('#helpTabs button').forEach(x => x.classList.toggle('on', x === b)); $('#helpUser').classList.toggle('hidden', b.dataset.h !== 'user'); $('#helpDev').classList.toggle('hidden', b.dataset.h !== 'dev'); if (b.dataset.h === 'dev' && !$('#helpDev').innerHTML) $('#helpDev').innerHTML = '<div class="card">' + mdToHtml(devDocsText()) + '<div class="row"><button class="btn" id="dlDevDocs">⬇ DEV.md</button></div></div>'; const d = $('#dlDevDocs'); if (d) d.onclick = () => download('DEV.md', devDocsText(), 'text/markdown;charset=utf-8'); });
+$('#helpTabs').addEventListener('click', e => { const b = e.target.closest('[data-h]'); if (!b) return; $$('#helpTabs button').forEach(x => x.classList.toggle('on', x === b)); $('#helpUser').classList.toggle('hidden', b.dataset.h !== 'user'); $('#helpDev').classList.toggle('hidden', b.dataset.h !== 'dev'); if (b.dataset.h === 'dev' && !$('#helpDev').innerHTML) renderDevTab(); });
 registerView('help', { render: () => {} });

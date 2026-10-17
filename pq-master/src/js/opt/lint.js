@@ -2,7 +2,6 @@
    Линтер / оптимизатор, параметризатор, diff
    ===================================================================== */
 const FOLD_BREAKERS = new Set(['Table.Buffer','List.Buffer','Table.AddIndexColumn','Table.FromRows','Table.FromRecords','Table.FromList','Table.FromColumns','Table.TransformRows','Table.SplitColumn','Table.FillDown','Table.FillUp','Table.ReplaceErrorValues','Table.PromoteHeaders','Table.DemoteHeaders','Table.Transpose','Table.ReverseRows','Table.Repeat','Table.AlternateRows','List.Generate','List.Accumulate','Table.RemoveRowsWithErrors','Table.InsertRows','Table.Profile','Table.Partition','Table.FuzzyNestedJoin','Table.FuzzyJoin','Table.AddFuzzyClusterColumn','Table.StopFolding','Table.ToRows','Table.ToRecords','Table.ToList']);
-const FOLDABLE_OPS = new Set(['Table.SelectRows','Table.SelectColumns','Table.RemoveColumns','Table.Group','Table.Sort','Table.Distinct','Table.FirstN','Table.RenameColumns','Table.TransformColumnTypes','Table.NestedJoin','Table.Join','Table.ExpandTableColumn','Table.AddColumn','Table.Skip','Table.RowCount','Table.ReorderColumns']);
 const LOCALE_FNS = ['Date.FromText','DateTime.FromText','DateTimeZone.FromText','Number.FromText','Currency.From','Time.FromText','Duration.FromText','Percentage.From'];
 
 function callArgs(toks, st, openTi){

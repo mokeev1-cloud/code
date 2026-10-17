@@ -78,11 +78,6 @@ function wireDrop(el, handler){
   el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('hot'); handler(e); });
 }
 function markTokens(s){ return escHtml(s).replace(/⟦[A-Z]+_\d+⟧/g, m => '<mark class="tk">' + m + '</mark>'); }
-function lintTable(list, withQuery){
-  if (!list.length) return '<div class="note ok small">Замечаний нет.</div>';
-  return '<table class="t"><tr><th>Уровень</th>' + (withQuery ? '<th>Запрос</th>' : '') + '<th>Шаг</th><th>Что не так</th><th>Что сделать</th></tr>' + list.map(l =>
-    '<tr><td><span class="sev ' + l.sev + '">' + SEV_LABEL[l.sev] + '</span></td>' + (withQuery ? '<td><button class="link" data-open="' + escHtml(l.query) + '">' + escHtml(l.query) + '</button></td>' : '') + '<td>' + escHtml(l.step) + '</td><td>' + escHtml(l.msg) + '</td><td class="small muted">' + escHtml(l.fix) + '</td></tr>').join('') + '</table>';
-}
 /** SVG-шкала оценки 0–100 */
 function gaugeSvg(score, size){
   size = size || 112; const r = size / 2 - 9, c = Math.PI * r * 1.5; const v = Math.max(0, Math.min(100, score)) / 100;

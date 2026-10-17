@@ -40,6 +40,7 @@ vm.runInContext(CORE.map(JS).join('\n') + '\n' +
   '\nglobalThis.api = { TEST_SECTION, lexM, analyzeSection, lintSection, optimizeSection, highlightM, formatM, sigTokens, anonymizeM, restoreTokens, scanLeaks, TokenDict, defaultConfig, applyAllSafeText, syntaxIssues, MLIB, mEval, MErr, makeTestBook, loadBookFromBytes, buildBookWithSection };', ctx, { filename: 'pq-core.js' });
 const a = ctx.api;
 const semSrc = eval(grab(selftest, /const semSrc = '[^\n]*';/).replace(/^const semSrc = /, '').replace(/;$/, ''));
+const uaSrc = eval(grab(selftest, /const ua = \[[\s\S]*?\]\.join\('\\r\\n'\);/).replace(/^const ua = /, '').replace(/;$/, ''));   // сценарий учёта на выгрузках
 let violations = 0;
 const report = (title, fails, total) => {
   console.log((fails.size ? '✗ ' : '✓ ') + title + ' — ' + total + (fails.size ? ', нарушений: ' + [...fails.values()].reduce((s, v) => s + v.n, 0) : ', нарушений нет'));
@@ -49,9 +50,9 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
 
 // ---------- 1. фаззинг M-кода ----------
 {
-  const BITS = ['"', '""', '#"', '//', '/*', '*/', '(', ')', '[', ']', '{', '}', ',', ';', '=', ' each ', ' let ', ' in ', '\n', '\r\n', '\t', '   ', ' // c  ', '"x\ny"', 'é', '😀', '⟦TXT_1⟧', '⟦UNC_1⟧', '⟦', '⟧', '#date(2020,1,1)', 'shared X = 1;', '\\', '..', '=>', '0x1F', '1e5', '.5',
+  const BITS = ['{[Счёт = [Дт]]}', '(r) => r[Код] = [Код]', '{0}?', 'Маппинг[Счёт]', '"', '""', '#"', '//', '/*', '*/', '(', ')', '[', ']', '{', '}', ',', ';', '=', ' each ', ' let ', ' in ', '\n', '\r\n', '\t', '   ', ' // c  ', '"x\ny"', 'é', '😀', '⟦TXT_1⟧', '⟦UNC_1⟧', '⟦', '⟧', '#date(2020,1,1)', 'shared X = 1;', '\\', '..', '=>', '0x1F', '1e5', '.5',
     'Table.SelectRows(', 'List.Contains(Список, [k])', 'Sql.Database("a","b")', 'password=x', '\u2028', '\u00A0', '\uFEFF', ' meta [IsParameterQuery=true]'];
-  const bases = [a.TEST_SECTION, semSrc, a.TEST_SECTION.replace(/\r\n/g, '\n')];
+  const bases = [a.TEST_SECTION, semSrc, uaSrc, a.TEST_SECTION.replace(/\r\n/g, '\n')];
   const mutate = s => { for (let i = 0, k = 1 + Math.floor(rnd() * 4); i < k; i++){ const p = Math.floor(rnd() * (s.length + 1)), r = rnd();
     if (r < 0.15) s = s.slice(0, p);
     else if (r < 0.4) s = s.slice(0, p) + s.slice(Math.min(s.length, p + Math.floor(rnd() * 40)));

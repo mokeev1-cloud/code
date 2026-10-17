@@ -46,6 +46,51 @@ const listItems = t => { t = t.trim(); if (!/^\{[\s\S]*\}$/.test(t)) return null
 function pairFirstStrings(listText){ const out = []; const re = /\{\s*"((?:[^"]|"")*)"/g; let m; while ((m = re.exec(listText))) out.push(m[1]); return out; }
 function pairSecondStrings(listText){ const out = []; const re = /\{\s*"(?:[^"]|"")*"\s*,\s*"((?:[^"]|"")*)"\s*\}/g; let m; while ((m = re.exec(listText))) out.push(m[1]); return out; }
 
+/** Исправление «вычислить один раз»: шаг Имя = Table.Buffer(…)/List.Buffer(…) перед step и замена обращений occ на него.
+    Если такой шаг в запросе уже есть — новые не создаются, обращения переводятся на него. */
+function bufferFix(A, m, step, kind, expr, occ){
+  if (!occ || !occ.length || !m.steps) return null;
+  const want = (kind + '.Buffer(' + expr + ')').replace(/\s+/g, '');
+  const have = m.steps.steps.find(x => A.text.slice(x.exprS, x.exprE).replace(/\s+/g, '') === want);
+  const base = expr.replace(/#"((?:[^"]|"")*)"/g, '$1').replace(/[\[\]{}"]/g, ' ').trim().replace(/\s+/g, '_') + '_буфер';
+  const name = have ? have.name : uniqueStepName(m, base);
+  const nl = A.text.includes('\r\n') ? '\r\n' : '\n', ind = lineIndentAt(A.text, step.s);
+  return t => {
+    let o = t; for (const r of occ.slice().sort((a, b) => b.s - a.s)) o = rng(o, r.s, r.e, mQuoteName(name));
+    return have ? o : rng(o, step.s, step.s, mQuoteName(name) + ' = ' + kind + '.Buffer(' + expr + '),' + nl + ind);
+  };
+}
+/** Форма аргумента Table.AddColumn, которую можно заменить слиянием со справочником name:
+      each Справочник{[Ключ = [Столбец]]}[Значение]                    (допускаются ? и _[Столбец])
+      each Table.SelectRows(Справочник, (r) => r[Ключ] = [Столбец]){0}[Значение]
+    → { K: ключ справочника, C: столбец строки, V: поле значения } или null */
+function lookupShape(A, argToks, name){
+  const T = argToks.map(i => ({ t: A.toks[i], i })); let k = 0;
+  const v = () => T[k] ? T[k].t.v : null, take = x => (v() === x ? (k++, true) : false), opt = () => take('?');
+  const field = () => { if (v() !== '[') return null; const o = T[k].i, c = A.st.match.get(o); let j = k; while (j < T.length && T[j].i !== c) j++; if (j >= T.length || j === k + 1) return null;
+    const raw = A.text.slice(A.toks[o].e, A.toks[c].s).trim(); k = j + 1; const q = /^#"((?:[^"]|"")*)"$/.exec(raw); return q ? q[1].replace(/""/g, '"') : raw; };
+  const rowField = () => { if (v() === '_') k++; return field(); };
+  const isRef = () => { const t = T[k] && T[k].t; return t && isName(t) && nameOf(t) === name ? (k++, true) : false; };
+  const tail = r => { opt(); const V = field(); if (!V) return null; opt(); return k === T.length ? Object.assign(r, { V }) : null; };
+  if (!take('each')) return null;
+  const k0 = k;
+  if (isRef() && take('{') && v() === '['){
+    if (!take('[')) return null; const K = (() => { const s = k; while (k < T.length && v() !== '=') k++; if (k === s || k >= T.length) return null; const raw = A.text.slice(T[s].t.s, T[k - 1].t.e).trim(); const q = /^#"((?:[^"]|"")*)"$/.exec(raw); return q ? q[1].replace(/""/g, '"') : raw; })();
+    if (!K || !take('=')) return null; const C = rowField(); if (!C || !take(']') || !take('}')) return null;
+    return tail({ K, C });
+  }
+  k = k0;
+  if (take('Table.SelectRows') && take('(') && isRef() && take(',') && take('(')){
+    const p = T[k] && isName(T[k].t) ? nameOf(T[k].t) : null; if (!p) return null; k++;
+    while (k < T.length && v() !== ')') k++; if (!take(')') || !take('=>')) return null;
+    const pf = () => (T[k] && isName(T[k].t) && nameOf(T[k].t) === p ? (k++, field()) : null);
+    let K = pf(), C = null;
+    if (K){ if (!take('=')) return null; C = rowField(); } else { C = rowField(); if (!C || !take('=')) return null; K = pf(); }
+    if (!K || !C || !take(')') || !take('{') || !take('0') || !take('}')) return null;
+    return tail({ K, C });
+  }
+  return null;
+}
 function inferColumnType(genText){
   const g = genText.trim().replace(/^each\s+/, '');
   if (/^Text\.|^Date\.(ToText|MonthName|DayOfWeekName)|^Number\.ToText/.test(g) || /^if\b[\s\S]*\bthen\s+"[^"]*"\s+else\s+("[^"]*"|null)\s*$/.test(g) || (/&/.test(g) && /"/.test(g) && !/\b(Number|Date|List)\.\w+/.test(g))) return 'type text';
@@ -100,14 +145,36 @@ function optimizeSection(text, A, lint){
         const ok = sortStep && !/^\s*Table\.Buffer\(/.test(text.slice(sortStep.exprS, sortStep.exprE));
         add(Object.assign(base, { title: 'Сортировка перед удалением дублей без Table.Buffer', impact: ['reliability'], safety: ok ? 'check' : 'manual', fixLabel: 'Обернуть «' + (sortStep ? sortStep.name : '') + '» в Table.Buffer', fix: ok ? t => rng(t, sortStep.exprS, sortStep.exprE, 'Table.Buffer(' + text.slice(sortStep.exprS, sortStep.exprE) + ')') : null })); break; }
       case 'list-buffer': {
-        let fix = null; const nmMatch = /«([^»]+)»/.exec(l.msg); const listName = nmMatch ? nmMatch[1] : null;
-        if (step && listName && steps){
-          const newName = uniqueStepName(m, listName + '_буфер');
-          const reps = [];
-          for (let i = step.tokS; i < step.tokE; i++){ const tk = A.toks[i]; if (tk.v !== 'List.Contains') continue; const ci = callInfo(A, i); const a0 = ci && ci.args[0]; if (a0 && a0.length === 1 && isName(A.toks[a0[0]]) && nameOf(A.toks[a0[0]]) === listName) reps.push(A.toks[a0[0]]); }
-          if (reps.length){ const ind = lineIndentAt(text, step.s); fix = t => { let o = t; for (const r of reps.slice().sort((a, b) => b.s - a.s)) o = rng(o, r.s, r.e, mQuoteName(newName)); return rng(o, step.s, step.s, mQuoteName(newName) + ' = List.Buffer(' + mQuoteName(listName) + '),' + (text.includes('\r\n') ? '\r\n' : '\n') + ind); }; }
+        const fix = l.data && step ? bufferFix(A, m, step, 'List', l.data.expr, l.data.occ) : null;
+        add(Object.assign(base, { title: 'Список вычисляется заново для каждой строки', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Вычислить список один раз (List.Buffer)', fix })); break; }
+      case 'row-lookup': {
+        const d = l.data; const buf = d && step && !d.buffered ? bufferFix(A, m, step, 'Table', mQuoteName(d.name), d.occ) : null;
+        const ci = step && stepSingleCall(A, step, 'Table.AddColumn');
+        const sh = ci && (ci.args.length === 3 || ci.args.length === 4) ? lookupShape(A, ci.args[2], d.name) : null;
+        let merge = null;
+        if (sh){
+          const col = ci.argText(1), tmp = '"__справочник"';
+          let e = 'Table.ExpandTableColumn(Table.NestedJoin(' + ci.argText(0) + ', {' + mQuoteString(sh.C) + '}, Table.Distinct(' + mQuoteName(d.name) + ', {' + mQuoteString(sh.K) + '}), {' + mQuoteString(sh.K) + '}, ' + tmp + ', JoinKind.LeftOuter), ' + tmp + ', {' + mQuoteString(sh.V) + '}, {' + col + '})';
+          if (ci.args.length === 4) e = 'Table.TransformColumnTypes(' + e + ', {{' + col + ', ' + ci.argText(3) + '}})';
+          merge = t => rng(t, step.exprS, step.exprE, e);
         }
-        add(Object.assign(base, { title: 'Список в фильтре вычисляется для каждой строки', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Добавить шаг с List.Buffer', fix })); break; }
+        if (d.buffered && !merge){ add(Object.assign(base, { title: 'Поиск в буферизованном справочнике «' + d.name + '» для каждой строки', impact: ['speed'], safety: 'manual' })); break; }
+        const fix = merge || buf ? (t, o) => (merge && (!buf || !o || o.method !== 'buffer') ? merge(t) : buf(t)) : null;
+        add(Object.assign(base, { title: 'Поиск в справочнике «' + d.name + '» для каждой строки', impact: ['speed'], safety: fix ? 'check' : 'manual',
+          fixLabel: merge && buf ? 'Ускорить поиск' : merge ? 'Заменить слиянием' : 'Вычислить справочник один раз (Table.Buffer)', fix,
+          options: merge && buf ? [{ key: 'method', label: 'Способ', values: [['merge', 'слияние — быстрее всего'], ['buffer', 'буфер справочника']] }] : null,
+          how: (merge ? 'Слияние: один проход вместо поиска для каждой строки. Отличия от исходного кода: ключ, которого нет в справочнике, даёт null, а не ошибку; если ключ в справочнике повторяется, берётся первая строка (исходный код в этом случае давал ошибку); тип столбца берётся из справочника; порядок строк после слияния не гарантирован — если он важен, сортируйте в конце. ' : '') +
+            'Буфер: справочник вычисляется один раз и хранится в памяти, логика не меняется — ускорение меньше, чем от слияния. Если справочник очень большой, следите за памятью.' })); break; }
+      case 'buffer-in-each': {
+        const d = l.data; const fix = d && step ? bufferFix(A, m, step, d.kind, d.expr, d.occ) : null;
+        add(Object.assign(base, { title: 'Буферизация внутри each', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Вынести буфер в отдельный шаг', fix })); break; }
+      case 'manual-mapping': add(Object.assign(base, { title: 'Разметка цепочкой условий в коде', impact: ['clarity', 'speed'], safety: 'manual' })); break;
+      case 'join-buffer': {
+        const d = l.data; const fix = d ? t => rng(t, d.s, d.e, 'Table.Buffer(' + mQuoteName(d.name) + ')') : null;
+        add(Object.assign(base, { title: 'Справочник в слиянии не буферизован', impact: ['speed'], safety: fix ? 'check' : 'manual', fixLabel: 'Обернуть «' + (d ? d.name : '') + '» в Table.Buffer', fix })); break; }
+      case 'folder-combine': add(Object.assign(base, { title: 'Разбор каждого файла папки', impact: ['speed'], safety: 'manual' })); break;
+      case 'useless-sort': add(Object.assign(base, { title: 'Лишняя сортировка', impact: ['speed'], safety: 'manual' })); break;
+      case 'excel-settings': add(Object.assign(base, { title: 'Настройки Excel для скорости обновления', impact: ['speed'], safety: 'manual' })); break;
       case 'hardcoded': {
         const cand = candidatesOf(l.query);
         const used = new Set(A.members.map(x => x.name)); const seen = new Map();
@@ -133,7 +200,7 @@ function optimizeSection(text, A, lint){
       case 'firewall': add(Object.assign(base, { title: 'Риск Formula.Firewall', impact: ['reliability'], safety: 'manual' })); break;
       case 'dynamic-source': add(Object.assign(base, { title: 'Динамический источник данных', impact: ['reliability', 'portability'], safety: 'manual' })); break;
       case 'per-row-call': add(Object.assign(base, { title: 'HTTP-запрос на каждую строку', impact: ['speed'], safety: 'manual' })); break;
-      case 'multi-eval': add(Object.assign(base, { title: 'Тяжёлый запрос используется многократно', impact: ['speed'], safety: 'manual' })); break;
+      case 'multi-eval': add(Object.assign(base, { title: 'Источник читается несколько раз за обновление', impact: ['speed'], safety: 'manual' })); break;
       case 'hardcoded-types': add(Object.assign(base, { title: 'Хрупкий шаг типов', impact: ['reliability'], safety: 'manual' })); break;
       case 'try-null': add(Object.assign(base, { title: 'Ошибки скрываются через otherwise null', impact: ['reliability'], safety: 'manual' })); break;
       case 'load-errors': add(Object.assign(base, { title: 'Ошибки при последней загрузке', impact: ['reliability'], safety: 'manual' })); break;
@@ -193,7 +260,7 @@ function optimizeSection(text, A, lint){
   for (const f of F) f.local = !!f.fix && !NONLOCAL_FIX_RULES.has(f.rule);
   // оценка
   const perRuleQ = new Map(); let pen = 0;
-  for (const f of F){ const k = f.rule + '|' + f.query; const used = perRuleQ.get(k) || 0; const w = SEV_W[f.sev] || 1; const cap = w * 2; const take = Math.max(0, Math.min(w, cap - used)); perRuleQ.set(k, used + take); pen += take; }
+  for (const f of F){ if (f.rule === 'excel-settings') continue; const k = f.rule + '|' + f.query; const used = perRuleQ.get(k) || 0; const w = SEV_W[f.sev] || 1; const cap = w * 2; const take = Math.max(0, Math.min(w, cap - used)); perRuleQ.set(k, used + take); pen += take; }
   const score = Math.max(0, Math.round(100 - pen));
   const breakdown = { bySev: {}, byImpact: {}, bySafety: {}, fixable: F.filter(f => f.fix).length, safeFixable: F.filter(f => f.fix && f.safety === 'safe').length };
   for (const f of F){ breakdown.bySev[f.sev] = (breakdown.bySev[f.sev] || 0) + 1; breakdown.bySafety[f.safety] = (breakdown.bySafety[f.safety] || 0) + 1; for (const i of f.impact || []) breakdown.byImpact[i] = (breakdown.byImpact[i] || 0) + 1; }
@@ -204,11 +271,11 @@ function optimizeSection(text, A, lint){
 
 /* ---- Карта тяжести: оценка «стоимости» шагов без выполнения ---- */
 const HEAVY = { 'Table.NestedJoin': 2.5, 'Table.Join': 2.5, 'Table.FuzzyNestedJoin': 3.5, 'Table.Group': 1.5, 'Table.Sort': 1.5, 'Table.Distinct': 1.5, 'Table.Pivot': 2, 'Table.Unpivot': 1.2, 'Table.UnpivotOtherColumns': 1.2, 'Table.ExpandTableColumn': 1, 'Table.Buffer': 1, 'List.Buffer': 0.5, 'Table.AddColumn': 0.5, 'Table.TransformColumns': 0.5, 'Table.Combine': 1, 'Table.AddIndexColumn': 0.6, 'List.Generate': 1.5, 'List.Accumulate': 1.5, 'Table.FillDown': 0.4 };
-function listArgBuffered(A, m, ti){ const ci = callInfo(A, ti); const a0 = ci && ci.args[0]; return !!a0 && a0.length === 1 && isName(A.toks[a0[0]]) && isBufferedList(A, m, nameOf(A.toks[a0[0]])); }
 function heatMap(A){
-  const out = [];
+  const out = []; const reads = refreshReads(A);
   for (const m of A.members){
     if (m.isParam) continue;
+    const lk = rowLookups(A, m);
     const foldable = m.sources.some(s => FOLDABLE_SOURCES.has(s));
     const steps = m.steps ? m.steps.steps : [{ name: '(выражение)', fns: m.calls.map(c => c.fn), tokS: m.tokStart, tokE: m.tokEnd, dead: false }];
     let broken = false; const cells = [];
@@ -220,11 +287,15 @@ function heatMap(A){
       if (foldable && !broken && (s.fns.some(f => FOLD_BREAKERS.has(f)) || (s.fns.includes('Value.NativeQuery') && !/EnableFolding\s*=\s*true/i.test(txt)) || (ext.length && /\[\s*Query\s*=/.test(txt)))){ broken = true; s._brk = true; why.push('здесь прерывается свёртка'); }
       for (const f of s.fns) if (HEAVY[f]){ c += HEAVY[f] * (broken && foldable ? 1.4 : 1); why.push(f); }
       if (broken && foldable && !s._brk){ c += 0.8; why.push('выполняется локально (после разрыва свёртки)'); }
-      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } if (t.v === 'List.Contains' && isInsideEach(A.toks, A.st, i) && !s.fns.includes('List.Buffer') && !listArgBuffered(A, m, i)){ c += 1.2; why.push('List.Contains внутри each'); break; } }
+      for (let i = s.tokS; i < s.tokE; i++){ const t = A.toks[i]; if (t.t === 'id' && (t.v === 'Web.Contents' || t.v === 'OData.Feed') && isInsideEach(A.toks, A.st, i)){ c += 4; why.push('HTTP-запрос на каждую строку'); break; } if (t.t === 'id' && (t.v === 'Excel.Workbook' || t.v === 'Csv.Document') && isInsideEach(A.toks, A.st, i)){ c += 2.5; why.push('разбор файла на каждую строку (объединение папки)'); break; } }
+      const ls = s.tokS != null ? lk.filter(h => h.step === s) : [];
+      if (ls.some(h => (h.kind === 'table' && !h.buffered) || h.kind === 'hoist')){ c += 3; why.push('поиск в справочнике для каждой строки'); }
+      else if (ls.some(h => h.kind === 'table')){ c += 1.5; why.push('поиск в буферизованном справочнике для каждой строки'); }
+      else if (ls.some(h => h.kind === 'list')){ c += 1.2; why.push('список вычисляется для каждой строки'); }
       cells.push({ step: s.name, level: Math.min(5, Math.round(c)), cost: +c.toFixed(1), why, brk: !!s._brk, dead: !!s.dead });
       delete s._brk;
     }
-    out.push({ query: m.name, cells, total: +cells.reduce((a, x) => a + x.cost, 0).toFixed(1), foldable });
+    out.push({ query: m.name, cells, total: +cells.reduce((a, x) => a + x.cost, 0).toFixed(1), foldable, reads: (reads.get(m.name) || []).length });
   }
   out.sort((a, b) => b.total - a.total);
   return out;

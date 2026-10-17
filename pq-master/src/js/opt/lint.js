@@ -18,8 +18,8 @@ function stepOfToken(m, ti){ if (!m.steps) return null; return m.steps.steps.fin
 
 function lintSection(A){
   const out = []; const { toks, st, members, byName } = A;
-  const add = (sev, rule, q, step, msg, fix) => out.push({ sev, rule, query: q, step: step || '', msg, fix: fix || '' });
-  const srcKeys = new Map();
+  const add = (sev, rule, q, step, msg, fix) => { const o = { sev, rule, query: q, step: step || '', msg, fix: fix || '' }; out.push(o); return o; };
+  const srcKeys = new Map(); const reads = refreshReads(A);
   for (const m of members){
     const S = m.steps;
     if (m.load.errors > 0) add('err', 'load-errors', m.name, '', 'При последней загрузке в результате было ошибок: ' + m.load.errors + '.', 'Откройте запрос и найдите строки с ошибками (Главная → Сохранить строки → Сохранить ошибки).');
@@ -82,11 +82,44 @@ function lintSection(A){
       if (LOCALE_FNS.includes(c.fn) && args.length === 1) add('warn', 'culture', m.name, step && step.name, c.fn + ' без указания культуры: результат зависит от региональных настроек компьютера.', 'Добавьте культуру: ' + c.fn + '(x, [Culture="ru-RU"]) (или "ru-RU" вторым аргументом в старых версиях).');
       if (c.fn === 'Table.AddColumn' && args.length === 3) add('tip', 'addcolumn-type', m.name, step && step.name, 'Table.AddColumn без 4-го аргумента — столбец получит тип any.', 'Укажите тип: Table.AddColumn(t, "Имя", each …, type number). Это убирает лишний шаг «Изменённый тип» и помогает свёртке.');
       if (c.fn === 'Table.TransformColumnTypes' && args.length === 2 && m.sources.some(s => ['Csv.Document','Web.Contents','File.Contents','Lines.FromBinary'].includes(s))) add('info', 'types-culture', m.name, step && step.name, 'Преобразование типов текстового источника без культуры.', 'Для дат и дробных чисел из текста добавьте третий аргумент: Table.TransformColumnTypes(t, {…}, "ru-RU").');
-      if (c.fn === 'Table.SelectRows'){
-        const body = args[1] || [];
-        for (const ti of body){ const t = toks[ti]; if (t.v === 'List.Contains'){ const kk = st.pos.get(ti); const op = st.sig[kk + 1]; const la = callArgs(toks, st, op)[0] || []; if (la.length === 1 && isName(toks[la[0]]) && !isBufferedList(A, m, nameOf(toks[la[0]]))) add('tip', 'list-buffer', m.name, step && step.name, 'List.Contains по списку «' + nameOf(toks[la[0]]) + '» внутри each вычисляет список заново для каждой строки.', 'Сделайте отдельный шаг Список = List.Buffer(…) и используйте его в фильтре.'); } }
+      // справочник в слиянии: если он — отдельный запрос (маппинг из таблицы Excel и т. п.), буфер избавляет от его повторных вычислений
+      if ((c.fn === 'Table.NestedJoin' || c.fn === 'Table.Join') && args.length >= 4){
+        const r = args[2]; const q = r && r.length === 1 && isName(toks[r[0]]) ? byName.get(nameOf(toks[r[0]])) : null;
+        if (q && q !== m && !q.isFn && !q.isParam && !m.sources.some(x => FOLDABLE_SOURCES.has(x)) && !q.sources.some(x => FOLDABLE_SOURCES.has(x)) && !isBuffered(A, m, q.name, 'Table'))
+          add('tip', 'join-buffer', m.name, step && step.name, 'Справочник «' + q.name + '» в ' + c.fn + ' не буферизован: при слиянии он может вычисляться заново.', 'Оберните его в Table.Buffer(…) прямо в слиянии. Часто ускоряет слияние с маппингом; если время не изменится — отмените.').data = { name: q.name, s: toks[r[0]].s, e: toks[r[0]].e };
       }
       if ((c.fn === 'Web.Contents' || c.fn === 'OData.Feed') && isInsideEach(toks, st, c.i)) add('warn', 'per-row-call', m.name, step && step.name, c.fn + ' внутри each: по отдельному HTTP-запросу на каждую строку.', 'Сгруппируйте запросы (пакетный API, фильтр на сервере) или кэшируйте результат через Table.Buffer.');
+    }
+    // поиск в справочнике / списке внутри each — для каждой строки заново
+    const groups = new Map();
+    for (const h of rowLookups(A, m)){ const key = h.kind + '\u0001' + (h.step ? h.step.name : '') + '\u0001' + (h.kind === 'list' ? h.expr.replace(/\s+/g, '') : h.name); if (!groups.has(key)) groups.set(key, []); groups.get(key).push(h); }
+    for (const hs of groups.values()){
+      const h = hs[0], more = hs.length > 1 ? ' и ещё ' + (hs.length - 1) : '', occ = hs.map(x => ({ s: x.s, e: x.e }));
+      if (h.kind === 'hoist') add('warn', 'buffer-in-each', m.name, h.step && h.step.name, h.how + ' стоит внутри функции, которая вызывается для каждой строки: справочник буферизуется заново на каждой строке — это медленнее, чем без буфера.', 'Вынесите буфер в отдельный шаг перед этим — он вычислится один раз.').data = { kind: h.fn.split('.')[0], expr: h.expr, occ };
+      else if (h.kind === 'list') add('tip', 'list-buffer', m.name, h.step && h.step.name, 'Список «' + h.expr + '» внутри each (' + h.how + more + ') вычисляется заново для каждой строки.', 'Вычислите его один раз отдельным шагом: Список = List.Buffer(…).').data = { expr: h.expr, occ };
+      else if (h.buffered) add('tip', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в буферизованном справочнике «' + h.name + '» для каждой строки (' + h.how + more + '): справочник уже в памяти, но для каждой строки он просматривается целиком.', 'На больших выгрузках слияние (Table.NestedJoin) быстрее ещё в разы: оно сопоставляет ключи за один проход.').data = { name: h.name, occ, buffered: true };
+      else add('warn', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в справочнике «' + h.name + '» для каждой строки (' + h.how + more + '). На больших выгрузках это главная причина долгого обновления: справочник просматривается заново для каждой строки.', 'Замените поиск одним слиянием со справочником (Table.NestedJoin) или хотя бы вычислите справочник один раз: Table.Buffer.').data = { name: h.name, occ };
+    }
+    // объединение файлов папки (выгрузки 1С и т. п.)
+    if (m.sources.some(x => FOLDER_SOURCES.has(x))){
+      const perFile = m.calls.find(c => (c.fn === 'Excel.Workbook' || c.fn === 'Csv.Document') && isInsideEach(toks, st, c.i)) || m.calls.find(c => { const q = byName.get(c.fn); return q && q.isFn && isInsideEach(toks, st, c.i); });
+      if (perFile){ const step = stepOfToken(m, perFile.i);
+        add('warn', 'folder-combine', m.name, step && step.name, 'Каждый файл папки разбирается при каждом обновлении (' + perFile.fn + ' для каждого файла) — обычно самое долгое место в книгах на выгрузках.',
+          'Отберите файлы до разбора: по [Extension], по [Name] (без временных «~$…»), по периоду в [Date modified]. Excel.Workbook(…, null, true) — без определения типов по всем листам. Сразу после разбора оставьте только нужные столбцы и строки. Если система учёта умеет выгружать CSV, Csv.Document разбирает его в разы быстрее .xlsx. Закрытые периоды сведите в один архивный файл, а заново обрабатывайте только текущий.'); }
+    }
+    if (S){
+      for (const s of S.steps){
+        if (!s.fns.includes('Table.AddColumn') && !s.fns.includes('Table.TransformColumns')) continue;
+        const tx = A.text.slice(s.exprS, s.exprE); const n = (tx.match(/\belse\s+if\b/g) || []).length;
+        const lit = (tx.match(/(\]\s*(=|<>)\s*"|Text\.(Contains|StartsWith|EndsWith)\s*\()/g) || []).length;
+        if (n >= 4 && lit >= 5) add('tip', 'manual-mapping', m.name, s.name, 'Разметка задана в коде: ' + (n + 1) + ' условий if … else if подряд.', 'Перенесите соответствия в таблицу-справочник на листе (условие → статья / ЦФО / проект) и подключайте её слиянием: разметку можно править без правки кода, а на больших выгрузках слияние быстрее цепочки условий для каждой строки.');
+      }
+      for (const s of S.steps){
+        if (s.fn !== 'Table.Sort' || S.finalRefs.has(s.name)) continue;
+        const users = S.steps.filter(x => x.refs.has(s.name));
+        const u = users.length === 1 ? users[0].fns.find(f => f === 'Table.NestedJoin' || f === 'Table.Join' || f === 'Table.Sort') : null;
+        if (u) add('tip', 'useless-sort', m.name, s.name, 'Сортировка «' + s.name + '» сразу уходит в ' + u + ' («' + users[0].name + '»): ' + (u === 'Table.Sort' ? 'следующая сортировка всё равно переупорядочит строки' : 'порядок строк после слияния не гарантирован') + '. Это лишний проход по всей таблице.', 'Уберите эту сортировку и сортируйте один раз в конце — если порядок вообще нужен (для модели данных и сводных он не нужен).');
+      }
     }
     if (S){
       let sortStep = null;
@@ -110,8 +143,15 @@ function lintSection(A){
     if (tryN) add('info', 'try-null', m.name, '', 'try … otherwise null встречается ' + tryN + ' раз: ошибки молча превращаются в пустые значения.', 'Для отладки временно уберите otherwise или выводите текст ошибки: try x otherwise [Error=…].');
     const loadKnown = m.meta && (m.meta.FillEnabled != null || m.meta.FillToDataModelEnabled != null);
     if (loadKnown && !m.load.sheet && !m.load.model && !m.usedBy.length && !m.isParam && !m.isFn) add('info', 'orphan', m.name, '', 'Запрос не загружается и никем не используется.', 'Если он не нужен — удалите, это ускорит «Обновить всё».');
-    if (m.hasSource && m.usedBy.length >= 2 && !m.isParam) add('info', 'multi-eval', m.name, '', 'На запрос с внешним источником ссылаются ' + m.usedBy.length + ' других (' + m.usedBy.join(', ') + '). При обновлении он может вычисляться отдельно для каждого.', 'Если источник тяжёлый: загрузите его один раз (в модель или на лист) и стройте остальное от загруженного; либо фильтруйте как можно раньше, чтобы повторное чтение было дешёвым.');
+    const rd = reads.get(m.name);
+    const heavy = m.hasSource || rowLookups(A, m).some(h => h.kind === 'table' || h.kind === 'hoist') || m.calls.some(c => HEAVY_STEP_FNS.has(c.fn));
+    if (heavy && !m.isParam && !m.isFn && rd && rd.length >= 2) add('warn', 'multi-eval', m.name, '', 'При «Обновить всё» этот ' + (m.hasSource ? 'запрос с внешним источником' : 'тяжёлый запрос') + ' вычисляется ≈' + rd.length + ' раз — отдельно для каждой загружаемой таблицы, которая от него зависит: ' + rd.join(', ') + '. Excel не делит результат между ними, Table.Buffer тут не поможет — он действует только внутри одного запроса.', 'Оставьте загружаемыми только итоговые таблицы, промежуточные — «Только подключение»; объедините расчёты на одних данных в меньшее число загружаемых запросов; или загрузите тяжёлый промежуточный результат один раз на лист и стройте отчёты от этой таблицы (Excel.CurrentWorkbook). Фильтруйте и убирайте лишние столбцы как можно раньше.');
   }
+  // настройки Excel, которые не задаются кодом M, — один совет на книгу с файлами или смешанными источниками
+  const kinds = new Set(); let fileQ = null;
+  for (const m of members) for (const x of m.sources){ kinds.add(x === 'Excel.CurrentWorkbook' ? 'book' : FILE_SOURCES.has(x) ? 'file' : FOLDABLE_SOURCES.has(x) ? 'db' : 'other'); if (!fileQ && FILE_SOURCES.has(x)) fileQ = m; }
+  if (fileQ || kinds.size >= 2) add('info', 'excel-settings', (fileQ || members.find(x => x.sources.length)).name, '', 'Настройки Excel, которые ускоряют обновление книги на файлах и таблицах Excel. В коде M их не задать.',
+    'Данные → Получить данные → Параметры запроса: (1) Текущая книга → Конфиденциальность — вариант, при котором уровни конфиденциальности игнорируются: при смешивании выгрузок и таблиц книги исчезают проверки Formula.Firewall и лишние вычисления; выбирайте его, только если все источники — внутренние данные компании. (2) Текущая книга → Загрузка данных — отключите фоновую загрузку предварительного просмотра. (3) В свойствах каждого загружаемого запроса (Запросы и подключения → правый щелчок → Свойства) включите быструю загрузку данных. (4) Промежуточные запросы — «Только создать подключение».');
   for (const [key, qs] of srcKeys) if (qs.size >= 2) add('info', 'repeated-source', [...qs][0], '', 'Источник ' + key + ' читается в ' + qs.size + ' запросах: ' + [...qs].join(', ') + '.', 'Вынесите подключение в один промежуточный запрос (без загрузки) и ссылайтесь на него — проще поддерживать и легче управлять уровнями конфиденциальности.');
   const cand = paramCandidates(A);
   const perQ = {}; for (const c of cand) (perQ[c.member] = perQ[c.member] || new Set()).add(c.value);
@@ -120,11 +160,85 @@ function lintSection(A){
   out.sort((a, b) => ord[a.sev] - ord[b.sev] || a.query.localeCompare(b.query));
   return out;
 }
-/** Шаг (или запрос) с таким именем уже целиком List.Buffer(…) — повторно буферизовать нечего */
-function isBufferedList(A, m, name){
+/** Шаг (или запрос) с таким именем уже целиком Table.Buffer(…) / List.Buffer(…) — повторно буферизовать нечего */
+function isBuffered(A, m, name, kind){
   const s = m.steps && m.steps.steps.find(x => x.name === name); const q = !s && A.byName.get(name);
   const src = s ? A.text.slice(s.exprS, s.exprE) : q ? A.text.slice(q.exprStart, q.exprEnd) : '';
-  return /^\s*List\.Buffer\s*\([\s\S]*\)\s*$/.test(src);
+  return new RegExp('^\\s*' + kind + '\\.Buffer\\s*\\([\\s\\S]*\\)\\s*$').test(src);
+}
+const isBufferedList = (A, m, name) => isBuffered(A, m, name, 'List');
+
+/* ---- Поиск в справочнике на каждую строку (маппинг статей, ЦФО, проектов…) ---- */
+// функции, чей аргумент-функция вызывается для каждой строки / элемента / группы: индексы таких аргументов
+const PER_ROW_ARGS = { 'Table.AddColumn': [2], 'Table.SelectRows': [1], 'Table.TransformColumns': [1], 'Table.TransformRows': [1], 'Table.ReplaceValue': [1, 2], 'Table.Group': [2], 'Table.CombineColumns': [2], 'List.Transform': [1], 'List.Select': [1], 'List.Accumulate': [2] };
+const TABLE_LOOKUP_FNS = new Set(['Table.SelectRows', 'Table.Contains', 'Table.ContainsAny', 'Table.ContainsAll', 'Table.MatchesAnyRows', 'Table.MatchesAllRows', 'Table.PositionOf', 'Table.PositionOfAny', 'Table.FindText']);
+const LIST_SCAN_FNS = new Set(['List.Contains', 'List.ContainsAny', 'List.ContainsAll', 'List.PositionOf', 'List.PositionOfAny', 'List.Select', 'List.FindText', 'List.MatchesAny', 'List.MatchesAll', 'List.Accumulate', 'List.Transform', 'List.Sum', 'List.Count', 'List.Max', 'List.Min', 'List.First', 'List.Last']);
+const HEAVY_STEP_FNS = new Set(['Table.NestedJoin', 'Table.Join', 'Table.Group', 'Table.Pivot', 'Table.Unpivot', 'Table.UnpivotOtherColumns', 'Table.Sort', 'Table.Distinct', 'Table.Combine', 'Table.FuzzyNestedJoin']);
+const FOLDER_SOURCES = new Set(['Folder.Files', 'Folder.Contents', 'SharePoint.Files', 'SharePoint.Contents']);
+const FILE_SOURCES = new Set([...FOLDER_SOURCES, 'File.Contents']);
+/** Обращения к справочникам (другим запросам и шагам) внутри функций, вызываемых для каждой строки:
+    kind 'table' — Справочник{[Ключ = …]}, Table.SelectRows(Справочник, …) и т. п.;
+    kind 'list'  — List.Contains(Справочник[Столбец], …), List.Contains(Список, …) и т. п. */
+function rowLookups(A, m){
+  if (m._lookups) return m._lookups;
+  const { toks, st } = A; const out = []; const seen = new Set();
+  const stepNames = new Set(m.steps ? m.steps.steps.map(s => s.name) : []);
+  const known = n => stepNames.has(n) || (A.byName.has(n) && n !== m.name && !A.byName.get(n).isFn && !A.byName.get(n).isParam);
+  for (const c of m.calls){
+    const idxs = PER_ROW_ARGS[c.fn]; if (!idxs) continue;
+    const args = callArgs(toks, st, st.sig[st.pos.get(c.i) + 1]);
+    for (const ai of idxs){
+      const a = args[ai]; if (!a || !a.some(ti => toks[ti].v === 'each' || toks[ti].v === '=>')) continue;
+      // параметры лямбд внутри аргумента — это строки и элементы, а не справочники
+      const params = new Set(['_']);
+      for (const ti of a){
+        if (toks[ti].v !== '=>') continue;
+        let k = st.pos.get(ti) - 1; while (k >= 0 && toks[st.sig[k]].v !== ')' && st.pos.get(ti) - k < 6) k--;
+        const cl = st.sig[k]; const op = k >= 0 && toks[cl].v === ')' ? st.match.get(cl) : null; if (op == null) continue;
+        let expect = true;
+        for (let j = st.pos.get(op) + 1; j < k; j++){ const t = toks[st.sig[j]]; if (t.v === ','){ expect = true; continue; } if (t.v === 'optional') continue; if (expect && isName(t)){ params.add(nameOf(t)); expect = false; } }
+      }
+      for (let p = 0; p < a.length; p++){
+        const ti = a[p], t = toks[ti];
+        // Table.Buffer(Справочник) / List.Buffer(…) прямо внутри each — буферизация повторяется для каждой строки
+        if (t.t === 'id' && (t.v === 'Table.Buffer' || t.v === 'List.Buffer') && toks[a[p + 1]] && toks[a[p + 1]].v === '(' && toks[a[p + 3]] && toks[a[p + 3]].v === ')' && isName(toks[a[p + 2]])){
+          const n = nameOf(toks[a[p + 2]]);
+          if (!params.has(n) && known(n) && !seen.has(t.s)){ seen.add(t.s); out.push({ kind: 'hoist', fn: t.v, name: n, expr: toks[a[p + 2]].v, how: t.v + '(' + toks[a[p + 2]].v + ')', s: t.s, e: toks[a[p + 3]].e, step: stepOfToken(m, ti) }); }
+          p += 3; continue;
+        }
+        if (!isName(t) || st.fieldTok.has(ti)) continue;
+        const n = nameOf(t); if (params.has(n) || !known(n)) continue;
+        const nx = toks[a[p + 1]], nx2 = toks[a[p + 2]], pv = toks[a[p - 1]], pv2 = toks[a[p - 2]];
+        const firstArgOf = set => pv && pv.v === '(' && pv2 && pv2.t === 'id' && set.has(pv2.v);
+        const endsArg = x => x && (x.v === ',' || x.v === ')');
+        let hit = null;
+        if (nx && nx.v === '{' && nx2 && nx2.v === '[') hit = { kind: 'table', how: t.v + '{[…]}', s: t.s, e: t.e, buffered: isBuffered(A, m, n, 'Table') };
+        else if (firstArgOf(TABLE_LOOKUP_FNS) && endsArg(nx)) hit = { kind: 'table', how: pv2.v + '(' + t.v + ', …)', s: t.s, e: t.e, buffered: isBuffered(A, m, n, 'Table') };
+        else if (firstArgOf(LIST_SCAN_FNS)){
+          if (endsArg(nx)){ if (!isBuffered(A, m, n, 'List')) hit = { kind: 'list', expr: t.v, how: pv2.v + '(' + t.v + ', …)', s: t.s, e: t.e }; }
+          else if (nx && nx.v === '[' && st.brKind.get(a[p + 1]) === 'access' && st.match.has(a[p + 1])){
+            const cl = st.match.get(a[p + 1]); if (endsArg(toks[st.sig[st.pos.get(cl) + 1]])){ const expr = A.text.slice(t.s, toks[cl].e); hit = { kind: 'list', expr, how: pv2.v + '(' + expr + ', …)', s: t.s, e: toks[cl].e }; }
+          }
+        }
+        if (hit && !seen.has(hit.s)){ seen.add(hit.s); hit.name = n; hit.step = stepOfToken(m, ti); out.push(hit); }
+      }
+    }
+  }
+  return (m._lookups = out);
+}
+/** Сколько раз запрос вычисляется при «Обновить всё»: имена загружаемых запросов, которые от него зависят.
+    Без метаданных загрузки (голый M) загружаемыми считаются запросы, на которые никто не ссылается. */
+function refreshReads(A){
+  if (A._reads) return A._reads;
+  const metaKnown = A.members.some(x => x.meta && (x.meta.FillEnabled != null || x.meta.FillToDataModelEnabled != null));
+  const res = new Map();
+  for (const L of A.members){
+    if (L.isParam || L.isFn || !(metaKnown ? (L.load.sheet || L.load.model) : !L.usedBy.length)) continue;
+    const seen = new Set(), stack = [L.name];
+    while (stack.length){ const n = stack.pop(); if (seen.has(n)) continue; seen.add(n); const q = A.byName.get(n); if (q) stack.push(...q.refs); }
+    for (const n of seen){ if (!res.has(n)) res.set(n, []); res.get(n).push(L.name); }
+  }
+  return (A._reads = res);
 }
 function isInsideEach(toks, st, ti){
   // грубая проверка: между ближайшим незакрытым "(" и токеном встречается each

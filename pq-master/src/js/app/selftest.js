@@ -211,6 +211,32 @@ async function runSelfTest(){
     const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
     const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
     ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);
+    // ---------- сценарий: управленческий учёт на выгрузках (маппинг статей, ЦФО, проекты) ----------
+    const ua = ['section S;',
+      'shared Маппинг = #table({"Счёт", "Статья"}, {{"60", "Поставщики"}, {"62", "Покупатели"}, {"51", "Банк"}});',
+      'shared ЦФО = #table({"Подразделение", "ЦФО"}, {{"Отдел А", "ЦФО-1"}, {"Отдел Б", "ЦФО-2"}});',
+      'shared Проекты = #table({"Код", "Проект"}, {{"P1", "Стройка"}, {"P2", "Ремонт"}});',
+      'shared Выгрузки = #table({"Дт", "Кт", "Подразделение", "Код", "Дата", "Сумма"}, {{"60", "51", "Отдел А", "P1", 3, 100}, {"62", "60", "Отдел Б", "P2", 1, 250}, {"51", "62", "Отдел А", "P1", 2, 40}, {"60", "99", "Отдел Б", "P2", 4, 7}});',
+      'shared Проводки = let', '    Источник = Выгрузки,',
+      '    Статья = Table.AddColumn(Источник, "Статья", each Маппинг{[Счёт = [Дт]]}?[Статья]),',
+      '    ЦФО1 = Table.AddColumn(Статья, "ЦФО", each Table.SelectRows(ЦФО, (r) => r[Подразделение] = [Подразделение]){0}?[ЦФО], type text),',
+      '    Отбор = Table.SelectRows(ЦФО1, each List.Contains(Маппинг[Счёт], [Кт])),',
+      '    Сорт = Table.Sort(Отбор, {{"Дата", Order.Ascending}}),',
+      '    С_проектом = Table.NestedJoin(Сорт, {"Код"}, Проекты, {"Код"}, "П", JoinKind.LeftOuter)', 'in', '    С_проектом;',
+      'shared ОПиУ = Table.Group(Проводки, {"Статья"}, {{"Сумма", each List.Sum([Сумма]), type number}});',
+      'shared ДДС = Table.Group(Проводки, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}});', ''].join('\r\n');
+    const uaFile = ua.replace('shared Выгрузки = #table(', 'shared Выгрузки = let Ф = Folder.Files("C:\\Выгрузки"), К = Table.AddColumn(Ф, "Д", each Excel.Workbook([Content])), Т = #table(').replace(/(\{"60", "99", "Отдел Б", "P2", 4, 7\}\}\));/, '$1 in Т;');
+    const uaA = analyzeSection(uaFile, {}); const uaO = optimizeSection(uaFile, uaA, lintSection(uaA)); const uaR = uaO.findings.map(f => f.rule);
+    ok('Сценарий учёта на выгрузках: поиск в справочниках, списки в each, буфер слияния, повторное чтение выгрузки, разбор файлов папки, настройки Excel',
+      uaR.filter(r => r === 'row-lookup').length === 2 && ['list-buffer', 'join-buffer', 'multi-eval', 'folder-combine', 'excel-settings', 'useless-sort'].every(r => uaR.includes(r)), uaR.join(', '));
+    const uaEv = sec => ['Проводки', 'ОПиУ', 'ДДС'].map(q => mLit(mEval('Table.ToRows(Table.RemoveColumns(' + q + ', {"П"}, MissingField.Ignore))', sec))).join(' | ');
+    const uaBase = uaEv(ua); const uaA2 = analyzeSection(ua, {}); const uaBad = [];
+    for (const f of optimizeSection(ua, uaA2, lintSection(uaA2)).findings.filter(f => f.fix && ['row-lookup', 'list-buffer', 'join-buffer'].includes(f.rule)))
+      for (const method of f.options ? ['merge', 'buffer'] : ['']){ const n = f.fix(ua, { method }); if (syntaxIssues(n).length || uaEv(n) !== uaBase) uaBad.push(f.rule + (method ? ':' + method : '')); }
+    let uaT = ua; for (let i = 0; i < 10; i++){ const AA = analyzeSection(uaT, {}); const f = optimizeSection(uaT, AA, lintSection(AA)).findings.find(x => x.fix && ['row-lookup', 'list-buffer', 'join-buffer'].includes(x.rule)); if (!f) break; uaT = f.fix(uaT, { method: 'merge' }); }
+    ok('Ускорения поиска в справочниках (слияние, буферы) не меняют отчёты — проверено песочницей', !uaBad.length && uaEv(uaT) === uaBase && /Table\.NestedJoin\(Источник, \{"Дт"\}, Table\.Distinct\(Маппинг/.test(uaT), uaBad.join(', ') || uaBase.slice(0, 80));
+    const uaH = ua.replace('each Маппинг{[', 'each Table.Buffer(Маппинг){['); const uaHs = applyAllSafeText(uaH, {});
+    ok('Буфер внутри each выносится в отдельный шаг безопасно — отчёты те же', uaHs.applied.some(x => /Вынести буфер/.test(x)) && !/each Table\.Buffer/.test(uaHs.text) && uaEv(uaHs.text) === uaBase, uaHs.applied.join(' · '));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

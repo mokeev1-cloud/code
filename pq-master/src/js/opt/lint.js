@@ -97,22 +97,33 @@ function lintSection(A){
       const h = hs[0], more = hs.length > 1 ? ' и ещё ' + (hs.length - 1) : '', occ = hs.map(x => ({ s: x.s, e: x.e }));
       if (h.kind === 'hoist') add('warn', 'buffer-in-each', m.name, h.step && h.step.name, h.how + ' стоит внутри функции, которая вызывается для каждой строки: справочник буферизуется заново на каждой строке — это медленнее, чем без буфера.', 'Вынесите буфер в отдельный шаг перед этим — он вычислится один раз.').data = { kind: h.fn.split('.')[0], expr: h.expr, occ };
       else if (h.kind === 'list') add('tip', 'list-buffer', m.name, h.step && h.step.name, 'Список «' + h.expr + '» внутри each (' + h.how + more + ') вычисляется заново для каждой строки.', 'Вычислите его один раз отдельным шагом: Список = List.Buffer(…).').data = { expr: h.expr, occ };
-      else if (h.buffered) add('tip', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в буферизованном справочнике «' + h.name + '» для каждой строки (' + h.how + more + '): справочник уже в памяти, но для каждой строки он просматривается целиком.', 'На больших выгрузках слияние (Table.NestedJoin) быстрее ещё в разы: оно сопоставляет ключи за один проход.').data = { name: h.name, occ, buffered: true };
-      else add('warn', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в справочнике «' + h.name + '» для каждой строки (' + h.how + more + '). На больших выгрузках это главная причина долгого обновления: справочник просматривается заново для каждой строки.', 'Замените поиск одним слиянием со справочником (Table.NestedJoin) или хотя бы вычислите справочник один раз: Table.Buffer.').data = { name: h.name, occ };
+      else if (h.buffered) add('tip', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в буферизованном справочнике «' + h.name + '» для каждой строки (' + h.how + more + '): справочник уже в памяти, но для каждой строки он просматривается целиком.', 'На больших таблицах слияние (Table.NestedJoin) быстрее ещё в разы: оно сопоставляет ключи за один проход.').data = { name: h.name, occ, buffered: true };
+      else add('warn', 'row-lookup', m.name, h.step && h.step.name, 'Поиск в справочнике «' + h.name + '» для каждой строки (' + h.how + more + '). На больших таблицах это одна из главных причин долгого обновления: справочник просматривается заново для каждой строки.', 'Замените поиск одним слиянием со справочником (Table.NestedJoin) или хотя бы вычислите справочник один раз: Table.Buffer.').data = { name: h.name, occ };
     }
-    // объединение файлов папки (выгрузки 1С и т. п.)
+    // объединение файлов папки
     if (m.sources.some(x => FOLDER_SOURCES.has(x))){
       const perFile = m.calls.find(c => (c.fn === 'Excel.Workbook' || c.fn === 'Csv.Document') && isInsideEach(toks, st, c.i)) || m.calls.find(c => { const q = byName.get(c.fn); return q && q.isFn && isInsideEach(toks, st, c.i); });
       if (perFile){ const step = stepOfToken(m, perFile.i);
-        add('warn', 'folder-combine', m.name, step && step.name, 'Каждый файл папки разбирается при каждом обновлении (' + perFile.fn + ' для каждого файла) — обычно самое долгое место в книгах на выгрузках.',
-          'Отберите файлы до разбора: по [Extension], по [Name] (без временных «~$…»), по периоду в [Date modified]. Excel.Workbook(…, null, true) — без определения типов по всем листам. Сразу после разбора оставьте только нужные столбцы и строки. Если система учёта умеет выгружать CSV, Csv.Document разбирает его в разы быстрее .xlsx. Закрытые периоды сведите в один архивный файл, а заново обрабатывайте только текущий.'); }
+        add('warn', 'folder-combine', m.name, step && step.name, 'Каждый файл папки разбирается при каждом обновлении (' + perFile.fn + ' для каждого файла) — обычно самое долгое место таких запросов.',
+          'Отберите файлы до разбора: по [Extension], по [Name] (без временных «~$…»), по периоду в [Date modified]. Excel.Workbook(…, null, true) — без определения типов по всем листам. Сразу после разбора оставьте только нужные столбцы и строки. Если источник файлов умеет отдавать CSV, Csv.Document разбирает его в разы быстрее .xlsx. Файлы за закрытые периоды сведите в один архивный, а заново обрабатывайте только текущие.'); }
     }
+    if (m.sources.includes('SharePoint.Files')){ const c = m.calls.find(x => x.fn === 'SharePoint.Files'); const step = stepOfToken(m, c.i);
+      add('info', 'sharepoint-files', m.name, step && step.name, 'SharePoint.Files перечисляет все файлы сайта, а уже потом из них отбираются нужные. На больших сайтах одно это занимает минуты.', 'Для конкретной папки или файла используйте SharePoint.Contents(сайт){[Name="Shared Documents"]}[Content]{[Name="Папка"]}[Content] — навигация по папкам без перечисления всего сайта.'); }
+    for (const c of m.calls){
+      if (c.fn !== 'Table.Group' && c.fn !== 'Table.ExpandTableColumn') continue;
+      const args = callArgs(toks, st, st.sig[st.pos.get(c.i) + 1]); const step = stepOfToken(m, c.i);
+      if (c.fn === 'Table.Group'){ const a = args[2] || []; if (a.some((ti, i) => toks[ti].v === 'each' && toks[a[i + 1]] && toks[a[i + 1]].v === '_' && toks[a[i + 2]] && [',', '}', 'type'].includes(toks[a[i + 2]].v)))
+        add('tip', 'group-all-rows', m.name, step && step.name, 'Группировка с агрегатом «Все строки» (each _) хранит целую таблицу для каждой группы.', 'Если дальше эти таблицы снова раскрываются или из них берётся одно значение — посчитайте нужное сразу в агрегате (List.Sum([Сумма]), Table.Max(_, "Дата") и т. п.): меньше памяти и проходов.'); }
+      else { const n = (args[2] || []).filter(ti => toks[ti].t === 'str').length;
+        if (n >= 15) add('tip', 'expand-many', m.name, step && step.name, 'После слияния раскрывается ' + n + ' столбцов.', 'Оставьте только действительно нужные — каждый лишний столбец проходит через все следующие шаги и загрузку.'); }
+    }
+    if (S && !m.sources.some(x => FOLDABLE_SOURCES.has(x))) lateReduce(A, m, add);
     if (S){
       for (const s of S.steps){
         if (!s.fns.includes('Table.AddColumn') && !s.fns.includes('Table.TransformColumns')) continue;
         const tx = A.text.slice(s.exprS, s.exprE); const n = (tx.match(/\belse\s+if\b/g) || []).length;
         const lit = (tx.match(/(\]\s*(=|<>)\s*"|Text\.(Contains|StartsWith|EndsWith)\s*\()/g) || []).length;
-        if (n >= 4 && lit >= 5) add('tip', 'manual-mapping', m.name, s.name, 'Разметка задана в коде: ' + (n + 1) + ' условий if … else if подряд.', 'Перенесите соответствия в таблицу-справочник на листе (условие → статья / ЦФО / проект) и подключайте её слиянием: разметку можно править без правки кода, а на больших выгрузках слияние быстрее цепочки условий для каждой строки.');
+        if (n >= 4 && lit >= 5) add('tip', 'manual-mapping', m.name, s.name, 'Разметка задана в коде: ' + (n + 1) + ' условий if … else if подряд.', 'Перенесите соответствия в таблицу-справочник (значение → категория) и подключайте её слиянием: разметку можно править без правки кода, а на больших таблицах слияние быстрее цепочки условий для каждой строки.');
       }
       for (const s of S.steps){
         if (s.fn !== 'Table.Sort' || S.finalRefs.has(s.name)) continue;
@@ -150,8 +161,13 @@ function lintSection(A){
   // настройки Excel, которые не задаются кодом M, — один совет на книгу с файлами или смешанными источниками
   const kinds = new Set(); let fileQ = null;
   for (const m of members) for (const x of m.sources){ kinds.add(x === 'Excel.CurrentWorkbook' ? 'book' : FILE_SOURCES.has(x) ? 'file' : FOLDABLE_SOURCES.has(x) ? 'db' : 'other'); if (!fileQ && FILE_SOURCES.has(x)) fileQ = m; }
-  if (fileQ || kinds.size >= 2) add('info', 'excel-settings', (fileQ || members.find(x => x.sources.length)).name, '', 'Настройки Excel, которые ускоряют обновление книги на файлах и таблицах Excel. В коде M их не задать.',
-    'Данные → Получить данные → Параметры запроса: (1) Текущая книга → Конфиденциальность — вариант, при котором уровни конфиденциальности игнорируются: при смешивании выгрузок и таблиц книги исчезают проверки Formula.Firewall и лишние вычисления; выбирайте его, только если все источники — внутренние данные компании. (2) Текущая книга → Загрузка данных — отключите фоновую загрузку предварительного просмотра. (3) В свойствах каждого загружаемого запроса (Запросы и подключения → правый щелчок → Свойства) включите быструю загрузку данных. (4) Промежуточные запросы — «Только создать подключение».');
+  const anySrc = members.find(x => x.sources.length);
+  if (anySrc && (fileQ || kinds.size >= 2 || A.family === 'pbi')){
+    const xl = 'Excel — Данные → Получить данные → Параметры запроса: Текущая книга → Конфиденциальность — вариант, при котором уровни конфиденциальности игнорируются; Текущая книга → Загрузка данных — отключите фоновую загрузку предварительного просмотра; в свойствах загружаемых запросов (Запросы и подключения → правый щелчок → Свойства) включите быструю загрузку данных; промежуточные запросы — «Только создать подключение».';
+    const bi = 'Power BI Desktop — Файл → Параметры и настройки → Параметры: Текущий файл → Конфиденциальность — игнорировать уровни конфиденциальности; Текущий файл → Загрузка данных — отключите фоновую загрузку предварительного просмотра и автоматические дату и время (скрытые таблицы дат для каждого столбца дат), включите параллельную загрузку таблиц; у промежуточных запросов снимите «Включить загрузку».';
+    add('info', 'excel-settings', (fileQ || anySrc).name, '', 'Настройки, которые ускоряют обновление и не задаются кодом M.',
+      (A.family === 'pbi' ? bi : A.family === 'excel' ? xl : xl + ' ' + bi) + ' Игнорировать уровни конфиденциальности стоит, только если все источники — внутренние данные: так исчезают проверки Formula.Firewall при смешивании источников.');
+  }
   for (const [key, qs] of srcKeys) if (qs.size >= 2) add('info', 'repeated-source', [...qs][0], '', 'Источник ' + key + ' читается в ' + qs.size + ' запросах: ' + [...qs].join(', ') + '.', 'Вынесите подключение в один промежуточный запрос (без загрузки) и ссылайтесь на него — проще поддерживать и легче управлять уровнями конфиденциальности.');
   const cand = paramCandidates(A);
   const perQ = {}; for (const c of cand) (perQ[c.member] = perQ[c.member] || new Set()).add(c.value);
@@ -168,7 +184,7 @@ function isBuffered(A, m, name, kind){
 }
 const isBufferedList = (A, m, name) => isBuffered(A, m, name, 'List');
 
-/* ---- Поиск в справочнике на каждую строку (маппинг статей, ЦФО, проектов…) ---- */
+/* ---- Поиск в справочнике на каждую строку (маппинг, классификаторы, коды…) ---- */
 // функции, чей аргумент-функция вызывается для каждой строки / элемента / группы: индексы таких аргументов
 const PER_ROW_ARGS = { 'Table.AddColumn': [2], 'Table.SelectRows': [1], 'Table.TransformColumns': [1], 'Table.TransformRows': [1], 'Table.ReplaceValue': [1, 2], 'Table.Group': [2], 'Table.CombineColumns': [2], 'List.Transform': [1], 'List.Select': [1], 'List.Accumulate': [2] };
 const TABLE_LOOKUP_FNS = new Set(['Table.SelectRows', 'Table.Contains', 'Table.ContainsAny', 'Table.ContainsAll', 'Table.MatchesAnyRows', 'Table.MatchesAllRows', 'Table.PositionOf', 'Table.PositionOfAny', 'Table.FindText']);
@@ -225,6 +241,56 @@ function rowLookups(A, m){
     }
   }
   return (m._lookups = out);
+}
+/* ---- Поздний фильтр / позднее удаление столбцов (для источников без свёртки) ---- */
+// шаги, через которые фильтр по «чужим» столбцам и удаление «чужих» столбцов можно поднять без изменения результата
+const COMMUTE_FNS = new Set(['Table.SelectRows', 'Table.AddColumn', 'Table.NestedJoin', 'Table.Join', 'Table.ExpandTableColumn', 'Table.Sort', 'Table.TransformColumnTypes', 'Table.TransformColumns', 'Table.ReplaceValue', 'Table.RenameColumns', 'Table.ReorderColumns', 'Table.RemoveColumns', 'Table.DuplicateColumn', 'Table.Buffer']);
+const HEAVY_PASS = new Set(['Table.AddColumn', 'Table.NestedJoin', 'Table.Join', 'Table.ExpandTableColumn', 'Table.Sort', 'Table.TransformColumns', 'Table.ReplaceValue']);
+/** Имена, которые упоминает фрагмент: поля в [ ] и строковые литералы (консервативно — всё, что может быть именем столбца) */
+function mentionedNames(A, ta, tb, known){
+  const { toks, st } = A; const out = new Set(); const decl = new Set(); let whole = false;
+  // объявления параметров лямбд (…) => — сами по себе не обращения к столбцам
+  for (let i = ta; i < tb; i++){
+    if (toks[i].v !== '=>') continue;
+    let k = st.pos.get(i) - 1; while (k >= 0 && toks[st.sig[k]].v !== ')' && st.pos.get(i) - k < 6) k--;
+    if (k < 0 || toks[st.sig[k]].v !== ')') continue;
+    for (let j = st.pos.get(st.match.get(st.sig[k])) + 1; j < k; j++){ const pv = toks[st.sig[j - 1]]; if (isName(toks[st.sig[j]]) && (pv.v === '(' || pv.v === ',' || pv.v === 'optional')) decl.add(st.sig[j]); }
+  }
+  for (let i = ta; i < tb; i++){
+    const t = toks[i]; if (!isSig(t) || decl.has(i)) continue;
+    const nx = toks[st.sig[st.pos.get(i) + 1]], pv = toks[st.sig[st.pos.get(i) - 1]];
+    if (t.t === 'str') out.add(strValue(t));
+    else if (t.v === '[' && st.brKind.get(i) === 'access' && st.match.has(i)){ const raw = A.text.slice(t.e, toks[st.match.get(i)].s).trim(); const q = /^#"((?:[^"]|"")*)"$/.exec(raw); out.add(q ? q[1].replace(/""/g, '"') : raw); }
+    // строка целиком: _ или имя (параметр, переменная) без [поле] — Record.FieldValues(r) и т. п. зависят от всех столбцов
+    else if (t.v === '_'){ if (!nx || nx.v !== '[') whole = true; }
+    else if (isName(t) && !st.fieldTok.has(i) && !t.v.includes('.') && t.v !== 'optional' && !known.has(nameOf(t)) && !(pv && ['as', 'type', 'nullable'].includes(pv.v)) && !(nx && ['[', '(', '='].includes(nx.v))) whole = true;
+  }
+  return { names: out, whole };
+}
+function lateReduce(A, m, add){
+  const steps = m.steps.steps; const byN = new Map(steps.map(s => [s.name, s]));
+  const known = new Set([...byN.keys(), ...A.byName.keys()]);
+  const users = n => steps.filter(x => x.refs.has(n));
+  // шаг — ровно один вызов fn(…): его аргументы, иначе null
+  const callOf = s => { const t0 = A.toks[s.tokS]; if (!t0 || t0.v !== s.fn) return null; const op = A.st.sig[A.st.pos.get(s.tokS) + 1]; const cl = A.st.match.get(op); if (cl == null || cl !== s.tokE - 1) return null; return callArgs(A.toks, A.st, op); };
+  for (let f = 1; f < steps.length; f++){
+    const F = steps[f]; if (F.fn !== 'Table.SelectRows' && F.fn !== 'Table.RemoveColumns') continue;
+    const args = callOf(F); if (!args || args.length < 2 || args[0].length !== 1) continue;
+    if (F.fn === 'Table.RemoveColumns' && !args[1].every(ti => A.toks[ti].t === 'str' || ['{', '}', ','].includes(A.toks[ti].v))) continue;   // только явный список
+    const src = byN.get(nameOf(A.toks[args[0][0]])); if (!src) continue;
+    const own = mentionedNames(A, args[1][0], args[1][args[1].length - 1] + 1, known); if (own.whole || !own.names.size) continue;
+    const passed = []; let cur = src;
+    while (cur && COMMUTE_FNS.has(cur.fn) && users(cur.name).length === 1){
+      const ca = callOf(cur); if (!ca || !ca.length || ca[0].length !== 1) break;
+      const prev = byN.get(nameOf(A.toks[ca[0][0]])); if (!prev) break;
+      const touched = mentionedNames(A, ca.slice(1).flat()[0] ?? cur.tokS, cur.tokE, known); if (touched.whole || [...own.names].some(n => touched.names.has(n))) break;
+      passed.push(cur); cur = prev;
+    }
+    const heavy = passed.filter(x => HEAVY_PASS.has(x.fn)); if (!heavy.length) continue;
+    const list = (passed.length > 1 ? 'шагов ' : 'шага ') + passed.slice().reverse().map(x => '«' + x.name + '»').join(', ');
+    if (F.fn === 'Table.SelectRows') add('tip', 'late-filter', m.name, F.name, 'Фильтр «' + F.name + '» не зависит от ' + list + ' — его можно поднять выше.', 'Перенесите фильтр сразу после шага «' + cur.name + '»: через слияния, новые столбцы и сортировки пройдёт меньше строк. Результат не изменится — шаги между ними не трогают столбцы условия.');
+    else add('tip', 'late-columns', m.name, F.name, 'Столбцы удаляются в шаге «' + F.name + '», хотя до этого они не нужны: их не используют ' + list.replace(/^шаг(ов|а) /, passed.length > 1 ? 'шаги ' : 'шаг ') + '.', 'Удаляйте их сразу после шага «' + cur.name + '»: слияния, новые столбцы и сортировки будут обрабатывать меньше данных.');
+  }
 }
 /** Сколько раз запрос вычисляется при «Обновить всё»: имена загружаемых запросов, которые от него зависят.
     Без метаданных загрузки (голый M) загружаемыми считаются запросы, на которые никто не ссылается. */

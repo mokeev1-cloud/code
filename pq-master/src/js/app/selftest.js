@@ -211,7 +211,7 @@ async function runSelfTest(){
     const preTok = 'section S;\r\nshared A = "⟦UNC_1⟧ и \\\\srv01\\share";';
     const dPre = new TokenDict(); const anPre = anonymizeM(preTok, defaultConfig(), dPre);
     ok('Текст, похожий на метку ⟦…⟧, в исходнике: новые метки с ним не совпадают, обратная подстановка побайтна', restoreTokens(anPre.out, dPre).out === preTok && dPre.size === 1 && !dPre.byToken.has('⟦UNC_1⟧'), anPre.out);
-    // ---------- сценарий: управленческий учёт на выгрузках (маппинг статей, ЦФО, проекты) ----------
+    // ---------- справочники и повторные вычисления (пример: учёт на выгрузках, маппинг статей и ЦФО) ----------
     const ua = ['section S;',
       'shared Маппинг = #table({"Счёт", "Статья"}, {{"60", "Поставщики"}, {"62", "Покупатели"}, {"51", "Банк"}});',
       'shared ЦФО = #table({"Подразделение", "ЦФО"}, {{"Отдел А", "ЦФО-1"}, {"Отдел Б", "ЦФО-2"}});',
@@ -227,16 +227,20 @@ async function runSelfTest(){
       'shared ДДС = Table.Group(Проводки, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}});', ''].join('\r\n');
     const uaFile = ua.replace('shared Выгрузки = #table(', 'shared Выгрузки = let Ф = Folder.Files("C:\\Выгрузки"), К = Table.AddColumn(Ф, "Д", each Excel.Workbook([Content])), Т = #table(').replace(/(\{"60", "99", "Отдел Б", "P2", 4, 7\}\}\));/, '$1 in Т;');
     const uaA = analyzeSection(uaFile, {}); const uaO = optimizeSection(uaFile, uaA, lintSection(uaA)); const uaR = uaO.findings.map(f => f.rule);
-    ok('Сценарий учёта на выгрузках: поиск в справочниках, списки в each, буфер слияния, повторное чтение выгрузки, разбор файлов папки, настройки Excel',
+    ok('Справочники и повторные вычисления: поиск в справочнике для каждой строки, списки в each, буфер слияния, повторное чтение источника, разбор файлов папки, настройки',
       uaR.filter(r => r === 'row-lookup').length === 2 && ['list-buffer', 'join-buffer', 'multi-eval', 'folder-combine', 'excel-settings', 'useless-sort'].every(r => uaR.includes(r)), uaR.join(', '));
     const uaEv = sec => ['Проводки', 'ОПиУ', 'ДДС'].map(q => mLit(mEval('Table.ToRows(Table.RemoveColumns(' + q + ', {"П"}, MissingField.Ignore))', sec))).join(' | ');
     const uaBase = uaEv(ua); const uaA2 = analyzeSection(ua, {}); const uaBad = [];
     for (const f of optimizeSection(ua, uaA2, lintSection(uaA2)).findings.filter(f => f.fix && ['row-lookup', 'list-buffer', 'join-buffer'].includes(f.rule)))
       for (const method of f.options ? ['merge', 'buffer'] : ['']){ const n = f.fix(ua, { method }); if (syntaxIssues(n).length || uaEv(n) !== uaBase) uaBad.push(f.rule + (method ? ':' + method : '')); }
     let uaT = ua; for (let i = 0; i < 10; i++){ const AA = analyzeSection(uaT, {}); const f = optimizeSection(uaT, AA, lintSection(AA)).findings.find(x => x.fix && ['row-lookup', 'list-buffer', 'join-buffer'].includes(x.rule)); if (!f) break; uaT = f.fix(uaT, { method: 'merge' }); }
-    ok('Ускорения поиска в справочниках (слияние, буферы) не меняют отчёты — проверено песочницей', !uaBad.length && uaEv(uaT) === uaBase && /Table\.NestedJoin\(Источник, \{"Дт"\}, Table\.Distinct\(Маппинг/.test(uaT), uaBad.join(', ') || uaBase.slice(0, 80));
+    ok('Ускорения поиска в справочниках (слияние, буферы) не меняют итоговые таблицы — проверено песочницей', !uaBad.length && uaEv(uaT) === uaBase && /Table\.NestedJoin\(Источник, \{"Дт"\}, Table\.Distinct\(Маппинг/.test(uaT), uaBad.join(', ') || uaBase.slice(0, 80));
     const uaH = ua.replace('each Маппинг{[', 'each Table.Buffer(Маппинг){['); const uaHs = applyAllSafeText(uaH, {});
     ok('Буфер внутри each выносится в отдельный шаг безопасно — отчёты те же', uaHs.applied.some(x => /Вынести буфер/.test(x)) && !/each Table\.Buffer/.test(uaHs.text) && uaEv(uaHs.text) === uaBase, uaHs.applied.join(' · '));
+    const lr = (lines) => { const t = ['section S;', ...lines, ''].join('\r\n'); return lintSection(analyzeSection(t, {})).map(l => l.rule); };
+    const lr1 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Ф = Table.SelectRows(Н, each [Год] = 2024),', '    У = Table.RemoveColumns(Ф, {"Комментарий"})', 'in', '    У;']);
+    const lr2 = lr(['shared Q = let', '    И = Csv.Document(File.Contents("a.csv")),', '    Н = Table.AddColumn(И, "Доля", each [Сумма] / 100),', '    Т = Table.TransformColumnTypes(Н, {{"Год", Int64.Type}}),', '    Ф = Table.SelectRows(Т, (r) => List.Contains(Record.FieldValues(r), 2024))', 'in', '    Ф;']);
+    ok('Поздние фильтры и столбцы: совет есть, где перенос не меняет результат, и нет, где меняет', lr1.includes('late-filter') && lr1.includes('late-columns') && !lr2.includes('late-filter'), lr1.join(',') + ' / ' + lr2.join(','));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

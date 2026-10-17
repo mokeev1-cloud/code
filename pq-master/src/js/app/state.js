@@ -30,7 +30,7 @@ function emitState(reason){ for (const f of _listeners){ try { f(reason); } catc
 /** Пересчитать анализ, линтер и оптимизатор для текущей рабочей версии */
 function reanalyze(){
   if (!S.work){ S.A = null; S.lint = []; S.opt = null; return; }
-  S.A = analyzeSection(S.work, S.book ? S.book.meta : {});
+  S.A = analyzeSection(S.work, S.book ? S.book.meta : {}); S.A.family = S.book ? S.book.family : null;   // excel / pbi — для советов по настройкам
   S.lint = lintSection(S.A);
   S.opt = optimizeSection(S.work, S.A, S.lint);
   if (!S.sel || !S.A.byName.has(S.sel)) S.sel = S.A.members[0] ? S.A.members[0].name : null;

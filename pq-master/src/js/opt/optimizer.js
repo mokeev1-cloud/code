@@ -169,12 +169,17 @@ function optimizeSection(text, A, lint){
         const d = l.data; const fix = d && step ? bufferFix(A, m, step, d.kind, d.expr, d.occ) : null;
         add(Object.assign(base, { title: 'Буферизация внутри each', impact: ['speed'], safety: fix ? 'safe' : 'manual', fixLabel: 'Вынести буфер в отдельный шаг', fix })); break; }
       case 'manual-mapping': add(Object.assign(base, { title: 'Разметка цепочкой условий в коде', impact: ['clarity', 'speed'], safety: 'manual' })); break;
+      case 'late-filter': add(Object.assign(base, { title: 'Фильтр можно поднять выше', impact: ['speed'], safety: 'manual' })); break;
+      case 'late-columns': add(Object.assign(base, { title: 'Лишние столбцы удаляются поздно', impact: ['speed'], safety: 'manual' })); break;
+      case 'sharepoint-files': add(Object.assign(base, { title: 'SharePoint.Files перечисляет весь сайт', impact: ['speed'], safety: 'manual' })); break;
+      case 'group-all-rows': add(Object.assign(base, { title: 'Группировка «Все строки»', impact: ['speed'], safety: 'manual' })); break;
+      case 'expand-many': add(Object.assign(base, { title: 'Раскрыто много столбцов', impact: ['speed'], safety: 'manual' })); break;
       case 'join-buffer': {
         const d = l.data; const fix = d ? t => rng(t, d.s, d.e, 'Table.Buffer(' + mQuoteName(d.name) + ')') : null;
         add(Object.assign(base, { title: 'Справочник в слиянии не буферизован', impact: ['speed'], safety: fix ? 'check' : 'manual', fixLabel: 'Обернуть «' + (d ? d.name : '') + '» в Table.Buffer', fix })); break; }
       case 'folder-combine': add(Object.assign(base, { title: 'Разбор каждого файла папки', impact: ['speed'], safety: 'manual' })); break;
       case 'useless-sort': add(Object.assign(base, { title: 'Лишняя сортировка', impact: ['speed'], safety: 'manual' })); break;
-      case 'excel-settings': add(Object.assign(base, { title: 'Настройки Excel для скорости обновления', impact: ['speed'], safety: 'manual' })); break;
+      case 'excel-settings': add(Object.assign(base, { title: 'Настройки для скорости обновления', impact: ['speed'], safety: 'manual' })); break;
       case 'hardcoded': {
         const cand = candidatesOf(l.query);
         const used = new Set(A.members.map(x => x.name)); const seen = new Map();

@@ -35,7 +35,7 @@ function renderHome(){
   const b = S.book, A = S.A, O = S.opt;
   $('#homeTitle').textContent = b.name;
   const e = S.lint.filter(l => l.sev === 'err').length, w = S.lint.filter(l => l.sev === 'warn').length;
-  $('#homeScore').innerHTML = gaugeSvg(O.score) + '<div class="score-txt"><b>Здоровье книги</b><div>ошибок: ' + e + ' · предупреждений: ' + w + ' · советов: ' + O.findings.length + '</div><div>автоисправимо: <b>' + O.breakdown.fixable + '</b> (безопасно: ' + O.breakdown.safeFixable + ')</div><div class="row"><button class="btn pri sm" data-go="optimizer">Оптимизатор</button>' + (O.breakdown.safeFixable ? '<button class="btn sm" id="homeSafe">Применить безопасные (' + O.breakdown.safeFixable + ')</button>' : '') + '</div></div>';
+  $('#homeScore').innerHTML = gaugeSvg(O.score) + '<div class="score-txt"><b>Здоровье книги</b><div>ошибок: ' + e + ' · предупреждений: ' + w + ' · советов: ' + O.findings.length + '</div><div>автоисправимо: <b>' + O.breakdown.fixable + '</b> (безопасно: ' + O.breakdown.safeFixable + ')</div><div class="row">' + (b.family !== 'text' ? '<button class="btn pri sm" id="homeSpeed">⚡ Ускорить книгу</button>' : '') + '<button class="btn sm" data-go="optimizer">Оптимизатор</button>' + (O.breakdown.safeFixable ? '<button class="btn sm" id="homeSafe">Применить безопасные (' + O.breakdown.safeFixable + ')</button>' : '') + '</div></div>';
   const fam = { excel: 'Книга Excel', pbi: 'Power BI', text: 'M-код текстом' }[b.family];
   const dmi = b.dm ? b.dm.info : null;
   const srcs = [...new Set(A.members.flatMap(m => m.sources))];
@@ -49,10 +49,10 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
-  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', '⚡ Ускорить книгу — всё автоматическое одной кнопкой и отчёт', 'speedup']);
-  next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
-  next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
-  if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
+  if (b.family !== 'text') next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
+  if (b.family === 'excel') next.push(['play', 'Проверить запросы на данных книги и выгрузок (локально)', 'data']);
+  next.push(['bolt', '⚡ Ускорить книгу — всё автоматическое одной кнопкой и отчёт', 'speedup']);
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
   if (isDirty()) next.push(['code', 'Сохранить изменения: копия (Ctrl+S) или в оригинал', 'save']);
@@ -62,6 +62,7 @@ function renderHome(){
   renderQueryTable();
   $$('[data-go]', $('#homeBook')).forEach(x => x.onclick = () => showView(x.dataset.go));
   if ($('#homeSafe')) $('#homeSafe').onclick = applyAllSafe;
+  if ($('#homeSpeed')) $('#homeSpeed').onclick = openSpeedup;
   $$('[data-act]', $('#homeNext')).forEach(x => x.onclick = () => { const a = x.dataset.act; if (a === 'safe') applyAllSafe(); else if (a === 'save') saveCopy(); else if (a === 'speedup') openSpeedup(); else showView(a); });
 }
 function renderQueryTable(){

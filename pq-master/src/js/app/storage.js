@@ -97,10 +97,19 @@ async function closeBook(){ if (!(await confirmDiscard())) return; closeBookStat
 /* ---- Сохранение ---- */
 const bookBase = () => S.book.name.replace(/\.[^.]+$/, '');
 const bookExt = () => (/\.[^.]+$/.exec(S.book.name) || ['.xlsx'])[0];
+/** Правки флагов подключений совпадают с тем, что прочитано из файла */
+function connEditsHold(book, edits){
+  for (const [id, e] of Object.entries((edits && edits.conns) || {})){
+    const c = (book.conns || []).find(x => x.id === id); if (!c) return false;
+    for (const k of Object.keys(e)) if (c[k] !== !!e[k]) return false;
+  }
+  return true;
+}
 async function buildVerified(){
-  const bytes = await buildBookWithSection(S.book, S.work);
+  const bytes = await buildBookWithSection(S.book, S.work, S.bookEdits);
   const re = await loadBookFromBytes(S.book.name, bytes);
   if (re.origSection !== S.work) throw new Error('Контрольное чтение собранного файла не совпало с рабочей версией — сохранение отменено.');
+  if (!connEditsHold(re, S.bookEdits)) throw new Error('Контрольное чтение: свойства подключений в собранном файле не совпали с выбранными — сохранение отменено.');
   return bytes;
 }
 async function confirmPbi(){
@@ -159,8 +168,8 @@ async function saveToOriginal(){
     catch (e){ throw new Error((/NoModification|InvalidState|NotReadable|NotAllowed/.test(e.name) ? 'Файл занят или защищён от записи — закройте книгу в Excel и повторите. ' : '') + '(' + e.name + ': ' + e.message + ')'); }
     const check = new Uint8Array(await (await h.getFile()).arrayBuffer());
     const re = await loadBookFromBytes(S.book.name, check);
-    if (re.origSection !== S.work) throw new Error('После записи файл прочитан, но код не совпал с рабочей версией. Восстановите файл из резервной копии.');
-    re.handle = h; S.book = re; S.saved = S.work;
+    if (re.origSection !== S.work || !connEditsHold(re, S.bookEdits)) throw new Error('После записи файл прочитан, но код или свойства подключений не совпали с рабочей версией. Восстановите файл из резервной копии.');
+    re.handle = h; S.book = re; S.saved = S.work; S.bookEdits = { conns: {} };
     S.hist.push({ t: new Date(), src: 'save', label: 'Записано в «' + re.name + '»', text: S.work }); S.histPos = S.hist.length - 1;
     emitState('saved'); recentPut(h, re);
     toast('Записано в оригинал и проверено. Откройте книгу → «Данные» → «Обновить всё».', 'ok', 8000);

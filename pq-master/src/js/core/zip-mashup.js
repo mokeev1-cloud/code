@@ -240,8 +240,6 @@ function parseMashupMetadata(metaBytes){
   } catch { /* метаданные — справочная информация, их отсутствие не мешает */ }
   return res;
 }
-/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
-    Только для советов; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
 /** Permissions (MS-QDEFF 2.4): FirewallEnabled=false — для книги выбрано «игнорировать уровни конфиденциальности».
     Защищено Permission Bindings (DPAPI пользователя): после любой правки кода Excel сбрасывает к умолчанию. */
 function parsePermissions(xml){
@@ -249,10 +247,12 @@ function parsePermissions(xml){
   const fw = /<(?:\w+:)?FirewallEnabled>\s*(true|false)\s*</i.exec(xml); const gt = /<(?:\w+:)?WorkbookGroupType\b[^>]*>\s*([^<\s]+)\s*</i.exec(xml);
   return { firewall: fw ? fw[1].toLowerCase() === 'true' : null, group: gt ? gt[1] : null };
 }
+/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
+    Только для советов и правки флагов подключений; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
 async function readRefreshParts(book, zip){
   book.privacy = parsePermissions(book.dm && book.dm.info && book.dm.info.permissions);
   const ce = zipFind(zip, 'xl/connections.xml');
-  if (ce){ try { book.conns = parseConnections(decodeText(await zipEntryBytes(ce)).text); } catch (e){ book.connsError = e.message; } }
+  if (ce){ try { const d = decodeText(await zipEntryBytes(ce)); Object.assign(book, { connsEntry: ce, connsText: d.text, connsEnc: d.enc, connsBom: d.bom }); book.conns = parseConnections(d.text); } catch (e){ book.connsError = e.message; } }
   const ve = zipFind(zip, 'xl/vbaProject.bin');
   if (ve){ try { book.vba = readVbaProject(await zipEntryBytes(ve)); } catch (e){ book.vba = { modules: [], error: e.message }; } }
 }
@@ -386,23 +386,33 @@ function schemaToSection(exprs){
 /* =====================================================================
    Сборка новой копии файла с новым Section1.m
    ===================================================================== */
-async function buildBookWithSection(book, newSection){
+/** Новая копия книги. Код не менялся — DataMashup переносится байт в байт (сохраняются Permission Bindings,
+    а с ними флаг «игнорировать уровни конфиденциальности»). edits.conns — правки флагов подключений (applyConnEdits). */
+async function buildBookWithSection(book, newSection, edits){
   if (book.container === 'text') throw new Error('Источник — текст, а не файл: собрать книгу нельзя. Скопируйте код запросов в Расширенный редактор.');
   if (book.container === 'pbi-schema') return buildPbiSchema(book, newSection);
-  const secBytes = encodeText(newSection, book.secEnc, book.secBom);
-  const newSecEntry = await zipReplaceData(book.secEntry, secBytes);
-  const pkgEntries = book.pkg.entries.map(e => e === book.secEntry ? newSecEntry : e);
-  const newParts = zipWrite(pkgEntries, book.pkg.comment);
-  const newDm = buildDataMashup(book.dm, newParts);
-  let outEntries;
-  if (book.container === 'excel'){
-    const itemText = book.itemPrefix + b64encode(newDm) + book.itemSuffix;
-    const itemBytes = encodeText(itemText, book.itemEnc, book.itemBom);
-    const ni = await zipReplaceData(book.itemEntry, itemBytes);
-    outEntries = book.zip.entries.map(e => e === book.itemEntry ? ni : e);
-  } else {
-    const nd = await zipReplaceData(book.dmEntry, newDm);
-    outEntries = book.zip.entries.map(e => e === book.dmEntry ? nd : e).filter(e => e.name !== 'SecurityBindings');
+  let outEntries = book.zip.entries;
+  if (newSection !== book.origSection){
+    const secBytes = encodeText(newSection, book.secEnc, book.secBom);
+    const newSecEntry = await zipReplaceData(book.secEntry, secBytes);
+    const pkgEntries = book.pkg.entries.map(e => e === book.secEntry ? newSecEntry : e);
+    const newParts = zipWrite(pkgEntries, book.pkg.comment);
+    const newDm = buildDataMashup(book.dm, newParts);
+    if (book.container === 'excel'){
+      const itemText = book.itemPrefix + b64encode(newDm) + book.itemSuffix;
+      const itemBytes = encodeText(itemText, book.itemEnc, book.itemBom);
+      const ni = await zipReplaceData(book.itemEntry, itemBytes);
+      outEntries = outEntries.map(e => e === book.itemEntry ? ni : e);
+    } else {
+      const nd = await zipReplaceData(book.dmEntry, newDm);
+      outEntries = outEntries.map(e => e === book.dmEntry ? nd : e).filter(e => e.name !== 'SecurityBindings');
+    }
+  }
+  const ce = edits && edits.conns;
+  if (ce && Object.keys(ce).length){
+    if (!book.connsEntry) throw new Error('В книге нет xl/connections.xml — менять свойства подключений негде.');
+    const xml = applyConnEdits(book.connsText, ce);
+    if (xml !== book.connsText){ const ne = await zipReplaceData(book.connsEntry, encodeText(xml, book.connsEnc, book.connsBom)); outEntries = outEntries.map(e => e === book.connsEntry ? ne : e); }
   }
   return zipWrite(outEntries, book.zip.comment);
 }

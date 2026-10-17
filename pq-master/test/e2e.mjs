@@ -135,6 +135,17 @@ await page.click('[data-view=optimizer]'); await page.waitForTimeout(250);
 const book = await page.$eval('#optBook', e => e.classList.contains('hidden') ? '' : e.textContent);
 check('Оптимизатор: «Как обновляется книга» — двойной RefreshAll и обновление при открытии', /обновляются 2 раза/.test(book) && /при открытии/.test(book), book.slice(0, 120));
 await shot('19-book-refresh');
+// «Настройки PQ и Excel»: флажок подключения → правка к записи, макрос в окне, сборка с правкой
+await page.click('#optSettings'); await page.waitForTimeout(200);
+await page.click('#modal input[data-k="refreshOnLoad"]'); await page.waitForTimeout(100);
+const pqx = await page.evaluate(async () => {
+  const code = $('#pqxCode').textContent; const dirty = isDirty(); const pend = $('#pqxPend').textContent;
+  const re = await loadBookFromBytes('macro.xlsm', await buildVerified());
+  return { code: /Public Sub PQ_RefreshAll\(\)/.test(code) && /Public Sub PQ_TimeQueries\(\)/.test(code), dirty, pend, onLoad: re.conns[0].refreshOnLoad, same: re.origSection === S.work };
+});
+await shot('20-pq-settings');
+await page.click('#modal button[data-v=ok]'); await page.waitForTimeout(100);
+check('Настройки PQ и Excel: снятый флажок «при открытии» ждёт записи и попадает в собранный файл; макрос показан', pqx.code && pqx.dirty && /сохраните/.test(pqx.pend) && pqx.onLoad === false && pqx.same, JSON.stringify(pqx));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');

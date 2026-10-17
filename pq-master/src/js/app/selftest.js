@@ -85,8 +85,7 @@ async function makeTestBook(extra){
 /** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
     потоком dir и модулем Module1 в кодировке codePage; сжатие MS-OVBA — только литералы */
 function makeTestVba(source, codePage){
-  const dec = new TextDecoder('windows-' + codePage); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
-  const enc = str => Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+  const enc = str => encodeCodePage(str, codePage);
   const pack = bytes => { const body = []; for (let i = 0; i < bytes.length; i += 8){ body.push(0); for (let j = i; j < Math.min(i + 8, bytes.length); j++) body.push(bytes[j]); } const h = (body.length - 1) | (3 << 12) | (1 << 15); return Uint8Array.from([1, h & 255, h >> 8, ...body]); };
   const rec = (id, data) => concatBytes([Uint8Array.of(id & 255, id >> 8), u32le(data.length), data]);
   const dir = pack(concatBytes([rec(0x0003, Uint8Array.of(codePage & 255, codePage >> 8)), rec(0x0019, enc('Module1')), rec(0x001A, enc('Module1')), rec(0x0031, u32le(0)), rec(0x002B, new Uint8Array(0))]));
@@ -274,6 +273,26 @@ async function runSelfTest(){
     ok('Флаг «игнорировать уровни конфиденциальности» книги читается из Permissions (MS-QDEFF)', pp.firewall === false && xlsm.privacy && xlsm.privacy.firewall === true, JSON.stringify(pp) + ' / ' + JSON.stringify(xlsm.privacy));
     ok('Макросы и подключения: VBA (кодовая страница 1251) прочитан, найдены двойной RefreshAll, повторное обновление, сводные, синхронное обновление, обновление при открытии',
       xlsm.vba && xlsm.vba.modules[0] && /ОбновитьВсё/.test(xlsm.vba.modules[0].code) && xlsm.conns.length === 1 && xlsm.conns[0].query === 'Продажи' && ['macro-refreshall-twice', 'macro-refresh-again', 'macro-pivot-again', 'macro-sync', 'conn-refresh-on-open'].every(k => bri.includes(k)), bri.join(', ') + (xlsm.vba && xlsm.vba.error ? ' · ' + xlsm.vba.error : ''));
+    // ---------- настройки PQ и Excel: флаги подключений в файле, генерируемый макрос ----------
+    const x15 = (id, ex) => '<extLst><ext uri="{DE250136-89BD-433C-8126-D09CA5730AF9}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main"><x15:connection id=""' + (ex ? ' excludeFromRefreshAll="1"' : '') + '/></ext></extLst>';
+    const cx2 = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><connection id="1" name="Запрос — Продажи" type="5" refreshedVersion="8" background="1" saveData="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи"/>' + x15('1', false) + '</connection><connection id="2" name="Запрос — Курсы" type="5" refreshedVersion="8" saveData="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Курсы"/>' + x15('2', true) + '</connection><connection id="3" name="Запрос — Старый" type="5" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Location=Старый"/></connection></connections>';
+    const ed = { '1': { refreshOnLoad: false, excluded: true, background: false }, '2': { excluded: false, background: true }, '3': { refreshOnLoad: false, excluded: true } };
+    const cx3 = applyConnEdits(cx2, ed); const pc3 = parseConnections(cx3);
+    const strip = t => t.replace(/\s+(refreshOnLoad|background|excludeFromRefreshAll)="[^"]*"/g, '');
+    ok('Флаги подключений: «при открытии», «фоновое», «Обновить всё» меняются, остальной текст connections.xml — байт в байт; без x15:connection флаг исключения не пишется',
+      !pc3[0].refreshOnLoad && pc3[0].excluded && !pc3[0].background && !pc3[1].excluded && pc3[1].background && !pc3[2].refreshOnLoad && !pc3[2].excluded && !/excludeFromRefreshAll/.test(cx3.split('id="3"')[1]) && strip(cx3) === strip(cx2) && applyConnEdits(cx2, {}) === cx2, JSON.stringify(pc3.map(c => [c.refreshOnLoad, c.excluded, c.background])));
+    const bk2 = await loadBookFromBytes('настройки.xlsx', await makeTestBook([['xl/connections.xml', cx2]]));
+    const out2 = await buildBookWithSection(bk2, bk2.origSection, { conns: { '1': { refreshOnLoad: false } } }); const re2 = await loadBookFromBytes('настройки.xlsx', out2);
+    const sameItem = bytesEqual(await zipEntryBytes(zipFind(re2.zip, bk2.itemEntry.name)), await zipEntryBytes(bk2.itemEntry));
+    const out3 = await buildBookWithSection(bk2, bk2.origSection + '\r\n'); const re3 = await loadBookFromBytes('настройки.xlsx', out3);
+    ok('Код не менялся — DataMashup переносится байт в байт (флаг конфиденциальности книги сохраняется), правка подключений проверяется перечитыванием',
+      sameItem && re2.origSection === bk2.origSection && !re2.conns[0].refreshOnLoad && re2.conns[1].excluded && re3.conns[0].refreshOnLoad && re3.origSection === bk2.origSection + '\r\n', 'item ' + sameItem);
+    const mac = genPqMacro({ refresh: true, timing: true, fastCombine: true, setup: { exclude: ['Запрос — Курсы', 'Q "x" 漢'] }, codePage: 1251, forFile: true });
+    const macLines = mac.split('\r\n'); const cnt = re => macLines.filter(l => re.test(l)).length;
+    const macBack = new TextDecoder('windows-1251').decode(encodeCodePage(mac, 1251));
+    ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
+      /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
+      mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

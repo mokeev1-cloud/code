@@ -117,10 +117,152 @@ function parseConnections(xml){
     const db = /<dbPr\b([^>]*?)\/?>/.exec(inner); const d = db ? xmlAttrs(db[1]) : {};
     const cs = d.connection || ''; const loc = /(?:^|;)\s*Location\s*=\s*(?:"((?:[^"]|"")*)"|([^;]*))/i.exec(cs);
     const x15 = /<\w+:connection\b([^>]*?)\/?>/.exec(inner); const xa = x15 ? xmlAttrs(x15[1]) : {};   // MS-XLSX: x15:connection model / excludeFromRefreshAll
-    out.push({ id: a.id, name: a.name || '', background: flag(a.background), refreshOnLoad: flag(a.refreshOnLoad), saveData: flag(a.saveData), deleted: flag(a.deleted), model: flag(xa.model), excluded: flag(xa.excludeFromRefreshAll),
+    out.push({ id: a.id, name: a.name || '', background: flag(a.background), refreshOnLoad: flag(a.refreshOnLoad), saveData: flag(a.saveData), deleted: flag(a.deleted), model: flag(xa.model), excluded: flag(xa.excludeFromRefreshAll), hasX15: !!x15,
       mashup: /Microsoft\.Mashup\.OleDb/i.test(cs), query: loc ? (loc[1] != null ? loc[1].replace(/""/g, '"') : loc[2].trim()) : null });
   }
   return out;
+}
+/** Атрибут в тексте открывающего тега: val === null — убрать, иначе задать (значения — только '1') */
+function setXmlAttr(attrs, name, val){
+  const re = new RegExp('\\s+' + name + '\\s*=\\s*("[^"]*"|\'[^\']*\')');
+  if (val === null) return attrs.replace(re, '');
+  return re.test(attrs) ? attrs.replace(re, ' ' + name + '="' + val + '"') : attrs.replace(/\s*$/, '') + ' ' + name + '="' + val + '"';
+}
+/** Правка флагов подключений в xl/connections.xml. edits: { id: { refreshOnLoad?, background?, excluded? } }.
+    Меняются только эти атрибуты; excludeFromRefreshAll — только в уже существующем x15:connection
+    (новый элемент расширения не создаётся — для таких подключений есть макрос PQ_Setup). Остальной текст — байт в байт. */
+function applyConnEdits(xml, edits){
+  return xml.replace(/<connection\b([^>]*?)(\/>|>([\s\S]*?)<\/connection>)/g, (all, attrs, rest, inner) => {
+    const id = xmlAttrs(attrs).id; const e = id != null && edits[id]; if (!e) return all;
+    let a = attrs;
+    if ('refreshOnLoad' in e) a = setXmlAttr(a, 'refreshOnLoad', e.refreshOnLoad ? '1' : null);
+    if ('background' in e) a = setXmlAttr(a, 'background', e.background ? '1' : null);
+    let r = rest;
+    if ('excluded' in e && inner != null) r = rest.replace(/<(\w+):connection\b([^>]*?)(\/?)>/, (m, p, xa, sc) => '<' + p + ':connection' + setXmlAttr(xa, 'excludeFromRefreshAll', e.excluded ? '1' : null) + sc + '>');
+    return '<connection' + a + r;
+  });
+}
+/** Однобайтовая кодировка Windows (cp1251 и т. п.) для модуля .bas; символы вне кодировки → «?» */
+function encodeCodePage(str, cp){
+  const dec = new TextDecoder('windows-' + cp); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
+  return Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+}
+/** Строковый литерал VBA; символы вне кодовой страницы модуля — через ChrW, чтобы имя подключения совпало точно */
+function vbaStr(s, cp){
+  let canEnc; try { const d = new TextDecoder('windows-' + cp); const set = new Set(); for (let b = 0; b < 256; b++) set.add(d.decode(Uint8Array.of(b))); canEnc = ch => set.has(ch); } catch { canEnc = ch => ch.charCodeAt(0) < 128; }
+  const parts = []; let run = '';
+  for (const ch of String(s)){
+    if (canEnc(ch) && ch !== '\r' && ch !== '\n') run += ch === '"' ? '""' : ch;
+    else { if (run) parts.push('"' + run + '"'); run = ''; for (let i = 0; i < ch.length; i++) parts.push('ChrW(' + ch.charCodeAt(i) + ')'); }
+  }
+  if (run || !parts.length) parts.push('"' + run + '"');
+  return parts.join(' & ');
+}
+/** Модуль VBA «PQMaster» для обновления запросов Power Query в Excel пользователя.
+    opts: { fastCombine, refresh, timing, setup: { noOpen:[имена подключений], exclude:[…], include:[…] }, codePage, forFile }.
+    Только объектная модель Excel; данные книги модуль не читает и никуда не передаёт. Перевод строк — CRLF. */
+function genPqMacro(opts){
+  const o = opts || {}; const cp = o.codePage || 1251; const L = [];
+  const add = (...xs) => L.push(...xs);
+  if (o.forFile) add('Attribute VB_Name = "PQMaster"');
+  add("' Мастер PQ: обновление запросов Power Query" + (o.bookName ? ' книги «' + String(o.bookName).replace(/[\r\n]/g, ' ') + '»' : ''),
+    "' Вставка: Alt+F11, затем Файл > Импорт файла (PQMaster.bas) или Вставка > Модуль и вставить текст.",
+    'Option Explicit', '');
+  // Queries есть с Excel 2016; в более старых строка пропускается, а не останавливает макрос
+  const fc = o.fastCombine ? ['    On Error Resume Next', '    ThisWorkbook.Queries.FastCombine = True   \' игнорировать уровни конфиденциальности, пока книга открыта', '    On Error GoTo 0'] : [];
+  if (o.refresh !== false){
+    add("' Одно «Обновить всё»: запросы Power Query — синхронно (макрос дожидается данных), потом прежние настройки возвращаются.",
+      'Public Sub PQ_RefreshAll()',
+      '    Dim cn As WorkbookConnection, saved As New Collection, it As Variant, t As Double, el As Double, errText As String',
+      '    t = Timer',
+      '    Application.StatusBar = "Мастер PQ: обновление запросов…"', ...fc,
+      '    For Each cn In ThisWorkbook.Connections',
+      '        If PQ_IsQuery(cn) Then',
+      '            saved.Add Array(cn.Name, PQ_GetBackground(cn))',
+      '            PQ_SetBackground cn, False',
+      '        End If',
+      '    Next cn',
+      '    On Error Resume Next',
+      '    ThisWorkbook.RefreshAll',
+      '    If Err.Number <> 0 Then errText = Err.Description',
+      '    Err.Clear',
+      '    For Each it In saved',
+      '        PQ_SetBackground ThisWorkbook.Connections(it(0)), it(1)',
+      '    Next it',
+      '    On Error GoTo 0',
+      '    Application.StatusBar = False',
+      '    el = Timer - t: If el < 0 Then el = el + 86400',
+      '    If Len(errText) > 0 Then',
+      '        MsgBox "Обновление прервано: " & errText, vbExclamation, "Мастер PQ"',
+      '    Else',
+      '        MsgBox "Готово за " & Format(el, "0.0") & " с", vbInformation, "Мастер PQ"',
+      '    End If',
+      'End Sub', '');
+  }
+  if (o.timing){
+    add("' Замер: каждый запрос Power Query обновляется отдельно и синхронно. Время включает его источники и промежуточные запросы.",
+      "' Результат — в окне сообщения (25 самых долгих) и в окне Immediate (Ctrl+G), строки PQ_TIME. Сводные не обновляются.",
+      'Public Sub PQ_TimeQueries()',
+      '    Dim cn As WorkbookConnection, t As Double, el As Double, bg As Boolean, total As Double',
+      '    Dim nm() As String, sec() As Double, n As Long, i As Long, j As Long, s As String, ts As String, td As Double',
+      '    ReDim nm(1 To ThisWorkbook.Connections.Count + 1): ReDim sec(1 To ThisWorkbook.Connections.Count + 1)', ...fc,
+      '    For Each cn In ThisWorkbook.Connections',
+      '        If PQ_IsQuery(cn) Then',
+      '            Application.StatusBar = "Мастер PQ: замер " & cn.Name',
+      '            bg = PQ_GetBackground(cn): PQ_SetBackground cn, False',
+      '            t = Timer',
+      '            On Error Resume Next',
+      '            cn.Refresh',
+      '            If Err.Number <> 0 Then Debug.Print "PQ_ERROR"; vbTab; cn.Name; vbTab; Err.Description',
+      '            Err.Clear',
+      '            On Error GoTo 0',
+      '            el = Timer - t: If el < 0 Then el = el + 86400',
+      '            PQ_SetBackground cn, bg',
+      '            n = n + 1: nm(n) = cn.Name: sec(n) = el: total = total + el',
+      '            Debug.Print "PQ_TIME"; vbTab; cn.Name; vbTab; Format(el, "0.0")',
+      '        End If',
+      '    Next cn',
+      '    Application.StatusBar = False',
+      '    For i = 1 To n - 1',
+      '        For j = i + 1 To n',
+      '            If sec(j) > sec(i) Then td = sec(i): sec(i) = sec(j): sec(j) = td: ts = nm(i): nm(i) = nm(j): nm(j) = ts',
+      '        Next j',
+      '    Next i',
+      '    For i = 1 To n',
+      '        If i > 25 Then Exit For',
+      '        s = s & Format(sec(i), "0.0") & " с — " & nm(i) & vbCrLf',
+      '    Next i',
+      '    MsgBox "Запросов: " & n & ", всего " & Format(total, "0.0") & " с" & vbCrLf & vbCrLf & s, vbInformation, "Мастер PQ: замер"',
+      'End Sub', '');
+  }
+  const st = o.setup || {}; const noOpen = st.noOpen || [], excl = st.exclude || [], incl = st.include || [];
+  if (noOpen.length || excl.length || incl.length){
+    const cs = xs => xs.map(x => vbaStr(x, cp)).join(', ');
+    add("' Однократная настройка подключений (сохраните книгу после запуска).",
+      'Public Sub PQ_Setup()',
+      '    Dim cn As WorkbookConnection',
+      '    On Error Resume Next',
+      '    For Each cn In ThisWorkbook.Connections');
+    if (noOpen.length) add('        Select Case cn.Name', '            Case ' + cs(noOpen) + ': cn.OLEDBConnection.RefreshOnFileOpen = False', '        End Select');
+    if (excl.length) add('        Select Case cn.Name', '            Case ' + cs(excl) + ': cn.RefreshWithRefreshAll = False', '        End Select');
+    if (incl.length) add('        Select Case cn.Name', '            Case ' + cs(incl) + ': cn.RefreshWithRefreshAll = True', '        End Select');
+    add('    Next cn', '    MsgBox "Настройки подключений изменены. Сохраните книгу.", vbInformation, "Мастер PQ"', 'End Sub', '');
+  }
+  add("' Подключение Power Query: OLE DB с поставщиком Microsoft.Mashup.OleDb",
+    'Private Function PQ_IsQuery(cn As WorkbookConnection) As Boolean',
+    '    On Error Resume Next',
+    '    If cn.Type = xlConnectionTypeOLEDB Then PQ_IsQuery = InStr(1, cn.OLEDBConnection.Connection, "Microsoft.Mashup.OleDb", vbTextCompare) > 0',
+    'End Function',
+    'Private Function PQ_GetBackground(cn As WorkbookConnection) As Boolean',
+    '    On Error Resume Next',
+    '    PQ_GetBackground = cn.OLEDBConnection.BackgroundQuery',
+    'End Function',
+    "' Для модели данных свойство только для чтения — ошибка пропускается",
+    'Private Sub PQ_SetBackground(cn As WorkbookConnection, ByVal v As Boolean)',
+    '    On Error Resume Next',
+    '    cn.OLEDBConnection.BackgroundQuery = v',
+    'End Sub');
+  return L.join('\r\n') + '\r\n';
 }
 
 /* ---- Макросы, которые обновляют запросы ---- */

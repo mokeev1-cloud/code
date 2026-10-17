@@ -53,13 +53,15 @@ function histGo(pos){
 }
 const canUndo = () => S.histPos > 0;
 const canRedo = () => S.histPos >= 0 && S.histPos < S.hist.length - 1;
-const isDirty = () => !!S.book && S.work !== S.saved;
+/** Ожидающие записи правки свойств книги (не кода): флаги подключений — см. «Настройки PQ и Excel» */
+const hasBookEdits = () => !!(S.book && S.bookEdits && Object.keys(S.bookEdits.conns || {}).length);
+const isDirty = () => !!S.book && (S.work !== S.saved || hasBookEdits());
 function initBookState(book){
-  S.book = book; S.work = book.origSection; S.saved = book.origSection; S.sel = null; S.aiNew = null;
+  S.book = book; S.work = book.origSection; S.saved = book.origSection; S.sel = null; S.aiNew = null; S.bookEdits = { conns: {} };
   S.hist = [{ t: new Date(), src: 'open', label: 'Открыта «' + book.name + '»', text: book.origSection }]; S.histPos = 0;
   reanalyze(); emitState('book');
 }
 function closeBookState(){
-  S.book = null; S.work = null; S.saved = null; S.A = null; S.lint = []; S.opt = null; S.anon = null; S.scan = null; S.hist = []; S.histPos = -1;
+  S.book = null; S.work = null; S.saved = null; S.bookEdits = { conns: {} }; S.A = null; S.lint = []; S.opt = null; S.anon = null; S.scan = null; S.hist = []; S.histPos = -1;
   emitState('book');
 }

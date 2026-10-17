@@ -140,6 +140,7 @@ function commands(){
     if (canUndo()) c('Отменить: ' + S.hist[S.histPos].label, () => histGo(S.histPos - 1), { hk: 'Ctrl+Alt+Z' });
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
+    if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
     c('Форматировать все запросы', formatAllQueries);
     c('Новый запрос…', () => { showView('editor'); newQueryDialog(); });
     c('Обезличенный код → в буфер обмена', () => { showView('anon'); $('#copyAnon').click(); });

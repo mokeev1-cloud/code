@@ -29,47 +29,47 @@
      888–894    src/html/view-help.html
      895–901    src/html/view-selftest.html
      902–910    src/html/shell-bottom.html
-     912–1102   DEV.md
-    1105–1271   build.mjs
-    1272–1439   test/e2e.mjs
-    1440–1615   test/stress.mjs
-    1616–1629   vendor/codemirror.entry.js
-    1632–1647   vendor/codemirror.bundle.js
-    1651–2078   src/js/core/zip-mashup.js
-    2079–2282   src/js/core/vba.js
-    2283–2555   src/js/m/lang.js
-    2556–2618   src/js/m/format.js
-    2619–3003   src/js/m/reference.js
-    3004–3761   src/js/m/interp.js
-    3762–4282   src/js/nda/anon.js
-    4283–4419   src/js/nda/diag.js
-    4420–4834   src/js/opt/lint.js
-    4835–5144   src/js/opt/optimizer.js
-    5145–5231   src/js/opt/refactor.js
-    5232–5379   src/js/opt/snippets.js
-    5380–5446   src/js/app/state.js
-    5447–5681   src/js/nda/agent.js
-    5682–5773   src/js/app/ui-base.js
-    5774–5943   src/js/app/storage.js
-    5944–5978   src/js/app/hints.js
-    5979–6195   src/js/app/shell.js
-    6196–6282   src/js/views/home.js
-    6283–6624   src/js/views/editor.js
-    6625–6779   src/js/views/optimizer.js
-    6780–6863   src/js/views/graph.js
-    6864–6974   src/js/views/sandbox.js
-    6975–7005   src/js/views/reference.js
-    7006–7043   src/js/views/snippets.js
-    7044–7064   src/js/views/history.js
-    7065–7206   src/js/views/anon.js
-    7207–7273   src/js/views/diag.js
-    7274–7387   src/js/views/ai.js
-    7388–7451   src/js/views/agent.js
-    7452–7478   src/js/views/compare.js
-    7479–7536   src/js/views/docs.js
-    7537–7696   src/js/views/help.js
-    7697–8038   src/js/app/selftest.js
-    8039–8052   src/js/app/main.js
+     912–1121   DEV.md
+    1124–1290   build.mjs
+    1291–1469   test/e2e.mjs
+    1470–1645   test/stress.mjs
+    1646–1659   vendor/codemirror.entry.js
+    1662–1677   vendor/codemirror.bundle.js
+    1681–2118   src/js/core/zip-mashup.js
+    2119–2464   src/js/core/vba.js
+    2465–2737   src/js/m/lang.js
+    2738–2800   src/js/m/format.js
+    2801–3185   src/js/m/reference.js
+    3186–3943   src/js/m/interp.js
+    3944–4464   src/js/nda/anon.js
+    4465–4601   src/js/nda/diag.js
+    4602–5016   src/js/opt/lint.js
+    5017–5326   src/js/opt/optimizer.js
+    5327–5413   src/js/opt/refactor.js
+    5414–5561   src/js/opt/snippets.js
+    5562–5630   src/js/app/state.js
+    5631–5865   src/js/nda/agent.js
+    5866–5957   src/js/app/ui-base.js
+    5958–6136   src/js/app/storage.js
+    6137–6171   src/js/app/hints.js
+    6172–6389   src/js/app/shell.js
+    6390–6476   src/js/views/home.js
+    6477–6818   src/js/views/editor.js
+    6819–7058   src/js/views/optimizer.js
+    7059–7142   src/js/views/graph.js
+    7143–7253   src/js/views/sandbox.js
+    7254–7284   src/js/views/reference.js
+    7285–7322   src/js/views/snippets.js
+    7323–7343   src/js/views/history.js
+    7344–7485   src/js/views/anon.js
+    7486–7552   src/js/views/diag.js
+    7553–7666   src/js/views/ai.js
+    7667–7730   src/js/views/agent.js
+    7731–7757   src/js/views/compare.js
+    7758–7815   src/js/views/docs.js
+    7816–7983   src/js/views/help.js
+    7984–8344   src/js/app/selftest.js
+    8345–8358   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -622,7 +622,7 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
       <div id="optHeat"></div>
     </div>
     <div class="card hidden" id="optBook">
-      <div class="card-h"><h2>Как обновляется книга</h2><span class="sp"></span><span class="small muted">макросы и свойства подключений — на оценку не влияют</span></div>
+      <div class="card-h"><h2>Как обновляется книга</h2><span class="small muted">макросы и свойства подключений — на оценку не влияют</span><span class="sp"></span><b class="small" id="optBookPending" style="color:var(--warn)"></b><button class="btn sm pri" id="optSettings">⚙ Настройки PQ и Excel</button></div>
       <div id="optBookList" class="book-issues"></div>
     </div>
     <div class="filters">
@@ -929,7 +929,12 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 - **Всё, что уходит наружу обезличенным, — через `gate()` + `audit()`** (`app/ui-base.js`).
   В автоматике (агент) — `gate(…, { noOverride: true })`.
 - **Словарь замен и оригиналы никогда не пишутся в папку обмена** (`nda/agent.js`).
-- **Содержимое листов книги не читается.** Читается только DataMashup и метаданные запросов.
+- **Содержимое листов книги не читается.** Читаются DataMashup, метаданные запросов, свойства
+  подключений (`xl/connections.xml`) и исходный текст макросов — последнее только для советов, никуда
+  не выгружается и в пакеты для ИИ не попадает. Код макросов в книге не меняется никогда.
+- **Свойства подключений меняются только по явному выбору** пользователя («Настройки PQ и Excel»,
+  `S.bookEdits`), правятся только три атрибута, остальной текст — байт в байт. Если код не менялся,
+  DataMashup переносится без изменений: иначе Excel сбросит флаг конфиденциальности книги.
 - **Код книги меняется только через `setWork(text, src, label)`** (`app/state.js`), чтобы правка
   попала в историю и все виды обновились.
 - **Неизменённые части книги переносятся байт в байт** (`core/zip-mashup.js`): своя реализация ZIP
@@ -988,6 +993,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | Модуль | Что внутри | Ключевые функции |
 |---|---|---|
 | `core/zip-mashup.js` | байты, кодировки, SHA-256, CRC32, ZIP, DataMashup, загрузка/сборка книги | `loadBookFromBytes`, `loadBookFromText`, `buildBookWithSection`, `zipRead/zipWrite`, `parseDataMashup`, `parseMashupMetadata` |
+| `core/vba.js` | макросы (MS-CFB, MS-OVBA), `connections.xml`, советы об обновлении, правка флагов подключений, генератор модуля VBA | `readVbaProject`, `parseConnections`, `bookRefreshIssues`, `applyConnEdits`, `genPqMacro`, `encodeCodePage` |
 | `m/lang.js` | лексер M, скобки, section-документ, шаги let…in, анализ, подсветка | `lexM`, `structure`, `parseSection`, `analyzeSection`, `parseSteps`, `highlightM`, `SOURCE_FNS` |
 | `m/format.js` | форматер (только отступы) | `formatM`, `sigTokens` |
 | `m/reference.js` | справочник функций (строки `Имя\|параметры\|тип\|описание\|пример`) | `M_REF`, `M_ENUMS`, `refSignature` |
@@ -1006,7 +1012,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `app/shell.js` | навигация, виды, палитра Ctrl+K, горячие клавиши, настройки, темы | `registerView`, `showView`, `NAV`, `commands`, `THEMES`, `setTheme` |
 | `css/theme.css`, `css/themes.css` | токены светлой/тёмной темы; темы «Спокойная» и «Весёлая» | |
 | `views/*.js` | по одному модулю на раздел интерфейса (`html/view-*.html` — их разметка) | `render*` |
-| `app/selftest.js` | самотест (51 проверка) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
+| `app/selftest.js` | самотест (60 проверок) | `runSelfTest`, `makeTestBook`, `TEST_SECTION` |
 | `app/main.js` | запуск | |
 
 ## Поток данных
@@ -1017,7 +1023,8 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 3. Виды подписаны через `registerView(id, { render(reason), onShow() })`. Активный вид
    перерисовывается при каждом `emitState`, остальные — при показе.
 4. Любая правка (редактор, оптимизатор, ИИ, рефакторинг, сниппет) → `setWork(новыйТекст, источник, подпись)`.
-5. Сохранение: `buildBookWithSection(S.book, S.work)` → контрольное чтение → запись (копия или оригинал).
+5. Сохранение: `buildBookWithSection(S.book, S.work, S.bookEdits)` → контрольное чтение (код и флаги
+   подключений) → запись (копия или оригинал). После записи в оригинал `S.bookEdits` очищается.
 6. Обезличивание считается лениво: `ensureAnon()` (`views/anon.js`) по ключу «рабочая версия + настройки».
 
 ## Рецепты
@@ -1095,8 +1102,20 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
   `manual-mapping`, `excel-settings` (Excel и Power BI по `A.family`; оценку не снижает).
   Пример, на котором это проверялось: управленческий учёт на выгрузках 1С с маппингом статей, ЦФО и
   проектов (самотест проверяет в песочнице, что слияние и буферы не меняют отчёты).
-- Не реализовано (сознательно): смена режима загрузки запросов («Только подключение») прямо в книге —
-  это правка connections.xml, листов и таблиц запросов, риск испортить книгу больше пользы.
+- **Настройки PQ и Excel** (`openPqSettings`, `views/optimizer.js`). С Excel инструмент не связывается
+  (браузер, CSP). Три части: (1) в файле — `refreshOnLoad`, `background`, `excludeFromRefreshAll`
+  (последний — только в существующем `x15:connection`, иначе через макрос); (2) модуль VBA `PQMaster`
+  (`genPqMacro`): `PQ_RefreshAll` — одно «Обновить всё», подключения PQ временно синхронны, затем
+  прежние значения; `PQ_TimeQueries` — замер по подключениям; `PQ_Setup`; опция FastCombine;
+  .bas в кодировке проекта (cp1251 по умолчанию), имена вне кодировки — `ChrW`; (3) вручную —
+  глобальная конфиденциальность, фоновый предпросмотр, «Только подключение». Проверенные факты:
+  флаг «игнорировать уровни» книги — `FirewallEnabled` в Permissions, привязан Permission Bindings
+  (DPAPI пользователя) и сбрасывается при правке кода, поэтому записать его нельзя;
+  `Queries.FastCombine` действует для любого пользователя, пока книга открыта; загрузки в модель
+  данных всегда синхронны; в Excel каждый загружаемый запрос вычисляет промежуточные заново —
+  «Только подключение» экономит лишь собственное вычисление и выгрузку промежуточного запроса.
+- Не реализовано (сознательно): смена режима загрузки («Только подключение») в файле — это правка
+  метаданных, листов и таблиц запросов; правка кода макросов в книге (p-code, риск «VBA stomping»).
 - Идеи: перенос фильтров выше точки разрыва свёртки (нужен анализ используемых столбцов);
   разбор `Value.NativeQuery` для свёртки; типы столбцов по шагам (вывод схемы) — для автодополнения.
 <!-- ===== END DEV.md ===== -->
@@ -1407,6 +1426,17 @@ await page.click('[data-view=optimizer]'); await page.waitForTimeout(250);
 const book = await page.$eval('#optBook', e => e.classList.contains('hidden') ? '' : e.textContent);
 check('Оптимизатор: «Как обновляется книга» — двойной RefreshAll и обновление при открытии', /обновляются 2 раза/.test(book) && /при открытии/.test(book), book.slice(0, 120));
 await shot('19-book-refresh');
+// «Настройки PQ и Excel»: флажок подключения → правка к записи, макрос в окне, сборка с правкой
+await page.click('#optSettings'); await page.waitForTimeout(200);
+await page.click('#modal input[data-k="refreshOnLoad"]'); await page.waitForTimeout(100);
+const pqx = await page.evaluate(async () => {
+  const code = $('#pqxCode').textContent; const dirty = isDirty(); const pend = $('#pqxPend').textContent;
+  const re = await loadBookFromBytes('macro.xlsm', await buildVerified());
+  return { code: /Public Sub PQ_RefreshAll\(\)/.test(code) && /Public Sub PQ_TimeQueries\(\)/.test(code), dirty, pend, onLoad: re.conns[0].refreshOnLoad, same: re.origSection === S.work };
+});
+await shot('20-pq-settings');
+await page.click('#modal button[data-v=ok]'); await page.waitForTimeout(100);
+check('Настройки PQ и Excel: снятый флажок «при открытии» ждёт записи и попадает в собранный файл; макрос показан', pqx.code && pqx.dirty && /сохраните/.test(pqx.pend) && pqx.onLoad === false && pqx.same, JSON.stringify(pqx));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');
@@ -1891,8 +1921,6 @@ function parseMashupMetadata(metaBytes){
   } catch { /* метаданные — справочная информация, их отсутствие не мешает */ }
   return res;
 }
-/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
-    Только для советов; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
 /** Permissions (MS-QDEFF 2.4): FirewallEnabled=false — для книги выбрано «игнорировать уровни конфиденциальности».
     Защищено Permission Bindings (DPAPI пользователя): после любой правки кода Excel сбрасывает к умолчанию. */
 function parsePermissions(xml){
@@ -1900,10 +1928,12 @@ function parsePermissions(xml){
   const fw = /<(?:\w+:)?FirewallEnabled>\s*(true|false)\s*</i.exec(xml); const gt = /<(?:\w+:)?WorkbookGroupType\b[^>]*>\s*([^<\s]+)\s*</i.exec(xml);
   return { firewall: fw ? fw[1].toLowerCase() === 'true' : null, group: gt ? gt[1] : null };
 }
+/** Как книга обновляется: свойства подключений (xl/connections.xml) и макросы (xl/vbaProject.bin).
+    Только для советов и правки флагов подключений; ошибка здесь не мешает открыть книгу. Код макросов никуда не выгружается. */
 async function readRefreshParts(book, zip){
   book.privacy = parsePermissions(book.dm && book.dm.info && book.dm.info.permissions);
   const ce = zipFind(zip, 'xl/connections.xml');
-  if (ce){ try { book.conns = parseConnections(decodeText(await zipEntryBytes(ce)).text); } catch (e){ book.connsError = e.message; } }
+  if (ce){ try { const d = decodeText(await zipEntryBytes(ce)); Object.assign(book, { connsEntry: ce, connsText: d.text, connsEnc: d.enc, connsBom: d.bom }); book.conns = parseConnections(d.text); } catch (e){ book.connsError = e.message; } }
   const ve = zipFind(zip, 'xl/vbaProject.bin');
   if (ve){ try { book.vba = readVbaProject(await zipEntryBytes(ve)); } catch (e){ book.vba = { modules: [], error: e.message }; } }
 }
@@ -2037,23 +2067,33 @@ function schemaToSection(exprs){
 /* =====================================================================
    Сборка новой копии файла с новым Section1.m
    ===================================================================== */
-async function buildBookWithSection(book, newSection){
+/** Новая копия книги. Код не менялся — DataMashup переносится байт в байт (сохраняются Permission Bindings,
+    а с ними флаг «игнорировать уровни конфиденциальности»). edits.conns — правки флагов подключений (applyConnEdits). */
+async function buildBookWithSection(book, newSection, edits){
   if (book.container === 'text') throw new Error('Источник — текст, а не файл: собрать книгу нельзя. Скопируйте код запросов в Расширенный редактор.');
   if (book.container === 'pbi-schema') return buildPbiSchema(book, newSection);
-  const secBytes = encodeText(newSection, book.secEnc, book.secBom);
-  const newSecEntry = await zipReplaceData(book.secEntry, secBytes);
-  const pkgEntries = book.pkg.entries.map(e => e === book.secEntry ? newSecEntry : e);
-  const newParts = zipWrite(pkgEntries, book.pkg.comment);
-  const newDm = buildDataMashup(book.dm, newParts);
-  let outEntries;
-  if (book.container === 'excel'){
-    const itemText = book.itemPrefix + b64encode(newDm) + book.itemSuffix;
-    const itemBytes = encodeText(itemText, book.itemEnc, book.itemBom);
-    const ni = await zipReplaceData(book.itemEntry, itemBytes);
-    outEntries = book.zip.entries.map(e => e === book.itemEntry ? ni : e);
-  } else {
-    const nd = await zipReplaceData(book.dmEntry, newDm);
-    outEntries = book.zip.entries.map(e => e === book.dmEntry ? nd : e).filter(e => e.name !== 'SecurityBindings');
+  let outEntries = book.zip.entries;
+  if (newSection !== book.origSection){
+    const secBytes = encodeText(newSection, book.secEnc, book.secBom);
+    const newSecEntry = await zipReplaceData(book.secEntry, secBytes);
+    const pkgEntries = book.pkg.entries.map(e => e === book.secEntry ? newSecEntry : e);
+    const newParts = zipWrite(pkgEntries, book.pkg.comment);
+    const newDm = buildDataMashup(book.dm, newParts);
+    if (book.container === 'excel'){
+      const itemText = book.itemPrefix + b64encode(newDm) + book.itemSuffix;
+      const itemBytes = encodeText(itemText, book.itemEnc, book.itemBom);
+      const ni = await zipReplaceData(book.itemEntry, itemBytes);
+      outEntries = outEntries.map(e => e === book.itemEntry ? ni : e);
+    } else {
+      const nd = await zipReplaceData(book.dmEntry, newDm);
+      outEntries = outEntries.map(e => e === book.dmEntry ? nd : e).filter(e => e.name !== 'SecurityBindings');
+    }
+  }
+  const ce = edits && edits.conns;
+  if (ce && Object.keys(ce).length){
+    if (!book.connsEntry) throw new Error('В книге нет xl/connections.xml — менять свойства подключений негде.');
+    const xml = applyConnEdits(book.connsText, ce);
+    if (xml !== book.connsText){ const ne = await zipReplaceData(book.connsEntry, encodeText(xml, book.connsEnc, book.connsBom)); outEntries = outEntries.map(e => e === book.connsEntry ? ne : e); }
   }
   return zipWrite(outEntries, book.zip.comment);
 }
@@ -2196,10 +2236,152 @@ function parseConnections(xml){
     const db = /<dbPr\b([^>]*?)\/?>/.exec(inner); const d = db ? xmlAttrs(db[1]) : {};
     const cs = d.connection || ''; const loc = /(?:^|;)\s*Location\s*=\s*(?:"((?:[^"]|"")*)"|([^;]*))/i.exec(cs);
     const x15 = /<\w+:connection\b([^>]*?)\/?>/.exec(inner); const xa = x15 ? xmlAttrs(x15[1]) : {};   // MS-XLSX: x15:connection model / excludeFromRefreshAll
-    out.push({ id: a.id, name: a.name || '', background: flag(a.background), refreshOnLoad: flag(a.refreshOnLoad), saveData: flag(a.saveData), deleted: flag(a.deleted), model: flag(xa.model), excluded: flag(xa.excludeFromRefreshAll),
+    out.push({ id: a.id, name: a.name || '', background: flag(a.background), refreshOnLoad: flag(a.refreshOnLoad), saveData: flag(a.saveData), deleted: flag(a.deleted), model: flag(xa.model), excluded: flag(xa.excludeFromRefreshAll), hasX15: !!x15,
       mashup: /Microsoft\.Mashup\.OleDb/i.test(cs), query: loc ? (loc[1] != null ? loc[1].replace(/""/g, '"') : loc[2].trim()) : null });
   }
   return out;
+}
+/** Атрибут в тексте открывающего тега: val === null — убрать, иначе задать (значения — только '1') */
+function setXmlAttr(attrs, name, val){
+  const re = new RegExp('\\s+' + name + '\\s*=\\s*("[^"]*"|\'[^\']*\')');
+  if (val === null) return attrs.replace(re, '');
+  return re.test(attrs) ? attrs.replace(re, ' ' + name + '="' + val + '"') : attrs.replace(/\s*$/, '') + ' ' + name + '="' + val + '"';
+}
+/** Правка флагов подключений в xl/connections.xml. edits: { id: { refreshOnLoad?, background?, excluded? } }.
+    Меняются только эти атрибуты; excludeFromRefreshAll — только в уже существующем x15:connection
+    (новый элемент расширения не создаётся — для таких подключений есть макрос PQ_Setup). Остальной текст — байт в байт. */
+function applyConnEdits(xml, edits){
+  return xml.replace(/<connection\b([^>]*?)(\/>|>([\s\S]*?)<\/connection>)/g, (all, attrs, rest, inner) => {
+    const id = xmlAttrs(attrs).id; const e = id != null && edits[id]; if (!e) return all;
+    let a = attrs;
+    if ('refreshOnLoad' in e) a = setXmlAttr(a, 'refreshOnLoad', e.refreshOnLoad ? '1' : null);
+    if ('background' in e) a = setXmlAttr(a, 'background', e.background ? '1' : null);
+    let r = rest;
+    if ('excluded' in e && inner != null) r = rest.replace(/<(\w+):connection\b([^>]*?)(\/?)>/, (m, p, xa, sc) => '<' + p + ':connection' + setXmlAttr(xa, 'excludeFromRefreshAll', e.excluded ? '1' : null) + sc + '>');
+    return '<connection' + a + r;
+  });
+}
+/** Однобайтовая кодировка Windows (cp1251 и т. п.) для модуля .bas; символы вне кодировки → «?» */
+function encodeCodePage(str, cp){
+  const dec = new TextDecoder('windows-' + cp); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
+  return Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+}
+/** Строковый литерал VBA; символы вне кодовой страницы модуля — через ChrW, чтобы имя подключения совпало точно */
+function vbaStr(s, cp){
+  let canEnc; try { const d = new TextDecoder('windows-' + cp); const set = new Set(); for (let b = 0; b < 256; b++) set.add(d.decode(Uint8Array.of(b))); canEnc = ch => set.has(ch); } catch { canEnc = ch => ch.charCodeAt(0) < 128; }
+  const parts = []; let run = '';
+  for (const ch of String(s)){
+    if (canEnc(ch) && ch !== '\r' && ch !== '\n') run += ch === '"' ? '""' : ch;
+    else { if (run) parts.push('"' + run + '"'); run = ''; for (let i = 0; i < ch.length; i++) parts.push('ChrW(' + ch.charCodeAt(i) + ')'); }
+  }
+  if (run || !parts.length) parts.push('"' + run + '"');
+  return parts.join(' & ');
+}
+/** Модуль VBA «PQMaster» для обновления запросов Power Query в Excel пользователя.
+    opts: { fastCombine, refresh, timing, setup: { noOpen:[имена подключений], exclude:[…], include:[…] }, codePage, forFile }.
+    Только объектная модель Excel; данные книги модуль не читает и никуда не передаёт. Перевод строк — CRLF. */
+function genPqMacro(opts){
+  const o = opts || {}; const cp = o.codePage || 1251; const L = [];
+  const add = (...xs) => L.push(...xs);
+  if (o.forFile) add('Attribute VB_Name = "PQMaster"');
+  add("' Мастер PQ: обновление запросов Power Query" + (o.bookName ? ' книги «' + String(o.bookName).replace(/[\r\n]/g, ' ') + '»' : ''),
+    "' Вставка: Alt+F11, затем Файл > Импорт файла (PQMaster.bas) или Вставка > Модуль и вставить текст.",
+    'Option Explicit', '');
+  // Queries есть с Excel 2016; в более старых строка пропускается, а не останавливает макрос
+  const fc = o.fastCombine ? ['    On Error Resume Next', '    ThisWorkbook.Queries.FastCombine = True   \' игнорировать уровни конфиденциальности, пока книга открыта', '    On Error GoTo 0'] : [];
+  if (o.refresh !== false){
+    add("' Одно «Обновить всё»: запросы Power Query — синхронно (макрос дожидается данных), потом прежние настройки возвращаются.",
+      'Public Sub PQ_RefreshAll()',
+      '    Dim cn As WorkbookConnection, saved As New Collection, it As Variant, t As Double, el As Double, errText As String',
+      '    t = Timer',
+      '    Application.StatusBar = "Мастер PQ: обновление запросов…"', ...fc,
+      '    For Each cn In ThisWorkbook.Connections',
+      '        If PQ_IsQuery(cn) Then',
+      '            saved.Add Array(cn.Name, PQ_GetBackground(cn))',
+      '            PQ_SetBackground cn, False',
+      '        End If',
+      '    Next cn',
+      '    On Error Resume Next',
+      '    ThisWorkbook.RefreshAll',
+      '    If Err.Number <> 0 Then errText = Err.Description',
+      '    Err.Clear',
+      '    For Each it In saved',
+      '        PQ_SetBackground ThisWorkbook.Connections(it(0)), it(1)',
+      '    Next it',
+      '    On Error GoTo 0',
+      '    Application.StatusBar = False',
+      '    el = Timer - t: If el < 0 Then el = el + 86400',
+      '    If Len(errText) > 0 Then',
+      '        MsgBox "Обновление прервано: " & errText, vbExclamation, "Мастер PQ"',
+      '    Else',
+      '        MsgBox "Готово за " & Format(el, "0.0") & " с", vbInformation, "Мастер PQ"',
+      '    End If',
+      'End Sub', '');
+  }
+  if (o.timing){
+    add("' Замер: каждый запрос Power Query обновляется отдельно и синхронно. Время включает его источники и промежуточные запросы.",
+      "' Результат — в окне сообщения (25 самых долгих) и в окне Immediate (Ctrl+G), строки PQ_TIME. Сводные не обновляются.",
+      'Public Sub PQ_TimeQueries()',
+      '    Dim cn As WorkbookConnection, t As Double, el As Double, bg As Boolean, total As Double',
+      '    Dim nm() As String, sec() As Double, n As Long, i As Long, j As Long, s As String, ts As String, td As Double',
+      '    ReDim nm(1 To ThisWorkbook.Connections.Count + 1): ReDim sec(1 To ThisWorkbook.Connections.Count + 1)', ...fc,
+      '    For Each cn In ThisWorkbook.Connections',
+      '        If PQ_IsQuery(cn) Then',
+      '            Application.StatusBar = "Мастер PQ: замер " & cn.Name',
+      '            bg = PQ_GetBackground(cn): PQ_SetBackground cn, False',
+      '            t = Timer',
+      '            On Error Resume Next',
+      '            cn.Refresh',
+      '            If Err.Number <> 0 Then Debug.Print "PQ_ERROR"; vbTab; cn.Name; vbTab; Err.Description',
+      '            Err.Clear',
+      '            On Error GoTo 0',
+      '            el = Timer - t: If el < 0 Then el = el + 86400',
+      '            PQ_SetBackground cn, bg',
+      '            n = n + 1: nm(n) = cn.Name: sec(n) = el: total = total + el',
+      '            Debug.Print "PQ_TIME"; vbTab; cn.Name; vbTab; Format(el, "0.0")',
+      '        End If',
+      '    Next cn',
+      '    Application.StatusBar = False',
+      '    For i = 1 To n - 1',
+      '        For j = i + 1 To n',
+      '            If sec(j) > sec(i) Then td = sec(i): sec(i) = sec(j): sec(j) = td: ts = nm(i): nm(i) = nm(j): nm(j) = ts',
+      '        Next j',
+      '    Next i',
+      '    For i = 1 To n',
+      '        If i > 25 Then Exit For',
+      '        s = s & Format(sec(i), "0.0") & " с — " & nm(i) & vbCrLf',
+      '    Next i',
+      '    MsgBox "Запросов: " & n & ", всего " & Format(total, "0.0") & " с" & vbCrLf & vbCrLf & s, vbInformation, "Мастер PQ: замер"',
+      'End Sub', '');
+  }
+  const st = o.setup || {}; const noOpen = st.noOpen || [], excl = st.exclude || [], incl = st.include || [];
+  if (noOpen.length || excl.length || incl.length){
+    const cs = xs => xs.map(x => vbaStr(x, cp)).join(', ');
+    add("' Однократная настройка подключений (сохраните книгу после запуска).",
+      'Public Sub PQ_Setup()',
+      '    Dim cn As WorkbookConnection',
+      '    On Error Resume Next',
+      '    For Each cn In ThisWorkbook.Connections');
+    if (noOpen.length) add('        Select Case cn.Name', '            Case ' + cs(noOpen) + ': cn.OLEDBConnection.RefreshOnFileOpen = False', '        End Select');
+    if (excl.length) add('        Select Case cn.Name', '            Case ' + cs(excl) + ': cn.RefreshWithRefreshAll = False', '        End Select');
+    if (incl.length) add('        Select Case cn.Name', '            Case ' + cs(incl) + ': cn.RefreshWithRefreshAll = True', '        End Select');
+    add('    Next cn', '    MsgBox "Настройки подключений изменены. Сохраните книгу.", vbInformation, "Мастер PQ"', 'End Sub', '');
+  }
+  add("' Подключение Power Query: OLE DB с поставщиком Microsoft.Mashup.OleDb",
+    'Private Function PQ_IsQuery(cn As WorkbookConnection) As Boolean',
+    '    On Error Resume Next',
+    '    If cn.Type = xlConnectionTypeOLEDB Then PQ_IsQuery = InStr(1, cn.OLEDBConnection.Connection, "Microsoft.Mashup.OleDb", vbTextCompare) > 0',
+    'End Function',
+    'Private Function PQ_GetBackground(cn As WorkbookConnection) As Boolean',
+    '    On Error Resume Next',
+    '    PQ_GetBackground = cn.OLEDBConnection.BackgroundQuery',
+    'End Function',
+    "' Для модели данных свойство только для чтения — ошибка пропускается",
+    'Private Sub PQ_SetBackground(cn As WorkbookConnection, ByVal v As Boolean)',
+    '    On Error Resume Next',
+    '    cn.OLEDBConnection.BackgroundQuery = v',
+    'End Sub');
+  return L.join('\r\n') + '\r\n';
 }
 
 /* ---- Макросы, которые обновляют запросы ---- */
@@ -5433,14 +5615,16 @@ function histGo(pos){
 }
 const canUndo = () => S.histPos > 0;
 const canRedo = () => S.histPos >= 0 && S.histPos < S.hist.length - 1;
-const isDirty = () => !!S.book && S.work !== S.saved;
+/** Ожидающие записи правки свойств книги (не кода): флаги подключений — см. «Настройки PQ и Excel» */
+const hasBookEdits = () => !!(S.book && S.bookEdits && Object.keys(S.bookEdits.conns || {}).length);
+const isDirty = () => !!S.book && (S.work !== S.saved || hasBookEdits());
 function initBookState(book){
-  S.book = book; S.work = book.origSection; S.saved = book.origSection; S.sel = null; S.aiNew = null;
+  S.book = book; S.work = book.origSection; S.saved = book.origSection; S.sel = null; S.aiNew = null; S.bookEdits = { conns: {} };
   S.hist = [{ t: new Date(), src: 'open', label: 'Открыта «' + book.name + '»', text: book.origSection }]; S.histPos = 0;
   reanalyze(); emitState('book');
 }
 function closeBookState(){
-  S.book = null; S.work = null; S.saved = null; S.A = null; S.lint = []; S.opt = null; S.anon = null; S.scan = null; S.hist = []; S.histPos = -1;
+  S.book = null; S.work = null; S.saved = null; S.bookEdits = { conns: {} }; S.A = null; S.lint = []; S.opt = null; S.anon = null; S.scan = null; S.hist = []; S.histPos = -1;
   emitState('book');
 }
 /* ===== END src/js/app/state.js ===== */
@@ -5871,10 +6055,19 @@ async function closeBook(){ if (!(await confirmDiscard())) return; closeBookStat
 /* ---- Сохранение ---- */
 const bookBase = () => S.book.name.replace(/\.[^.]+$/, '');
 const bookExt = () => (/\.[^.]+$/.exec(S.book.name) || ['.xlsx'])[0];
+/** Правки флагов подключений совпадают с тем, что прочитано из файла */
+function connEditsHold(book, edits){
+  for (const [id, e] of Object.entries((edits && edits.conns) || {})){
+    const c = (book.conns || []).find(x => x.id === id); if (!c) return false;
+    for (const k of Object.keys(e)) if (c[k] !== !!e[k]) return false;
+  }
+  return true;
+}
 async function buildVerified(){
-  const bytes = await buildBookWithSection(S.book, S.work);
+  const bytes = await buildBookWithSection(S.book, S.work, S.bookEdits);
   const re = await loadBookFromBytes(S.book.name, bytes);
   if (re.origSection !== S.work) throw new Error('Контрольное чтение собранного файла не совпало с рабочей версией — сохранение отменено.');
+  if (!connEditsHold(re, S.bookEdits)) throw new Error('Контрольное чтение: свойства подключений в собранном файле не совпали с выбранными — сохранение отменено.');
   return bytes;
 }
 async function confirmPbi(){
@@ -5933,8 +6126,8 @@ async function saveToOriginal(){
     catch (e){ throw new Error((/NoModification|InvalidState|NotReadable|NotAllowed/.test(e.name) ? 'Файл занят или защищён от записи — закройте книгу в Excel и повторите. ' : '') + '(' + e.name + ': ' + e.message + ')'); }
     const check = new Uint8Array(await (await h.getFile()).arrayBuffer());
     const re = await loadBookFromBytes(S.book.name, check);
-    if (re.origSection !== S.work) throw new Error('После записи файл прочитан, но код не совпал с рабочей версией. Восстановите файл из резервной копии.');
-    re.handle = h; S.book = re; S.saved = S.work;
+    if (re.origSection !== S.work || !connEditsHold(re, S.bookEdits)) throw new Error('После записи файл прочитан, но код или свойства подключений не совпали с рабочей версией. Восстановите файл из резервной копии.');
+    re.handle = h; S.book = re; S.saved = S.work; S.bookEdits = { conns: {} };
     S.hist.push({ t: new Date(), src: 'save', label: 'Записано в «' + re.name + '»', text: S.work }); S.histPos = S.hist.length - 1;
     emitState('saved'); recentPut(h, re);
     toast('Записано в оригинал и проверено. Откройте книгу → «Данные» → «Обновить всё».', 'ok', 8000);
@@ -6119,6 +6312,7 @@ function commands(){
     if (canUndo()) c('Отменить: ' + S.hist[S.histPos].label, () => histGo(S.histPos - 1), { hk: 'Ctrl+Alt+Z' });
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
+    if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
     c('Форматировать все запросы', formatAllQueries);
     c('Новый запрос…', () => { showView('editor'); newQueryDialog(); });
     c('Обезличенный код → в буфер обмена', () => { showView('anon'); $('#copyAnon').click(); });
@@ -6744,8 +6938,10 @@ function renderOptimizer(){
   $$('.qn[data-q]', $('#optHeat')).forEach(x => x.onclick = () => openInEditor(x.dataset.q));
   // как обновляется книга: макросы и подключения (на оценку не влияют)
   const bi = S.book ? bookRefreshIssues(S.book) : [];
-  $('#optBook').classList.toggle('hidden', !bi.length);
-  $('#optBookList').innerHTML = bi.map(i => '<div class="bi ' + i.sev + '"><div class="oh"><span class="sev ' + i.sev + '">' + SEV_LABEL[i.sev] + '</span><span class="ot">' + escHtml(i.title) + '</span></div><div class="why">' + escHtml(i.text) + '</div>' + (i.how ? '<div class="fix">→ ' + escHtml(i.how) + '</div>' : '') + '</div>').join('');
+  $('#optBook').classList.toggle('hidden', !S.book || S.book.family === 'text');
+  const pend = Object.keys((S.bookEdits && S.bookEdits.conns) || {}).length;
+  $('#optBookPending').textContent = pend ? 'ожидают записи: свойства ' + pend + ' ' + (pend % 10 === 1 && pend % 100 !== 11 ? 'подключения' : 'подключений') + ' — сохраните книгу' : '';
+  $('#optBookList').innerHTML = (bi.length ? '' : '<div class="small muted">Замечаний к макросам и свойствам подключений нет.</div>') + bi.map(i => '<div class="bi ' + i.sev + '"><div class="oh"><span class="sev ' + i.sev + '">' + SEV_LABEL[i.sev] + '</span><span class="ot">' + escHtml(i.title) + '</span></div><div class="why">' + escHtml(i.text) + '</div>' + (i.how ? '<div class="fix">→ ' + escHtml(i.how) + '</div>' : '') + '</div>').join('');
   // фильтры
   const qs = $('#optQuery'); const cur = qs.value; qs.innerHTML = '<option value="">все запросы</option>' + [...new Set(O.findings.map(f => f.query))].map(q => '<option>' + escHtml(q) + '</option>').join(''); qs.value = cur;
   renderOptCards();
@@ -6775,6 +6971,89 @@ $('#optReport').onclick = async () => {
   const t = '# Советы оптимизатора — ' + S.book.name + '\nОценка: ' + S.opt.score + '/100\n\n' + S.opt.findings.map(f => '- [' + SEV_LABEL[f.sev] + ', ' + SAFETY_LABEL[f.safety] + '] **' + f.query + (f.step ? ' › ' + f.step : '') + '**: ' + f.title + (f.how ? ' — ' + f.how : '')).join('\n');
   await copyText(t); toast('Отчёт скопирован (Markdown). Внимание: содержит реальные имена запросов.', 'ok');
 };
+/* ---- Настройки PQ и Excel: что хранится в файле — правится здесь и пишется при сохранении;
+   что задаётся только в Excel — макросом (genPqMacro) или вручную. С Excel инструмент не связывается. ---- */
+const PQX = { refresh: true, timing: true, fastCombine: null };
+/** Внешние источники, которым FastCombine мог бы отправить данные других источников */
+const EXTERNAL_SRC = /\b(Web\.(Contents|Page|BrowserContents)|OData\.Feed|SharePoint\.|AzureStorage\.|Salesforce\.|GoogleAnalytics\.|Json\.Document\s*\(\s*Web\.)/;
+function pqxConns(){ return (S.book.conns || []).filter(c => c.mashup && !c.deleted); }
+const pqxVal = (c, k) => { const e = S.bookEdits.conns[c.id]; return e && k in e ? e[k] : c[k]; };
+function pqxSet(c, k, v){
+  const E = S.bookEdits.conns; const e = Object.assign({}, E[c.id]);
+  if (v === c[k]) delete e[k]; else e[k] = v;
+  if (Object.keys(e).length) E[c.id] = e; else delete E[c.id];
+}
+/** excludeFromRefreshAll без элемента x15:connection в файле не пишется — такие подключения уходят в макрос PQ_Setup */
+function pqxMacroOpts(forFile){
+  const conns = S.book.conns ? pqxConns() : [];
+  const ex = conns.filter(c => !c.hasX15 && PQX.macroExcl && PQX.macroExcl.has(c.id)).map(c => c.name);
+  return { refresh: PQX.refresh, timing: PQX.timing, fastCombine: PQX.fastCombine, setup: { exclude: ex }, codePage: (S.book.vba && S.book.vba.codePage) || 1251, bookName: S.book.name, forFile };
+}
+async function openPqSettings(){
+  if (!S.book || S.book.family === 'text') return toast('Откройте книгу Excel или Power BI', 'warn');
+  const B = S.book, xl = B.family === 'excel';
+  if (PQX.fastCombine === null || PQX.for !== B.sha){ PQX.fastCombine = xl && !EXTERNAL_SRC.test(S.work); PQX.macroExcl = new Set(); PQX.for = B.sha; }
+  const conns = xl && B.conns ? pqxConns() : [];
+  const ck = (on, attrs) => '<input type="checkbox"' + (on ? ' checked' : '') + ' ' + attrs + '>';
+  const fileSec = !xl ? '<p class="small muted">У файлов Power BI свойства обновления задаются в Power BI Desktop — см. «Вручную».</p>'
+    : !B.conns ? '<p class="small muted">' + (B.ext === 'xlsb' ? 'В .xlsb подключения хранятся в двоичном виде — здесь их не изменить. Используйте макрос ниже или пункты «Вручную».' : 'В книге нет файла подключений (xl/connections.xml).') + '</p>'
+    : !conns.length ? '<p class="small muted">Подключений Power Query в книге нет (запросы не загружаются ни на лист, ни в модель).</p>'
+    : '<div class="table-wrap" style="max-height:34vh"><table class="t"><tr><th>Подключение</th><th title="Refresh data when opening the file">Обновлять при открытии</th><th title="Refresh this connection on Refresh All">В «Обновить всё»</th><th title="Enable background refresh">Фоновое обновление</th></tr>' +
+      conns.map(c => '<tr><td>' + escHtml(c.query || c.name) + (c.model ? ' <span class="small muted">модель данных</span>' : '') + '</td>' +
+        '<td>' + ck(pqxVal(c, 'refreshOnLoad'), 'data-cid="' + escHtml(c.id) + '" data-k="refreshOnLoad"') + '</td>' +
+        '<td>' + ck(c.hasX15 ? !pqxVal(c, 'excluded') : !PQX.macroExcl.has(c.id), 'data-cid="' + escHtml(c.id) + '" data-k="excluded"') + (c.hasX15 ? '' : ' <span class="small muted" title="Этот флаг в файле не записан — изменение уйдёт в макрос PQ_Setup">макросом</span>') + '</td>' +
+        '<td>' + (c.model ? '<span class="small muted" title="Загрузки в модель данных в фоне не выполняются">всегда синхронно</span>' : ck(pqxVal(c, 'background'), 'data-cid="' + escHtml(c.id) + '" data-k="background"')) + '</td></tr>').join('') + '</table></div>' +
+      '<div class="row" style="margin-top:6px"><button class="btn sm" id="pqxNoOpen">Снять «при открытии» у всех</button><button class="btn sm" id="pqxReset">Вернуть как в файле</button><span class="small muted" id="pqxPend"></span></div>' +
+      '<p class="small muted">Справочники и архивы, которые не меняются, можно исключить из «Обновить всё» и обновлять вручную, когда данные изменились. Фоновое обновление на скорость не влияет: без него Excel не отвечает до конца обновления. Записывается только эта часть файла (xl/connections.xml), код запросов не трогается.</p>';
+  const procs = [...new Set(bookRefreshIssues(B).filter(i => /^macro-(refreshall-twice|refresh-again|model-twice|pivot-again)$/.test(i.key)).map(i => (/«([^»]+)»/.exec(i.text) || [])[1]).filter(Boolean))];
+  const macroSec = xl ? '<div class="row" style="flex-wrap:wrap;gap:14px">' +
+      '<label>' + ck(PQX.refresh, 'id="pqxRefresh"') + ' PQ_RefreshAll — одно «Обновить всё», макрос ждёт данные</label>' +
+      '<label>' + ck(PQX.timing, 'id="pqxTiming"') + ' PQ_TimeQueries — замер времени каждого запроса</label>' +
+      '<label title="ThisWorkbook.Queries.FastCombine = True — действует, пока книга открыта, для любого пользователя">' + ck(PQX.fastCombine, 'id="pqxFast"') + ' игнорировать уровни конфиденциальности (FastCombine)</label></div>' +
+      '<p class="small muted" id="pqxFastNote"></p>' +
+      (procs.length ? '<div class="note warn small">В процедуре ' + procs.map(p => '«' + escHtml(p) + '»').join(', ') + ' запросы обновляются повторно (см. «Как обновляется книга»). Замените в ней вызовы обновления одной строкой <code>PQ_RefreshAll</code>.</div>' : '') +
+      (/^xlsx$/i.test(B.ext) ? '<p class="small muted">Книга .xlsx не хранит макросы: после вставки модуля сохраните её как .xlsm (Книга Excel с поддержкой макросов).</p>' : '') +
+      '<pre class="code" id="pqxCode" style="max-height:28vh"></pre>' +
+      '<div class="row" style="margin-top:6px"><button class="btn sm" id="pqxCopy">Скопировать код</button><button class="btn sm" id="pqxDl">Скачать PQMaster.bas</button><span class="small muted">Вставка: Alt+F11 → Файл → Импорт файла. Модуль только вызывает обновление и меняет свойства подключений; данные книги он не читает.</span></div>'
+    : '<p class="small muted">Для Power BI макросов нет.</p>';
+  const stg = (S.lint || []).filter(f => f.rule === 'loaded-staging').map(f => f.query);
+  const multi = (S.lint || []).filter(f => f.rule === 'multi-eval').map(f => f.query);
+  const priv = B.privacy && B.privacy.firewall === false ? 'сейчас в файле: <b>игнорировать</b> (только для того, кто сохранил книгу)' : B.privacy && B.privacy.firewall === true ? 'сейчас в файле: проверять уровни (по умолчанию)' : '';
+  const manual = xl ? [
+    ['Уровни конфиденциальности', 'Данные → Получить данные → Параметры запроса → Текущая книга → Конфиденциальность → «Игнорировать уровни конфиденциальности» (Ignore the Privacy Levels)' + (priv ? '; ' + priv : '') + '. Флаг привязан к пользователю и сбрасывается при любом изменении кода — надёжнее FastCombine в макросе. Если в разделе «Глобальные → Конфиденциальность» выбрано «Всегда учитывать…», настройка книги не действует.'],
+    ['Фоновая загрузка предпросмотра', 'Параметры запроса → Текущая книга → Загрузка данных → снять «Разрешить фоновую загрузку данных для предварительного просмотра» (Allow data previews to download in the background). При многих связанных запросах «Обновить всё» может пересчитывать и предпросмотры. Замерьте время до и после (PQ_RefreshAll выводит его).'],
+    ['Промежуточные запросы — «Только подключение»', (stg.length ? 'Загружаются, хотя на них ссылаются другие: ' + stg.map(escHtml).join(', ') + '. ' : 'Промежуточных запросов, загружаемых на лист или в модель, не найдено. ') + 'Данные → Запросы и подключения → правый щелчок → Загрузить в… → «Только создать подключение». Экономится только их собственное вычисление и выгрузка: запросы, которые на них ссылаются, всё равно вычисляют их заново каждый раз.'],
+    ['Тяжёлый запрос нужен нескольким таблицам', multi.length ? 'Вычисляются по нескольку раз за обновление: ' + multi.map(escHtml).join(', ') + '. Excel не делит результат между загружаемыми запросами, настройки этого не изменят — помогает перестройка: меньше загружаемых итогов, ранние фильтры или один раз загрузить промежуточный результат на лист и строить отчёты от этой таблицы.' : 'Повторных вычислений тяжёлых запросов не найдено.']
+  ] : [
+    ['Уровни конфиденциальности', 'Файл → Параметры и настройки → Параметры → Текущий файл → Конфиденциальность → «Игнорировать уровни конфиденциальности».'],
+    ['Фоновые данные', 'Параметры → Текущий файл → Загрузка данных → снять «Разрешить загрузку предварительного просмотра данных в фоне»; там же — параллельная загрузка таблиц.']
+  ];
+  const html = '<h2>⚙ Настройки PQ и Excel</h2><p class="small muted">Мастер PQ работает в браузере и к Excel не подключается. Свойства, которые хранятся в файле, меняются здесь и записываются при сохранении книги; то, что задаётся только в Excel, — макросом или вручную.</p>' +
+    '<h3>1. В файле</h3>' + fileSec + '<h3>2. Макрос для Excel</h3>' + macroSec +
+    '<h3>3. Вручную</h3><ol class="small">' + manual.map(([t, d]) => '<li><b>' + escHtml(t) + '.</b> ' + d + '</li>').join('') + '</ol><p class="small muted">Названия пунктов — по документации Microsoft; в вашей версии Excel они могут немного отличаться.</p>';
+  const p = modal(html, [['ok', 'Готово', 'pri']], { wide: true });
+  const refresh = () => {
+    const n = Object.keys(S.bookEdits.conns).length, nm = PQX.macroExcl ? PQX.macroExcl.size : 0;
+    if ($('#pqxPend')) $('#pqxPend').textContent = (n ? 'к записи в файл: ' + n + ' ' + (n % 10 === 1 && n % 100 !== 11 ? 'подключение' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'подключения' : 'подключений') + ' — сохраните книгу' : '') + (nm ? (n ? '; ' : '') + 'через макрос PQ_Setup: ' + nm : '');
+    if ($('#pqxCode')) $('#pqxCode').textContent = genPqMacro(pqxMacroOpts(false));
+    if ($('#pqxFastNote')) $('#pqxFastNote').textContent = PQX.fastCombine ? (EXTERNAL_SRC.test(S.work) ? 'Внимание: в книге есть веб-источники — без проверок уровней данные одних источников могут уйти в запросы к другим. Включайте, только если все источники — внутренние.' : 'Источники — файлы, книги и базы: проверки уровней обычно только замедляют обновление.') : '';
+  };
+  $$('#modal input[data-cid]').forEach(x => x.onchange = () => {
+    const c = conns.find(cc => cc.id === x.dataset.cid); const k = x.dataset.k;
+    if (k === 'excluded' && !c.hasX15){ if (x.checked) PQX.macroExcl.delete(c.id); else PQX.macroExcl.add(c.id); }
+    else pqxSet(c, k, k === 'excluded' ? !x.checked : x.checked);
+    refresh(); emitState('settings');
+  });
+  const setAll = (k, v) => { $$('#modal input[data-k="' + k + '"]').forEach(x => { if (x.checked !== v){ x.checked = v; x.onchange(); } }); };
+  if ($('#pqxNoOpen')) $('#pqxNoOpen').onclick = () => setAll('refreshOnLoad', false);
+  if ($('#pqxReset')) $('#pqxReset').onclick = () => { S.bookEdits.conns = {}; PQX.macroExcl.clear(); $$('#modal input[data-cid]').forEach(x => { const c = conns.find(cc => cc.id === x.dataset.cid); x.checked = x.dataset.k === 'excluded' ? !c.excluded : c[x.dataset.k]; }); refresh(); emitState('settings'); };
+  for (const [id, key] of [['#pqxRefresh', 'refresh'], ['#pqxTiming', 'timing'], ['#pqxFast', 'fastCombine']]) if ($(id)) $(id).onchange = e => { PQX[key] = e.target.checked; refresh(); };
+  if ($('#pqxCopy')) $('#pqxCopy').onclick = async () => { await copyText(genPqMacro(pqxMacroOpts(false))); toast('Код модуля скопирован — вставьте его в редакторе VBA (Alt+F11 → Вставка → Модуль)', 'ok'); };
+  if ($('#pqxDl')) $('#pqxDl').onclick = () => { const o = pqxMacroOpts(true); download('PQMaster.bas', new Blob([encodeCodePage(genPqMacro(o), o.codePage)], { type: 'text/plain' })); toast('Скачан PQMaster.bas (кодировка windows-' + o.codePage + ')', 'ok'); };
+  refresh();
+  await p;
+}
+$('#optSettings').onclick = openPqSettings;
 registerView('optimizer', { render: renderOptimizer });
 /* ===== END src/js/views/optimizer.js ===== */
 /* ===== BEGIN src/js/views/graph.js ===== */
@@ -7592,7 +7871,15 @@ const HELP_HTML = `
 <li><b>Источники</b> — разбор каждого файла папки, SharePoint.Files ради одного файла, HTTP-запрос на каждую строку.</li>
 <li><b>Прочее</b> — лишние сортировки, группировка «Все строки», раскрытие десятков столбцов, разметка длинной цепочкой <code>if … else if</code>, настройки Excel и Power BI (уровни конфиденциальности, фоновая загрузка, быстрая загрузка, автоматические даты).</li>
 </ul>
-<p>Порядок работы: включите диагностику (ниже), обновите книгу, загрузите диагностику в раздел «Диагностика» — на карте тяжести появятся реальные секунды. Начинайте с самых тяжёлых шагов и с «×N».</p></div>
+<p>Порядок работы: включите диагностику (ниже), обновите книгу, загрузите диагностику в раздел «Диагностика» — на карте тяжести появятся реальные секунды. Начинайте с самых тяжёлых шагов и с «×N».</p>
+<h3>Настройки PQ и Excel</h3>
+<p>Оптимизатор → «Как обновляется книга» → <b>⚙ Настройки PQ и Excel</b> (или Ctrl+K). Мастер PQ работает в браузере и к Excel не подключается, поэтому настройки разделены на три части:</p>
+<ul>
+<li><b>В файле</b> — флажки подключений: обновлять при открытии, участвовать в «Обновить всё», фоновое обновление. Записываются при сохранении книги, код запросов не трогается; если код не менялся, часть с запросами переносится без изменений.</li>
+<li><b>Макрос</b> — модуль VBA <code>PQMaster</code>: <code>PQ_RefreshAll</code> (одно «Обновить всё», макрос дожидается данных, при желании — без проверок уровней конфиденциальности), <code>PQ_TimeQueries</code> (время каждого запроса), <code>PQ_Setup</code> (то, что нельзя записать в файл). Вставка: Alt+F11 → Файл → Импорт файла.</li>
+<li><b>Вручную</b> — уровни конфиденциальности, фоновая загрузка предпросмотра, «Только подключение» для промежуточных запросов — с путями в меню.</li>
+</ul>
+<p>Синхронное обновление (BackgroundQuery = False) не замедляет работу — Excel просто не отвечает, пока идёт обновление. Флаг книги «игнорировать уровни конфиденциальности» Excel сбрасывает при любом изменении кода; <code>ThisWorkbook.Queries.FastCombine = True</code> в макросе действует всегда. «Только подключение» экономит лишь собственное вычисление промежуточного запроса: запросы, которые на него ссылаются, вычисляют его заново.</p></div>
 
 <div class="card"><h2>Песочница</h2>
 <p>Мини-интерпретатор M прямо в браузере: <code>let</code>, <code>each</code>, функции, <code>try/otherwise</code>, записи, списки, таблицы и около 200 функций библиотеки (Text, Number, List, Record, Table, Date, Duration…).</p>
@@ -7782,8 +8069,7 @@ async function makeTestBook(extra){
 /** Тестовый xl/vbaProject.bin: составной файл OLE v3 (сектор 512, мини-сектор 64) с хранилищем VBA,
     потоком dir и модулем Module1 в кодировке codePage; сжатие MS-OVBA — только литералы */
 function makeTestVba(source, codePage){
-  const dec = new TextDecoder('windows-' + codePage); const tbl = new Map(); for (let b = 0; b < 256; b++) tbl.set(dec.decode(Uint8Array.of(b)), b);
-  const enc = str => Uint8Array.from([...str].map(ch => tbl.has(ch) ? tbl.get(ch) : 63));
+  const enc = str => encodeCodePage(str, codePage);
   const pack = bytes => { const body = []; for (let i = 0; i < bytes.length; i += 8){ body.push(0); for (let j = i; j < Math.min(i + 8, bytes.length); j++) body.push(bytes[j]); } const h = (body.length - 1) | (3 << 12) | (1 << 15); return Uint8Array.from([1, h & 255, h >> 8, ...body]); };
   const rec = (id, data) => concatBytes([Uint8Array.of(id & 255, id >> 8), u32le(data.length), data]);
   const dir = pack(concatBytes([rec(0x0003, Uint8Array.of(codePage & 255, codePage >> 8)), rec(0x0019, enc('Module1')), rec(0x001A, enc('Module1')), rec(0x0031, u32le(0)), rec(0x002B, new Uint8Array(0))]));
@@ -7971,6 +8257,26 @@ async function runSelfTest(){
     ok('Флаг «игнорировать уровни конфиденциальности» книги читается из Permissions (MS-QDEFF)', pp.firewall === false && xlsm.privacy && xlsm.privacy.firewall === true, JSON.stringify(pp) + ' / ' + JSON.stringify(xlsm.privacy));
     ok('Макросы и подключения: VBA (кодовая страница 1251) прочитан, найдены двойной RefreshAll, повторное обновление, сводные, синхронное обновление, обновление при открытии',
       xlsm.vba && xlsm.vba.modules[0] && /ОбновитьВсё/.test(xlsm.vba.modules[0].code) && xlsm.conns.length === 1 && xlsm.conns[0].query === 'Продажи' && ['macro-refreshall-twice', 'macro-refresh-again', 'macro-pivot-again', 'macro-sync', 'conn-refresh-on-open'].every(k => bri.includes(k)), bri.join(', ') + (xlsm.vba && xlsm.vba.error ? ' · ' + xlsm.vba.error : ''));
+    // ---------- настройки PQ и Excel: флаги подключений в файле, генерируемый макрос ----------
+    const x15 = (id, ex) => '<extLst><ext uri="{DE250136-89BD-433C-8126-D09CA5730AF9}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main"><x15:connection id=""' + (ex ? ' excludeFromRefreshAll="1"' : '') + '/></ext></extLst>';
+    const cx2 = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<connections xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><connection id="1" name="Запрос — Продажи" type="5" refreshedVersion="8" background="1" saveData="1" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Продажи"/>' + x15('1', false) + '</connection><connection id="2" name="Запрос — Курсы" type="5" refreshedVersion="8" saveData="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Data Source=$Workbook$;Location=Курсы"/>' + x15('2', true) + '</connection><connection id="3" name="Запрос — Старый" type="5" refreshOnLoad="1"><dbPr connection="Provider=Microsoft.Mashup.OleDb.1;Location=Старый"/></connection></connections>';
+    const ed = { '1': { refreshOnLoad: false, excluded: true, background: false }, '2': { excluded: false, background: true }, '3': { refreshOnLoad: false, excluded: true } };
+    const cx3 = applyConnEdits(cx2, ed); const pc3 = parseConnections(cx3);
+    const strip = t => t.replace(/\s+(refreshOnLoad|background|excludeFromRefreshAll)="[^"]*"/g, '');
+    ok('Флаги подключений: «при открытии», «фоновое», «Обновить всё» меняются, остальной текст connections.xml — байт в байт; без x15:connection флаг исключения не пишется',
+      !pc3[0].refreshOnLoad && pc3[0].excluded && !pc3[0].background && !pc3[1].excluded && pc3[1].background && !pc3[2].refreshOnLoad && !pc3[2].excluded && !/excludeFromRefreshAll/.test(cx3.split('id="3"')[1]) && strip(cx3) === strip(cx2) && applyConnEdits(cx2, {}) === cx2, JSON.stringify(pc3.map(c => [c.refreshOnLoad, c.excluded, c.background])));
+    const bk2 = await loadBookFromBytes('настройки.xlsx', await makeTestBook([['xl/connections.xml', cx2]]));
+    const out2 = await buildBookWithSection(bk2, bk2.origSection, { conns: { '1': { refreshOnLoad: false } } }); const re2 = await loadBookFromBytes('настройки.xlsx', out2);
+    const sameItem = bytesEqual(await zipEntryBytes(zipFind(re2.zip, bk2.itemEntry.name)), await zipEntryBytes(bk2.itemEntry));
+    const out3 = await buildBookWithSection(bk2, bk2.origSection + '\r\n'); const re3 = await loadBookFromBytes('настройки.xlsx', out3);
+    ok('Код не менялся — DataMashup переносится байт в байт (флаг конфиденциальности книги сохраняется), правка подключений проверяется перечитыванием',
+      sameItem && re2.origSection === bk2.origSection && !re2.conns[0].refreshOnLoad && re2.conns[1].excluded && re3.conns[0].refreshOnLoad && re3.origSection === bk2.origSection + '\r\n', 'item ' + sameItem);
+    const mac = genPqMacro({ refresh: true, timing: true, fastCombine: true, setup: { exclude: ['Запрос — Курсы', 'Q "x" 漢'] }, codePage: 1251, forFile: true });
+    const macLines = mac.split('\r\n'); const cnt = re => macLines.filter(l => re.test(l)).length;
+    const macBack = new TextDecoder('windows-1251').decode(encodeCodePage(mac, 1251));
+    ok('Макрос PQMaster: процедуры закрыты, CRLF, имена подключений в кавычках (символы вне cp1251 — через ChrW), текст кодируется в cp1251 без потерь',
+      /^Attribute VB_Name = "PQMaster"\r\n/.test(mac) && !/[^\r]\n/.test(mac) && cnt(/^(Public |Private )?Sub /) === cnt(/^End Sub$/) && cnt(/^(Public |Private )?Function /) === cnt(/^End Function$/) && cnt(/^\s*For (Each )?/) === cnt(/^\s*Next\b/) &&
+      mac.includes('Case "Запрос — Курсы", "Q ""x"" " & ChrW(28450): cn.RefreshWithRefreshAll = False') && /FastCombine = True/.test(mac) && macBack === mac && !/Attribute/.test(genPqMacro({ codePage: 1251 })), macLines.filter(l => /Case/.test(l)).join(' | '));
     // ---------- рефакторинг ----------
     const r1 = renameStep(semSrc, 'Т', 'Ф1', 'Больше единицы');
     const r2 = renameQuery(r1, 'Список', 'Коды');

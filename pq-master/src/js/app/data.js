@@ -58,6 +58,17 @@ function dataSummaryText(){
   return (t ? 'таблиц книги: ' + t : 'таблиц книги нет') + (f ? ', прикреплено файлов: ' + f : '');
 }
 
+/* ---- Показ значений на экране: «скрыть» — для демонстрации экрана. Вычисления всегда на реальных данных;
+   одинаковые значения дают одинаковый код, поэтому дубли и пары остаются видны ---- */
+const hideVals = () => !!pqmSettings().hideValues;
+function dispVal(x){
+  if (!hideVals() || x === null) return x === null ? 'null' : mToText(x);
+  if (typeof x === 'number') return maskValue(mToText(x), 'number');
+  if (typeof x === 'string') return x ? '▒' + sha256(S.numSalt + x).slice(0, 5) : '';
+  if (x instanceof MDate) return maskValue(mToText(x), 'date');
+  return mToText(x);
+}
+const dispNum = n => hideVals() ? '•••' : fmtN(n);
 /* ---- Защита от утечки: значения из данных в исходящем тексте ---- */
 /** Строковые значения (≥ 4 символов) из таблиц книги, прикреплённых файлов и результатов проверок.
     Не считаются утечкой: заголовки столбцов и строки, которые уже есть в обезличенном коде. */

@@ -114,7 +114,7 @@ function buildPackage(){
     })),
     lint: S.lint.map(l => ({ severity: l.sev, rule: l.rule, query: anonQueryName(l.query), step: sanitizeName(l.step), message: sanitizeName(l.msg), suggestion: sanitizeName(l.fix) })),
     diagnostics: $('#pkgDiag').checked ? diagSummary() : null,
-    dataChecks: dataChecksForAi(),   // проверка на данных пользователя: только числа, без значений
+    dataChecks: !$('#pkgData') || $('#pkgData').checked ? dataChecksForAi() : null,   // проверка на данных пользователя: только числа, без значений
     debugData: debugData(dbg),
     reply: {
       howTo: 'Ответ — JSON-файл в папке inbox/ (режим агента) или текст в чате. Формат патча ниже. Значения members — полный текст выражения запроса (то, что после «shared Имя =», без завершающей «;»).',

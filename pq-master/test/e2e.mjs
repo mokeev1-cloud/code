@@ -198,6 +198,21 @@ await shot('23-ai-verify');
 await page.click('#acceptEditBtn'); await page.waitForTimeout(800);
 const afterAccept = await page.evaluate(() => ({ view: curView, q: ED.query, dirty: isDirty() }));
 check('Ответ ИИ: правка сверена на данных до принятия (дубль убран — результат изменился), «Принять и править» открывает редактор', /результат изменился/.test(aiv) && afterAccept.view === 'editor' && afterAccept.q === 'ОПиУ' && afterAccept.dirty, aiv + ' / ' + JSON.stringify(afterAccept));
+// показ значений скрыт (демонстрация экрана): вычисления те же, на экране — коды
+await page.evaluate(() => { saveSettings({ hideValues: true }); edDataRender(); });
+const hid = await page.$eval('#edData', e => e.textContent);
+await page.evaluate(() => { saveSettings({ hideValues: false }); edDataRender(); });
+check('Скрытые значения: в панели данных нет текста и сумм из данных, строки и столбцы видны', !/Ромашка|Иванов|1000/.test(hid) && /▒/.test(hid) && /строк × /.test(hid), hid.slice(0, 160));
+// пакет для ИИ — проверка глазами: разделы, сканер, ровно тот текст, что уйдёт
+await page.evaluate(() => dataRunAll());   // после принятия ответа ИИ код изменился — прежняя проверка устарела
+await page.click('[data-view=anon]'); await page.waitForTimeout(300);
+await page.click('#viewPkg'); await page.waitForTimeout(400);
+const rev = await page.evaluate(() => ({ head: $('#modal .chips').textContent, parts: $$('#modal [data-pk]').map(b => b.dataset.pk) }));
+await shot('24-package-review');
+await page.click('#pkTabs [data-t=json]'); await page.waitForTimeout(150);
+const revJson = await page.$eval('#pkBody', e => e.textContent);
+await page.click('#modal button[data-v=cancel]');
+check('Пакет для ИИ — проверка глазами: разделы с пояснениями, сканер чист, значений из данных 0, JSON целиком', /сканер: чисто/.test(rev.head) && /значений из данных: 0/.test(rev.head) && rev.parts.includes('section') && rev.parts.includes('dataChecks') && /"dataChecks"/.test(revJson) && !/Ромашка|Иванов/.test(revJson), JSON.stringify(rev).slice(0, 300));
 // подсказки разделов
 await page.evaluate(() => resetHints()); await page.click('[data-view=graph]'); await page.waitForTimeout(150);
 const hint = await page.$eval('#view-graph .hintbar', e => e.textContent).catch(() => '');

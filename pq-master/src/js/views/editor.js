@@ -385,7 +385,7 @@ function edDataRender(){
   let h = '<div class="edd-h"><b>' + (pick ? escHtml(pick.name === 'in → результат' ? 'Результат запроса' : 'Шаг «' + pick.name + '»') : 'Данные') + '</b>';
   if (EDD.busy) h += '<span class="small muted">⏳ вычисление…</span>';
   else if (pick && !pick.error && pick.rows != null) h += '<span class="chip">' + fmtN(pick.rows) + ' строк × ' + pick.cols + ' столбцов</span><span class="small muted">' + (pick.ms || 0).toFixed(0) + ' мс · запрос ' + (EDD.ms / 1000).toFixed(2).replace('.', ',') + ' с</span>';
-  h += '<span class="sp"></span>' + (EDD.manual ? '<span class="small muted">долгий прогон — обновление вручную</span>' : '') + '<button class="btn sm" id="eddRefresh" title="Пересчитать (данные и текст редактора)">↻</button><button class="btn sm" id="eddGoData" title="Раздел «Проверка на данных»: источники, проверки">Источники…</button></div>';
+  h += '<span class="sp"></span>' + (EDD.manual ? '<span class="small muted">долгий прогон — обновление вручную</span>' : '') + '<button class="btn sm' + (hideVals() ? ' on' : '') + '" id="eddHide" title="Скрыть значения на экране (для демонстрации): одинаковые значения — одинаковый код. Вычисления — на реальных данных">' + (hideVals() ? '🙈 скрыты' : '👁 значения') + '</button><button class="btn sm" id="eddRefresh" title="Пересчитать (данные и текст редактора)">↻</button><button class="btn sm" id="eddGoData" title="Раздел «Проверка на данных»: источники, проверки">Источники…</button></div>';
   if (!pick){ h += '<div class="small muted pad">' + (stale ? 'Данные шага под курсором появятся здесь.' : 'Нет шагов для показа.') + '</div>'; box.innerHTML = h; edDataWire(); return; }
   if (pick.error){
     const need = pick.error.need;
@@ -408,7 +408,7 @@ function edDataRender(){
   if (v instanceof MTab){
     const prof = edProfile(v); const COLS = 40, ROWS = 50;
     h += '<div class="edd-table"><table class="val-table"><tr><th></th>' + v.cols.slice(0, COLS).map((c, k) => { const p = prof[k]; return '<th title="' + escHtml(c + '\nтипы: ' + p.types + '\nпустых: ' + pct(p.nulls, p.rows) + '\nразличных: ' + fmtN(p.distinct) + (p.errs ? '\nошибок: ' + p.errs : '') + (p.txtNum ? '\nчисла-текстом: ' + p.txtNum : '') + (p.spaces ? '\nпробелы по краям: ' + p.spaces : '')) + '">' + escHtml(c) + '<div class="ct">' + escHtml(p.types.split(',')[0]) + (p.nulls ? ' · ∅' + pct(p.nulls, p.rows) : '') + (p.errs ? ' · <b class="bad">⚠' + p.errs + '</b>' : '') + '</div></th>'; }).join('') + (v.cols.length > COLS ? '<th>… ещё ' + (v.cols.length - COLS) + '</th>' : '') + '</tr>' +
-      v.rows.slice(0, ROWS).map((row, ri) => '<tr><td class="val-null">' + (ri + 1) + '</td>' + row.slice(0, COLS).map(x => { try { x = force(x); } catch (e){ return '<td class="val-err" title="' + escHtml(e.message || '') + '">Error</td>'; } return x === null ? '<td class="val-null">null</td>' : typeof x === 'number' ? '<td class="num">' + escHtml(mToText(x)) + '</td>' : x instanceof MTab ? '<td class="val-null">[Table ' + x.rows.length + ']</td>' : x instanceof MRec ? '<td class="val-null">[Record]</td>' : Array.isArray(x) ? '<td class="val-null">[List ' + x.length + ']</td>' : '<td>' + escHtml(mToText(x).slice(0, 200)) + '</td>'; }).join('') + '</tr>').join('') + '</table></div>' +
+      v.rows.slice(0, ROWS).map((row, ri) => '<tr><td class="val-null">' + (ri + 1) + '</td>' + row.slice(0, COLS).map(x => { try { x = force(x); } catch (e){ return '<td class="val-err" title="' + escHtml(e.message || '') + '">Error</td>'; } return x === null ? '<td class="val-null">null</td>' : typeof x === 'number' ? '<td class="num">' + escHtml(dispVal(x)) + '</td>' : x instanceof MTab ? '<td class="val-null">[Table ' + x.rows.length + ']</td>' : x instanceof MRec ? '<td class="val-null">[Record]</td>' : Array.isArray(x) ? '<td class="val-null">[List ' + x.length + ']</td>' : '<td>' + escHtml(dispVal(x).slice(0, 200)) + '</td>'; }).join('') + '</tr>').join('') + '</table></div>' +
       (v.rows.length > ROWS ? '<div class="small muted pad">показаны первые ' + ROWS + ' из ' + fmtN(v.rows.length) + ' строк</div>' : '');
   } else h += '<div class="sb-out">' + mRender(v) + '</div>';
   box.innerHTML = h; edDataWire();
@@ -416,6 +416,7 @@ function edDataRender(){
 function edDataWire(){
   if ($('#eddRefresh')) $('#eddRefresh').onclick = () => { EDD.manual = false; EDD.key = null; EDD.upKey = null; edDataRun(true); };
   if ($('#eddGoData')) $('#eddGoData').onclick = () => showView('data');
+  if ($('#eddHide')) $('#eddHide').onclick = () => { saveSettings({ hideValues: !hideVals() }); emitState('settings'); edDataRender(); };
   $$('[data-eattach]', $('#edData')).forEach(b => b.onclick = async () => { const folder = b.dataset.eattach === 'folder'; const fs = await pickFiles(folder); if (!fs.length) return; await attachFiles(fs, b.dataset.path, folder ? 'folder' : 'file'); EDD.key = null; edDataRun(true); });
 }
 $('#edDataBtn').onclick = () => { EDD.on = !EDD.on; saveSettings({ edData: EDD.on }); EDD.manual = false; if (EDD.on) edDataRun(true); else { edDataRender(); renderEdSide(); renderEdFlow(); } };

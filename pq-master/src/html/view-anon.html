@@ -51,9 +51,10 @@
             <span class="muted">Отладочные данные</span><select id="dbgMode"><option value="schema">Схема + синтетические строки</option><option value="masked">+ маскированные образцы</option><option value="none">Только код</option></select>
             <span></span><span id="sampleRow" class="hidden"><label class="btn" for="sampleFile">Образец (CSV/XLSX)…</label><input type="file" id="sampleFile" accept=".csv,.txt,.xlsx" multiple hidden> <span id="sampleInfo" class="muted"></span></span>
             <span></span><label><input type="checkbox" id="pkgDiag" checked> сводка диагностики (обезличенная)</label>
+            <span></span><label title="Строки по шагам, дубли ключей, строки без пары — только числа, без значений"><input type="checkbox" id="pkgData" checked> числа «Проверки на данных»</label>
           </div>
         </div>
-        <div class="row"><button class="btn pri" id="dlPkg">⬇ Пакет для ИИ (.json)</button><button class="btn" id="copyPrompt">⧉ Задача для чата</button><button class="btn" id="viewPkg">Показать, что уйдёт</button></div>
+        <div class="row"><button class="btn pri" id="dlPkg">⬇ Пакет для ИИ (.json)</button><button class="btn" id="copyPrompt">⧉ Задача для чата</button><button class="btn" id="viewPkg">👁 Проверить глазами, что уйдёт</button></div>
         <div class="note bad small"><b>Словарь замен никому не отправляйте</b> — даже ИИ. Храните рядом с оригиналом, вне папки обмена.</div>
       </div>
     </div>

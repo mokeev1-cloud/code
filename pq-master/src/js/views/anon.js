@@ -136,5 +136,48 @@ $('#sampleFile').addEventListener('change', async e => {
 });
 $('#dlPkg').onclick = async () => { try { const pkg = buildPackage(); if (!(await gate(pkg, 'Пакет для ИИ'))) return; const t = JSON.stringify(pkg, null, 2); const n = outName('пакет', 'json'); download(n, t, 'application/json'); audit('скачивание', n, t); } catch (err){ toast(err.message, 'bad'); } };
 $('#copyPrompt').onclick = async () => { try { const t = buildPromptText(buildPackage()); if (!(await gate(t, 'Задача для чата'))) return; await copyText(t); audit('буфер обмена', 'задача для чата', t); toast('Задача с кодом скопирована — вставьте в чат с ИИ', 'ok'); } catch (err){ toast(err.message, 'bad'); } };
-$('#viewPkg').onclick = () => { try { modal('<h2>Что уйдёт наружу (пакет)</h2><pre class="code wrap" style="max-height:62vh">' + markTokens(JSON.stringify(buildPackage(), null, 2)) + '</pre>', null, { wide: true }); } catch (err){ toast(err.message, 'bad'); } };
+/* ---- Проверка глазами: ровно тот текст, что уйдёт, — по разделам, с находками сканера ---- */
+const PKG_PARTS = {
+  section: ['Код запросов', 'обезличенный Section1.m — главное содержимое; метки ⟦…⟧ вместо путей, серверов, имён'],
+  queries: ['Структура запросов', 'имена-метки, шаги, связи, куда загружаются, строк при последнем обновлении (из метаданных)'],
+  lint: ['Замечания линтера', 'советы встроенного анализа по этим запросам'],
+  diagnostics: ['Диагностика', 'время шагов из диагностики Power Query, обезличено'],
+  debugData: ['Отладочные данные', 'схема столбцов и СИНТЕТИЧЕСКИЕ строки по типам (не ваши данные); в режиме «маскированные» — маскированные образцы'],
+  dataChecks: ['Проверка на данных', 'только числа: строк по шагам, дубли ключей, строки без пары, доли пустых — без значений'],
+  goal: ['Задача', 'ваш текст задачи (известные значения заменены метками)'],
+  book: ['О книге', 'формат и число запросов'],
+  environment: ['Среда', 'версия Excel/Power BI и локаль'],
+  rules: ['Правила для ИИ', 'как обращаться с метками и отвечать'], privacy: ['Обезличивание', 'какие категории заменены метками'], reply: ['Формат ответа', 'образец патча и запроса']
+};
+/** Текст с подсветкой: метки ⟦…⟧ и находки сканера (красным) */
+function markFinds(text, finds){
+  const fs = finds.filter(f => f.s >= 0).sort((a, b) => a.s - b.s); let h = '', p = 0;
+  for (const f of fs){ const s = text.indexOf(f.match, Math.max(p, f.s - 2)); if (s < p || s < 0) continue; h += markTokens(text.slice(p, s)) + '<mark class="flag" title="' + escHtml(f.label) + '">' + escHtml(f.match) + '</mark>'; p = s + f.match.length; }
+  return h + markTokens(text.slice(p));
+}
+async function reviewPackage(){
+  const pkg = buildPackage(); const json = JSON.stringify(pkg, null, 2); const prompt = buildPromptText(pkg);
+  const scan = t => scanLeaks(t, S.cfg, S.dict).concat(dataLeaks(t));
+  const fj = scan(json), fp = scan(prompt); const crit = fj.filter(f => f.sev === 'crit').length + fp.filter(f => f.sev === 'crit').length;
+  const kb = t => (new Blob([t]).size / 1024).toFixed(1).replace('.', ',') + ' КБ';
+  const tokens = new Set(json.match(/⟦[A-Z]+_\d+⟧/g) || []).size;
+  const parts = Object.keys(pkg).filter(k => pkg[k] != null && PKG_PARTS[k]);
+  const head = '<h2>👁 Что уйдёт наружу</h2><div class="chips"><span class="chip">пакет: <b>' + kb(json) + '</b></span><span class="chip">задача для чата: <b>' + kb(prompt) + '</b></span><span class="chip">меток ⟦…⟧: <b>' + tokens + '</b></span>' +
+    '<span class="chip">сканер: <b style="color:' + (crit ? 'var(--bad)' : 'var(--ok)') + '">' + (crit ? crit + ' критичных' : 'чисто') + '</b>' + (fj.length + fp.length - crit ? ', предупреждений ' + (fj.length + fp.length - crit) : '') + '</span>' +
+    '<span class="chip">значений из данных: <b style="color:' + (fj.concat(fp).some(f => f.label === 'значение из данных') ? 'var(--bad)' : 'var(--ok)') + '">' + fj.concat(fp).filter(f => f.label === 'значение из данных').length + '</b></span></div>' +
+    '<p class="small muted">Ниже — ровно тот текст, который будет скачан или скопирован кнопками этого окна. Красным — находки сканера, синим — метки обезличивания.</p>';
+  const sec = '<table class="t small"><tr><th>Раздел</th><th>Что внутри</th><th>Размер</th><th></th></tr>' + parts.map(k => { const t = JSON.stringify(pkg[k], null, 2); const nf = scan(t).length;
+    return '<tr><td><b>' + escHtml(PKG_PARTS[k][0]) + '</b></td><td>' + escHtml(PKG_PARTS[k][1]) + '</td><td class="num">' + kb(t) + '</td><td>' + (nf ? '<span class="sev crit">' + nf + '</span> ' : '') + '<button class="link" data-pk="' + k + '">показать</button></td></tr>'; }).join('') + '</table><div id="pkPart"></div>';
+  const body = head + '<div class="seg" id="pkTabs"><button data-t="parts" class="on">По разделам</button><button data-t="json">Пакет JSON целиком</button><button data-t="prompt">Задача для чата</button></div><div id="pkBody" style="margin-top:8px"></div>';
+  const p = modal(body, [['cancel', 'Закрыть'], ['copy', '⧉ Скопировать задачу'], ['dl', '⬇ Скачать пакет', 'pri']], { wide: true });
+  const show = t => { $$('#pkTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    $('#pkBody').innerHTML = t === 'parts' ? sec : '<pre class="code wrap" style="max-height:56vh">' + markFinds(t === 'json' ? json : prompt, t === 'json' ? fj : fp) + '</pre>';
+    $$('[data-pk]').forEach(b => b.onclick = () => { const k = b.dataset.pk; const tx = typeof pkg[k] === 'string' ? pkg[k] : JSON.stringify(pkg[k], null, 2); $('#pkPart').innerHTML = '<h3>' + escHtml(PKG_PARTS[k][0]) + '</h3><pre class="code wrap" style="max-height:40vh">' + markFinds(tx, scan(tx)) + '</pre>'; }); };
+  $('#pkTabs').onclick = e => { const b = e.target.closest('[data-t]'); if (b) show(b.dataset.t); };
+  show('parts');
+  const r = await p;
+  if (r === 'dl'){ if (!(await gate(json, 'Пакет для ИИ'))) return; const n = outName('пакет', 'json'); download(n, json, 'application/json'); audit('скачивание', n, json); }
+  if (r === 'copy'){ if (!(await gate(prompt, 'Задача для чата'))) return; await copyText(prompt); audit('буфер обмена', 'задача для чата', prompt); toast('Задача скопирована — вставьте в чат с ИИ', 'ok'); }
+}
+$('#viewPkg').onclick = () => reviewPackage().catch(err => toast(err.message, 'bad'));
 registerView('anon', { render: renderAnon, onShow: renderAnon });

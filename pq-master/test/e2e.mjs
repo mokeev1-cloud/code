@@ -122,6 +122,7 @@ for (const th of ['dark', 'calm', 'fun']){
   await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
   await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
 }
+await page.evaluate(() => setTheme('system'));   // дальше — скриншоты в обычной теме
 // книга с макросом обновления и подключениями: факты на обзоре и карточка «Как обновляется книга»
 await page.evaluate(async () => {
   const src = 'Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub';
@@ -198,6 +199,13 @@ await shot('23-ai-verify');
 await page.click('#acceptEditBtn'); await page.waitForTimeout(800);
 const afterAccept = await page.evaluate(() => ({ view: curView, q: ED.query, dirty: isDirty() }));
 check('Ответ ИИ: правка сверена на данных до принятия (дубль убран — результат изменился), «Принять и править» открывает редактор', /результат изменился/.test(aiv) && afterAccept.view === 'editor' && afterAccept.q === 'ОПиУ' && afterAccept.dirty, aiv + ' / ' + JSON.stringify(afterAccept));
+// карта модели: плитки, поток источники → запросы → лист, объём, скорость, ускорение
+await page.evaluate(() => dataRunAll());
+await page.click('[data-view=model]'); await page.waitForTimeout(400);
+const mdl = await page.evaluate(() => ({ tiles: $$('#mdlTiles .tile').map(t => t.textContent), nodes: $$('#mdlFlow .fnode').map(g => g.dataset.id), edges: $$('#mdlFlow .fedge').length, vol: $$('#mdlVol .hb').length, speed: $$('#mdlSpeed .hb').length, sp: $$('#mdlSpeedup .dr').map(d => d.textContent) }));
+await shot('25-model-map');
+await page.evaluate(() => setTheme('dark')); await page.waitForTimeout(200); await shot('26-model-map-dark'); await page.evaluate(() => setTheme('system'));
+check('Карта модели: плитки, поток (таблица книги и файл → запросы → лист), объём, скорость и оценка ускорения', mdl.tiles.length === 6 && mdl.nodes.includes('s:wb:Маппинг') && mdl.nodes.some(n => /^s:f:/.test(n)) && mdl.nodes.includes('q:ОПиУ') && mdl.edges >= 4 && mdl.vol >= 3 && mdl.speed >= 3 && mdl.sp.length >= 1 && /×/.test(mdl.sp[0]), JSON.stringify(mdl).slice(0, 400));
 // показ значений скрыт (демонстрация экрана): вычисления те же, на экране — коды
 await page.evaluate(() => { saveSettings({ hideValues: true }); edDataRender(); });
 const hid = await page.$eval('#edData', e => e.textContent);

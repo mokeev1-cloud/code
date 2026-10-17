@@ -102,6 +102,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `opt/snippets.js` | сниппеты и мастера | `SNIPPETS` |
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
+| `views/model.js` | «Карта модели»: плитки, поток источники → запросы → лист/модель, объём и скорость, строки по шагам, оценка ускорения (`mdlSpeedups`: операции Power Query до/после по объёмам) | `renderModel`, `mdlFlow`, `mdlSpeedups` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |

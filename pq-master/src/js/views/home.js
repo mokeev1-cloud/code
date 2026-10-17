@@ -49,7 +49,8 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
-  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
+  next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);

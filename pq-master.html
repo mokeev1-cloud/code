@@ -5,75 +5,77 @@
     node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
   Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      78–86     src/html/head.html
-      88–135    src/css/theme.css
-     136–204    src/css/themes.css
-     205–243    src/css/layout.css
-     244–430    src/css/components.css
-     431–489    src/css/editor.css
-     493–514    src/html/shell-top.html
-     515–578    src/html/view-home.html
-     579–618    src/html/view-editor.html
-     619–646    src/html/view-optimizer.html
-     647–669    src/html/view-graph.html
-     670–697    src/html/view-sandbox.html
-     698–716    src/html/view-data.html
-     717–728    src/html/view-reference.html
-     729–737    src/html/view-snippets.html
-     738–749    src/html/view-history.html
-     750–814    src/html/view-anon.html
-     815–831    src/html/view-diag.html
-     832–859    src/html/view-ai.html
-     860–892    src/html/view-agent.html
-     893–905    src/html/view-compare.html
-     906–917    src/html/view-docs.html
-     918–924    src/html/view-help.html
-     925–931    src/html/view-selftest.html
-     932–940    src/html/shell-bottom.html
-     942–1177   DEV.md
-    1180–1350   build.mjs
-    1351–1596   test/e2e.mjs
-    1597–1819   test/stress.mjs
-    1820–1833   vendor/codemirror.entry.js
-    1836–1851   vendor/codemirror.bundle.js
-    1855–2293   src/js/core/zip-mashup.js
-    2294–2639   src/js/core/vba.js
-    2640–2736   src/js/core/xlsx-data.js
-    2737–3009   src/js/m/lang.js
-    3010–3072   src/js/m/format.js
-    3073–3457   src/js/m/reference.js
-    3458–4325   src/js/m/interp.js
-    4326–4846   src/js/nda/anon.js
-    4847–4983   src/js/nda/diag.js
-    4984–5398   src/js/opt/lint.js
-    5399–5708   src/js/opt/optimizer.js
-    5709–5795   src/js/opt/refactor.js
-    5796–5943   src/js/opt/snippets.js
-    5944–6012   src/js/app/state.js
-    6013–6114   src/js/app/data.js
-    6115–6352   src/js/nda/agent.js
-    6353–6444   src/js/app/ui-base.js
-    6445–6623   src/js/app/storage.js
-    6624–6659   src/js/app/hints.js
-    6660–6879   src/js/app/shell.js
-    6880–6969   src/js/views/home.js
-    6970–7395   src/js/views/editor.js
-    7396–7650   src/js/views/optimizer.js
-    7651–7734   src/js/views/graph.js
-    7735–7850   src/js/views/sandbox.js
-    7851–8073   src/js/views/data.js
-    8074–8104   src/js/views/reference.js
-    8105–8142   src/js/views/snippets.js
-    8143–8163   src/js/views/history.js
-    8164–8348   src/js/views/anon.js
-    8349–8415   src/js/views/diag.js
-    8416–8547   src/js/views/ai.js
-    8548–8611   src/js/views/agent.js
-    8612–8638   src/js/views/compare.js
-    8639–8696   src/js/views/docs.js
-    8697–8878   src/js/views/help.js
-    8879–9306   src/js/app/selftest.js
-    9307–9320   src/js/app/main.js
+      80–88     src/html/head.html
+      90–140    src/css/theme.css
+     141–209    src/css/themes.css
+     210–248    src/css/layout.css
+     249–443    src/css/components.css
+     444–502    src/css/editor.css
+     506–527    src/html/shell-top.html
+     528–591    src/html/view-home.html
+     592–615    src/html/view-model.html
+     616–655    src/html/view-editor.html
+     656–683    src/html/view-optimizer.html
+     684–706    src/html/view-graph.html
+     707–734    src/html/view-sandbox.html
+     735–753    src/html/view-data.html
+     754–765    src/html/view-reference.html
+     766–774    src/html/view-snippets.html
+     775–786    src/html/view-history.html
+     787–851    src/html/view-anon.html
+     852–868    src/html/view-diag.html
+     869–896    src/html/view-ai.html
+     897–929    src/html/view-agent.html
+     930–942    src/html/view-compare.html
+     943–954    src/html/view-docs.html
+     955–961    src/html/view-help.html
+     962–968    src/html/view-selftest.html
+     969–977    src/html/shell-bottom.html
+     979–1215   DEV.md
+    1218–1390   build.mjs
+    1391–1644   test/e2e.mjs
+    1645–1867   test/stress.mjs
+    1868–1881   vendor/codemirror.entry.js
+    1884–1899   vendor/codemirror.bundle.js
+    1903–2341   src/js/core/zip-mashup.js
+    2342–2687   src/js/core/vba.js
+    2688–2784   src/js/core/xlsx-data.js
+    2785–3057   src/js/m/lang.js
+    3058–3120   src/js/m/format.js
+    3121–3505   src/js/m/reference.js
+    3506–4373   src/js/m/interp.js
+    4374–4894   src/js/nda/anon.js
+    4895–5031   src/js/nda/diag.js
+    5032–5446   src/js/opt/lint.js
+    5447–5756   src/js/opt/optimizer.js
+    5757–5843   src/js/opt/refactor.js
+    5844–5991   src/js/opt/snippets.js
+    5992–6060   src/js/app/state.js
+    6061–6162   src/js/app/data.js
+    6163–6400   src/js/nda/agent.js
+    6401–6492   src/js/app/ui-base.js
+    6493–6671   src/js/app/storage.js
+    6672–6708   src/js/app/hints.js
+    6709–6929   src/js/app/shell.js
+    6930–7020   src/js/views/home.js
+    7021–7446   src/js/views/editor.js
+    7447–7701   src/js/views/optimizer.js
+    7702–7785   src/js/views/graph.js
+    7786–7901   src/js/views/sandbox.js
+    7902–8124   src/js/views/data.js
+    8125–8323   src/js/views/model.js
+    8324–8354   src/js/views/reference.js
+    8355–8392   src/js/views/snippets.js
+    8393–8413   src/js/views/history.js
+    8414–8598   src/js/views/anon.js
+    8599–8665   src/js/views/diag.js
+    8666–8797   src/js/views/ai.js
+    8798–8861   src/js/views/agent.js
+    8862–8888   src/js/views/compare.js
+    8889–8946   src/js/views/docs.js
+    8947–9131   src/js/views/help.js
+    9132–9559   src/js/app/selftest.js
+    9560–9573   src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -95,6 +97,7 @@
   --tok-bg:#ffe8a3; --tok-fg:#5a3f00; --orig-bg:#ffd3d3; --orig-fg:#6b0000;
   --heat0:#e7f5ec; --heat1:#c9ecd6; --heat2:#fff0b3; --heat3:#ffd28a; --heat4:#ffa77a; --heat5:#f46a5e;
   --shadow:0 1px 2px rgba(20,30,50,.06),0 3px 12px rgba(20,30,50,.05); --shadow-lg:0 12px 40px rgba(15,23,42,.22);
+  --viz-1:#2a78d6; --viz-2:#eb6834; --viz-3:#1baf7a; --viz-grid:#e1e0d9; --viz-axis:#c3c2b7;
   --radius:10px; --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
   --mono:"Cascadia Mono","Cascadia Code",Consolas,"JetBrains Mono","DejaVu Sans Mono",Menlo,monospace;
   color-scheme:light;
@@ -106,6 +109,7 @@
   --c-kw:#c792ea; --c-str:#f0a070; --c-num:#5ed6c4; --c-cmt:#7a8496; --c-fn:#82aaff; --c-qid:#e0b45c; --c-op:#aab3c5; --c-type:#67d4e8;
   --tok-bg:#4a3c12; --tok-fg:#ffe08a; --orig-bg:#4d2020; --orig-fg:#ffc4c4;
   --heat0:#16302a; --heat1:#1e4434; --heat2:#4b4219; --heat3:#5d3e16; --heat4:#6b2f1c; --heat5:#8a2525;
+  --viz-1:#3987e5; --viz-2:#d95926; --viz-3:#199e70; --viz-grid:#2c2c2a; --viz-axis:#383835;
   --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 12px 40px rgba(0,0,0,.6); color-scheme:dark; } }
 :root[data-theme="dark"]{
   --bg:#12151b; --panel:#1a1e26; --panel2:#212631; --panel3:#2a303c; --text:#e3e7ef; --muted:#98a1b3; --border:#2f3644; --border2:#3c4455;
@@ -114,6 +118,7 @@
   --c-kw:#c792ea; --c-str:#f0a070; --c-num:#5ed6c4; --c-cmt:#7a8496; --c-fn:#82aaff; --c-qid:#e0b45c; --c-op:#aab3c5; --c-type:#67d4e8;
   --tok-bg:#4a3c12; --tok-fg:#ffe08a; --orig-bg:#4d2020; --orig-fg:#ffc4c4;
   --heat0:#16302a; --heat1:#1e4434; --heat2:#4b4219; --heat3:#5d3e16; --heat4:#6b2f1c; --heat5:#8a2525;
+  --viz-1:#3987e5; --viz-2:#d95926; --viz-3:#199e70; --viz-grid:#2c2c2a; --viz-axis:#383835;
   --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 12px 40px rgba(0,0,0,.6); color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -427,6 +432,14 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 .book-issues{display:grid;gap:10px}.book-issues .bi{border-left:3px solid var(--border2);padding:4px 0 4px 12px}.book-issues .bi.warn{border-left-color:var(--warn)}.book-issues .bi .why{margin-top:4px}.book-issues .bi .fix{color:var(--muted);font-size:13px;margin-top:2px}
 .pqx-rec{display:inline-block;padding:0 6px;border-radius:6px;font-size:12px;margin-left:4px}.pqx-rec.ok{color:var(--ok);background:var(--ok-soft)}.pqx-rec.warn{color:var(--warn);background:var(--warn-soft,var(--panel2))}.pqx-legend td{vertical-align:top}.pqx-legend td:nth-child(2){white-space:nowrap;font-weight:600}
 .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:1100px){.data-grid{grid-template-columns:1fr}}.ds-item{padding:3px 0;font-size:13.5px}.ds-item.need{color:var(--warn)}.bar{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}table.t tr.on td{background:var(--accent-soft)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}.tile{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}.tile .tl{font-size:12.5px;color:var(--muted)}.tile .tv{font-size:28px;font-weight:700;line-height:1.2;margin:4px 0 2px}.tile .tv small{font-size:14px;color:var(--muted);font-weight:400}.tile .ts{font-size:12px;color:var(--muted)}.tile.hot .tv{color:var(--accent)}
+.viz-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:1100px){.viz-2col{grid-template-columns:1fr}}
+.legend{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.legend .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px}.legend .badge-key{margin-left:8px;padding:0 6px;border-radius:8px;background:var(--warn-soft);color:var(--text)}
+.flow-wrap{overflow:auto;max-height:70vh;padding:4px 0}svg.flow{stroke:none;fill:none}svg.flow text{stroke:none}.flow .fedge{fill:none;stroke:var(--viz-axis);opacity:.75;transition:stroke .15s}.flow .fedge.hot{stroke:var(--accent);opacity:1}.flow .fnode{cursor:pointer}.flow .fnode .bg{fill:var(--panel);stroke:var(--border2);stroke-width:1}.flow .fnode:hover .bg,.flow .fnode.sel .bg{stroke:var(--accent);stroke-width:2}.flow .fnode.tgt .bg{fill:var(--panel2)}.flow .nt{font-size:13px;font-weight:600;fill:var(--text)}.flow .ns{font-size:11.5px;fill:var(--muted)}.flow .vtrack{fill:var(--viz-grid)}.flow .badge rect{fill:var(--warn-soft);stroke:var(--warn)}.flow .badge text{font-size:11px;font-weight:700;fill:var(--text)}.flow .nwarn{font-size:11.5px;fill:var(--warn)}
+.hbars{display:grid;gap:6px}.hbars .hb{display:grid;grid-template-columns:minmax(90px,32%) 1fr;gap:10px;align-items:center;font-size:13px;cursor:pointer}.hbars .hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}.hbars .ht{display:flex;align-items:center;gap:8px;min-width:0}.hbars .ht i{display:block;height:14px;background:var(--viz-1);border-radius:0 4px 4px 0;flex:none}.hbars .ht b{font-weight:600;font-size:12.5px;white-space:nowrap;color:var(--text)}.hbars .hb:hover .hl{color:var(--accent)}.hbars.steps .hb{cursor:default}.hbars .hb.grow b{color:var(--warn)}.hbars .err{color:var(--bad);font-style:normal}
+.sp-hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-bottom:12px}.sp-hero .tv{font-size:34px;font-weight:700;color:var(--accent)}.sp-hero .ts{font-size:12px;color:var(--muted)}
+.dumb{display:grid;gap:4px}.dumb .dr{display:grid;grid-template-columns:minmax(160px,34%) 1fr 70px auto;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--viz-grid);font-size:12.5px}.dumb .dt{position:relative;height:16px}.dumb .dt::before{content:'';position:absolute;left:0;right:0;top:7px;height:1px;background:var(--viz-grid)}.dumb .dl{position:absolute;top:6px;height:3px;background:var(--viz-axis);border-radius:2px}.dumb .dd{position:absolute;top:1px;width:14px;height:14px;margin-left:-7px;border-radius:50%;box-shadow:0 0 0 2px var(--panel)}.dumb .dd.before{background:var(--viz-2)}.dumb .dd.after{background:var(--viz-1)}.dumb .dk{font-size:14px;text-align:right}.dumb .ok{color:var(--ok)}.dumb .bad{color:var(--bad)}
+.viz-tip{position:fixed;z-index:60;max-width:340px;background:var(--panel);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;box-shadow:var(--shadow-lg);pointer-events:none}
 /* ===== END src/css/components.css ===== */
 /* ===== BEGIN src/css/editor.css ===== */
 /* Редактор: раскладка и тема CodeMirror */
@@ -576,6 +589,30 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
   </div>
 </section>
 <!-- ===== END src/html/view-home.html ===== -->
+<!-- ===== BEGIN src/html/view-model.html ===== -->
+<section class="view" id="view-model">
+  <div class="needbook-msg">Откройте книгу — здесь появится карта её запросов: источники, объёмы, время и ускорение.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Карта модели</h1><span class="small muted" id="mdlNote"></span><span class="sp"></span>
+      <button class="btn pri" id="mdlRun">▶ Посчитать на данных</button></div>
+    <div class="tiles" id="mdlTiles"></div>
+    <div class="card viz">
+      <div class="card-h"><h2>Поток данных</h2><span class="small muted">источники → запросы → куда загружаются · толщина связи — объём, полоса в узле — строк</span><span class="sp"></span><span class="legend" id="mdlLegend"></span></div>
+      <div class="flow-wrap" id="mdlFlow"></div>
+    </div>
+    <div class="viz-2col">
+      <div class="card viz"><div class="card-h"><h2>Объём</h2><span class="small muted" id="mdlVolNote"></span></div><div id="mdlVol"></div></div>
+      <div class="card viz"><div class="card-h"><h2>Скорость</h2><span class="small muted" id="mdlSpeedNote"></span></div><div id="mdlSpeed"></div></div>
+    </div>
+    <div class="card viz" id="mdlDetail"></div>
+    <div class="card viz">
+      <div class="card-h"><h2>Ускорение</h2><span class="small muted">оценка операций Power Query по объёмам ваших данных</span><span class="sp"></span><span class="legend"><i class="sw" style="background:var(--viz-2)"></i>сейчас <i class="sw" style="background:var(--viz-1)"></i>после исправления</span></div>
+      <div id="mdlSpeedup"></div>
+    </div>
+  </div>
+  <div class="viz-tip hidden" id="vizTip"></div>
+</section>
+<!-- ===== END src/html/view-model.html ===== -->
 <!-- ===== BEGIN src/html/view-editor.html ===== -->
 <section class="view full" id="view-editor">
   <div class="needbook-msg">Откройте книгу или вставьте M-код на странице «Обзор».</div>
@@ -1044,6 +1081,7 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `opt/snippets.js` | сниппеты и мастера | `SNIPPETS` |
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
+| `views/model.js` | «Карта модели»: плитки, поток источники → запросы → лист/модель, объём и скорость, строки по шагам, оценка ускорения (`mdlSpeedups`: операции Power Query до/после по объёмам) | `renderModel`, `mdlFlow`, `mdlSpeedups` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
 | `app/hints.js` | подсказки-плашки вверху разделов | `HINTS`, `renderHint`, `resetHints` |
@@ -1216,6 +1254,7 @@ export const MANIFEST = [
   ['css', 'src/css/editor.css'],
   ['html', 'src/html/shell-top.html'],
   ['html', 'src/html/view-home.html'],
+  ['html', 'src/html/view-model.html'],
   ['html', 'src/html/view-editor.html'],
   ['html', 'src/html/view-optimizer.html'],
   ['html', 'src/html/view-graph.html'],
@@ -1265,6 +1304,7 @@ export const MANIFEST = [
   ['js', 'src/js/views/graph.js'],
   ['js', 'src/js/views/sandbox.js'],
   ['js', 'src/js/views/data.js'],
+  ['js', 'src/js/views/model.js'],
   ['js', 'src/js/views/reference.js'],
   ['js', 'src/js/views/snippets.js'],
   ['js', 'src/js/views/history.js'],
@@ -1473,6 +1513,7 @@ for (const th of ['dark', 'calm', 'fun']){
   await page.click('[data-view=optimizer]'); await page.waitForTimeout(200); await shot('17-' + th + '-optimizer');
   await page.click('[data-view=editor]'); await page.waitForTimeout(200); await shot('18-' + th + '-editor');
 }
+await page.evaluate(() => setTheme('system'));   // дальше — скриншоты в обычной теме
 // книга с макросом обновления и подключениями: факты на обзоре и карточка «Как обновляется книга»
 await page.evaluate(async () => {
   const src = 'Attribute VB_Name = "Module1"\nSub Обновить()\n    ActiveWorkbook.RefreshAll\n    ActiveWorkbook.RefreshAll\nEnd Sub';
@@ -1549,6 +1590,13 @@ await shot('23-ai-verify');
 await page.click('#acceptEditBtn'); await page.waitForTimeout(800);
 const afterAccept = await page.evaluate(() => ({ view: curView, q: ED.query, dirty: isDirty() }));
 check('Ответ ИИ: правка сверена на данных до принятия (дубль убран — результат изменился), «Принять и править» открывает редактор', /результат изменился/.test(aiv) && afterAccept.view === 'editor' && afterAccept.q === 'ОПиУ' && afterAccept.dirty, aiv + ' / ' + JSON.stringify(afterAccept));
+// карта модели: плитки, поток источники → запросы → лист, объём, скорость, ускорение
+await page.evaluate(() => dataRunAll());
+await page.click('[data-view=model]'); await page.waitForTimeout(400);
+const mdl = await page.evaluate(() => ({ tiles: $$('#mdlTiles .tile').map(t => t.textContent), nodes: $$('#mdlFlow .fnode').map(g => g.dataset.id), edges: $$('#mdlFlow .fedge').length, vol: $$('#mdlVol .hb').length, speed: $$('#mdlSpeed .hb').length, sp: $$('#mdlSpeedup .dr').map(d => d.textContent) }));
+await shot('25-model-map');
+await page.evaluate(() => setTheme('dark')); await page.waitForTimeout(200); await shot('26-model-map-dark'); await page.evaluate(() => setTheme('system'));
+check('Карта модели: плитки, поток (таблица книги и файл → запросы → лист), объём, скорость и оценка ускорения', mdl.tiles.length === 6 && mdl.nodes.includes('s:wb:Маппинг') && mdl.nodes.some(n => /^s:f:/.test(n)) && mdl.nodes.includes('q:ОПиУ') && mdl.edges >= 4 && mdl.vol >= 3 && mdl.speed >= 3 && mdl.sp.length >= 1 && /×/.test(mdl.sp[0]), JSON.stringify(mdl).slice(0, 400));
 // показ значений скрыт (демонстрация экрана): вычисления те же, на экране — коды
 await page.evaluate(() => { saveSettings({ hideValues: true }); edDataRender(); });
 const hid = await page.$eval('#edData', e => e.textContent);
@@ -5513,7 +5561,7 @@ function optimizeSection(text, A, lint){
   for (const l of lint){
     const m = byQ(l.query); const steps = m && m.steps ? m.steps.steps : null;
     const step = steps && l.step ? steps.find(s => s.name === l.step) : null;
-    const base = { sev: l.sev, query: l.query, step: l.step, title: l.msg, why: l.msg, how: l.fix, rule: l.rule };
+    const base = { sev: l.sev, query: l.query, step: l.step, title: l.msg, why: l.msg, how: l.fix, rule: l.rule, data: l.data };
     switch (l.rule){
       case 'dead-step': {
         const idx = steps ? steps.indexOf(step) : -1; const r = idx >= 0 ? stepRemoveRange(steps, idx) : null;
@@ -6632,6 +6680,7 @@ const HINTS = {
   editor: 'Правки применяются к рабочей версии кнопкой «Применить» (Ctrl+Enter), в файл они попадают при сохранении. Ctrl+Space — автодополнение, F1 — справка по функции под курсором. «▦ Данные» — живые данные шага под курсором: строки, столбцы, превью, дубли ключей при слиянии.',
   optimizer: '«Безопасно» — исправление не меняет результат запроса. «Проверьте результат» — зависит от данных. Изменения можно посмотреть заранее, а применённые — отменить кнопкой ↶.',
   graph: 'Стрелка ведёт от запроса-источника к запросу, который его использует. Параметризатор выносит пути, серверы и адреса в запросы-параметры.',
+  model: 'Суть книги с одного взгляда: откуда данные, через какие запросы идут и куда загружаются; толщина связи — объём, ⟳×N — запрос вычисляется N раз за «Обновить всё». Внизу — оценка ускорения по объёмам ваших данных. Наведите на любой элемент — подробности.',
   data: 'Запросы вычисляются на таблицах книги и прикреплённых выгрузках — только в этом браузере. Видно то, чего не видно по коду: дубли ключей в справочниках, строки без пары, потерю сумм, ошибки в ячейках; исправления оптимизатора сверяются до и после.',
   sandbox: 'Выражения и запросы вычисляются прямо в браузере — на таблицах книги и прикреплённых выгрузках (раздел «Проверка на данных»). Шаг с базой данных или веб-источником подмените выгрузкой — CSV, XLSX или таблицей, введённой вручную.',
   history: 'Каждое изменение кода — отдельная версия. Откат к версии сам записывается в историю, поэтому ничего не теряется.',
@@ -6672,12 +6721,13 @@ const ICONS = {
   puzzle: '<path d="M10 3h4v3a2 2 0 104 0V3h3v7h-3a2 2 0 100 4h3v7h-7v-3a2 2 0 10-4 0v3H3v-7h3a2 2 0 100-4H3V3z"/>', doc: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h8"/>',
   diff: '<path d="M6 3v12M3 6h6M15 18h6M18 9v12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/>', shield: '<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
   pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>', reply: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v4"/>', robot: '<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/>',
-  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>', check: '<path d="M4 12l5 5L20 6"/>', table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>', check: '<path d="M4 12l5 5L20 6"/>', map: '<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>', table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'
 };
 const icon = n => '<svg viewBox="0 0 24 24">' + (ICONS[n] || '') + '</svg>';
 const NAV = [
   { g: 'Книга' },
   { id: 'home', icon: 'home', label: 'Обзор', hk: 'Alt+1' },
+  { id: 'model', icon: 'map', label: 'Карта модели' },
   { id: 'editor', icon: 'code', label: 'Редактор', hk: 'Alt+2', cnt: () => S.A ? S.A.members.length : 0 },
   { id: 'optimizer', icon: 'bolt', label: 'Оптимизатор', hk: 'Alt+3', cnt: () => S.opt ? S.opt.findings.filter(f => f.sev === 'err' || f.sev === 'warn').length : 0, cls: () => S.opt && S.opt.findings.some(f => f.sev === 'err') ? 'bad' : 'warn' },
   { id: 'graph', icon: 'graph', label: 'Граф и параметры', hk: 'Alt+4' },
@@ -6929,7 +6979,8 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
-  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
+  if (bookRefreshIssues(b).some(i => i.sev === 'warn')) next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
+  next.push(['bolt', 'Макрос обновляет запросы повторно — посмотреть', 'optimizer']);
   if (O.breakdown.safeFixable) next.push(['bolt', 'Применить ' + O.breakdown.safeFixable + ' безопасных исправлений', 'safe']);
   if (S.opt.findings.some(f => f.rule === 'hardcoded')) next.push(['graph', 'Вынести захардкоженные пути и серверы в параметры', 'graph']);
   if (S.lint.some(l => l.rule === 'firewall' || l.rule === 'folding')) next.push(['bolt', 'Разобрать риски свёртки и Formula.Firewall', 'optimizer']);
@@ -8071,6 +8122,205 @@ $('#dataLimit').onchange = async () => {
 };
 registerView('data', { render: renderData });
 /* ===== END src/js/views/data.js ===== */
+/* ===== BEGIN src/js/views/model.js ===== */
+/* =====================================================================
+   views/model.js — «Карта модели»: суть книги с одного взгляда.
+   Плитки (запросы, источники, строки, время, здоровье, ускорение), поток данных
+   источники → запросы → лист/модель (толщина связи — объём, ×N — повторные вычисления),
+   объём и скорость по запросам, строки по шагам выбранного запроса и оценка ускорения:
+   число операций Power Query до и после исправлений по объёмам данных этого компьютера.
+   Объёмы — из «Проверки на данных» (DATA.run) или из метаданных книги (последнее обновление);
+   время — из диагностики Power Query или из вычисления в браузере. Только показ на экране.
+   ===================================================================== */
+const MDL = { sel: null };
+/** Итоговый запрос: загружается на лист или в модель; если сведений о загрузке нет (M-текст) — тот, на который никто не ссылается */
+function mdlIsOut(m, qs){ const known = qs.some(x => x.load.sheet || x.load.model); return known ? !!(m.load.sheet || m.load.model) : !m.usedBy.length; }
+const nameNorm = n => String(n || '').replace(/^#"|"$/g, '');
+function mdlRows(name){
+  if (dataRunValid()){ const q = DATA.run.queries.find(x => x.name === name); if (q){ const f = q.steps[q.steps.length - 1]; if (f && f.rows != null) return { rows: f.rows, cols: f.cols, src: 'data' }; } }
+  const m = S.A && S.A.byName.get(name); return m && m.load.rows != null ? { rows: m.load.rows, cols: Array.isArray(m.load.columns) ? m.load.columns.length : null, src: 'meta' } : { rows: null, cols: null, src: '' };
+}
+function mdlStepRows(q, step){ if (!dataRunValid() || !step) return null; const r = DATA.run.queries.find(x => x.name === q); const s = r && r.steps.find(x => x.name === nameNorm(step)); return s && s.rows != null ? s.rows : null; }
+/** Время запроса: диагностика Power Query (секунды в Excel) или вычисление в браузере */
+function mdlTimes(){
+  const out = new Map(); const ds = typeof diagSecondsMap === 'function' ? diagSecondsMap() : new Map();
+  if (ds.size){ for (const [k, v] of ds){ const q = k.split('\u0001')[0]; out.set(q, (out.get(q) || 0) + v); } return { map: out, src: 'diag' }; }
+  if (dataRunValid()) for (const q of DATA.run.queries) out.set(q.name, q.ms / 1000);
+  return { map: out, src: out.size ? 'browser' : '' };
+}
+/** Источники запроса из текста кода: файлы, папки, таблицы книги, базы, веб */
+function mdlSources(m){
+  const t = S.work.slice(m.exprStart, m.exprEnd); const out = []; let x;
+  const base = p => String(p).replace(/[\\/]+$/, '').replace(/^.*[\\/]/, '');
+  const re = /Excel\.CurrentWorkbook\(\)\s*\{\s*\[\s*Name\s*=\s*"([^"]+)"|File\.Contents\(\s*"([^"]+)"|Folder\.(?:Files|Contents)\(\s*"([^"]+)"|\b(Sql\.Databases?|Odbc\.\w+|OleDb\.\w+|Oracle\.Database|PostgreSQL\.Database|MySQL\.Database|Access\.Database)\s*\(\s*"([^"]*)"|\b(Web\.Contents|Web\.Page|OData\.Feed|SharePoint\.\w+)\b/g;
+  while ((x = re.exec(t))){
+    if (x[1]) out.push({ key: 'wb:' + x[1], icon: '▦', label: x[1], kind: 'таблица книги' });
+    else if (x[2]) out.push({ key: 'f:' + x[2].toLowerCase(), icon: '📄', label: base(x[2]), kind: 'файл', path: x[2] });
+    else if (x[3]) out.push({ key: 'd:' + x[3].toLowerCase(), icon: '📁', label: base(x[3]) || x[3], kind: 'папка', path: x[3] });
+    else if (x[4]) out.push({ key: 'db:' + x[4] + x[5], icon: '🗄', label: x[5] || x[4], kind: x[4] });
+    else if (x[6]) out.push({ key: 'web:' + x[6], icon: '🌐', label: x[6], kind: 'веб' });
+  }
+  if (!out.length && m.hasSource) out.push({ key: 'src:' + m.name, icon: '🔌', label: [...new Set(m.sources)][0] || 'источник', kind: 'источник' });
+  return out.filter((s, i) => out.findIndex(y => y.key === s.key) === i);
+}
+const fmtSec = s => s == null ? '—' : s >= 60 ? (s / 60).toFixed(1).replace('.', ',') + ' мин' : s >= 10 ? s.toFixed(0) + ' с' : s >= 1 ? s.toFixed(1).replace('.', ',') + ' с' : Math.round(s * 1000) + ' мс';
+const fmtBig = n => n == null ? '—' : n >= 1e9 ? (n / 1e9).toFixed(1).replace('.', ',') + ' млрд' : n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' млн' : n >= 1e4 ? Math.round(n / 1e3) + ' тыс.' : fmtN(n);
+const plural = (n, a, b, c) => { const x = n % 10, y = n % 100; return x === 1 && y !== 11 ? a : x >= 2 && x <= 4 && (y < 12 || y > 14) ? b : c; };
+/** Оценка ускорения: операции движка Power Query до и после исправления по объёмам данных */
+function mdlSpeedups(){
+  const out = []; if (!S.opt) return out;
+  const tableOf = d => d ? nameNorm(d.name || ((/^(?:Table|List)\.Buffer\(\s*(#"[^"]+"|[\p{L}_][\p{L}\p{N}_]*)/u.exec(d.expr || '') || [])[1]) || ((/^(#"[^"]+"|[\p{L}_][\p{L}\p{N}_]*)/u.exec(d.expr || '') || [])[1])) : '';
+  for (const f of S.opt.findings){
+    if (f.rule === 'multi-eval'){ const k = +((/≈(\d+)/.exec((f.why || '') + ' ' + (f.title || '')) || [])[1]); const R = mdlRows(f.query).rows; if (k >= 2 && R) out.push({ f, before: k * R, after: R, how: 'вычисляется ' + k + ' ' + plural(k, 'раз', 'раза', 'раз') + ' за «Обновить всё» → один раз', N: R, k }); continue; }
+    if (!['row-lookup', 'buffer-in-each', 'list-buffer'].includes(f.rule)) continue;
+    const N = mdlStepRows(f.query, f.step) ?? mdlRows(f.query).rows; const T = tableOf(f.data);
+    const M = T ? (mdlStepRows(f.query, T) ?? mdlRows(T).rows) : null;
+    if (!N || !M) continue;
+    if (f.rule === 'row-lookup') out.push({ f, before: N * M, after: N + M, how: 'поиск в «' + T + '» для каждой из ' + fmtBig(N) + ' строк → одно слияние', N, M });
+    else out.push({ f, before: 2 * N * M, after: M + N * M, how: '«' + T + '» пересобирается для каждой строки → один раз', N, M });
+  }
+  return out.map(x => Object.assign(x, { k: x.before / Math.max(1, x.after) })).sort((a, b) => b.before - a.before);
+}
+function mdlTiles(){
+  const ms = S.A.members, qs = ms.filter(m => !m.isFn && !m.isParam);
+  const loaded = qs.filter(m => mdlIsOut(m, qs)), staging = qs.filter(m => !mdlIsOut(m, qs));
+  const src = new Map(); for (const m of qs) for (const s of mdlSources(m)) src.set(s.key, s);
+  const kinds = [...new Set([...src.values()].map(s => s.kind))];
+  const rows = loaded.map(m => mdlRows(m.name)); const known = rows.filter(r => r.rows != null);
+  const tm = mdlTimes(); const total = [...tm.map.values()].reduce((a, b) => a + b, 0);
+  const sp = mdlSpeedups(); const best = sp.length ? Math.max(...sp.map(x => x.k)) : 0;
+  const tile = (label, value, sub, cls) => '<div class="tile' + (cls ? ' ' + cls : '') + '"><div class="tl">' + label + '</div><div class="tv">' + value + '</div><div class="ts">' + sub + '</div></div>';
+  return tile('Запросов', qs.length, 'итоговых ' + loaded.length + ' · промежуточных ' + staging.length + (ms.length > qs.length ? ' · функций и параметров ' + (ms.length - qs.length) : '')) +
+    tile('Источников', src.size, kinds.join(', ') || 'нет внешних источников') +
+    tile('Строк в итоговых таблицах', known.length ? fmtBig(known.reduce((a, r) => a + r.rows, 0)) : '—', known.length ? (known.some(r => r.src === 'data') ? 'на ваших данных' : 'по последнему обновлению в Excel') : 'посчитайте на данных') +
+    tile('Время обработки', tm.src ? fmtSec(total) : '—', tm.src === 'diag' ? 'по диагностике Power Query' : tm.src === 'browser' ? 'в браузере (соотношения, не секунды Excel)' : 'загрузите диагностику или посчитайте на данных') +
+    tile('Здоровье кода', S.opt.score + '<small>/100</small>', OPT.potential != null && OPT.potentialFor === S.work && OPT.potential > S.opt.score ? 'после безопасных исправлений — ' + OPT.potential : (S.opt.breakdown.safeFixable ? 'безопасных исправлений: ' + S.opt.breakdown.safeFixable : 'советы — в «Оптимизаторе»')) +
+    tile('Ускорение', best >= 1.5 ? 'до ×' + fmtBig(Math.round(best)) : '—', sp.length ? sp.length + ' ' + plural(sp.length, 'место', 'места', 'мест') + ' · оценка по объёмам' : dataRunValid() ? 'тяжёлых мест не найдено' : 'посчитайте на данных', best >= 10 ? 'hot' : '');
+}
+/** Поток данных: колонки — источники, слои запросов по зависимостям, лист/модель */
+function mdlFlow(){
+  const qs = S.A.members.filter(m => !m.isFn && !m.isParam); const byName = new Map(qs.map(m => [m.name, m]));
+  const layer = new Map(); const seen = new Set();
+  const L = m => { if (layer.has(m.name)) return layer.get(m.name); if (seen.has(m.name)) return 1; seen.add(m.name); let l = 1; for (const r of m.refs){ const x = byName.get(r); if (x && x !== m) l = Math.max(l, L(x) + 1); } layer.set(m.name, l); return l; };
+  qs.forEach(L);
+  const reads = new Map((S.opt.heat || []).map(h => [h.query, h.reads || 0]));
+  const tm = mdlTimes();
+  const nodes = new Map(); const edges = [];
+  const role = m => mdlIsOut(m, qs) ? 'out' : 'mid';
+  for (const m of qs){ const r = mdlRows(m.name); nodes.set('q:' + m.name, { id: 'q:' + m.name, q: m.name, col: layer.get(m.name), label: m.name, role: role(m), rows: r.rows, cols: r.cols, rsrc: r.src, sec: tm.map.get(m.name), reads: reads.get(m.name) || 0, steps: m.steps ? m.steps.steps.length : 0, warn: S.lint.filter(l => l.query === m.name && (l.sev === 'err' || l.sev === 'warn')).length }); }
+  const firstRows = name => { if (!dataRunValid()) return null; const q = DATA.run.queries.find(x => x.name === name); const s = q && q.steps.find(x => x.rows != null); return s ? s.rows : null; };
+  for (const m of qs){
+    for (const s of mdlSources(m)){
+      if (!nodes.has('s:' + s.key)){ let rows = null; if (s.key.startsWith('wb:') && DATA.wb){ const t = DATA.wb.tables.concat(DATA.wb.names).find(x => x.name === s.label); if (t) rows = t.rows.length; } nodes.set('s:' + s.key, { id: 's:' + s.key, col: 0, label: s.icon + ' ' + s.label, role: 'src', kind: s.kind, path: s.path, rows }); }
+      const fr = firstRows(m.name); edges.push({ a: 's:' + s.key, b: 'q:' + m.name, rows: fr });
+      const sn = nodes.get('s:' + s.key); if (sn.rows == null && fr != null) sn.rows = fr;   // объём файла — строки первого шага, который его читает
+    }
+    for (const r of m.refs) if (byName.has(r) && r !== m.name) edges.push({ a: 'q:' + r, b: 'q:' + m.name, rows: mdlRows(r).rows });
+  }
+  const maxQ = Math.max(1, ...[...layer.values()]); const tcol = maxQ + 1;
+  const anySheet = qs.some(m => m.load.sheet), anyModel = qs.some(m => m.load.model);
+  if (anySheet) nodes.set('t:sheet', { id: 't:sheet', col: tcol, label: '▦ Листы Excel', role: 'tgt' });
+  if (anyModel) nodes.set('t:model', { id: 't:model', col: tcol, label: '◈ Модель данных', role: 'tgt' });
+  for (const m of qs){ const r = mdlRows(m.name).rows; if (m.load.sheet) edges.push({ a: 'q:' + m.name, b: 't:sheet', rows: r }); if (m.load.model) edges.push({ a: 'q:' + m.name, b: 't:model', rows: r }); }
+  // колонки и порядок (барицентры по входящим связям, несколько проходов)
+  const cols = []; for (const n of nodes.values()) (cols[n.col] = cols[n.col] || []).push(n);
+  for (let i = 0; i < cols.length; i++) cols[i] = cols[i] || [];
+  const pos = new Map(); cols.forEach(c => c.forEach((n, i) => pos.set(n.id, i)));
+  const into = new Map(); for (const e of edges){ if (!into.has(e.b)) into.set(e.b, []); into.get(e.b).push(e.a); }
+  const outOf = new Map(); for (const e of edges){ if (!outOf.has(e.a)) outOf.set(e.a, []); outOf.get(e.a).push(e.b); }
+  for (let it = 0; it < 6; it++){
+    for (let c = 1; c < cols.length; c++){ const bc = n => { const p = (into.get(n.id) || []).filter(x => pos.has(x)); return p.length ? p.reduce((s, x) => s + pos.get(x), 0) / p.length : pos.get(n.id); }; cols[c].sort((a, b) => bc(a) - bc(b)); cols[c].forEach((n, i) => pos.set(n.id, i)); }
+    const bc0 = n => { const p = (outOf.get(n.id) || []).filter(x => pos.has(x)); return p.length ? p.reduce((s, x) => s + pos.get(x), 0) / p.length : pos.get(n.id); }; cols[0].sort((a, b) => bc0(a) - bc0(b)); cols[0].forEach((n, i) => pos.set(n.id, i));
+  }
+  const W = 210, H = 52, GX = 70, GY = 16, P = 14;
+  const maxN = Math.max(1, ...cols.map(c => c.length));
+  const width = P * 2 + cols.length * W + (cols.length - 1) * GX, height = P * 2 + maxN * (H + GY) - GY;
+  const xy = new Map(); cols.forEach((c, ci) => { const off = (maxN - c.length) * (H + GY) / 2; c.forEach((n, i) => xy.set(n.id, { x: P + ci * (W + GX), y: P + off + i * (H + GY) })); });
+  const maxRows = Math.max(1, ...[...nodes.values()].map(n => n.rows || 0), ...edges.map(e => e.rows || 0));
+  const lg = v => Math.log10((v || 0) + 1) / Math.log10(maxRows + 1);
+  const ROLE = { src: ['var(--viz-1)', 'источник'], mid: ['var(--viz-3)', 'промежуточный'], out: ['var(--viz-2)', 'итоговый — загружается'], tgt: ['var(--muted)', 'куда загружается'] };
+  let svg = '<svg class="flow" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">';
+  for (const e of edges){ const a = xy.get(e.a), b = xy.get(e.b); if (!a || !b) continue;
+    const x1 = a.x + W, y1 = a.y + H / 2, x2 = b.x, y2 = b.y + H / 2; const w = e.rows == null ? 1.5 : 1.5 + 9 * lg(e.rows);
+    svg += '<path class="fedge" data-a="' + escHtml(e.a) + '" data-b="' + escHtml(e.b) + '" d="M' + x1 + ',' + y1 + ' C' + (x1 + GX * 0.55) + ',' + y1 + ' ' + (x2 - GX * 0.55) + ',' + y2 + ' ' + x2 + ',' + y2 + '" stroke-width="' + w.toFixed(1) + '" data-tip="' + escHtml(escHtml(nodes.get(e.a).label) + ' → ' + escHtml(nodes.get(e.b).label) + (e.rows != null ? '<br><b>' + fmtN(e.rows) + '</b> строк' : '')) + '"/>'; }
+  for (const n of nodes.values()){ const p = xy.get(n.id); const [col, rl] = ROLE[n.role];
+    const label = n.label.length > 27 ? n.label.slice(0, 26) + '…' : n.label;
+    const sub = n.role === 'tgt' ? '' : [n.rows != null ? fmtBig(n.rows) + ' строк' : n.role === 'src' ? n.kind : '', n.sec != null ? fmtSec(n.sec) : ''].filter(Boolean).join(' · ');
+    const tip = '<b>' + escHtml(n.label) + '</b><br>' + rl + (n.rows != null ? '<br>строк: <b>' + fmtN(n.rows) + '</b>' + (n.cols ? ' × ' + n.cols + ' столбцов' : '') + (n.rsrc === 'meta' ? ' (по последнему обновлению)' : '') : '') + (n.sec != null ? '<br>время: <b>' + fmtSec(n.sec) + '</b>' + (tm.src === 'browser' ? ' в браузере' : ' по диагностике') : '') + (n.steps ? '<br>шагов: ' + n.steps : '') + (n.reads >= 2 ? '<br>⟳ вычисляется ×' + n.reads + ' за «Обновить всё»' : '') + (n.warn ? '<br>⚠ замечаний: ' + n.warn : '') + (n.path ? '<br><span class="muted">' + escHtml(n.path) + '</span>' : '');
+    svg += '<g class="fnode ' + n.role + (n.q && n.q === MDL.sel ? ' sel' : '') + '" data-id="' + escHtml(n.id) + '"' + (n.q ? ' data-q="' + escHtml(n.q) + '"' : '') + ' data-tip="' + escHtml(tip) + '">' +
+      '<rect class="bg" x="' + p.x + '" y="' + p.y + '" width="' + W + '" height="' + H + '" rx="8"/>' +
+      '<rect x="' + p.x + '" y="' + p.y + '" width="5" height="' + H + '" rx="2" fill="' + col + '"/>' +
+      '<text class="nt" x="' + (p.x + 14) + '" y="' + (p.y + 20) + '">' + escHtml(label) + '</text>' +
+      (sub ? '<text class="ns" x="' + (p.x + 14) + '" y="' + (p.y + 36) + '">' + escHtml(sub) + '</text>' : '') +
+      (n.rows != null && n.role !== 'tgt' ? '<rect class="vtrack" x="' + (p.x + 14) + '" y="' + (p.y + H - 8) + '" width="' + (W - 28) + '" height="3" rx="1.5"/><rect x="' + (p.x + 14) + '" y="' + (p.y + H - 8) + '" width="' + Math.max(3, (W - 28) * lg(n.rows)).toFixed(1) + '" height="3" rx="1.5" fill="' + col + '"/>' : '') +
+      (n.reads >= 2 ? '<g class="badge"><rect x="' + (p.x + W - 44) + '" y="' + (p.y + 6) + '" width="38" height="17" rx="8.5"/><text x="' + (p.x + W - 25) + '" y="' + (p.y + 18) + '" text-anchor="middle">⟳×' + n.reads + '</text></g>' : '') +
+      (n.warn ? '<text class="nwarn" x="' + (p.x + W - (n.reads >= 2 ? 52 : 10)) + '" y="' + (p.y + 19) + '" text-anchor="end">⚠' + n.warn + '</text>' : '') + '</g>'; }
+  svg += '</svg>';
+  const legend = Object.entries(ROLE).filter(([k]) => k !== 'tgt').map(([, [c, l]]) => '<i class="sw" style="background:' + c + '"></i>' + l).join(' ') + ' <span class="badge-key">⟳×N</span> вычисляется N раз';
+  return { svg, legend };
+}
+/** Горизонтальные столбцы: один ряд — один цвет; подпись значения у конца столбца */
+function mdlBars(items, fmt, empty){
+  if (!items.length) return '<div class="small muted">' + empty + '</div>';
+  const top = items.slice(0, 12); const max = Math.max(...top.map(x => x.v), 1e-9);
+  return '<div class="hbars">' + top.map(x => '<div class="hb" data-q="' + escHtml(x.q) + '" data-tip="' + escHtml('<b>' + escHtml(x.q) + '</b><br>' + x.tip) + '"><span class="hl">' + escHtml(x.q) + '</span><span class="ht"><i style="width:' + Math.max(0.6, x.v / max * 80).toFixed(2) + '%"></i><b>' + fmt(x.v) + '</b></span></div>').join('') + '</div>' +
+    (items.length > top.length ? '<div class="small muted">ещё ' + (items.length - top.length) + ' — меньше</div>' : '');
+}
+function mdlDetail(){
+  const q = MDL.sel && S.A.byName.get(MDL.sel) ? MDL.sel : null;
+  if (!q) return '<div class="card-h"><h2>Строки по шагам</h2></div><div class="small muted">Щёлкните запрос на схеме или в графиках — здесь появится, как меняется число строк по его шагам.</div>';
+  const run = dataRunValid() ? DATA.run.queries.find(x => x.name === q) : null;
+  let h = '<div class="card-h"><h2>Строки по шагам — ' + escHtml(q) + '</h2><span class="sp"></span><button class="btn sm" id="mdlOpen">Открыть в редакторе</button></div>';
+  if (!run) return h + '<div class="small muted">Посчитайте на данных — появятся строки на каждом шаге.</div>';
+  const st = run.steps.filter(s => s.rows != null || s.error); const max = Math.max(1, ...st.map(s => s.rows || 0)); let prev = null;
+  h += '<div class="hbars steps">' + st.map(s => { const grow = prev != null && s.rows != null && prev >= 100 && s.rows > prev * 1.5, drop = prev != null && s.rows != null && s.rows < prev * 0.5; const t = '<div class="hb' + (grow ? ' grow' : '') + '" data-tip="' + escHtml('<b>' + escHtml(s.name) + '</b><br>' + (s.error ? escHtml(s.error.message) : fmtN(s.rows) + ' строк × ' + s.cols + ' столбцов' + (prev != null ? '<br>было ' + fmtN(prev) : ''))) + '"><span class="hl">' + escHtml(s.name === 'in → результат' ? 'результат' : s.name) + '</span><span class="ht">' + (s.error ? '<em class="err">✖ ' + escHtml(s.error.reason) + '</em>' : '<i style="width:' + Math.max(0.6, s.rows / max * 80).toFixed(2) + '%"></i><b>' + fmtN(s.rows) + (grow ? ' ⚠ рост ×' + (s.rows / prev).toFixed(1).replace('.', ',') : drop ? ' ↓' : '') + '</b>') + '</span></div>'; if (s.rows != null) prev = s.rows; return t; }).join('') + '</div>';
+  const js = run.joins.filter(j => j.dupKeys || j.miss);
+  if (js.length) h += '<div class="small">' + js.map(j => '⚠ шаг «' + escHtml(j.step) + '»: ' + (j.dupKeys ? 'дубли ключей справа ' + fmtN(j.dupKeys) : '') + (j.dupKeys && j.miss ? ', ' : '') + (j.miss ? 'без пары ' + fmtN(j.miss) + ' из ' + fmtN(j.left) : '')).join('<br>') + '</div>';
+  return h;
+}
+function mdlSpeedupHtml(){
+  const sp = mdlSpeedups();
+  if (!sp.length) return '<div class="small muted">' + (dataRunValid() || S.A.members.some(m => m.load.rows != null) ? 'Мест, где объём данных умножает работу (поиск для каждой строки, повторные вычисления), не найдено.' : 'Посчитайте на данных: оценка строится по реальным объёмам таблиц.') + '</div>';
+  const lo = Math.min(...sp.map(x => x.after)), hi = Math.max(...sp.map(x => x.before));
+  const X = v => (Math.log10(v) - Math.log10(lo)) / Math.max(1e-9, Math.log10(hi) - Math.log10(lo)) * 100;
+  const tb = sp.reduce((a, x) => a + x.before, 0), ta = sp.reduce((a, x) => a + x.after, 0);
+  const ver = DATA.verify && DATA.verify.forWork === S.work ? DATA.verify.items : new Map();
+  return '<div class="sp-hero"><div><div class="tv">×' + fmtBig(Math.round(tb / ta)) + '</div><div class="ts">меньше операций в этих местах после исправлений</div></div><div class="small muted">' + fmtBig(tb) + ' → ' + fmtBig(ta) + ' операций (сравнений строк и повторных чтений) на ваших объёмах. Power Query не строит индекс для поиска «для каждой строки» и не делит результат промежуточного запроса между загружаемыми таблицами — отсюда умножение. Реальное время зависит от источника и машины: проверьте диагностикой до и после.</div></div>' +
+    '<div class="dumb">' + sp.slice(0, 12).map(x => { const v = ver.get(x.f.id); const a = X(x.after), b = X(x.before);
+      return '<div class="dr" data-tip="' + escHtml('<b>' + escHtml(x.f.query + (x.f.step ? ' › ' + x.f.step : '')) + '</b><br>' + escHtml(x.how) + '<br>сейчас ≈ ' + fmtBig(x.before) + ' операций<br>после ≈ ' + fmtBig(x.after) + (v ? '<br>на данных: ' + (v.same ? 'результат тот же ✓' : 'результат другой ✖') : '')) + '"><span class="hl"><b>' + escHtml(x.f.query) + '</b>' + (x.f.step ? ' › ' + escHtml(x.f.step) : '') + '<br><span class="muted">' + escHtml(x.how) + '</span></span>' +
+        '<span class="dt"><i class="dl" style="left:' + a.toFixed(2) + '%;width:' + Math.max(0, b - a).toFixed(2) + '%"></i><i class="dd after" style="left:' + a.toFixed(2) + '%"></i><i class="dd before" style="left:' + b.toFixed(2) + '%"></i></span>' +
+        '<span class="dk"><b>×' + fmtBig(Math.round(x.k)) + '</b>' + (v ? (v.same ? ' <span class="ok">✓</span>' : ' <span class="bad">✖</span>') : '') + '</span>' +
+        '<button class="btn sm" data-fix="' + escHtml(x.f.id) + '">Исправить…</button></div>'; }).join('') + '</div>' +
+    '<div class="small muted">Шкала логарифмическая: каждое деление — в 10 раз. ✓/✖ — сверка исправления на данных («Проверка на данных»).</div>';
+}
+function renderModel(){
+  if (!S.A || !S.opt) return;
+  const runOk = dataRunValid();
+  $('#mdlRun').textContent = DV.busy ? '⏳ ' + (DV.progress || 'Вычисление…') : runOk ? '↻ Пересчитать на данных' : '▶ Посчитать на данных';
+  $('#mdlRun').disabled = DV.busy;
+  $('#mdlNote').textContent = runOk ? 'объёмы — на ваших данных (только в этом браузере)' : 'объёмы — по последнему обновлению в Excel; посчитайте на данных для полной картины';
+  $('#mdlTiles').innerHTML = mdlTiles();
+  const fl = mdlFlow(); $('#mdlFlow').innerHTML = fl.svg; $('#mdlLegend').innerHTML = fl.legend;
+  const qs = S.A.members.filter(m => !m.isFn && !m.isParam);
+  const vol = qs.map(m => ({ q: m.name, r: mdlRows(m.name) })).filter(x => x.r.rows != null).map(x => ({ q: x.q, v: x.r.rows, tip: fmtN(x.r.rows) + ' строк' + (x.r.cols ? ' × ' + x.r.cols + ' столбцов' : '') })).sort((a, b) => b.v - a.v);
+  $('#mdlVolNote').textContent = vol.length ? 'строк в результате запроса' : '';
+  $('#mdlVol').innerHTML = mdlBars(vol, fmtBig, 'Объёмов пока нет — посчитайте на данных.');
+  const tm = mdlTimes(); const spd = [...tm.map].map(([q, s]) => ({ q, v: s, tip: fmtSec(s) + (tm.src === 'diag' ? ' по диагностике' : ' в браузере') })).filter(x => S.A.byName.has(x.q)).sort((a, b) => b.v - a.v);
+  $('#mdlSpeedNote').textContent = tm.src === 'diag' ? 'секунды по диагностике Power Query' : tm.src === 'browser' ? 'время в браузере — важны соотношения' : '';
+  $('#mdlSpeed').innerHTML = mdlBars(spd, fmtSec, 'Времени пока нет — загрузите диагностику («Диагностика») или посчитайте на данных.');
+  $('#mdlDetail').innerHTML = mdlDetail();
+  $('#mdlSpeedup').innerHTML = mdlSpeedupHtml();
+  $$('#view-model [data-q]').forEach(el => el.onclick = () => { MDL.sel = el.dataset.q; renderModel(); $('#mdlDetail').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+  $$('#view-model .fnode').forEach(g => { g.onmouseenter = () => $$('#view-model .fedge').forEach(p => p.classList.toggle('hot', p.dataset.a === g.dataset.id || p.dataset.b === g.dataset.id)); g.onmouseleave = () => $$('#view-model .fedge.hot').forEach(p => p.classList.remove('hot')); });
+  if ($('#mdlOpen')) $('#mdlOpen').onclick = () => openInEditor(MDL.sel);
+  $$('#mdlSpeedup [data-fix]').forEach(b => b.onclick = () => { showView('optimizer'); const f = S.opt.findings.find(x => x.id === b.dataset.fix); if (f) setTimeout(() => previewFinding(f.id), 50); });
+}
+/* всплывающая подсказка для всех [data-tip] в разделе (подсказка — уже экранированный HTML) */
+$('#view-model').addEventListener('mousemove', e => { const t = e.target.closest('[data-tip]'); const tip = $('#vizTip'); if (!t){ tip.classList.add('hidden'); return; } tip.innerHTML = t.dataset.tip; tip.classList.remove('hidden'); const r = tip.getBoundingClientRect(); tip.style.left = Math.min(window.innerWidth - r.width - 8, e.clientX + 14) + 'px'; tip.style.top = Math.min(window.innerHeight - r.height - 8, e.clientY + 14) + 'px'; });
+$('#view-model').addEventListener('mouseleave', () => $('#vizTip').classList.add('hidden'));
+$('#mdlRun').onclick = async () => { await dataRunAll(); renderModel(); };
+registerView('model', { render: renderModel });
+/* ===== END src/js/views/model.js ===== */
 /* ===== BEGIN src/js/views/reference.js ===== */
 /* =====================================================================
    views/reference.js — справочник функций M (данные: m/reference.js).
@@ -8762,6 +9012,9 @@ const HELP_HTML = `
 <li><b>Вручную</b> — уровни конфиденциальности, фоновая загрузка предпросмотра, «Только подключение» для промежуточных запросов — с путями в меню.</li>
 </ul>
 <p>Синхронное обновление (BackgroundQuery = False) не замедляет работу — Excel просто не отвечает, пока идёт обновление. Флаг книги «игнорировать уровни конфиденциальности» Excel сбрасывает при любом изменении кода; <code>ThisWorkbook.Queries.FastCombine = True</code> в макросе действует всегда. «Только подключение» экономит лишь собственное вычисление промежуточного запроса: запросы, которые на него ссылаются, вычисляют его заново.</p></div>
+
+<div class="card"><h2>Карта модели</h2>
+<p>Суть книги с одного взгляда. <b>Плитки</b> — запросов, источников, строк в итоговых таблицах, время обработки, здоровье кода и найденное ускорение. <b>Поток данных</b> — источники (файлы, таблицы книги, базы) → запросы → лист или модель; толщина связи — объём, полоса в узле — строк, ⟳×N — запрос вычисляется N раз за «Обновить всё». <b>Объём</b> и <b>Скорость</b> — по запросам; щелчок — строки по шагам выбранного запроса. <b>Ускорение</b> — оценка числа операций Power Query сейчас и после исправления по объёмам ваших данных (логарифмическая шкала): поиск в справочнике для каждой строки → одно слияние, повторные вычисления → одно. Объёмы — из «Проверки на данных» или из последнего обновления в Excel; время — из диагностики Power Query или из вычисления в браузере. Наведите на любой элемент — подробности.</p></div>
 
 <div class="card"><h2>Проверка на данных</h2>
 <p>Раздел вычисляет все запросы книги на её таблицах (Excel.CurrentWorkbook) и на выгрузках, которые вы прикрепите (File.Contents, Folder.Files: CSV, XLSX, JSON). Данные читаются и обрабатываются <b>только в этом браузере</b>; наружу уходят только числа проверок, а сканер блокирует выпуск, если в тексте для ИИ окажется значение из данных. Базы данных и веб недоступны — подмените такой шаг выгрузкой в «Песочнице».</p>

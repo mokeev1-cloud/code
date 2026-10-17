@@ -114,7 +114,7 @@ function optimizeSection(text, A, lint){
   for (const l of lint){
     const m = byQ(l.query); const steps = m && m.steps ? m.steps.steps : null;
     const step = steps && l.step ? steps.find(s => s.name === l.step) : null;
-    const base = { sev: l.sev, query: l.query, step: l.step, title: l.msg, why: l.msg, how: l.fix, rule: l.rule };
+    const base = { sev: l.sev, query: l.query, step: l.step, title: l.msg, why: l.msg, how: l.fix, rule: l.rule, data: l.data };
     switch (l.rule){
       case 'dead-step': {
         const idx = steps ? steps.indexOf(step) : -1; const r = idx >= 0 ? stepRemoveRange(steps, idx) : null;

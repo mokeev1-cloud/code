@@ -60,6 +60,7 @@ export const MANIFEST = [
   ['file', 'build.mjs'],
   ['file', 'test/e2e.mjs'],
   ['file', 'test/stress.mjs'],
+  ['file', 'test/hyperzoom.mjs'],
   ['file', 'vendor/codemirror.entry.js'],
   ['file', 'vendor/duckdb.entry.js'],
   ['vendor', 'vendor/codemirror.bundle.js'],

@@ -145,6 +145,8 @@ function commands(){
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
     c('⚡ Ускорить книгу (мастер)', () => openSpeedup());
+    c('🚀 Гиперзум: сверить в DuckDB на данных', () => { showView('hyper'); HZ.tab = 'run'; renderHyper(); hzRun(); });
+    c('🚀 Гиперзум: скачать комплект для DuckDB', () => { showView('hyper'); HZ.tab = 'kit'; renderHyper(); hzKitZip(); });
     if (SPD.last) c('Отчёт об ускорении (последний)', showSpeedReport);
     c('Проверить запросы на данных (локально)', () => { showView('data'); dataRunAll(); });
     if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });

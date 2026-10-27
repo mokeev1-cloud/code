@@ -5,87 +5,88 @@
     node build.mjs --split pq-master.html pq-master   (восстановит все исходники, тесты и сам сборщик)
   Документация для разработчика: блок «pqm-dev-docs» (DEV.md) ниже.
   ОГЛАВЛЕНИЕ (строки этого файла → модуль):
-      90–98     src/html/head.html
-     100–150    src/css/theme.css
-     151–219    src/css/themes.css
-     220–258    src/css/layout.css
-     259–455    src/css/components.css
-     456–514    src/css/editor.css
-     515–548    src/css/hyper.css
-     552–573    src/html/shell-top.html
-     574–639    src/html/view-home.html
-     640–663    src/html/view-model.html
-     664–673    src/html/view-hyper.html
-     674–713    src/html/view-editor.html
-     714–742    src/html/view-optimizer.html
-     743–765    src/html/view-graph.html
-     766–793    src/html/view-sandbox.html
-     794–811    src/html/view-data.html
-     812–823    src/html/view-reference.html
-     824–832    src/html/view-snippets.html
-     833–844    src/html/view-history.html
-     845–909    src/html/view-anon.html
-     910–926    src/html/view-diag.html
-     927–954    src/html/view-ai.html
-     955–987    src/html/view-agent.html
-     988–1000   src/html/view-compare.html
-    1001–1012   src/html/view-docs.html
-    1013–1019   src/html/view-help.html
-    1020–1026   src/html/view-selftest.html
-    1027–1035   src/html/shell-bottom.html
-    1037–1307   DEV.md
-    1310–1494   build.mjs
-    1495–1773   test/e2e.mjs
-    1774–1996   test/stress.mjs
-    1997–2010   vendor/codemirror.entry.js
-    2011–2015   vendor/duckdb.entry.js
-    2018–2033   vendor/codemirror.bundle.js
-    2036–2122   vendor/duckdb.bundle.js
-    2125–2127   vendor/duckdb-eh.wasm.gz.b64
-    2131–2569   src/js/core/zip-mashup.js
-    2570–2914   src/js/core/vba.js
-    2915–3011   src/js/core/xlsx-data.js
-    3012–3284   src/js/m/lang.js
-    3285–3347   src/js/m/format.js
-    3348–3732   src/js/m/reference.js
-    3733–4618   src/js/m/interp.js
-    4619–5225   src/js/m/sql.js
-    5226–5746   src/js/nda/anon.js
-    5747–5883   src/js/nda/diag.js
-    5884–6304   src/js/opt/lint.js
-    6305–6615   src/js/opt/optimizer.js
-    6616–6702   src/js/opt/refactor.js
-    6703–6850   src/js/opt/snippets.js
-    6851–6919   src/js/app/state.js
-    6920–7012   src/js/app/data.js
-    7013–7096   src/js/app/duck.js
-    7097–7401   src/js/app/hzkit.js
-    7402–7639   src/js/nda/agent.js
-    7640–7731   src/js/app/ui-base.js
-    7732–7910   src/js/app/storage.js
-    7911–7947   src/js/app/hints.js
-    7948–8172   src/js/app/shell.js
-    8173–8266   src/js/views/home.js
-    8267–8694   src/js/views/editor.js
-    8695–8952   src/js/views/optimizer.js
-    8953–9036   src/js/views/graph.js
-    9037–9152   src/js/views/sandbox.js
-    9153–9374   src/js/views/data.js
-    9375–9575   src/js/views/model.js
-    9576–9690   src/js/views/speedup.js
-    9691–10092  src/js/views/hyper.js
-   10093–10123  src/js/views/reference.js
-   10124–10161  src/js/views/snippets.js
-   10162–10182  src/js/views/history.js
-   10183–10367  src/js/views/anon.js
-   10368–10434  src/js/views/diag.js
-   10435–10567  src/js/views/ai.js
-   10568–10631  src/js/views/agent.js
-   10632–10658  src/js/views/compare.js
-   10659–10716  src/js/views/docs.js
-   10717–10902  src/js/views/help.js
-   10903–11355  src/js/app/selftest.js
-   11356–11369  src/js/app/main.js
+      91–99     src/html/head.html
+     101–151    src/css/theme.css
+     152–220    src/css/themes.css
+     221–259    src/css/layout.css
+     260–456    src/css/components.css
+     457–515    src/css/editor.css
+     516–567    src/css/hyper.css
+     571–592    src/html/shell-top.html
+     593–658    src/html/view-home.html
+     659–682    src/html/view-model.html
+     683–692    src/html/view-hyper.html
+     693–732    src/html/view-editor.html
+     733–761    src/html/view-optimizer.html
+     762–784    src/html/view-graph.html
+     785–812    src/html/view-sandbox.html
+     813–830    src/html/view-data.html
+     831–842    src/html/view-reference.html
+     843–851    src/html/view-snippets.html
+     852–863    src/html/view-history.html
+     864–928    src/html/view-anon.html
+     929–945    src/html/view-diag.html
+     946–973    src/html/view-ai.html
+     974–1006   src/html/view-agent.html
+    1007–1019   src/html/view-compare.html
+    1020–1031   src/html/view-docs.html
+    1032–1038   src/html/view-help.html
+    1039–1045   src/html/view-selftest.html
+    1046–1054   src/html/shell-bottom.html
+    1056–1328   DEV.md
+    1331–1516   build.mjs
+    1517–1796   test/e2e.mjs
+    1797–2019   test/stress.mjs
+    2020–2172   test/hyperzoom.mjs
+    2173–2186   vendor/codemirror.entry.js
+    2187–2191   vendor/duckdb.entry.js
+    2194–2209   vendor/codemirror.bundle.js
+    2212–2298   vendor/duckdb.bundle.js
+    2301–2303   vendor/duckdb-eh.wasm.gz.b64
+    2307–2745   src/js/core/zip-mashup.js
+    2746–3090   src/js/core/vba.js
+    3091–3187   src/js/core/xlsx-data.js
+    3188–3460   src/js/m/lang.js
+    3461–3523   src/js/m/format.js
+    3524–3908   src/js/m/reference.js
+    3909–4794   src/js/m/interp.js
+    4795–5417   src/js/m/sql.js
+    5418–5938   src/js/nda/anon.js
+    5939–6075   src/js/nda/diag.js
+    6076–6496   src/js/opt/lint.js
+    6497–6807   src/js/opt/optimizer.js
+    6808–6894   src/js/opt/refactor.js
+    6895–7042   src/js/opt/snippets.js
+    7043–7111   src/js/app/state.js
+    7112–7204   src/js/app/data.js
+    7205–7288   src/js/app/duck.js
+    7289–7596   src/js/app/hzkit.js
+    7597–7834   src/js/nda/agent.js
+    7835–7926   src/js/app/ui-base.js
+    7927–8105   src/js/app/storage.js
+    8106–8143   src/js/app/hints.js
+    8144–8370   src/js/app/shell.js
+    8371–8464   src/js/views/home.js
+    8465–8892   src/js/views/editor.js
+    8893–9150   src/js/views/optimizer.js
+    9151–9234   src/js/views/graph.js
+    9235–9350   src/js/views/sandbox.js
+    9351–9572   src/js/views/data.js
+    9573–9773   src/js/views/model.js
+    9774–9888   src/js/views/speedup.js
+    9889–10348  src/js/views/hyper.js
+   10349–10379  src/js/views/reference.js
+   10380–10417  src/js/views/snippets.js
+   10418–10438  src/js/views/history.js
+   10439–10623  src/js/views/anon.js
+   10624–10690  src/js/views/diag.js
+   10691–10823  src/js/views/ai.js
+   10824–10887  src/js/views/agent.js
+   10888–10914  src/js/views/compare.js
+   10915–10972  src/js/views/docs.js
+   10973–11168  src/js/views/help.js
+   11169–11621  src/js/app/selftest.js
+   11622–11635  src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -515,36 +516,54 @@ legend{font-size:12px;color:var(--muted);padding:0 4px}
 /* ===== BEGIN src/css/hyper.css ===== */
 /* Гиперзум: три шага, карта переноса, гонка, витрина */
 .hz-steps-nav{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px}
-.hz-tab{display:flex;gap:10px;align-items:center;border:1px solid var(--border);background:var(--panel);border-radius:var(--radius);padding:9px 14px;cursor:pointer;font:inherit;color:var(--text);text-align:left;flex:1;min-width:220px}
+.hz-tab{display:flex;gap:12px;align-items:center;border:1px solid var(--border);background:var(--panel);border-radius:var(--radius);padding:10px 14px;cursor:pointer;font:inherit;color:var(--text);text-align:left;flex:1;min-width:220px;transition:border-color .15s,background .15s}
+.hz-tab:hover{border-color:var(--accent)}
 .hz-tab.on{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent);background:var(--accent-soft)}
-.hz-n{font-size:22px;color:var(--accent);font-weight:700}.hz-arrow{align-self:center;color:var(--muted)}
-.hz-hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
-.hz-dwrap{position:relative;width:132px;height:132px}.hz-dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.hz-dc b{font-size:26px}.hz-dc span{font-size:11px;color:var(--muted)}
-.hz-big{font-size:19px;font-weight:600;margin-bottom:8px}
-.hz-seg{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:6px 0 8px;background:var(--panel3)}.hz-seg i{display:block;min-width:3px}
-.hz-gains{display:grid;gap:4px}.hz-gain{display:grid;grid-template-columns:44px minmax(90px,28%) 1fr auto;gap:10px;align-items:center;padding:5px 4px;border-bottom:1px solid var(--viz-grid);cursor:pointer;font-size:13px}.hz-gain:hover{background:var(--panel2)}
-.hz-lvl{color:var(--viz-3);letter-spacing:-2px;font-size:15px}.hz-lvl.l0{color:var(--muted)}.hz-lvl.l3{color:var(--viz-2)}
-.hz-q{padding:7px 0;border-bottom:1px dashed var(--border)}.hz-q.on{background:var(--panel2)}.hz-qn{display:flex;gap:8px;align-items:center;margin-bottom:4px;cursor:pointer}
-.hz-chips{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0}.hz-ch{color:var(--muted);margin:0 3px}
-.hz-st{border:1px solid var(--border2);background:var(--panel2);border-radius:6px;padding:2px 9px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--text);border-left-width:4px}
+.hz-n{flex:none;width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;border:2px solid var(--accent);color:var(--accent)}
+.hz-tab.on .hz-n{background:var(--accent);color:#fff}.hz-tab.done .hz-n{border-color:var(--ok);background:var(--ok);color:#fff}
+.hz-arrow{align-self:center;color:var(--muted)}
+.btn.big{padding:9px 18px;font-size:14.5px;font-weight:600}
+.hz-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.hz-hero{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.hz-dwrap{position:relative;width:132px;height:132px}.hz-dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}.hz-dc b{font-size:24px}.hz-dc span{font-size:11px;color:var(--muted)}
+.hz-big{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-.2px}
+.hz-lead{margin:0 0 10px;color:var(--muted);max-width:860px;font-size:13.5px;line-height:1.5}
+.hz-seg{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:6px 0 8px;background:var(--panel3);max-width:860px}.hz-seg i{display:block;min-width:3px}
+.hz-man{border-left:4px solid var(--bad)}
+.hz-gains{display:grid;gap:2px}.hz-gain{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;padding:7px 6px;border-bottom:1px solid var(--viz-grid);cursor:pointer;font-size:13px;border-radius:6px}.hz-gain:hover{background:var(--panel2)}
+.hz-lvl{display:inline-flex;gap:2px;align-items:flex-end;height:18px;margin-top:2px}.hz-lvl i{display:block;width:6px;background:var(--panel3);border-radius:2px}.hz-lvl i:nth-child(1){height:6px}.hz-lvl i:nth-child(2){height:10px}.hz-lvl i:nth-child(3){height:14px}.hz-lvl i:nth-child(4){height:18px}
+.hz-lvl i.on{background:var(--viz-3)}.hz-lvl i.on.l3{background:var(--viz-2)}.hz-lvl i.on.l0{background:var(--muted)}
+.hz-q{padding:8px 6px;border-bottom:1px dashed var(--border);border-radius:6px}.hz-q.on{background:var(--panel2)}.hz-qn{display:flex;gap:8px;align-items:center;margin-bottom:5px}.hz-qn>b{cursor:pointer}
+.hz-chips{display:flex;flex-wrap:wrap;align-items:center;gap:3px 0}.hz-ch{color:var(--muted);margin:0 3px}
+.hz-st{border:1px solid var(--border2);background:var(--panel);border-radius:6px;padding:2px 9px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--text);border-left-width:4px;transition:transform .1s}
+.hz-st:hover{transform:translateY(-1px);border-color:var(--accent)}
 .hz-st.k-sql{border-left-color:var(--ok)}.hz-st.k-claude{border-left-color:var(--violet)}.hz-st.k-source{border-left-color:var(--accent)}.hz-st.k-loader{border-left-color:var(--warn)}.hz-st.k-manual{border-left-color:var(--bad);background:var(--bad-soft)}.hz-st.k-helper{border-left-color:var(--border2);opacity:.75}
-.hz-st.sel{outline:2px solid var(--accent)}
+.hz-st.sel{outline:2px solid var(--accent);outline-offset:1px}
+.hz-inline{margin-top:10px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--panel)}
+.hz-dh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .hz-panes{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:1000px){.hz-panes,.hz-hero{grid-template-columns:1fr}}
-.hz-panes pre.code{max-height:360px}
-.hz-gloss td,.hz-gloss th{vertical-align:top}
-.hz-tv{font-size:26px;font-weight:700;margin:2px 0}.hz-tv.ok{color:var(--ok)}.hz-tv.bad{color:var(--bad)}.hz-tv.acc{color:var(--accent)}
-.hz-race{display:grid;gap:8px}.hz-rr{display:grid;grid-template-columns:minmax(100px,22%) 1fr 64px;gap:12px;align-items:center;cursor:pointer;font-size:13px}
-.hz-rb{font-size:12px;color:var(--muted)}.hz-rb i{display:inline-block;height:9px;border-radius:5px;vertical-align:middle;margin-right:6px}.hz-rb i.pq{background:var(--viz-2)}.hz-rb i.dk{background:var(--viz-1)}
-.hz-rx{font-size:16px;color:var(--accent);text-align:right}
-.hz-calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px}.hz-calc label{display:grid;gap:3px;font-size:12px;color:var(--muted)}.hz-calc input{padding:5px 8px}
+.hz-panes pre.code{max-height:340px}
+.hz-tbl{border-collapse:collapse;width:100%;font-size:13px}.hz-tbl th,.hz-tbl td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}.hz-tbl th{color:var(--muted);font-weight:600;font-size:12px;background:var(--panel2)}.hz-tbl .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hz-ver tr[data-hz-q]{cursor:pointer}.hz-ver tr[data-hz-q]:hover td{background:var(--panel2)}.hz-ver tr.sel td{background:var(--accent-soft)}.hz-ver tr.bad td{background:var(--bad-soft)}
+.hz-start h2{margin-top:0}.hz-how{margin:6px 0 12px;padding-left:20px;line-height:1.6}.hz-how-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0;list-style:none;counter-reset:hz}
+.hz-how-row li{counter-increment:hz;background:var(--panel2);border-radius:var(--radius);padding:10px 12px 10px 44px;position:relative;font-size:13px}.hz-how-row li::before{content:counter(hz);position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:12px}
+@media(max-width:1000px){.hz-how-row{grid-template-columns:1fr}}
+.hz-check{list-style:none;padding:0;margin:0 0 4px;display:grid;gap:6px}.hz-check li{display:flex;gap:8px;align-items:baseline}.hz-check li>span:first-child{width:18px;text-align:center;font-weight:700}.hz-check li.ok>span:first-child{color:var(--ok)}.hz-check li.todo>span:first-child{color:var(--warn)}
+.hz-tiles .tile{position:relative;overflow:hidden}.hz-wow{border-color:var(--accent);background:linear-gradient(135deg,var(--accent-soft),var(--panel) 70%)}
+.hz-tv{font-size:28px;font-weight:700;margin:2px 0;letter-spacing:-.5px;font-variant-numeric:tabular-nums}.hz-tv.ok{color:var(--ok)}.hz-tv.bad{color:var(--bad)}.hz-tv.acc{color:var(--accent)}.hz-wow .hz-tv{font-size:34px}
+.hz-race{display:grid;gap:10px}.hz-rr{display:grid;grid-template-columns:minmax(110px,22%) 1fr 70px;gap:12px;align-items:center;cursor:pointer;font-size:13px}
+.hz-rb{font-size:11.5px;color:var(--muted);display:grid;gap:3px}.hz-rb div{display:flex;align-items:center;gap:6px}.hz-rb i{display:block;height:10px;border-radius:5px;transition:width .6s ease}.hz-rb i.pq{background:var(--viz-2)}.hz-rb i.dk{background:var(--viz-1)}
+.hz-rx{font-size:17px;color:var(--accent);text-align:right;font-variant-numeric:tabular-nums}
+.hz-scale{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.hz-calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:10px}.hz-calc label{display:grid;gap:3px;font-size:12px;color:var(--muted);min-width:0}.hz-calc input{padding:5px 8px;width:100%;box-sizing:border-box;min-width:0}
 .hz-calc-out{display:flex;gap:26px;flex-wrap:wrap;margin:6px 0}.hz-calc-out div{display:flex;flex-direction:column}.hz-calc-out b{font-size:24px;color:var(--ok)}
-.hz-ver tr[data-hz-q],.hz-ver tr[data-hz-s]{cursor:pointer}.hz-ver tr.sel td{background:var(--accent-soft)}.hz-ver tr.bad td{background:var(--bad-soft)}
+.hz-next{display:flex;gap:14px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin:4px 0 18px;color:var(--muted);font-size:13px}
 .hz-flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:6px 0 12px}.hz-fa{align-self:center;color:var(--muted);font-size:20px}
 .hz-fbox{border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;min-width:150px;background:var(--panel2);display:flex;flex-direction:column;gap:2px;font-size:12.5px}.hz-fbox b{margin-bottom:3px}
 .hz-fbox.acc{border-color:var(--accent);background:var(--accent-soft)}.hz-fbox.ok{border-color:var(--ok);background:var(--ok-soft)}.hz-fbox.warn{border-color:var(--warn);background:var(--warn-soft)}
-.hz-form{display:grid;gap:8px}.hz-form input[type=text]{width:100%}
+.hz-form{display:grid;gap:8px}.hz-form input[type=text]{width:100%;box-sizing:border-box}
 .hz-runs{width:100%;height:auto}.hz-sb{display:flex;align-items:center;gap:8px;font-size:12px}.hz-sb i{display:inline-block;height:9px;border-radius:5px}
-#hzVzBox.vz{border:1px solid var(--border);border-radius:var(--radius);max-height:620px;overflow:auto}
+#hzVzBox.vz{border:1px solid var(--border);border-radius:var(--radius);max-height:640px;overflow:auto;margin-top:10px}
 /* ===== END src/css/hyper.css ===== */
 </style>
 </head>
@@ -1101,6 +1120,7 @@ node pq-master/build.mjs            # собрать ../pq-master.html
 node pq-master/build.mjs --check    # + разрезка восстанавливает все модули байт в байт
 node pq-master/test/e2e.mjs         # headless Chromium: самотест + сценарии UI (нужен playwright-core)
 node pq-master/test/stress.mjs      # фаззинг ядра, утечки, библиотека M, битые файлы, скорость (только Node)
+node pq-master/test/hyperzoom.mjs   # Гиперзум: перевод M → SQL против настоящего DuckDB (python3 + duckdb)
 ```
 
 Порядок модулей задаёт `MANIFEST` в `build.mjs`; новый файл добавляйте туда. Модули типов `js`,
@@ -1293,15 +1313,16 @@ JSON-патч) в «Ответе ИИ» → «Сверить на данных»
   хранит столбец `__r`. `null = null` истинно в M → `IS NOT DISTINCT FROM`. Типы — макросы `pq_num/pq_date/pq_text…` (ru-RU).
 - **Новый шаг M → SQL.** Функция в `HZ_T` (`m/sql.js`), скалярная — в `HZ_FN`; строка в `HZ_OPS_SRC` (словарь для пользователя:
   новичок в SQL видит «команда PQ → конструкция SQL»). Риски семантики — `HZ_RISKS`, они выводятся комментариями в SQL.
-  Проверка: дифф-тест интерпретатор ↔ настоящий DuckDB (python `duckdb`, см. примечание ниже).
+  Проверка: `test/hyperzoom.mjs` (интерпретатор ↔ настоящий DuckDB).
 - **Приватность.** DuckDB работает в памяти вкладки (CSP: только `wasm-unsafe-eval`, сети нет, автозагрузка расширений выключена).
   Комплект и витрины содержат данные/пути компании и создаются только явным действием (`hzLocalSave`). Наружу (Claude) — только
   обезличенный код через `gate()` (`hzClaude`); ответ возвращается через `restoreTokens`.
 - **Пересборка DuckDB.** `vendor/duckdb.entry.js` + `npm i @duckdb/duckdb-wasm@1.32.0 apache-arrow esbuild`;
   `esbuild … --format=iife --minify` → `vendor/duckdb.bundle.js`; ядро `dist/duckdb-eh.wasm` → `gzip -9` → base64 в `vendor/duckdb-eh.wasm.gz.b64`.
   Блок `Function`-кода Arrow запрещён CSP — векторы строятся через `makeData` (см. `duckLoad`), не `vectorFromArray`.
-- **Дифф-тест** (вне репозитория, 13 запросов, 0 расхождений на последнем прогоне): значения интерпретатора → таблицы настоящего
-  DuckDB (`pip install duckdb==1.4.3`) → тот же SQL → `hzCompare`. Эталон — интерпретатор, поэтому расхождение либо баг перевода, либо баг интерпретатора.
+- **Дифф-тест** `node pq-master/test/hyperzoom.mjs` (нужны python3 и `pip install duckdb==1.4.3`): 13 запросов с типичными операциями,
+  значения интерпретатора → таблицы настоящего DuckDB → тот же SQL → `hzCompare`. Эталон — интерпретатор, поэтому расхождение —
+  баг перевода или интерпретатора. Новую операцию в `HZ_T` добавляйте и сюда.
 - **Не проверено:** `scripts/*.ps1` в настоящем Windows PowerShell и расширение `excel` в `duckdb.exe` (в контейнере нет Windows);
   загрузчики 1С OData и SQL Server; чтение xlsx-справочников в комплекте (диапазоны таблиц).
 <!-- ===== END DEV.md ===== -->
@@ -1370,6 +1391,7 @@ export const MANIFEST = [
   ['file', 'build.mjs'],
   ['file', 'test/e2e.mjs'],
   ['file', 'test/stress.mjs'],
+  ['file', 'test/hyperzoom.mjs'],
   ['file', 'vendor/codemirror.entry.js'],
   ['file', 'vendor/duckdb.entry.js'],
   ['vendor', 'vendor/codemirror.bundle.js'],
@@ -1753,9 +1775,10 @@ await page.waitForTimeout(150); await shot('30-hyper-plan');
 check('Гиперзум ①: оценка переносимости — доля шагов, карта переноса, словарь', hz1.pct >= 90 && hz1.steps >= 6 && hz1.html > 500 && (await page.$$('.hz-st')).length >= 6, JSON.stringify(hz1));
 await page.evaluate(() => { HZ.tab = 'run'; renderHyper(); });
 await page.click('#hzRunBtn'); await page.waitForFunction(() => HZ.run || !HZ.busy, null, { timeout: 120000 }); await page.waitForTimeout(300);
-const hz2 = await page.evaluate(() => ({ items: HZ.run ? HZ.run.items.map(x => x.name + ':' + (x.skip ? 'skip' : x.sqlError ? 'ERR ' + x.sqlError.slice(0, 80) : x.cmp.same ? 'same' : 'DIFF ' + x.cmp.note)) : null, ver: DUCK.ver, ratio: HZ.run && HZ.run.ratio }));
+const hz2 = await page.evaluate(() => ({ items: HZ.run ? HZ.run.items.map(x => x.name + ':' + (x.skip ? 'skip' : x.sqlError ? 'ERR ' + x.sqlError.slice(0, 80) : x.cmp.same ? 'same' : 'DIFF ' + x.cmp.note)) : null, ver: DUCK.ver, ratio: HZ.run && HZ.run.ratio, scale: HZ.scale && { k: HZ.scale.k, rows: HZ.scale.rows, measured: HZ.scale.measured, ratio: +HZ.scale.ratio.toFixed(1), same: HZ.scale.items.every(i => i.pqRows == null || i.pqRows === i.rows) } }));
 await shot('31-hyper-run');
 check('Гиперзум ②: DuckDB запущен в браузере и результаты совпали с Power Query на ваших данных', hz2.items && hz2.items.every(x => /:same$/.test(x)) && /^v1\./.test(hz2.ver), JSON.stringify(hz2));
+check('Гиперзум ②: на маленьких данных сам замеряет обе стороны на объёме ≈ 200 тыс. строк; строки на объёме совпадают', hz2.scale && hz2.scale.measured && hz2.scale.rows >= 100000 && hz2.scale.same && hz2.scale.ratio > 0, JSON.stringify(hz2.scale));
 await page.evaluate(() => { HZ.vz = true; renderHyper(); }); await page.waitForTimeout(200); await shot('32-hyper-vitrina');
 const vz = await page.evaluate(() => ({ charts: document.querySelectorAll('#hzVzBox svg').length, rows: document.querySelectorAll('#hzVzBox table tr').length }));
 check('Гиперзум: витрина для руководителя рисуется из DuckDB (плитки, графики, таблицы)', vz.rows >= 3, JSON.stringify(vz));
@@ -1994,6 +2017,159 @@ const failer = () => { const m = new Map(); return [m, (kind, input, detail) => 
 console.log(violations ? '\nНАРУШЕНИЙ: ' + violations : '\nВсе стресс-проверки пройдены.');
 process.exit(violations ? 1 : 0);
 /* ===== END test/stress.mjs ===== */
+/* ===== BEGIN test/hyperzoom.mjs ===== */
+#!/usr/bin/env node
+/*
+  Гиперзум: сравнительный тест «логика Power Query (интерпретатор Мастера) ↔ настоящий DuckDB».
+  node pq-master/test/hyperzoom.mjs      (нужны python3 и пакет duckdb: pip install duckdb==1.4.3)
+  13 запросов с типичными операциями (типы, фильтры, слияния, группировки, сведение и отмена свёртки,
+  «Заполнить вниз», поиск в справочнике, объединение…): значения шагов до перевода считает интерпретатор,
+  они грузятся в DuckDB, затем выполняется переведённый SQL (hzQuerySql) и результат сверяется (hzCompare).
+  Эталон — интерпретатор: расхождение — это баг перевода или интерпретатора. Код возврата 1 при расхождении.
+*/
+import fs from 'node:fs';
+import vm from 'node:vm';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const JS = p => fs.readFileSync(path.join(ROOT, 'src/js', p), 'utf8');
+const ctx = vm.createContext({ console, TextEncoder, TextDecoder, crypto, performance, setTimeout, atob, btoa });
+vm.runInContext(['core/zip-mashup.js', 'core/xlsx-data.js', 'm/lang.js', 'm/reference.js', 'm/interp.js', 'm/sql.js'].map(JS).join('\n') +
+  '\n;globalThis.X = { analyzeSection, hzPlan, hzQuerySql, hzCompare, mRunSteps, MTab, MDate, force, mToText, HZ_MACROS, setData: v => { M_DATA = v; } };', ctx);
+const X = ctx.X;
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'hz-'));
+const RUN_PY = "import json, sys, duckdb, datetime\njob = json.load(open(sys.argv[1], encoding='utf8'))\ncon = duckdb.connect()\ncon.execute(job['macros'])\ndef conv(v, t):\n    if v is None: return None\n    if isinstance(v, dict) and 'err' in v: return None\n    if isinstance(v, dict) and 'd' in v: return datetime.datetime.fromisoformat(v['d'])\n    return v\nout = {}\nfor L in job['loads']:\n    cols = L['cols']; types = L['types']\n    con.execute('CREATE OR REPLACE TABLE ' + json.dumps(L['name'], ensure_ascii=False) + ' (' + ', '.join(json.dumps(c, ensure_ascii=False) + ' ' + t for c, t in zip(cols, types)) + ')')\n    if L['rows']:\n        con.executemany('INSERT INTO ' + json.dumps(L['name'], ensure_ascii=False) + ' VALUES (' + ','.join('?' * len(cols)) + ')', [[conv(v, t) for v, t in zip(r, types)] for r in L['rows']])\nfor name, sql in job['sqls']:\n    try:\n        con.execute(sql)\n        rel = con.execute('SELECT * FROM ' + json.dumps(name, ensure_ascii=False) + ' ORDER BY __r')\n        cols = [d[0] for d in rel.description]\n        rows = []\n        for r in rel.fetchall():\n            rr = []\n            for v in r:\n                if isinstance(v, (datetime.date, datetime.datetime)): rr.append({'d': v.isoformat()})\n                elif hasattr(v, 'is_finite'): rr.append(float(v))\n                else: rr.append(v)\n            rows.append(rr)\n        out[name] = {'cols': cols, 'rows': rows}\n    except Exception as e:\n        out[name] = {'error': str(e)[:400]}\njson.dump(out, open(sys.argv[2], 'w', encoding='utf8'), ensure_ascii=False, default=str)\n";
+fs.writeFileSync(path.join(TMP, 'run.py'), RUN_PY);
+
+const P = ['Дата', 'Счёт', 'Сумма', 'Контрагент', 'ЦФО', 'Теги'];
+const prov = [];
+const names = ['ООО Ромашка', ' ип иванов ', 'ООО Лютик', null, 'АО Василёк'];
+for (let i = 0; i < 400; i++) prov.push([(1 + i % 28) + '.' + (1 + i % 12) + '.2024', String([90, 44, 26, 51, 60][i % 5]), (i % 7 === 0 ? '-' : '') + (i * 13 % 1000) + ',' + (i % 100), names[i % 5], i % 10 === 0 ? 'ЦФО-' + (i % 3) : null, i % 3 ? 'a;b;c' : 'x']);
+const wb = [
+  { name: 'Проводки', cols: P, rows: prov },
+  { name: 'Маппинг', cols: ['Код', 'Статья', 'Группа'], rows: [[90, 'Выручка', 'Доходы'], [44, 'Аренда', 'Расходы'], [26, 'Зарплата', 'Расходы'], [60, 'Поставщики', null]] },
+  { name: 'План', cols: ['Статья', 'Янв', 'Фев', 'Мар'], rows: [['Выручка', 100, 200, null], ['Аренда', -50, -50, -50], ['Зарплата', -10, null, -30]] }
+];
+const sec = `section Section1;
+shared Порог = 100 meta [IsParameterQuery=true, Type="Number"];
+shared Проводки = let
+    Источник = Excel.CurrentWorkbook(){[Name="Проводки"]}[Content],
+    Типы = Table.TransformColumnTypes(Источник, {{"Дата", type date}, {"Счёт", Int64.Type}, {"Сумма", type number}}),
+    Заполнено = Table.FillDown(Типы, {"ЦФО"}),
+    НеПустые = Table.SelectRows(Заполнено, each [Сумма] <> 0 and [Контрагент] <> null),
+    Очищено = Table.TransformColumns(НеПустые, {{"Контрагент", each Text.Upper(Text.Trim(_)), type text}}),
+    Месяц = Table.AddColumn(Очищено, "Месяц", each Date.StartOfMonth([Дата]), type date),
+    Год = Table.AddColumn(Месяц, "Год", each Date.Year([Дата]), Int64.Type),
+    Знак = Table.AddColumn(Год, "Знак", each if [Сумма] > Порог then "крупная" else if [Сумма] < 0 then "минус" else null),
+    Округл = Table.AddColumn(Знак, "Округл", each Number.Round([Сумма] / 3, 2)),
+    Замена = Table.ReplaceValue(Округл, "ООО", "О", Replacer.ReplaceText, {"Контрагент"}),
+    Сорт = Table.Sort(Замена, {{"Дата", Order.Descending}, {"Счёт", Order.Ascending}})
+in
+    Сорт;
+shared ОПиУ = let
+    Слияние = Table.NestedJoin(Проводки, {"Счёт"}, Маппинг, {"Код"}, "М", JoinKind.LeftOuter),
+    Развернуть = Table.ExpandTableColumn(Слияние, "М", {"Статья", "Группа"}, {"Статья", "Группа"}),
+    Итоги = Table.Group(Развернуть, {"Группа", "Месяц"}, {{"Сумма", each List.Sum([Сумма]), type number}, {"Строк", each Table.RowCount(_), Int64.Type}, {"Средняя", each List.Average([Сумма])}, {"Первый", each List.First([Контрагент])}}),
+    Сорт = Table.Sort(Итоги, {"Группа", "Месяц"})
+in
+    Сорт;
+shared Маппинг = Excel.CurrentWorkbook(){[Name="Маппинг"]}[Content];
+shared Нормализация = let
+    Источник = Excel.CurrentWorkbook(){[Name="План"]}[Content],
+    Длинная = Table.UnpivotOtherColumns(Источник, {"Статья"}, "Месяц", "План"),
+    Назад = Table.Pivot(Длинная, List.Distinct(Длинная[Месяц]), "Месяц", "План", List.Sum)
+in
+    Назад;
+shared Длинная = let
+    Источник = Excel.CurrentWorkbook(){[Name="План"]}[Content],
+    Длинная = Table.Unpivot(Источник, {"Янв", "Фев"}, "Месяц", "План")
+in
+    Длинная;
+shared Дубли = let
+    Источник = Проводки,
+    ПоСчёту = Table.Distinct(Источник, {"Счёт"}),
+    Колонки = Table.SelectColumns(ПоСчёту, {"Счёт", "Контрагент", "Сумма"}),
+    Индекс = Table.AddIndexColumn(Колонки, "№", 1, 1),
+    Все = Table.Distinct(Table.SelectColumns(Проводки, {"Счёт", "Год"}))
+in
+    Индекс;
+shared Срез = let
+    Первые = Table.FirstN(Проводки, 30),
+    Пропуск = Table.Skip(Первые, 5),
+    Последние = Table.LastN(Пропуск, 10),
+    Переим = Table.RenameColumns(Последние, {{"Контрагент", "Партнёр"}, {"ЦФО", "Подразделение"}}),
+    Удал = Table.RemoveColumns(Переим, {"Теги", "Округл"}),
+    Порядок = Table.ReorderColumns(Удал, {"Сумма", "Счёт"}),
+    Копия = Table.DuplicateColumn(Порядок, "Сумма", "Сумма2"),
+    Обратно = Table.ReverseRows(Копия)
+in
+    Обратно;
+shared Списки = let
+    Коды = List.Buffer(Маппинг[Код]),
+    ЕстьВСправочнике = Table.SelectRows(Проводки, each List.Contains(Коды, [Счёт])),
+    Конкретные = Table.SelectRows(ЕстьВСправочнике, each List.Contains({90, 44}, [Счёт]) or Text.Contains([Контрагент], "ЛЮТ")),
+    Поиск = Table.AddColumn(Конкретные, "Статья", each Маппинг{[Код = [Счёт]]}?[Статья]),
+    Склейка = Table.AddColumn(Поиск, "Ключ", each Text.From([Счёт]) & "-" & Text.Start([Статья] ?? "?", 3))
+in
+    Склейка;
+shared Разделение = let
+    Источник = Table.SelectColumns(Проводки, {"Теги", "Счёт"}),
+    Разд = Table.SplitColumn(Источник, "Теги", Splitter.SplitTextByDelimiter(";", QuoteStyle.Csv), {"Т1", "Т2", "Т3"})
+in
+    Разд;
+shared Анти = let
+    Слияние = Table.NestedJoin(Проводки, {"Счёт"}, Маппинг, {"Код"}, "М", JoinKind.LeftAnti),
+    Развернуть = Table.ExpandTableColumn(Слияние, "М", {"Статья"})
+in
+    Развернуть;
+shared Внутр = let
+    Слияние = Table.NestedJoin(Маппинг, {"Код"}, Проводки, {"Счёт"}, "П", JoinKind.Inner),
+    Агрег = Table.AggregateTableColumn(Слияние, "П", {{"Сумма", List.Sum, "Итого"}, {"Сумма", List.Count, "Число"}})
+in
+    Агрег;
+shared Объединение = let
+    Доп = Table.SelectRows(Проводки, each [Счёт] = 90),
+    Вместе = Table.Combine({Маппинг, Доп}),
+    Различных = Table.Group(Проводки, {"Счёт"}, {{"Контрагентов", each List.Count(List.Distinct([Контрагент]))}, {"Макс", each List.Max([Сумма])}})
+in
+    Вместе;
+shared Итог = Table.Group(Проводки, {}, {{"Всего", each List.Sum([Сумма])}, {"Строк", each Table.RowCount(_)}});
+`;
+
+X.setData({ currentWorkbook: () => wb, file: () => null, folder: () => null });
+const A = X.analyzeSection(sec, {}); const plan = X.hzPlan(A);
+const done = new Map(), loads = [], sqls = [], mres = new Map();
+const enc = v => { try { v = X.force(v); } catch { return { err: 1 }; } if (v instanceof X.MDate) return { d: new Date(v.ms).toISOString().slice(0, 19) }; if (v !== null && typeof v === 'object') return X.mToText(v); return v; };
+const typeOf = (t, i) => { const ks = new Set(); for (const r of t.rows){ let v; try { v = X.force(r[i]); } catch { continue; } if (v === null) continue; ks.add(typeof v === 'number' ? 'DOUBLE' : typeof v === 'boolean' ? 'BOOLEAN' : v instanceof X.MDate ? (v.kind === 'date' ? 'DATE' : 'TIMESTAMP') : 'VARCHAR'); } return ks.size === 1 ? [...ks][0] : 'VARCHAR'; };
+const toJ = (name, t) => ({ name, cols: t.cols, types: t.cols.map((_, i) => typeOf(t, i)), rows: t.rows.map(r => r.map((v, i) => { const e = enc(v); return typeOf(t, i) === 'VARCHAR' && typeof e === 'number' ? String(e) : e; })) });
+for (const q of plan.queries){
+  if (q.kind !== 'table') continue;
+  const steps = X.mRunSteps(sec, q.name, { queries: done }); const fin = steps[steps.length - 1];
+  if (fin.error){ console.log('ошибка интерпретатора', q.name, fin.error.message); continue; }
+  done.set(q.name, fin.value); mres.set(q.name, fin.value);
+  for (const m of q.mat){ const s = steps.find(x => x.name === m) || steps[steps.length - 1]; loads.push(toJ(q.name + ' · ' + m, s.value)); }
+  sqls.push([q.name, X.hzQuerySql(plan, q)]);
+}
+fs.writeFileSync(path.join(TMP, 'job.json'), JSON.stringify({ macros: X.HZ_MACROS, loads, sqls }));
+try { execFileSync('python3', ['-I', path.join(TMP, 'run.py'), path.join(TMP, 'job.json'), path.join(TMP, 'out.json')], { stdio: ['ignore', 'inherit', 'inherit'] }); }
+catch (e){ console.log('Нужны python3 и пакет duckdb (pip install duckdb==1.4.3):', e.message); process.exit(2); }
+const out = JSON.parse(fs.readFileSync(path.join(TMP, 'out.json'), 'utf8'));
+let bad = 0;
+for (const q of plan.queries){
+  if (q.kind !== 'table' || !mres.has(q.name)) continue;
+  const o = out[q.name];
+  if (!o || o.error){ bad++; console.log('✗', q.name, 'ошибка SQL:', o && o.error); continue; }
+  const b = new X.MTab(o.cols, o.rows.map(r => r.map(v => v && typeof v === 'object' && v.d ? new X.MDate(v.d.length > 10 && !v.d.endsWith('T00:00:00') ? 'datetime' : 'date', Date.parse(v.d + (v.d.length > 10 ? 'Z' : 'T00:00:00Z'))) : v)));
+  const c = X.hzCompare(mres.get(q.name), b); if (!c.same) bad++;
+  console.log(c.same ? '✓' : '✗', q.name, '·', c.note, '· шагов в SQL:', q.sqlSteps);
+}
+fs.rmSync(TMP, { recursive: true, force: true });
+console.log(bad ? 'Расхождений: ' + bad : 'Все запросы совпали (' + mres.size + ').');
+process.exit(bad ? 1 : 0);
+/* ===== END test/hyperzoom.mjs ===== */
 /* ===== BEGIN vendor/codemirror.entry.js ===== */
 import { EditorState, StateEffect, StateField, Compartment, Prec } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightSpecialChars, Decoration, ViewPlugin, hoverTooltip, showTooltip, tooltips } from '@codemirror/view';
@@ -4772,6 +4948,9 @@ const HZ_FN = {
   'Date.ToText': (a, n) => { const o = n.length > 1 ? hzConst(n[1]) : null; if (o != null && typeof o !== 'string') hzNo('Date.ToText с записью параметров'); const f = hzDateFmt(o || 'yyyy-MM-dd'); return 'strftime(' + a[0] + ', ' + hzS(f) + ')'; },
   'DateTime.LocalNow': (a, n, cx) => { cx.risk('now'); return 'current_localtimestamp()'; }, 'DateTime.FixedLocalNow': (a, n, cx) => { cx.risk('now'); return 'current_localtimestamp()'; },
   'Date.IsInCurrentMonth': (a, n, cx) => { cx.risk('now'); return "(date_trunc('month', " + a[0] + ") = date_trunc('month', current_date))"; },
+  '#date': a => 'make_date(CAST(' + a[0] + ' AS BIGINT), CAST(' + a[1] + ' AS BIGINT), CAST(' + a[2] + ' AS BIGINT))',
+  '#datetime': a => 'make_timestamp(CAST(' + a[0] + ' AS BIGINT), CAST(' + a[1] + ' AS BIGINT), CAST(' + a[2] + ' AS BIGINT), CAST(' + a[3] + ' AS BIGINT), CAST(' + a[4] + ' AS BIGINT), CAST(' + a[5] + ' AS DOUBLE))',
+  '#duration': a => 'to_milliseconds(CAST(round(((' + a[0] + ') * 86400 + (' + a[1] + ') * 3600 + (' + a[2] + ') * 60 + (' + a[3] + ')) * 1000) AS BIGINT))',
   'List.Contains': (a, n, cx) => 'COALESCE(' + a[1] + ' IN ' + hzListSql(n[0], cx) + ', FALSE)',
   'List.ContainsAny': (a, n, cx) => 'len(list_intersect(' + hzListArr(n[0], cx) + ', ' + hzListArr(n[1], cx) + ')) > 0',
   'Value.Is': hzNoFn('Value.Is'), 'Record.Field': (a, n, cx) => { if (n[0].k === 'id' && n[0].n === cx.rowVar) return cx.col(hzStr(n[1])); return hzNo('Record.Field не по текущей строке'); }
@@ -5082,6 +5261,7 @@ function hzPlan(A, opts){
   for (const m of A.members) if (m.isParam){ try { let ast = mParse(A.text.slice(m.exprStart, m.exprEnd)); const v = deepForce(evalNode(ast, env)); if (v === null || ['string', 'number', 'boolean'].includes(typeof v) || v instanceof MDate) plan.params.set(m.name, v); } catch { /* параметр-выражение — вручную */ } }
   const qnames = new Set(A.members.map(m => m.name));
   for (const m of hzOrder(A.members)){ const q = hzQueryPlan(A, m, plan, env, qnames); plan.queries.push(q); plan.byName.set(q.name, q); }
+  plan.dims = new Set(plan.queries.flatMap(q => [...(q.rightRefs || [])]));   // справочники: правая сторона слияний и поиска
   const all = plan.queries.flatMap(q => q.steps.filter(s => s.kind !== 'helper'));
   const c = k => all.filter(s => s.kind === k).length;
   plan.stats = { steps: all.length, sql: c('sql') + c('claude'), source: c('source'), loader: c('loader'), manual: c('manual'), queries: plan.queries.filter(q => q.kind === 'table').length };
@@ -5090,7 +5270,7 @@ function hzPlan(A, opts){
   return plan;
 }
 function hzQueryPlan(A, m, plan, env, qnames){
-  const q = { name: m.name, kind: 'table', steps: [], deps: new Set(), load: m.load, out: !m.usedBy.length || !!(m.load && (m.load.sheet || m.load.model)), boundary: -1, mat: [], final: null, status: '', reason: '', risks: new Set(), kitReady: false };
+  const q = { name: m.name, kind: 'table', rightRefs: new Set(), steps: [], deps: new Set(), load: m.load, out: !m.usedBy.length || !!(m.load && (m.load.sheet || m.load.model)), boundary: -1, mat: [], final: null, status: '', reason: '', risks: new Set(), kitReady: false };
   if (m.isFn){ q.kind = 'fn'; q.status = 'manual'; q.reason = 'функция — вызывается из других запросов; такие вызовы переносятся вручную'; return q; }
   if (m.isParam){ q.kind = 'param'; q.status = plan.params.has(m.name) ? 'param' : 'manual'; q.reason = plan.params.has(m.name) ? 'параметр — подставляется в SQL значением' : 'параметр-выражение'; return q; }
   let ast; try { ast = mParse(A.text.slice(m.exprStart, m.exprEnd)); } catch (e){ q.status = 'manual'; q.reason = 'код не разбирается: ' + e.message; return q; }
@@ -5116,6 +5296,15 @@ function hzQueryPlan(A, m, plan, env, qnames){
     },
     consumers(name){ return binds.filter(([nm, ex]) => nm !== name && hzIds(ex, new Set()).has(name)).map(b => b[1]); }
   };
+  // кто справочник: правая таблица NestedJoin/Join, таблица поиска Т{[…]}, список List.Contains — через шаги-буферы до запроса
+  const bnode = new Map(binds);
+  const resolve = (n, depth) => { if (!n || depth > 8) return; if (n.k === 'id'){ if (bnode.has(n.n)) return resolve(bnode.get(n.n), depth + 1); if (A.byName.has(n.n)) q.rightRefs.add(n.n); return; }
+    if (n.k === 'call' && n.f.k === 'id' && /^(Table|List)\.(Buffer|Distinct|StopFolding)$/.test(n.f.n)) return resolve(n.args[0], depth + 1); if (n.k === 'field') return resolve(n.e, depth + 1); };
+  const walk = n => { if (!n || typeof n !== 'object') return; if (Array.isArray(n)) return n.forEach(walk);
+    if (n.k === 'call' && n.f.k === 'id'){ if (['Table.NestedJoin', 'Table.Join'].includes(n.f.n)) resolve(n.args[2], 0); if (n.f.n === 'List.Contains') resolve(n.args[0], 0); }
+    if (n.k === 'item' && n.ix && n.ix.k === 'rec') resolve(n.e, 0);
+    for (const k in n) if (k !== 'k' && n[k] && typeof n[k] === 'object') walk(n[k]); };
+  binds.forEach(([, node]) => walk(node));
   binds.forEach(([name, node], idx) => {
     const fn = node.k === 'call' && node.f.k === 'id' ? node.f.n : node.k === 'field' && node.e.k === 'item' ? '(навигация)' : node.k === 'id' ? '(ссылка)' : null;
     const s = { name, cte: hzCte(name, qnames), fn, op: HZ_OPS.get(fn) || null, kind: '', sql: null, reason: '', risks: [], refs: new Set(), hash: hzHash(JSON.stringify(node)), idx };
@@ -5212,11 +5401,14 @@ function hzCompare(a, b){
   const r = { rowsA: a.rows.length, rowsB: b.rows.length, miss: ca.filter(c => !cb.includes(c)), extra: cb.filter(c => !ca.includes(c)), colsDiff: [], errA: 0, same: false, exact: false, lost: 0, added: 0 };
   const cols = ca.filter(c => cb.includes(c)); const ia = cols.map(c => a.cols.indexOf(c)), ib = cols.map(c => b.cols.indexOf(c));
   for (const row of a.rows) for (const i of ia){ try { force(row[i]); } catch { r.errA++; } }
-  const kA = a.rows.map(row => ia.map(i => hzKey(row[i])).join('\u0001')), kB = b.rows.map(row => ib.map(i => hzKey(row[i])).join('\u0001'));
+  // столбец, который DuckDB хранит текстом (в Power Query там смешанные типы), сравнивается как текст
+  const txt = ib.map(i => { let any = false; for (const row of b.rows){ const v = row[i]; if (v === null || v === undefined) continue; if (typeof v !== 'string') return false; any = true; } return any; });
+  const keyA = (row, j) => { if (!txt[j]) return hzKey(row[ia[j]]); let v; try { v = force(row[ia[j]]); } catch { return 'n'; } return v === null ? 'n' : 's' + (typeof v === 'string' ? v : mToText(v)); };
+  const kA = a.rows.map(row => ia.map((_, j) => keyA(row, j)).join('\u0001')), kB = b.rows.map(row => ib.map(i => hzKey(row[i])).join('\u0001'));
   const cnt = new Map(); for (const k of kA) cnt.set(k, (cnt.get(k) || 0) + 1);
   for (const k of kB){ const c = cnt.get(k); if (c) cnt.set(k, c - 1); else r.added++; }
   for (const c of cnt.values()) r.lost += c;
-  cols.forEach((c, j) => { const m = new Map(); for (const row of a.rows){ const k = hzKey(row[ia[j]]); m.set(k, (m.get(k) || 0) + 1); } let d = 0; for (const row of b.rows){ const k = hzKey(row[ib[j]]); const x = m.get(k); if (x) m.set(k, x - 1); else d++; } if (d) r.colsDiff.push(c); });
+  cols.forEach((c, j) => { const m = new Map(); for (const row of a.rows){ const k = keyA(row, j); m.set(k, (m.get(k) || 0) + 1); } let d = 0; for (const row of b.rows){ const k = hzKey(row[ib[j]]); const x = m.get(k); if (x) m.set(k, x - 1); else d++; } if (d) r.colsDiff.push(c); });
   r.same = !r.miss.length && !r.extra.length && !r.lost && !r.added;
   r.exact = r.same && kA.every((k, i) => k === kB[i]);
   r.note = r.same ? (r.exact ? 'совпадает полностью' : 'совпадает (другой порядок строк)') : r.miss.length || r.extra.length ? 'другие столбцы' + (r.miss.length ? ': нет «' + r.miss.join('», «') + '»' : '') + (r.extra.length ? ': лишние «' + r.extra.join('», «') + '»' : '') : 'строк в PQ ' + r.rowsA + ', в DuckDB ' + r.rowsB + ' · не совпало ' + r.lost + (r.colsDiff.length ? ' · расходятся столбцы: «' + r.colsDiff.join('», «') + '»' : '');
@@ -7318,17 +7510,20 @@ function hzReadme(plan, ok, prep, exts, o){
 /* ---------- Витрина для руководителя ---------- */
 const HZ_VZ_CSS = `.vz{--vz-bg:#f6f7fb;--vz-card:#fff;--vz-ink:#1d2433;--vz-mut:#6b7385;--vz-line:#e3e6ee;--vz-1:#3b6fe0;--vz-2:#e0803b;--vz-pos:#1f9d6b;--vz-neg:#d1495b;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--vz-ink);background:var(--vz-bg)}
 @media (prefers-color-scheme:dark){.vz{--vz-bg:#14171f;--vz-card:#1c2030;--vz-ink:#e8ebf3;--vz-mut:#9aa3b5;--vz-line:#2c3245;--vz-1:#6f98ff;--vz-2:#f2a35e;--vz-pos:#45c491;--vz-neg:#f0707f}}
-.vz *{box-sizing:border-box}.vz-wrap{max-width:1200px;margin:0 auto;padding:20px 16px}.vz h1{font-size:22px;margin:0 0 2px}.vz .vz-sub{color:var(--vz-mut);margin-bottom:16px}
+.vz *{box-sizing:border-box}.vz svg,.vz svg *{stroke:none}.vz svg line{stroke:currentColor}.vz svg text{font-weight:400}.vz-wrap{max-width:1200px;margin:0 auto;padding:20px 16px}.vz h1{font-size:22px;margin:0 0 2px}.vz .vz-sub{color:var(--vz-mut);margin-bottom:16px}
 .vz-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}.vz-tile{background:var(--vz-card);border:1px solid var(--vz-line);border-radius:10px;padding:12px 14px}.vz-tile b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.vz-tile span{color:var(--vz-mut);font-size:12px}
 .vz-sec{background:var(--vz-card);border:1px solid var(--vz-line);border-radius:12px;padding:14px 16px;margin-bottom:16px}.vz-sec h2{font-size:17px;margin:0 0 8px}.vz-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:10px}
 .vz-chart h3{font-size:13px;color:var(--vz-mut);font-weight:600;margin:0 0 4px}.vz svg{width:100%;height:auto;display:block}.vz svg text{fill:var(--vz-mut);font-size:11px}.vz svg .v{fill:var(--vz-ink)}
 .vz-tools{display:flex;gap:8px;align-items:center;margin:6px 0}.vz-tools input{flex:1;max-width:320px;padding:6px 10px;border:1px solid var(--vz-line);border-radius:8px;background:var(--vz-bg);color:var(--vz-ink)}.vz-tools span{color:var(--vz-mut);font-size:12px}
-.vz-tbl{overflow:auto;max-height:480px;border:1px solid var(--vz-line);border-radius:8px}.vz table{border-collapse:collapse;width:100%;font-size:13px}.vz th,.vz td{padding:5px 9px;border-bottom:1px solid var(--vz-line);white-space:nowrap;text-align:left}.vz th{position:sticky;top:0;background:var(--vz-card);cursor:pointer;user-select:none}.vz td.n,.vz th.n{text-align:right;font-variant-numeric:tabular-nums}.vz tr.tot td{font-weight:700;background:var(--vz-bg)}.vz .neg{color:var(--vz-neg)}`;
+.vz-tbl{overflow:auto;max-height:480px;border:1px solid var(--vz-line);border-radius:8px}.vz table{border-collapse:collapse;width:100%;font-size:13px}.vz th,.vz td{padding:5px 9px;border-bottom:1px solid var(--vz-line);white-space:nowrap;text-align:left}.vz th{position:sticky;top:0;background:var(--vz-card);cursor:pointer;user-select:none}.vz td.vz-n,.vz th.vz-n{text-align:right;font-variant-numeric:tabular-nums;color:inherit}.vz tr.vz-tot td{font-weight:700;background:var(--vz-bg)}.vz td.vz-neg{color:var(--vz-neg)}`;
 /** Рисует витрину: плитки-итоги, по каждой таблице — динамика по датам, крупнейшие категории, таблица с поиском и итогами.
     data: { title, built, tables: [{ name, csv }] | [{ name, cols, rows }] } — функция самодостаточна (копируется в файл витрины). */
 function hzVitrinaRender(root, data){
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const fmt = (v, d) => v == null || v === '' ? '' : typeof v === 'number' ? v.toLocaleString('ru-RU', { maximumFractionDigits: d == null ? 2 : d }) : String(v);
+  const MON = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  const dt = v => { const m = /^(\d{4})-(\d{2})-(\d{2})(.*)$/.exec(v == null ? '' : String(v)); return m ? m[3] + '.' + m[2] + '.' + m[1] + (m[4] && !/^ 00:00(:00)?$/.test(m[4]) ? m[4] : '') : fmt(v); };
+  const mon = k => { const m = /^(\d{4})-(\d{2})/.exec(k); return m ? MON[+m[2] - 1] + ' ' + m[1].slice(2) : k; };
   const big = v => { const a = Math.abs(v); return a >= 1e9 ? fmt(v / 1e9, 1) + ' млрд' : a >= 1e6 ? fmt(v / 1e6, 1) + ' млн' : a >= 1e4 ? fmt(v / 1e3, 1) + ' тыс' : fmt(v, 0); };
   const parseCsv = t => { const rows = []; let row = [], cur = '', q = false; for (let i = 0; i < t.length; i++){ const ch = t[i]; if (q){ if (ch === '"'){ if (t[i + 1] === '"'){ cur += '"'; i++; } else q = false; } else cur += ch; continue; } if (ch === '"' && cur === '') q = true; else if (ch === ','){ row.push(cur); cur = ''; } else if (ch === '\n' || ch === '\r'){ if (ch === '\r' && t[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; } else cur += ch; } if (cur !== '' || row.length){ row.push(cur); rows.push(row); } return rows; };
   const reNum = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/, reDate = /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)?$/;
@@ -7349,7 +7544,7 @@ function hzVitrinaRender(root, data){
     if (main >= 0 && di >= 0){
       const by = new Map(); for (const r of t.rows){ const k = String(r[di] || '').slice(0, 7); if (!k) continue; by.set(k, (by.get(k) || 0) + (r[main] || 0)); }
       const ks = [...by.keys()].sort(); if (ks.length >= 2){ const vs = ks.map(k => by.get(k)); const W = 560, H = 200, P = 34; const mx = Math.max(...vs, 0), mn = Math.min(...vs, 0); const y = v => H - 22 - (v - mn) / ((mx - mn) || 1) * (H - 40); const bw = (W - P) / ks.length;
-        charts.push('<div class="vz-chart"><h3>' + esc(t.cols[main]) + ' по месяцам</h3><svg viewBox="0 0 ' + W + ' ' + H + '"><line x1="' + P + '" x2="' + W + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="currentColor" opacity=".25"/>' + ks.map((k, i) => { const v = vs[i], x = P + i * bw + bw * 0.15, yy = Math.min(y(v), y(0)), h = Math.max(1, Math.abs(y(v) - y(0))); return '<rect x="' + x.toFixed(1) + '" y="' + yy.toFixed(1) + '" width="' + (bw * 0.7).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="var(' + (v < 0 ? '--vz-neg' : '--vz-1') + ')"><title>' + esc(k) + ': ' + fmt(v) + '</title></rect>' + (ks.length <= 18 ? '<text x="' + (x + bw * 0.35).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(k.slice(2)) + '</text>' : ''); }).join('') + '<text x="2" y="12">' + esc(big(mx)) + '</text><text x="2" y="' + (H - 24) + '">' + esc(big(mn)) + '</text></svg></div>'); }
+        charts.push('<div class="vz-chart"><h3>' + esc(t.cols[main]) + ' по месяцам</h3><svg viewBox="0 0 ' + W + ' ' + H + '"><line x1="' + P + '" x2="' + W + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="currentColor" opacity=".25"/>' + ks.map((k, i) => { const v = vs[i], x = P + i * bw + bw * 0.15, yy = Math.min(y(v), y(0)), h = Math.max(1, Math.abs(y(v) - y(0))); return '<rect x="' + x.toFixed(1) + '" y="' + yy.toFixed(1) + '" width="' + (bw * 0.7).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="var(' + (v < 0 ? '--vz-neg' : '--vz-1') + ')"><title>' + esc(mon(k)) + ': ' + fmt(v) + '</title></rect>' + (ks.length <= 18 ? '<text x="' + (x + bw * 0.35).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + esc(mon(k)) + '</text>' : ''); }).join('') + '<text x="2" y="12">' + esc(big(mx)) + '</text><text x="2" y="' + (H - 24) + '">' + esc(big(mn)) + '</text></svg></div>'); }
     }
     if (main >= 0 && ci >= 0){
       const by = new Map(); for (const r of t.rows){ const k = r[ci] == null ? '(пусто)' : String(r[ci]); by.set(k, (by.get(k) || 0) + (r[main] || 0)); }
@@ -7365,9 +7560,9 @@ function hzVitrinaRender(root, data){
     if (s.q){ const q = s.q.toLowerCase(); rows = rows.filter(r => r.some(v => v != null && String(v).toLowerCase().includes(q))); }
     if (s.sort >= 0){ const i = s.sort, d = s.desc ? -1 : 1; rows = rows.slice().sort((a, b) => a[i] == null ? 1 : b[i] == null ? -1 : (a[i] < b[i] ? -d : a[i] > b[i] ? d : 0)); }
     const show = rows.slice(0, 300); const tot = t.cols.map((_, i) => t.kinds[i] === 'n' ? rows.reduce((x, r) => x + (r[i] || 0), 0) : null);
-    root.querySelector('[data-tb="' + ti + '"]').innerHTML = '<table><tr>' + t.cols.map((c, i) => '<th class="' + (t.kinds[i] === 'n' ? 'n' : '') + '" data-s="' + i + '">' + esc(c) + (s.sort === i ? (s.desc ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>' +
-      show.map(r => '<tr>' + r.map((v, i) => '<td class="' + (t.kinds[i] === 'n' ? 'n' + (v < 0 ? ' neg' : '') : '') + '">' + esc(fmt(v)) + '</td>').join('') + '</tr>').join('') +
-      (tot.some(x => x != null) ? '<tr class="tot">' + tot.map((v, i) => '<td class="' + (v != null ? 'n' : '') + '">' + (i === 0 && v == null ? 'Итого' : esc(fmt(v))) + '</td>').join('') + '</tr>' : '') + '</table>';
+    root.querySelector('[data-tb="' + ti + '"]').innerHTML = '<table><tr>' + t.cols.map((c, i) => '<th class="' + (t.kinds[i] === 'n' ? 'vz-n' : '') + '" data-s="' + i + '">' + esc(c) + (s.sort === i ? (s.desc ? ' ▼' : ' ▲') : '') + '</th>').join('') + '</tr>' +
+      show.map(r => '<tr>' + r.map((v, i) => '<td class="' + (t.kinds[i] === 'n' ? 'vz-n' + (v < 0 ? ' vz-neg' : '') : '') + '">' + esc(t.kinds[i] === 'd' ? dt(v) : fmt(v)) + '</td>').join('') + '</tr>').join('') +
+      (tot.some(x => x != null) ? '<tr class="vz-tot">' + tot.map((v, i) => '<td class="' + (v != null ? 'vz-n' : '') + '">' + (i === 0 && v == null ? 'Итого' : esc(fmt(v))) + '</td>').join('') + '</tr>' : '') + '</table>';
     root.querySelector('[data-c="' + ti + '"]').textContent = 'строк: ' + rows.length.toLocaleString('ru-RU') + (rows.length > show.length ? ' (показаны первые ' + show.length + ')' : '');
     root.querySelectorAll('[data-tb="' + ti + '"] th').forEach(th => { th.onclick = () => { const i = +th.dataset.s; s.desc = s.sort === i ? !s.desc : false; s.sort = i; draw(ti); }; });
   };
@@ -7919,6 +8114,7 @@ const HINTS = {
   editor: 'Правки применяются к рабочей версии кнопкой «Применить» (Ctrl+Enter), в файл они попадают при сохранении. Ctrl+Space — автодополнение, F1 — справка по функции под курсором. «▦ Данные» — живые данные шага под курсором: строки, столбцы, превью, дубли ключей при слиянии.',
   optimizer: '«Безопасно» — исправление не меняет результат запроса. «Проверьте результат» — зависит от данных. Изменения можно посмотреть заранее, а применённые — отменить кнопкой ↶.',
   graph: 'Стрелка ведёт от запроса-источника к запросу, который его использует. Параметризатор выносит пути, серверы и адреса в запросы-параметры.',
+  hyper: 'Гиперзум переводит запросы Power Query в SQL и считает их в DuckDB — быстрой «машине для отчётов», встроенной в этот файл. Порядок: 1 — что переносится; 2 — тот же результат на ваших данных и замер скорости; 3 — комплект для расчёта по расписанию. Power Query остаётся резервом: правите запросы как обычно, комплект пересоздаёте.',
   model: 'Суть книги с одного взгляда: откуда данные, через какие запросы идут и куда загружаются; толщина связи — объём, ⟳×N — запрос вычисляется N раз за «Обновить всё». Внизу — оценка ускорения по объёмам ваших данных. Наведите на любой элемент — подробности.',
   data: 'Запросы вычисляются на таблицах книги и прикреплённых выгрузках — только в этом браузере. Видно то, чего не видно по коду: дубли ключей в справочниках, строки без пары, потерю сумм, ошибки в ячейках; исправления оптимизатора сверяются до и после.',
   sandbox: 'Выражения и запросы вычисляются прямо в браузере — на таблицах книги и прикреплённых выгрузках (раздел «Проверка на данных»). Шаг с базой данных или веб-источником подмените выгрузкой — CSV, XLSX или таблицей, введённой вручную.',
@@ -8093,6 +8289,8 @@ function commands(){
     if (canRedo()) c('Вернуть изменение', () => histGo(S.histPos + 1), { hk: 'Ctrl+Alt+Y' });
     c('Применить все безопасные исправления оптимизатора', applyAllSafe);
     c('⚡ Ускорить книгу (мастер)', () => openSpeedup());
+    c('🚀 Гиперзум: сверить в DuckDB на данных', () => { showView('hyper'); HZ.tab = 'run'; renderHyper(); hzRun(); });
+    c('🚀 Гиперзум: скачать комплект для DuckDB', () => { showView('hyper'); HZ.tab = 'kit'; renderHyper(); hzKitZip(); });
     if (SPD.last) c('Отчёт об ускорении (последний)', showSpeedReport);
     c('Проверить запросы на данных (локально)', () => { showView('data'); dataRunAll(); });
     if (S.book.family !== 'text') c('Оптимизировать настройки PQ и Excel (подключения, макрос, параметры)', () => { showView('optimizer'); openPqSettings(); });
@@ -9701,7 +9899,7 @@ $('#optSpeedup').onclick = openSpeedup;
    локально по явному действию; наружу (Claude) — только обезличенный код через gate().
    ===================================================================== */
 const HZ = { tab: 'plan', plan: null, planKey: '', selQ: null, selStep: null, run: null, busy: false, progress: '', over: new Map(), counts: new Map(),
-  calc: { min: 60, perDay: 1, days: 21, src: 30 }, scale: null, maint: null, kit: { dir: '', book: '', time: '06:30', sched: true }, vz: false };
+  calc: { min: 60, perDay: 1, days: 21, src: 30 }, scale: null, race: 'scale', maint: null, kit: { dir: '', book: '', time: '06:30', sched: true }, vz: false };
 const HZ_KCLS = { sql: 'ok', claude: 'vio', source: 'acc', loader: 'warn', manual: 'bad', helper: '' };
 const HZ_KLBL = { sql: 'SQL', claude: 'Claude', source: 'источник', loader: 'загрузчик', manual: 'вручную', helper: 'значение' };
 const HZ_KCOL = { sql: 'var(--ok)', claude: 'var(--violet)', source: 'var(--accent)', loader: 'var(--warn)', manual: 'var(--bad)' };
@@ -9735,7 +9933,7 @@ function hzHl(sql){
   return out;
 }
 /** Перенос строк для чтения: FROM, WHERE, GROUP BY… с новой строки */
-const hzPretty = sql => sql.replace(/ (FROM|WHERE|GROUP BY|QUALIFY|LEFT JOIN|RIGHT JOIN|FULL JOIN|ANTI JOIN|JOIN|ON|UNION ALL BY NAME|ORDER BY) /g, '\n  $1 ');
+const hzPretty = sql => sql.replace(/(?<!DISTINCT|LEFT|RIGHT|FULL|ANTI|BY NAME) (FROM|WHERE|GROUP BY|QUALIFY|LEFT JOIN|RIGHT JOIN|FULL JOIN|ANTI JOIN|JOIN|UNION ALL BY NAME) /g, '\n  $1 ');
 function hzDonut(segs, total, size){
   const r = 42, c = 2 * Math.PI * r; let off = 0;
   const arcs = segs.filter(([, n]) => n > 0).map(([k, n]) => { const len = n / (total || 1) * c; const a = '<circle cx="50" cy="50" r="' + r + '" fill="none" stroke="' + HZ_KCOL[k] + '" stroke-width="13" stroke-dasharray="' + len.toFixed(2) + ' ' + (c - len).toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 50 50)"><title>' + HZ_KLBL[k] + ': ' + n + '</title></circle>'; off += len; return a; });
@@ -9744,14 +9942,14 @@ function hzDonut(segs, total, size){
 
 /* ---------- Навигация по шагам ---------- */
 function hzNavHtml(){
-  const P = HZ.plan; const R = HZ.run;
+  const P = HZ.plan, R = HZ.run, Z = HZ.scale;
   const ok = R ? R.items.filter(x => x.cmp && x.cmp.same).length : 0, tot = R ? R.items.filter(x => !x.skip).length : 0;
   const tabs = [
-    ['plan', '①', 'Оценка переносимости', P ? P.stats.pct + '% шагов — автоматически' : ''],
-    ['run', '②', 'DuckDB в браузере', R ? 'совпало ' + ok + ' из ' + tot + ' · ' + hzX(R.ratio) : DUCK.c ? 'DuckDB запущен' : 'сверка на ваших данных'],
-    ['kit', '③', 'Комплект и обслуживание', HZ.maint ? 'журнал: ' + HZ.maint.runs.length + ' запусков' : 'настоящий DuckDB, витрины, расписание']
+    ['plan', '1', 'Оценка', P ? P.stats.pct + '% шагов переводятся сразу' : 'что переносится в SQL', true],
+    ['run', '2', 'Сверка и замер', R ? (ok === tot && tot ? '✓ совпало ' : 'совпало ') + ok + ' из ' + tot + (Z ? ' · быстрее ' + hzX(Z.ratio) : '') : 'DuckDB на ваших данных, прямо здесь', R && ok === tot && tot > 0],
+    ['kit', '3', 'Комплект', HZ.maint ? 'журнал: ' + HZ.maint.runs.length + ' запусков' : 'настоящий DuckDB, витрины, расписание', !!HZ.maint]
   ];
-  return tabs.map(([id, n, t, s]) => '<button class="hz-tab' + (HZ.tab === id ? ' on' : '') + '" data-hz-tab="' + id + '"><span class="hz-n">' + n + '</span><span><b>' + t + '</b><br><span class="small muted">' + escHtml(s) + '</span></span></button>').join('<span class="hz-arrow">→</span>');
+  return tabs.map(([id, n, t, s, done]) => '<button class="hz-tab' + (HZ.tab === id ? ' on' : done ? ' done' : '') + '" data-hz-tab="' + id + '"><span class="hz-n">' + (done && HZ.tab !== id ? '✓' : n) + '</span><span><b>' + t + '</b><br><span class="small muted">' + escHtml(s) + '</span></span></button>').join('<span class="hz-arrow">→</span>');
 }
 function renderHyper(){
   if (!S.book || !S.A) return;
@@ -9764,43 +9962,45 @@ function renderHyper(){
 /* ---------- ① Оценка ---------- */
 function hzPlanHtml(){
   const P = HZ.plan, st = P.stats; const segs = [['sql', st.sql], ['source', st.source], ['loader', st.loader], ['manual', st.manual]];
-  const tq = P.queries.filter(q => q.kind === 'table');
-  const hero = '<div class="card hz-hero"><div class="hz-dwrap">' + hzDonut(segs, st.steps) + '<div class="hz-dc"><b>' + st.pct + '%</b><span>автоматически</span></div></div><div>' +
-    '<div class="hz-big">' + st.pct + '% шагов переводятся в SQL автоматически' + (st.loader ? ', ещё ' + (st.pctWithLoaders - st.pct) + '% — через загрузчики' : '') + '</div>' +
+  const tq = P.queries.filter(q => q.kind === 'table'); const man = tq.flatMap(q => q.manualSteps.map(s => [q, s]));
+  const head = st.pct >= 90 ? 'Книга готова к Гиперзуму' : st.pct >= 60 ? 'Большая часть книги переносится сразу' : 'Перенос частичный — начать можно уже сейчас';
+  const lead = 'Из ' + st.steps + ' шагов в ' + tq.length + ' запросах ' + (st.sql + st.source) + ' переводятся в SQL автоматически' + (st.loader ? ', ещё ' + st.loader + ' — внешние источники (1С OData, SQL Server, веб): в браузере их заменяют ваши выгрузки, в комплекте 1С и SQL Server выгружает загрузчик' : '') + (st.manual ? ', ' + st.manual + ' — вручную или через Claude (в браузере их посчитает Мастер, сверке это не мешает)' : '') + '. Каждый шаг Power Query станет шагом SQL с тем же именем — его легко узнать.';
+  const hero = '<div class="card hz-hero"><div class="hz-dwrap">' + hzDonut(segs, st.steps) + '<div class="hz-dc"><b>' + st.pct + '%</b><span>сразу</span></div></div><div>' +
+    '<div class="hz-big">' + head + '</div><p class="hz-lead">' + escHtml(lead) + '</p>' +
     '<div class="hz-seg">' + segs.filter(x => x[1]).map(([k, n]) => '<i style="flex:' + n + ';background:' + HZ_KCOL[k] + '" title="' + HZ_KLBL[k] + ': ' + n + '"></i>').join('') + '</div>' +
     '<div class="legend">' + segs.map(([k, n]) => '<span><i class="sw" style="background:' + HZ_KCOL[k] + '"></i>' + HZ_KLBL[k] + ': <b>' + n + '</b></span>').join('') + '</div>' +
-    '<p class="small muted" style="margin:8px 0">Запросов: ' + tq.length + ' · шагов: ' + st.steps + '. «Источник» — комплект читает файл сам; «загрузчик» — 1С (OData) или SQL Server, выгрузку сделает PowerShell; «вручную» — в браузере его посчитает Мастер, для комплекта перевод сделаете вы или Claude.</p>' +
-    '<button class="btn pri" data-hz-tab="run">② Проверить на ваших данных в DuckDB →</button></div></div>';
+    '<div class="hz-cta"><button class="btn pri big" data-hz-tab="run">Дальше: сверить на ваших данных →</button><span class="small muted">10–30 секунд · DuckDB работает в этой вкладке, данные никуда не уходят</span></div></div></div>';
+  const manCard = man.length ? '<div class="card hz-man"><div class="card-h"><h2>Осталось перевести: ' + man.length + ' ' + hzPlural(man.length, 'шаг', 'шага', 'шагов') + '</h2><span class="sp"></span><button class="btn" id="hzClaude" title="Скопировать задачу: только обезличенный код, проходит сканер утечек">🤖 Задача для Claude</button><button class="btn" id="hzClaudeIn">📥 Вставить ответ</button></div>' +
+    '<p class="small muted" style="margin:0 0 6px">Сверке и замеру они не мешают: в браузере эти шаги посчитает Мастер. Для комплекта (настоящий DuckDB) нужен SQL — напишите сами или попросите Claude.</p>' +
+    '<ul class="next-list">' + man.map(([q, s]) => '<li><span class="badge bad">вручную</span><b>' + escHtml(q.name) + '</b> › <a href="#" data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '">' + escHtml(s.name) + '</a><span class="small muted">— ' + escHtml(s.reason) + '</span><span class="sp"></span><button class="btn sm" data-hz-man="' + escHtml(q.name + '\u0001' + s.name) + '">✍ Перевести</button></li>').join('') + '</ul></div>' : '';
+  const map = '<div class="card"><div class="card-h"><h2>Карта переноса</h2><span class="small muted">шаги каждого запроса — как в «Примененных шагах»; нажмите шаг: Power Query и SQL рядом</span><span class="sp"></span><span class="legend">' + ['sql', 'source', 'loader', 'manual', 'claude'].map(k => '<span><i class="sw" style="background:' + HZ_KCOL[k] + '"></i>' + HZ_KLBL[k] + '</span>').join('') + '</span></div>' +
+    P.queries.filter(q => q.kind !== 'param').map(q => { const on = HZ.selQ === q.name;
+      return '<div class="hz-q' + (on ? ' on' : '') + '"><div class="hz-qn"><b data-hz-q="' + escHtml(q.name) + '">' + escHtml(q.name) + '</b>' + hzQBadge(q) + (q.out ? '<span class="badge acc" title="загружается на лист или в модель">итоговый</span>' : '') + (P.dims.has(q.name) ? '<span class="badge" title="к нему обращаются слияния и поиск">справочник</span>' : '') + '<span class="sp"></span>' + (q.kind === 'table' ? '<button class="link small" data-hz-sqlall="' + escHtml(q.name) + '">весь SQL</button>' : '') + '</div><div class="hz-chips">' +
+        (q.kind === 'fn' ? '<span class="small muted">' + escHtml(q.reason) + '</span>' : q.steps.filter(s => !s.dead).map(s => '<button class="hz-st k-' + s.kind + (on && HZ.selStep === s.name ? ' sel' : '') + '" data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '" title="' + escHtml((s.op ? s.op.ui + ' → ' + s.op.sql : s.fn || '') + (s.reason ? ' · ' + s.reason : '')) + '">' + escHtml(s.name) + '</button>').join('<span class="hz-ch">›</span>')) + '</div>' +
+        (on && q.kind === 'table' ? '<div class="hz-inline">' + hzDetailBody(q) + '</div>' : '') + '</div>'; }).join('') + '</div>';
   const gains = tq.slice().sort((a, b) => b.gain.level - a.gain.level);
-  const gainCard = '<div class="card"><div class="card-h"><h2>Где ждём выигрыш</h2><span class="small muted">прогноз по операциям запроса; замер — в шаге ②</span></div><div class="hz-gains">' +
-    gains.map(q => '<div class="hz-gain" data-hz-q="' + escHtml(q.name) + '"><span class="hz-lvl l' + q.gain.level + '">' + '▮'.repeat(q.gain.level + 1) + '</span><b>' + escHtml(q.name) + '</b><span class="small muted">' + escHtml(q.gain.text) + '</span>' + hzQBadge(q) + '</div>').join('') + '</div></div>';
-  const map = '<div class="card"><div class="card-h"><h2>Карта переноса</h2><span class="small muted">шаги каждого запроса — как в «Примененных шагах» Power Query; нажмите шаг, чтобы увидеть M и SQL рядом</span><span class="sp"></span><span class="legend">' + ['sql', 'source', 'loader', 'manual', 'claude'].map(k => '<span><i class="sw" style="background:' + HZ_KCOL[k] + '"></i>' + HZ_KLBL[k] + '</span>').join('') + '</span></div>' +
-    P.queries.filter(q => q.kind !== 'param').map(q => '<div class="hz-q' + (HZ.selQ === q.name ? ' on' : '') + '"><div class="hz-qn" data-hz-q="' + escHtml(q.name) + '"><b>' + escHtml(q.name) + '</b>' + hzQBadge(q) + (q.out ? '<span class="badge acc" title="загружается на лист или в модель">итоговый</span>' : '') + '</div><div class="hz-chips">' +
-      (q.kind === 'fn' ? '<span class="small muted">' + escHtml(q.reason) + '</span>' : q.steps.map(s => '<button class="hz-st k-' + s.kind + (HZ.selQ === q.name && HZ.selStep === s.name ? ' sel' : '') + '" data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '" title="' + escHtml((s.op ? s.op.ui + ' → ' + s.op.sql : s.fn || '') + (s.reason ? ' · ' + s.reason : '')) + '">' + escHtml(s.name) + '</button>').join('<span class="hz-ch">›</span>')) + '</div></div>').join('') + '</div>';
-  const det = HZ.selQ && P.byName.get(HZ.selQ) ? hzDetailHtml(P.byName.get(HZ.selQ)) : '';
-  const man = tq.flatMap(q => q.manualSteps.map(s => [q, s]));
-  const manCard = man.length ? '<div class="card"><div class="card-h"><h2>Осталось перевести: ' + man.length + '</h2><span class="small muted">в браузере эти шаги считает Мастер; для комплекта нужен SQL</span><span class="sp"></span><button class="btn" id="hzClaude">🤖 Задача для Claude</button><button class="btn" id="hzClaudeIn">📥 Вставить ответ Claude</button></div>' +
-    '<ul class="next-list">' + man.map(([q, s]) => '<li><span class="badge bad">вручную</span><b>' + escHtml(q.name) + '</b> › <a href="#" data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '">' + escHtml(s.name) + '</a><span class="small muted">— ' + escHtml(s.reason) + '</span><span class="sp"></span><button class="btn sm" data-hz-man="' + escHtml(q.name + '\u0001' + s.name) + '">✍ Перевести вручную</button></li>').join('') + '</ul>' +
-    '<p class="small muted">Задача для Claude содержит только обезличенный код (метки ⟦…⟧) и проходит сканер утечек — значений из данных в ней нет.</p></div>' : '';
+  const gainCard = '<div class="card"><div class="card-h"><h2>Где ждём выигрыш</h2><span class="small muted">прогноз по операциям; замер — на шаге 2</span></div><div class="hz-gains">' +
+    gains.map(q => '<div class="hz-gain" data-hz-q="' + escHtml(q.name) + '"><span class="hz-lvl" title="уровень выигрыша">' + [0, 1, 2, 3].map(i => '<i class="' + (i <= q.gain.level ? 'on l' + q.gain.level : '') + '"></i>').join('') + '</span><div><b>' + escHtml(q.name) + '</b> ' + hzQBadge(q) + '<div class="small muted">' + escHtml(q.gain.text) + '</div></div></div>').join('') + '</div></div>';
   const used = new Set(tq.flatMap(q => q.steps.map(s => s.fn))); const gl = [...HZ_OPS].filter(([f]) => used.has(f));
-  const gloss = gl.length ? '<div class="card"><div class="card-h"><h2>Словарь: команды Power Query → SQL</h2><span class="small muted">только то, что есть в этой книге</span></div><table class="val-table hz-gloss"><tr><th>Команда Power Query</th><th>Функция M</th><th>SQL (DuckDB)</th><th>Что делает</th></tr>' +
-    gl.map(([f, o]) => '<tr><td><b>' + escHtml(o.ui) + '</b></td><td class="mono">' + escHtml(f) + '</td><td class="mono">' + escHtml(o.sql) + '</td><td class="small">' + escHtml(o.note) + '</td></tr>').join('') + '</table></div>' : '';
-  return hero + det + map + '<div class="viz-2col">' + gainCard + gloss + '</div>' + manCard;
+  const gloss = gl.length ? '<div class="card"><div class="card-h"><h2>Словарь: Power Query → SQL</h2><span class="small muted">команды этой книги</span></div><table class="hz-tbl"><tr><th>Команда Power Query</th><th>В SQL</th><th>Что делает</th></tr>' +
+    gl.map(([f, o]) => '<tr><td><b>' + escHtml(o.ui) + '</b><div class="small muted mono">' + escHtml(f) + '</div></td><td class="mono">' + escHtml(o.sql) + '</td><td class="small">' + escHtml(o.note) + '</td></tr>').join('') + '</table></div>' : '';
+  return hero + manCard + map + '<div class="viz-2col">' + gainCard + gloss + '</div>';
 }
+const hzPlural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c; };
 function hzQBadge(q){ const s = HZ_QST[q.status] || ['', q.status]; return '<span class="badge ' + s[0] + '">' + s[1] + '</span>'; }
 function hzStepSqlHtml(q, s){
-  if (s.kind === 'sql' || s.kind === 'claude'){ if (s.fused) return '<p class="small muted">Слияние выполняется вместе со следующим шагом («Развернуть»/«Агрегировать») одним JOIN — см. следующий шаг.</p>'; return '<pre class="code wrap">' + hzHl('-- ' + (s.op ? s.op.ui + ' → ' + s.op.sql : 'перевод') + '\n' + hzQ(s.cte) + ' AS (\n  ' + hzPretty(s.sql) + '\n)') + '</pre>'; }
-  if (s.reader){ const r = hzReader(q, s, { wb: hzWbInfo(), bookPath: HZ.kit.book || 'КНИГА.xlsx', text: S.work }); return r ? '<pre class="code wrap">' + hzHl('-- ' + r.note + '\n' + r.sql) + '</pre>' + (r.prep ? '<p class="small muted">Перед чтением: ' + escHtml(r.prep.kind === 'recode' ? 'перекодировка в UTF-8 (PowerShell)' : r.prep.kind === 'odata' ? 'выгрузка из 1С OData в CSV (PowerShell)' : 'выгрузка из SQL Server в CSV (PowerShell)') + '</p>' : '') : '<p class="small muted">Источник без готового чтения в комплекте.</p>'; }
-  if (s.kind === 'helper') return '<p class="small muted">Значение или список — подставляется прямо в те шаги, где используется.</p>';
-  return '<div class="note bad small"><b>Не переводится автоматически:</b> ' + escHtml(s.reason) + '</div><p class="small muted">В браузере этот шаг посчитает Мастер (по логике Power Query), дальше — DuckDB. Для комплекта нужен SQL: <button class="btn sm" data-hz-man="' + escHtml(q.name + '\u0001' + s.name) + '">✍ Перевести вручную</button></p>';
+  if (s.kind === 'sql' || s.kind === 'claude'){ if (s.fused) return '<p class="small muted">Слияние выполняется вместе со следующим шагом («Развернуть» или «Агрегировать») — одним JOIN. Нажмите следующий шаг.</p>'; return '<pre class="code wrap">' + hzHl('-- ' + (s.op ? s.op.ui + ' → ' + s.op.sql : 'перевод вручную') + '\n' + hzQ(s.cte) + ' AS (\n  ' + hzPretty(s.sql) + '\n)') + '</pre>'; }
+  if (s.reader){ const r = hzReader(q, s, { wb: hzWbInfo(), bookPath: HZ.kit.book || 'КНИГА.xlsx', text: S.work }); return r ? '<pre class="code wrap">' + hzHl('-- ' + r.note + '\n' + r.sql) + '</pre><p class="small muted">' + (r.prep ? 'Перед чтением: ' + escHtml(r.prep.kind === 'recode' ? 'перекодировка в UTF-8 (PowerShell)' : r.prep.kind === 'odata' ? 'выгрузка из 1С OData в CSV (PowerShell)' : 'выгрузка из SQL Server в CSV (PowerShell)') + '. ' : '') + 'В браузере этот шаг считает Мастер, в комплекте — DuckDB читает источник сам.</p>' : '<p class="small muted">Источник без готового чтения в комплекте.</p>'; }
+  if (s.kind === 'helper') return '<p class="small muted">Значение или список — DuckDB подставит его прямо в те шаги, где оно используется.</p>';
+  return '<div class="note bad small"><b>Не переводится автоматически:</b> ' + escHtml(s.reason) + '</div><p class="small muted">В браузере этот шаг посчитает Мастер по логике Power Query, всё после него — DuckDB. Для комплекта нужен SQL: <button class="btn sm" data-hz-man="' + escHtml(q.name + '\u0001' + s.name) + '">✍ Перевести</button></p>';
 }
-function hzDetailHtml(q){
-  if (q.kind !== 'table') return '<div class="card"><h2>' + escHtml(q.name) + '</h2><p class="muted">' + escHtml(q.reason) + '</p></div>';
-  const s = q.steps.find(x => x.name === HZ.selStep) || q.steps.find(x => x.kind !== 'helper') || q.steps[0];
+/** Шаг запроса: Power Query и SQL рядом, пояснение команды и тонкости */
+function hzDetailBody(q){
+  const s = q.steps.find(x => x.name === HZ.selStep && !x.dead) || q.steps.find(x => x.kind !== 'helper') || q.steps[0];
   const risks = s.risks.map(r => '<li>' + escHtml(HZ_RISKS[r]) + '</li>').join('');
-  return '<div class="card hz-detail"><div class="card-h"><h2>«' + escHtml(q.name) + '» › шаг «' + escHtml(s.name) + '»</h2><span class="badge ' + HZ_KCLS[s.kind] + '">' + HZ_KLBL[s.kind] + '</span>' + (s.op ? '<span class="small muted">Power Query: <b>' + escHtml(s.op.ui) + '</b> → SQL: <b>' + escHtml(s.op.sql) + '</b> — ' + escHtml(s.op.note) + '</span>' : '') + '<span class="sp"></span><button class="btn sm" id="hzSqlAll">Весь SQL запроса</button></div>' +
-    '<div class="panes hz-panes"><div><div class="pane-cap">Power Query (M)</div><pre class="code wrap">' + highlightM(hzStepCode(q.name, s.name)) + '</pre></div><div><div class="pane-cap">DuckDB (SQL)</div>' + hzStepSqlHtml(q, s) + '</div></div>' +
-    (risks ? '<div class="note warn small"><b>Обратите внимание:</b><ul style="margin:4px 0 0 18px;padding:0">' + risks + '</ul></div>' : '') + '</div>';
+  return '<div class="hz-dh"><b>Шаг «' + escHtml(s.name) + '»</b><span class="badge ' + HZ_KCLS[s.kind] + '">' + HZ_KLBL[s.kind] + '</span>' + (s.op ? '<span class="small">Power Query: <b>' + escHtml(s.op.ui) + '</b> → SQL: <b>' + escHtml(s.op.sql) + '</b> <span class="muted">— ' + escHtml(s.op.note) + '</span></span>' : '') + '</div>' +
+    '<div class="hz-panes"><div><div class="pane-cap">Power Query (M)</div><pre class="code wrap">' + highlightM(hzStepCode(q.name, s.name)) + '</pre></div><div><div class="pane-cap">DuckDB (SQL)</div>' + hzStepSqlHtml(q, s) + '</div></div>' +
+    (risks ? '<div class="note warn small"><b>Тонкость перевода:</b><ul style="margin:4px 0 0 18px;padding:0">' + risks + '</ul></div>' : '');
 }
 /** Таблицы книги: имя → лист и диапазон (для чтения в комплекте) */
 function hzWbInfo(){
@@ -9809,21 +10009,22 @@ function hzWbInfo(){
   return m;
 }
 
-/* ---------- ② DuckDB в браузере ---------- */
+/* ---------- ② Сверка и замер ---------- */
+const hzProgFn = () => t => { HZ.progress = t; const el = $('#hzProg'); if (el) el.textContent = t; };
 async function hzRun(){
   if (HZ.busy || !S.A) return;
   HZ.busy = true; HZ.progress = ''; HZ.scale = null; renderHyper();
-  const prog = t => { HZ.progress = t; const el = $('#hzProg'); if (el) el.textContent = t; };
+  const prog = hzProgFn();
   try {
     const P = hzEnsure();
     await duckOpen(prog);
-    if (!dataRunValid()){ prog('Эталон: считаю запросы по логике Power Query…'); await tick(); await dataRunAll(); }
+    if (!dataRunValid()){ prog('Эталон: запросы по логике Power Query…'); await tick(); await dataRunAll(); }
     if (!dataRunValid()) throw new Error('не удалось посчитать запросы по логике Power Query — откройте «Проверку на данных»');
     const items = []; const mvals = new Map(); for (const r of DATA.run.queries) if (r.value != null) mvals.set(r.name, r.value);
     for (const q of P.queries){
       if (q.kind !== 'table') continue;
       const ref = DATA.run.queries.find(x => x.name === q.name); const it = { name: q.name, out: q.out, status: q.status, mat: q.mat.length };
-      if (!ref || ref.error || !(ref.value instanceof MTab)){ it.skip = ref && ref.error ? 'нет данных для эталона: ' + ref.error.message : 'результат Power Query — не таблица'; items.push(it); continue; }
+      if (!ref || ref.error || !(ref.value instanceof MTab)){ it.skip = ref && ref.error ? (ref.error.need ? 'нет файла: ' + (ref.error.need.path || '').replace(/^.*[\\/]/, '') : 'ошибка в Power Query') : 'результат — не таблица'; it.skipWhy = ref && ref.error ? ref.error.message : ''; items.push(it); continue; }
       prog('«' + q.name + '»: готовые таблицы…'); await tick();
       const bset = new Set(q.steps.filter(s => s.idx <= q.boundary).map(s => s.name));
       it.pqMs = ref.ms; it.pqSrcMs = ref.steps.filter(s => bset.has(s.name)).reduce((a, s) => a + (s.ms || 0), 0); it.pqTrMs = Math.max(0, it.pqMs - it.pqSrcMs); it.pqRows = ref.value.rows.length;
@@ -9832,9 +10033,9 @@ async function hzRun(){
         if (q.mat.length){ const ov = typeof sbOverrides === 'function' ? sbOverrides(q.name) : { steps: new Map(), queries: new Map() }; vals = mStepValues(S.work, q.name, q.mat, { steps: ov.steps, queries: new Map([...mvals, ...ov.queries]) }); }
         it.matMs = performance.now() - t0; const t1 = performance.now(); it.load = { errs: 0, mixed: [] };
         for (const [n, v] of vals){ if (!(v instanceof MTab)) throw new Error('шаг «' + n + '» — не таблица'); const li = duckLoad(hzMatName(q.name, n), v); it.load.errs += li.errs; it.load.mixed.push(...li.mixed); }
-        it.loadMs = performance.now() - t1;
+        it.loadMs = performance.now() - t1; it.vals = vals;
         prog('«' + q.name + '»: DuckDB…'); await tick();
-        const t2 = performance.now(); duckQuery(hzQuerySql(P, q)); it.duckMs = performance.now() - t2;
+        const sql = hzQuerySql(P, q); duckQuery(sql); const t2 = performance.now(); duckQuery(sql); it.duckMs = performance.now() - t2;   // второй прогон — без разовой подготовки движка
         it.types = duckQuery('DESCRIBE ' + hzQ(q.name)).toArray().map(r => [r.column_name, r.column_type]);
         const dt = duckTab(q.name); it.cmp = hzCompare(ref.value, dt); it.duckRows = dt.rows.length;
       } catch (e){
@@ -9843,63 +10044,112 @@ async function hzRun(){
       }
       items.push(it);
     }
-    const done = items.filter(x => x.duckMs != null && x.cmp);
-    const pq = done.reduce((a, x) => a + x.pqTrMs, 0), dk = done.reduce((a, x) => a + x.duckMs, 0);
+    const done = items.filter(x => x.duckMs != null && x.cmp); const tr = done.filter(x => hzTrans(x.name));
+    const pq = tr.reduce((a, x) => a + x.pqTrMs, 0), dk = tr.reduce((a, x) => a + x.duckMs, 0);
     HZ.run = { planKey: HZ.planKey, forWork: S.work, items, pq, dk, ratio: dk ? pq / dk : 0, at: new Date(), init: DUCK.ms, ver: DUCK.ver };
-    HZ.selQ = HZ.selQ || (items.find(x => x.cmp && !x.cmp.same) || items.find(x => x.out) || {}).name || null;
+    HZ.selQ = (items.find(x => x.cmp && !x.cmp.same) || items.find(x => x.sqlError) || {}).name || null; HZ.selStep = null;
+    // на маленьких данных разницу не видно — сразу замер на объёме ≈ 200 тыс. строк (обе стороны по-настоящему)
+    const big = Math.max(0, ...done.flatMap(it => [...it.vals.values()].map(v => v.rows.length)));
+    if (done.length && big > 0 && big < 50000) await hzScale(0, true);
   } catch (e){ console.error(e); toast('Гиперзум: ' + e.message, 'bad'); }
   finally { HZ.busy = false; HZ.progress = ''; renderHyper(); }
 }
-/** Прогноз на объёме: крупные готовые таблицы размножаются ×k (справочники — нет), DuckDB считает по-настоящему, Power Query — оценка по замеру */
-async function hzScale(k){
-  if (!HZ.run || HZ.busy) return; HZ.busy = true; renderHyper();
-  const P = HZ.plan; const res = [];
+/** У запроса есть преобразования в SQL (а не только чтение источника) — только такие идут в гонку и общий множитель */
+const hzTrans = n => { const q = HZ.plan.byName.get(n); return !!q && q.sqlSteps > 0 && !q.mat.includes(q.final); };
+const hzRepeat = (t, k) => { const rows = new Array(t.rows.length * k); let o = 0; for (let i = 0; i < k; i++) for (const r of t.rows) rows[o++] = r; return new MTab(t.cols, rows); };
+/** Замер на объёме: таблицы-«факты» (не справочники) размножаются ×k, затем те же запросы считают DuckDB и логика Power Query.
+    Обе стороны — настоящий замер (до ~400 тыс. строк); больше — время Power Query пересчитывается по замеру на ваших данных. */
+async function hzScale(k, auto){
+  if (!HZ.run || (HZ.busy && !auto)) return;
+  const prog = hzProgFn();
+  if (!auto){ HZ.busy = true; renderHyper(); }
+  const P = HZ.plan;
   try {
-    const mats = []; for (const q of P.queries) for (const n of q.mat) mats.push(hzMatName(q.name, n));
-    const sizes = new Map(mats.map(t => { try { return [t, duckCount('SELECT * FROM ' + hzQ(t))]; } catch { return [t, 0]; } }));
-    const big = Math.max(...sizes.values(), 0); const grow = mats.filter(t => sizes.get(t) >= Math.max(1, Math.min(1000, big * 0.3)) && sizes.get(t) * k <= 5e6);
-    for (const t of grow){ duckQuery('CREATE OR REPLACE TABLE ' + hzQ(t + '·orig') + ' AS SELECT * FROM ' + hzQ(t)); duckQuery('CREATE OR REPLACE TABLE ' + hzQ(t) + ' AS SELECT x.* FROM ' + hzQ(t + '·orig') + ' AS x, range(' + k + ')'); }
-    for (const it of HZ.run.items){ if (it.duckMs == null || it.sqlError) continue; const q = P.byName.get(it.name); const t0 = performance.now(); duckQuery(hzQuerySql(P, q)); const ms = performance.now() - t0; res.push({ name: it.name, ms, pq: it.pqTrMs * k, rows: duckCount('SELECT * FROM ' + hzQ(it.name)) }); await tick(); }
-    for (const t of grow){ duckQuery('CREATE OR REPLACE TABLE ' + hzQ(t) + ' AS SELECT * FROM ' + hzQ(t + '·orig')); duckQuery('DROP TABLE ' + hzQ(t + '·orig')); }
-    for (const it of HZ.run.items){ if (it.duckMs == null || it.sqlError) continue; duckQuery(hzQuerySql(P, P.byName.get(it.name))); }
-    HZ.scale = { k, items: res, grown: grow.length, rows: grow.reduce((a, t) => a + sizes.get(t) * k, 0) };
-  } catch (e){ toast('Прогноз на объёме: ' + e.message, 'bad'); }
-  finally { HZ.busy = false; renderHyper(); }
+    const items = HZ.run.items.filter(it => it.duckMs != null && !it.sqlError && !it.fallback);
+    const cand = []; for (const it of items) for (const [n, v] of it.vals || []) cand.push({ q: it.name, name: hzMatName(it.name, n), rows: v.rows.length, dim: P.dims.has(it.name) });
+    let facts = cand.filter(c => !c.dim && c.rows); if (!facts.length) facts = cand.filter(c => c.rows);
+    if (!facts.length) throw new Error('нет таблиц, которые можно размножить');
+    const big = Math.max(...facts.map(c => c.rows)); const grow = facts.filter(c => c.rows >= big * 0.3);
+    if (!k) k = Math.max(2, Math.round(200000 / big));
+    k = Math.max(2, Math.min(k, Math.floor(5e6 / big)));
+    const measured = big * k <= 400000;
+    for (const c of grow){ duckQuery('CREATE OR REPLACE TABLE ' + hzQ(c.name + '·orig') + ' AS SELECT * FROM ' + hzQ(c.name)); duckQuery('CREATE OR REPLACE TABLE ' + hzQ(c.name) + ' AS SELECT x.* FROM ' + hzQ(c.name + '·orig') + ' AS x, range(' + k + ')'); }
+    const res = [];
+    try {
+      for (const it of items){ prog('DuckDB на объёме ×' + k.toLocaleString('ru-RU') + ': «' + it.name + '»…'); await tick(); const sql = hzQuerySql(P, P.byName.get(it.name)); const t0 = performance.now(); duckQuery(sql); res.push({ name: it.name, ms: performance.now() - t0, rows: duckCount('SELECT * FROM ' + hzQ(it.name)) }); }
+    } finally {
+      for (const c of grow){ duckQuery('CREATE OR REPLACE TABLE ' + hzQ(c.name) + ' AS SELECT * FROM ' + hzQ(c.name + '·orig')); duckQuery('DROP TABLE IF EXISTS ' + hzQ(c.name + '·orig')); }
+      for (const it of items) duckQuery(hzQuerySql(P, P.byName.get(it.name)));
+    }
+    if (measured){
+      const done = new Map(); for (const r of DATA.run.queries) if (r.value != null) done.set(r.name, r.value);
+      for (const it of items){
+        const q = P.byName.get(it.name); const r = res.find(x => x.name === it.name); const m = S.A.byName.get(it.name);
+        const scaled = new Map(); for (const [n, v] of it.vals){ scaled.set(n, grow.some(c => c.name === hzMatName(it.name, n)) ? hzRepeat(v, k) : v); }
+        if (!m || !m.steps){ const v = scaled.get(q.final); if (v) done.set(it.name, v); r.pq = 0; r.pqRows = v ? v.rows.length : null; continue; }   // запрос из одного выражения — только источник
+        prog('Power Query на объёме ×' + k.toLocaleString('ru-RU') + ': «' + it.name + '»…'); await tick();
+        const after = new Set(q.steps.filter(s => s.idx > q.boundary).map(s => s.name)); after.add('in → результат');
+        const rr = mRunSteps(S.work, it.name, { steps: scaled, queries: done }); const fin = rr[rr.length - 1];
+        if (fin.value != null) done.set(it.name, fin.value);
+        r.pq = rr.filter(s => after.has(s.name)).reduce((a, s) => a + (s.ms || 0), 0); r.pqRows = fin.value instanceof MTab ? fin.value.rows.length : null;
+      }
+    } else for (const r of res){ const it = items.find(x => x.name === r.name); r.pq = it.pqTrMs * k; r.est = true; }
+    const rt = res.filter(r => hzTrans(r.name)); const pq = rt.reduce((a, r) => a + r.pq, 0), dk = rt.reduce((a, r) => a + r.ms, 0);
+    HZ.scale = { k, items: res, grown: grow.length, rows: grow.reduce((a, c) => a + c.rows * k, 0), measured, auto: !!auto, pq, dk, ratio: dk ? pq / dk : 0 };
+    HZ.race = 'scale';
+  } catch (e){ console.error(e); toast('Замер на объёме: ' + e.message, 'bad'); }
+  finally { if (!auto){ HZ.busy = false; HZ.progress = ''; renderHyper(); } }
+}
+function hzRunStartHtml(){
+  const wb = DATA.wb ? DATA.wb.tables.length + DATA.wb.names.length : 0, files = DATA.files.size + [...DATA.folders.values()].reduce((a, x) => a + x.length, 0);
+  const needs = typeof dataNeeds === 'function' ? dataNeeds() : new Map();
+  const row = (ok, t, s) => '<li class="' + (ok ? 'ok' : 'todo') + '"><span>' + (ok ? '✓' : '•') + '</span><b>' + t + '</b> <span class="small muted">' + s + '</span></li>';
+  return '<div class="card hz-start"><h2>Сверим и замерим на ваших данных</h2>' +
+    '<ol class="hz-how"><li><b>Эталон.</b> Мастер считает каждый запрос по логике Power Query.</li><li><b>DuckDB.</b> Тот же запрос считается по переведённому SQL — в этой вкладке.</li><li><b>Сверка.</b> Результаты сравниваются построчно; на маленьких данных Мастер сам замерит скорость на объёме ≈ 200 тыс. строк.</li></ol>' +
+    '<ul class="hz-check">' + row(S.book.family !== 'excel' || wb > 0 || !!DATA.wb, 'Таблицы книги', wb ? 'прочитано: ' + wb : 'прочитаются сами при запуске') +
+    row(!needs.size, 'Выгрузки, которые читают запросы', (files ? 'прикреплено файлов: ' + files : 'не прикреплены') + (needs.size ? ' · не хватает: ' + needs.size + ' — <a href="#" data-hz-go="data">прикрепить в «Проверке на данных»</a>' : !files ? ' · если запросы читают CSV/Excel — <a href="#" data-hz-go="data">прикрепите</a>' : '')) +
+    row(true, 'DuckDB', 'встроен в этот файл, запуск ≈ 2 с') + '</ul>' +
+    '<div class="hz-cta"><button class="btn pri big" id="hzRunBtn"' + (HZ.busy ? ' disabled' : '') + '>' + (HZ.busy ? '⏳ <span id="hzProg">' + escHtml(HZ.progress || 'Считаю…') + '</span>' : '▶ Запустить сверку') + '</button><span class="small muted">🔒 Данные не покидают эту вкладку: сеть запрещена, DuckDB работает в памяти.</span></div></div>';
 }
 function hzRunHtml(){
-  const R = HZ.run; const ds = typeof dataSummaryText === 'function' ? dataSummaryText() : '';
-  const intro = '<div class="card"><div class="card-h"><h2>DuckDB в браузере</h2><span class="small muted">' + (DUCK.c ? 'DuckDB ' + escHtml(DUCK.ver) + ' · запуск ' + hzMs(DUCK.ms) : 'встроен в файл, запускается по кнопке') + '</span><span class="sp"></span>' +
-    '<button class="btn pri" id="hzRunBtn"' + (HZ.busy ? ' disabled' : '') + '>' + (HZ.busy ? '⏳ <span id="hzProg">' + escHtml(HZ.progress || 'Считаю…') + '</span>' : R ? '↻ Пересчитать и сверить' : '▶ Запустить DuckDB и сверить с Power Query') + '</button></div>' +
-    '<p class="small muted" style="margin:0">Каждый запрос считается двумя способами на ваших данных: логикой Power Query (Мастер) и в DuckDB по переведённому SQL — и результаты сравниваются построчно. Тот же SQL потом работает в комплекте. 🔒 Данные не покидают эту вкладку: сеть запрещена, DuckDB работает в памяти.</p>' +
-    '<p class="small" style="margin:6px 0 0">Данные: ' + escHtml(ds) + (!DATA.files.size && !DATA.folders.size ? ' · <a href="#" data-hz-go="data">прикрепить выгрузки в «Проверке на данных»</a>' : '') + '</p></div>';
-  if (!R) return intro;
-  const items = R.items; const ok = items.filter(x => x.cmp && x.cmp.same).length, tot = items.filter(x => !x.skip).length;
-  const sumPq = items.reduce((a, x) => a + (x.pqMs || 0), 0), sumDk = items.reduce((a, x) => a + (x.duckMs || 0) + (x.matMs || 0) + (x.loadMs || 0), 0);
-  const tiles = '<div class="tiles">' +
-    '<div class="tile"><div class="small muted">Сверка с Power Query</div><div class="hz-tv ' + (ok === tot ? 'ok' : 'bad') + '">' + ok + ' из ' + tot + '</div><div class="small muted">запросов совпали' + (items.some(x => x.skip) ? ' · без данных: ' + items.filter(x => x.skip).length : '') + '</div></div>' +
-    '<div class="tile"><div class="small muted">Преобразования быстрее</div><div class="hz-tv acc">' + hzX(R.ratio) + '</div><div class="small muted">' + hzMs(R.pq) + ' → ' + hzMs(R.dk) + '</div></div>' +
-    '<div class="tile"><div class="small muted">Весь расчёт в браузере</div><div class="hz-tv">' + hzMs(sumDk) + '</div><div class="small muted">логика PQ: ' + hzMs(sumPq) + ' (вместе с источниками)</div></div>' +
-    '<div class="tile"><div class="small muted">DuckDB</div><div class="hz-tv">' + escHtml(R.ver || '') + '</div><div class="small muted">запуск движка ' + hzMs(R.init) + ', один раз</div></div></div>';
-  const mx = Math.max(1, ...items.map(x => Math.max(x.pqTrMs || 0, x.duckMs || 0)));
-  const race = '<div class="card"><div class="card-h"><h2>Гонка: преобразования Power Query против DuckDB</h2><span class="small muted">одни и те же шаги, ваши данные; источники одинаковые и не входят</span><span class="sp"></span><span class="legend"><i class="sw" style="background:var(--viz-2)"></i>логика Power Query <i class="sw" style="background:var(--viz-1)"></i>DuckDB</span></div><div class="hz-race">' +
-    items.filter(x => x.duckMs != null).map(x => '<div class="hz-rr" data-hz-q="' + escHtml(x.name) + '"><span class="hz-rl">' + escHtml(x.name) + '</span><div class="hz-rb"><i class="pq" style="width:' + Math.max(0.5, (x.pqTrMs || 0) / mx * 100).toFixed(1) + '%"></i><span>' + hzMs(x.pqTrMs) + '</span><br><i class="dk" style="width:' + Math.max(0.5, x.duckMs / mx * 100).toFixed(1) + '%"></i><span>' + hzMs(x.duckMs) + '</span></div><b class="hz-rx">' + hzX(x.pqTrMs / x.duckMs) + '</b></div>').join('') + '</div>' +
-    (R.pq < 200 ? '<p class="note small">На маленьких данных разницы почти нет: DuckDB тратит на запуск каждого запроса единицы миллисекунд. Выигрыш растёт с объёмом — проверьте на объёме ниже.</p>' : '') +
-    '<div class="row" style="gap:8px;margin-top:8px"><span class="small muted">Прогноз на объёме:</span>' + [10, 100, 1000].map(k => '<button class="btn sm" data-hz-scale="' + k + '"' + (HZ.busy ? ' disabled' : '') + '>×' + k + '</button>').join('') + '<span class="small muted">крупные таблицы размножаются в DuckDB по-настоящему; время Power Query — оценка по замеру</span></div>' +
-    (HZ.scale ? '<table class="val-table" style="margin-top:8px"><tr><th>Запрос</th><th class="num">строк</th><th class="num">Power Query (оценка)</th><th class="num">DuckDB (замер)</th><th class="num">быстрее</th></tr>' + HZ.scale.items.map(s => '<tr><td>' + escHtml(s.name) + '</td><td class="num">' + fmtN(s.rows) + '</td><td class="num">' + hzMs(s.pq) + '</td><td class="num">' + hzMs(s.ms) + '</td><td class="num"><b>' + hzX(s.pq / s.ms) + '</b></td></tr>').join('') + '</table><p class="small muted">×' + HZ.scale.k + ': размножено таблиц — ' + HZ.scale.grown + ' (≈ ' + fmtN(HZ.scale.rows) + ' строк); справочники не размножаются.</p>' : '') + '</div>';
-  const c = HZ.calc; const share = Math.min(95, Math.max(0, c.src)) / 100; const ratio = HZ.scale && HZ.scale.items.length ? HZ.scale.items.reduce((a, s) => a + s.pq, 0) / Math.max(1, HZ.scale.items.reduce((a, s) => a + s.ms, 0)) : R.ratio;
-  const after = c.min * share + c.min * (1 - share) / Math.max(1, ratio); const saved = (c.min - after) * c.perDay * c.days / 60;
-  const calc = '<div class="card"><div class="card-h"><h2>Экономия времени</h2><span class="small muted">для руководителя: сколько часов в месяц перестанет уходить на ожидание</span></div><div class="hz-calc">' +
-    '<label>Сейчас обновление длится, мин <input type="number" min="1" data-hz-calc="min" value="' + c.min + '"></label><label>Обновлений в день <input type="number" min="1" data-hz-calc="perDay" value="' + c.perDay + '"></label><label>Рабочих дней в месяц <input type="number" min="1" data-hz-calc="days" value="' + c.days + '"></label><label>Доля чтения источников, % <input type="number" min="0" max="95" data-hz-calc="src" value="' + c.src + '"></label></div>' +
-    '<div class="hz-calc-out"><div><span class="small muted">будет длиться</span><b>' + (after < 1 ? Math.max(1, Math.round(after * 60)) + ' с' : after.toFixed(1).replace('.', ',') + ' мин') + '</b></div><div><span class="small muted">экономия в месяц</span><b>' + Math.max(0, saved).toFixed(1).replace('.', ',') + ' ч</b></div><div><span class="small muted">ускорение преобразований</span><b>' + hzX(ratio) + '</b></div></div>' +
-    '<p class="small muted">Чтение источников (1С, файлы) DuckDB само не ускоряет — его доля остаётся; загрузка только новых периодов сократит и её. Ускорение — ' + (HZ.scale ? 'по прогнозу на объёме ×' + HZ.scale.k : 'по замеру на ваших данных') + '.</p></div>';
-  const ver = '<div class="card"><div class="card-h"><h2>Сверка результатов</h2><span class="small muted">столбцы — по именам, строки — как набор; числа — до 10 значащих цифр</span></div><table class="val-table hz-ver"><tr><th>Запрос</th><th class="num">строк PQ</th><th class="num">строк DuckDB</th><th>Результат</th><th class="num">PQ</th><th class="num">DuckDB</th><th class="num">×</th></tr>' +
+  const R = HZ.run; if (!R) return hzRunStartHtml();
+  const Z = HZ.scale; const items = R.items; const ok = items.filter(x => x.cmp && x.cmp.same).length, tot = items.filter(x => !x.skip).length;
+  const c = HZ.calc; const ratio = Z ? Z.ratio : R.ratio; const share = Math.min(95, Math.max(0, c.src)) / 100;
+  const after = c.min * share + c.min * (1 - share) / Math.max(1, ratio); const saved = Math.max(0, (c.min - after) * c.perDay * c.days / 60);
+  const head = '<div class="card hz-head"><div class="card-h"><h2>Сверка и замер</h2><span class="small muted">' + escHtml(fmtDateTime(R.at)) + ' · DuckDB ' + escHtml(R.ver || '') + ' · запуск движка ' + hzMs(R.init) + '</span><span class="sp"></span>' +
+    '<button class="btn" id="hzRunBtn"' + (HZ.busy ? ' disabled' : '') + '>' + (HZ.busy ? '⏳ <span id="hzProg">' + escHtml(HZ.progress || 'Считаю…') + '</span>' : '↻ Пересчитать') + '</button></div>' +
+    (ok === tot && tot ? '<div class="note ok small">✓ Все ' + tot + ' ' + hzPlural(tot, 'запрос', 'запроса', 'запросов') + ' дали в DuckDB тот же результат, что Power Query. Этот же SQL будет работать в комплекте.</div>' : '<div class="note warn small">Совпало ' + ok + ' из ' + tot + '. Нажмите строку с «≠» в таблице сверки — Мастер покажет шаг, где начинается расхождение.</div>') +
+    (items.some(x => x.skip) ? '<div class="note small">Без эталона: ' + items.filter(x => x.skip).map(x => '«' + escHtml(x.name) + '» (' + escHtml(x.skip) + ')').join(', ') + ' — <a href="#" data-hz-go="data">прикрепите данные</a> и пересчитайте.</div>' : '') + '</div>';
+  const tiles = '<div class="tiles hz-tiles">' +
+    '<div class="tile"><div class="small muted">Сверка с Power Query</div><div class="hz-tv ' + (ok === tot ? 'ok' : 'bad') + '">' + ok + ' из ' + tot + '</div><div class="small muted">запросов совпали</div></div>' +
+    '<div class="tile hz-wow"><div class="small muted">Преобразования быстрее</div><div class="hz-tv acc">' + hzX(ratio) + '</div><div class="small muted">' + (Z ? 'на объёме ' + fmtN(Z.rows) + ' строк' + (Z.measured ? ', обе стороны — замер' : ', Power Query — оценка') : 'на ваших данных') + '</div></div>' +
+    '<div class="tile"><div class="small muted">Время преобразований</div><div class="hz-tv">' + hzMs(Z ? Z.dk : R.dk) + '</div><div class="small muted">вместо ' + hzMs(Z ? Z.pq : R.pq) + ' по логике Power Query</div></div>' +
+    '<div class="tile"><div class="small muted">Экономия в месяц</div><div class="hz-tv ok">' + saved.toFixed(saved < 10 ? 1 : 0).replace('.', ',') + ' ч</div><div class="small muted">при обновлении ' + c.min + ' мин × ' + c.perDay + ' в день — <a href="#" data-hz-scroll="hzCalc">настроить</a></div></div></div>';
+  const useZ = Z && HZ.race !== 'base';
+  const all = useZ ? Z.items.map(s => ({ name: s.name, pq: s.pq, dk: s.ms, est: s.est, same: s.pqRows == null || s.pqRows === s.rows })) : items.filter(x => x.duckMs != null).map(x => ({ name: x.name, pq: x.pqTrMs, dk: x.duckMs }));
+  const trans = hzTrans;
+  const rows = all.filter(x => trans(x.name)); const idle = all.filter(x => !trans(x.name)).map(x => x.name);
+  const mx = Math.max(1, ...rows.map(x => Math.max(x.pq || 0, x.dk || 0)));
+  const race = '<div class="card"><div class="card-h"><h2>Гонка: Power Query против DuckDB</h2><span class="small muted">одни и те же шаги; чтение источников одинаковое и не входит</span><span class="sp"></span>' +
+    (Z ? '<div class="seg"><button data-hz-race="scale" class="' + (useZ ? 'on' : '') + '">на объёме ×' + Z.k.toLocaleString('ru-RU') + '</button><button data-hz-race="base" class="' + (useZ ? '' : 'on') + '">на ваших данных</button></div>' : '') +
+    '<span class="legend"><i class="sw" style="background:var(--viz-2)"></i>Power Query <i class="sw" style="background:var(--viz-1)"></i>DuckDB</span></div><div class="hz-race">' +
+    rows.map(x => '<div class="hz-rr" data-hz-q="' + escHtml(x.name) + '"><span class="hz-rl">' + escHtml(x.name) + (x.same === false ? ' <span class="badge bad" title="на объёме число строк разошлось">≠</span>' : '') + '</span><div class="hz-rb"><div><i class="pq" style="width:' + Math.max(0.4, (x.pq || 0) / mx * 82).toFixed(1) + '%"></i><span>' + hzMs(x.pq) + (x.est ? ' (оценка)' : '') + '</span></div><div><i class="dk" style="width:' + Math.max(0.4, x.dk / mx * 100).toFixed(1) + '%"></i><span>' + hzMs(x.dk) + '</span></div></div><b class="hz-rx">' + hzX(x.pq / x.dk) + '</b></div>').join('') + '</div>' +
+    (idle.length ? '<p class="small muted" style="margin:8px 0 0">Без преобразований (только чтение источника): ' + idle.map(n => '«' + escHtml(n) + '»').join(', ') + '.</p>' : '') +
+    (!useZ && R.pq < 300 ? '<p class="note small">На маленьких данных разницы почти нет: DuckDB тратит на запуск запроса миллисекунды. Выигрыш растёт с объёмом — посмотрите вкладку «на объёме».</p>' : '') +
+    '<div class="hz-scale"><span class="small muted">Замерить на объёме:</span>' + [10, 100, 1000].map(k => '<button class="btn sm" data-hz-scale="' + k + '"' + (HZ.busy ? ' disabled' : '') + '>×' + k + '</button>').join('') + '<button class="btn sm" data-hz-scale="0"' + (HZ.busy ? ' disabled' : '') + '>≈ 200 тыс. строк</button><span class="small muted">размножаются таблицы-факты, справочники — нет; считают обе стороны</span></div></div>';
+  const ver = '<div class="card"><div class="card-h"><h2>Сверка по запросам</h2><span class="small muted">столбцы — по именам, строки — как набор; числа — до 10 значащих цифр. Нажмите строку — шаги запроса</span></div><table class="hz-tbl hz-ver"><tr><th>Запрос</th><th class="num">строк PQ</th><th class="num">строк DuckDB</th><th>Результат</th><th class="num">PQ</th><th class="num">DuckDB</th></tr>' +
     items.map(x => '<tr data-hz-q="' + escHtml(x.name) + '" class="' + (HZ.selQ === x.name ? 'sel' : '') + '"><td><b>' + escHtml(x.name) + '</b>' + (x.out ? ' <span class="badge acc">итоговый</span>' : '') + '</td><td class="num">' + fmtN(x.pqRows) + '</td><td class="num">' + fmtN(x.duckRows) + '</td><td>' +
-      (x.skip ? '<span class="badge">' + escHtml(x.skip) + '</span>' : x.sqlError ? '<span class="badge bad">ошибка SQL</span> <span class="small">' + escHtml(x.sqlError.split('\n')[0].slice(0, 160)) + '</span>' : x.cmp.same ? '<span class="badge ok">✓ ' + escHtml(x.cmp.note) + '</span>' : '<span class="badge bad">≠</span> <span class="small">' + escHtml(x.cmp.note) + '</span>') +
-      (x.cmp && x.cmp.errA ? ' <span class="small muted" title="в DuckDB ошибок в ячейках нет — такие ячейки пустые">ошибок в ячейках PQ: ' + x.cmp.errA + '</span>' : '') + (x.load && x.load.mixed.length ? ' <span class="small muted">смешанные типы → текст: «' + escHtml(x.load.mixed.slice(0, 3).join('», «')) + '»</span>' : '') + '</td><td class="num">' + hzMs(x.pqTrMs) + '</td><td class="num">' + hzMs(x.duckMs) + '</td><td class="num">' + (x.duckMs ? hzX(x.pqTrMs / x.duckMs) : '—') + '</td></tr>').join('') + '</table></div>';
+      (x.skip ? '<span class="badge" title="' + escHtml(x.skipWhy || '') + '">' + escHtml(x.skip) + '</span>' : x.sqlError ? '<span class="badge bad">ошибка SQL</span> <span class="small">' + escHtml(x.sqlError.split('\n')[0].slice(0, 160)) + '</span>' : x.cmp.same ? '<span class="badge ok">✓ ' + escHtml(x.cmp.note) + '</span>' : '<span class="badge bad">≠</span> <span class="small">' + escHtml(x.cmp.note) + '</span>') +
+      (x.cmp && x.cmp.errA ? ' <span class="small muted" title="в DuckDB ошибок в ячейках нет — такие ячейки пустые">ошибок в ячейках PQ: ' + x.cmp.errA + '</span>' : '') + (x.load && x.load.mixed.length ? ' <span class="small muted">смешанные типы → текст: «' + escHtml(x.load.mixed.slice(0, 3).join('», «')) + '»</span>' : '') + '</td><td class="num">' + hzMs(x.pqTrMs) + '</td><td class="num">' + hzMs(x.duckMs) + '</td></tr>').join('') + '</table></div>';
   const q = HZ.selQ && HZ.plan.byName.get(HZ.selQ); const it = q && items.find(x => x.name === q.name);
   const det = q && it && !it.skip ? hzStepsCmpHtml(q, it) : '';
-  const vz = '<div class="card"><div class="card-h"><h2>Витрина для руководителя</h2><span class="small muted">итоговые таблицы с графиками — из DuckDB, прямо сейчас</span><span class="sp"></span><button class="btn" id="hzVz">' + (HZ.vz ? 'Скрыть' : '👁 Показать витрину') + '</button><button class="btn" id="hzVzDl">⬇ Скачать витрину (HTML)</button></div><div id="hzVzBox"' + (HZ.vz ? '' : ' class="hidden"') + '></div></div>';
-  return intro + tiles + race + '<div class="viz-2col">' + calc + vz + '</div>' + ver + det;
+  const calc = '<div class="card" id="hzCalc"><div class="card-h"><h2>Экономия времени</h2><span class="small muted">для руководителя: сколько часов перестанет уходить на ожидание</span></div><div class="hz-calc">' +
+    '<label>Обновление сейчас, мин<input type="number" min="1" data-hz-calc="min" value="' + c.min + '"></label><label>Обновлений в день<input type="number" min="1" data-hz-calc="perDay" value="' + c.perDay + '"></label><label>Рабочих дней в месяц<input type="number" min="1" data-hz-calc="days" value="' + c.days + '"></label><label>Доля чтения источников, %<input type="number" min="0" max="95" data-hz-calc="src" value="' + c.src + '"></label></div>' +
+    '<div class="hz-calc-out"><div><span class="small muted">будет длиться</span><b>' + (after < 1 ? Math.max(1, Math.round(after * 60)) + ' с' : after.toFixed(1).replace('.', ',') + ' мин') + '</b></div><div><span class="small muted">экономия в месяц</span><b>' + saved.toFixed(1).replace('.', ',') + ' ч</b></div><div><span class="small muted">ускорение преобразований</span><b>' + hzX(ratio) + '</b></div></div>' +
+    '<p class="small muted">Чтение источников (1С, файлы) DuckDB само не ускоряет — эта доля остаётся; загрузка только новых периодов сократит и её. Ускорение — ' + (Z ? 'по замеру на объёме ×' + Z.k.toLocaleString('ru-RU') : 'по замеру на ваших данных') + '.</p></div>';
+  const vz = '<div class="card"><div class="card-h"><h2>Витрина для руководителя</h2><span class="sp"></span><button class="btn" id="hzVz">' + (HZ.vz ? 'Скрыть' : '👁 Показать') + '</button><button class="btn" id="hzVzDl" title="HTML-файл с итоговыми таблицами и графиками — открывается в любом браузере">⬇ Скачать</button></div><p class="small muted" style="margin:0">Итоговые запросы из DuckDB — плитки с итогами, динамика по месяцам, крупнейшие статьи, таблицы с поиском. Тот же вид комплект обновляет по расписанию.</p><div id="hzVzBox"' + (HZ.vz ? '' : ' class="hidden"') + '></div></div>';
+  const next = '<div class="hz-next"><span>' + (ok === tot && tot ? 'Сверка пройдена — можно собирать комплект для настоящего DuckDB.' : 'Комплект можно собрать и сейчас: в него войдут совпавшие запросы.') + '</span><button class="btn pri big" data-hz-tab="kit">Дальше: комплект →</button></div>';
+  return head + tiles + race + ver + det + calc + vz + next;
 }
 /** Шаги запроса: строки в Power Query и в DuckDB по каждому шагу — первое расхождение видно сразу */
 function hzStepsCmpHtml(q, it){
@@ -9908,9 +10158,9 @@ function hzStepsCmpHtml(q, it){
   if (!counts && DUCK.c && !it.sqlError){ counts = new Map(); real.forEach((c, i) => { try { counts.set(c.step, duckCount(hzWith(parts, i) + ' SELECT * FROM ' + c.name)); } catch { counts.set(c.step, null); } }); HZ.counts.set(q.name, counts); }
   let first = null;
   const rows = q.steps.filter(s => s.kind !== 'helper').map(s => { const pr = ref && ref.steps.find(x => x.name === s.name); const a = pr ? pr.rows : null; const b = counts && counts.has(s.name) ? counts.get(s.name) : null; const bad = a != null && b != null && a !== b; if (bad && !first) first = s.name;
-    return '<tr data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '" class="' + (bad ? 'bad' : '') + (HZ.selStep === s.name ? ' sel' : '') + '"><td>' + escHtml(s.name) + '</td><td class="small">' + escHtml(s.op ? s.op.ui : s.fn || '') + '</td><td><span class="badge ' + HZ_KCLS[s.kind] + '">' + HZ_KLBL[s.kind] + '</span></td><td class="num">' + fmtN(a) + '</td><td class="num">' + (b == null ? (s.idx <= q.boundary && !q.mat.includes(s.name) ? '<span class="small muted">до перевода</span>' : '—') : fmtN(b)) + '</td><td>' + (bad ? '≠' : a != null && b != null ? '✓' : '') + '</td></tr>'; });
-  return '<div class="card"><div class="card-h"><h2>«' + escHtml(q.name) + '» по шагам</h2><span class="small muted">строки после каждого шага: Power Query и DuckDB' + (first ? ' · первое расхождение — шаг «' + escHtml(first) + '»' : '') + '</span></div>' +
-    '<table class="val-table hz-ver"><tr><th>Шаг</th><th>Команда PQ</th><th></th><th class="num">строк PQ</th><th class="num">строк DuckDB</th><th></th></tr>' + rows.join('') + '</table>' + hzDetailHtml(q).replace('<div class="card hz-detail">', '<div class="hz-detail" style="margin-top:12px">') + '</div>';
+    return '<tr data-hz-q="' + escHtml(q.name) + '" data-hz-s="' + escHtml(s.name) + '" class="' + (bad ? 'bad' : '') + (HZ.selStep === s.name ? ' sel' : '') + '"><td>' + escHtml(s.name) + '</td><td class="small">' + escHtml(s.op ? s.op.ui : s.fn || '') + '</td><td><span class="badge ' + HZ_KCLS[s.kind] + '">' + HZ_KLBL[s.kind] + '</span></td><td class="num">' + fmtN(a) + '</td><td class="num">' + (b == null ? (s.idx <= q.boundary && !q.mat.includes(s.name) ? '<span class="small muted">считает Мастер</span>' : '—') : fmtN(b)) + '</td><td>' + (bad ? '≠' : a != null && b != null ? '✓' : '') + '</td></tr>'; });
+  return '<div class="card"><div class="card-h"><h2>«' + escHtml(q.name) + '» по шагам</h2><span class="small muted">строки после каждого шага: Power Query и DuckDB' + (first ? ' · <b>первое расхождение — шаг «' + escHtml(first) + '»</b>' : '') + '</span></div>' +
+    '<table class="hz-tbl hz-ver"><tr><th>Шаг</th><th>Команда Power Query</th><th></th><th class="num">строк PQ</th><th class="num">строк DuckDB</th><th></th></tr>' + rows.join('') + '</table><div class="hz-inline">' + hzDetailBody(q) + '</div></div>';
 }
 /** Данные витрины из DuckDB: итоговые запросы, до 50 000 строк */
 function hzVitrinaData(){
@@ -9918,7 +10168,8 @@ function hzVitrinaData(){
   return { title: 'Витрина — ' + S.book.name.replace(/\.[^.]+$/, ''), built: new Date().toLocaleString('ru-RU'), tables: tabs };
 }
 function hzShowVitrina(){ const box = $('#hzVzBox'); if (!box || !DUCK.c) return;
-  if (!$('#hzVzStyle')){ const st = document.createElement('style'); st.id = 'hzVzStyle'; st.textContent = HZ_VZ_CSS; document.head.appendChild(st); } box.classList.add('vz'); box.classList.remove('hidden'); try { hzVitrinaRender(box, hzVitrinaData()); } catch (e){ box.textContent = 'Витрина: ' + e.message; } }
+  if (!$('#hzVzStyle')){ const st = document.createElement('style'); st.id = 'hzVzStyle'; st.textContent = HZ_VZ_CSS; document.head.appendChild(st); }
+  box.classList.add('vz'); box.classList.remove('hidden'); try { hzVitrinaRender(box, hzVitrinaData()); } catch (e){ box.textContent = 'Витрина: ' + e.message; } }
 async function hzLocalSave(what){
   const r = await modal('<h2>Сохранить ' + escHtml(what) + '</h2><p>Файл содержит <b>данные и пути компании</b> (итоги, имена контрагентов, пути к выгрузкам). Он сохраняется только на этот компьютер — как «Сохранить копию» книги. Не пересылайте его наружу.</p>', [['cancel', 'Отмена'], ['ok', 'Сохранить', 'pri']]);
   return r === 'ok';
@@ -9938,12 +10189,13 @@ function hzKitHtml(){
   const flow = '<div class="hz-flow">' + box('Источники', [...new Set(srcs)].concat(!srcs.length ? ['—'] : [])) + '<span class="hz-fa">→</span>' + (loaders.length ? box('Загрузчики PowerShell', [...new Set(loaders)], 'warn') + '<span class="hz-fa">→</span>' : '') +
     box('DuckDB · база.duckdb', tq.filter(q => ok.get(q.name)).map(q => q.name), 'acc') + '<span class="hz-fa">→</span>' + box('Витрины', ['HTML для руководителя', 'Excel: книга читает готовые CSV'], 'ok') + '<span class="hz-fa">→</span>' + box('Расписание', [HZ.kit.sched ? 'каждый день в ' + HZ.kit.time : 'вручную: «Обновить.bat»']) + '</div>';
   const wait = tq.filter(q => !ok.get(q.name));
-  const kit = '<div class="card"><div class="card-h"><h2>Комплект для настоящего DuckDB</h2><span class="small muted">папка: SQL (тот же, что проверен в браузере), скрипты PowerShell, инструкция — нужен только duckdb.exe</span></div>' + flow +
+  const kit = '<div class="card"><div class="card-h"><h2>Комплект для настоящего DuckDB</h2><span class="small muted">папка с SQL (тот же, что прошёл сверку), скриптами и инструкцией — нужен только duckdb.exe</span></div>' +
+    '<ol class="hz-how hz-how-row"><li><b>Скачайте комплект</b> и распакуйте в папку ниже.</li><li><b>Положите duckdb.exe</b> — один файл с duckdb.org (или попросите ИТ).</li><li><b>Запустите «Установить.bat»</b> — проверка, расписание, первое обновление. Дальше — «Обновить.bat» или по расписанию.</li></ol>' + flow +
     '<div class="form-grid hz-form"><label>Папка комплекта на компьютере, где он будет работать<input type="text" data-hz-kit="dir" value="' + escHtml(HZ.kit.dir) + '" placeholder="' + escHtml(o.kitDir) + '"></label>' +
     (tq.some(q => q.mat.some(n => { const s = q.steps.find(x => x.name === n); return s.reader && s.reader.kind === 'wb'; })) ? '<label>Полный путь к этой книге (таблицы-справочники читаются из неё)<input type="text" data-hz-kit="book" value="' + escHtml(HZ.kit.book) + '" placeholder="' + escHtml(o.bookPath) + '"></label>' : '') +
     '<label class="row" style="gap:8px"><input type="checkbox" data-hz-kit="sched"' + (HZ.kit.sched ? ' checked' : '') + '> обновлять по расписанию в <input type="time" data-hz-kit="time" value="' + escHtml(HZ.kit.time) + '" style="width:110px"></label></div>' +
     '<p class="small">В комплекте: <b>' + tq.filter(q => ok.get(q.name)).length + ' из ' + tq.length + '</b> запросов' + (xl ? ' · нужно расширение excel (поставит «Установить.bat»)' : '') + (loaders.length ? ' · загрузчики: ' + loaders.length : '') + (dataRunValid() ? ' · сверка с Power Query при первом запуске' : ' · <span class="muted">сверка появится после «Проверки на данных»</span>') + '</p>' +
-    (wait.length ? '<div class="note warn small">Пока не в комплекте: ' + wait.map(q => '«' + escHtml(q.name) + '»').join(', ') + ' — есть непереведённые шаги (см. ① «Осталось перевести») или зависимость от них. Остальное работает уже сейчас.</div>' : '') +
+    (wait.length ? '<div class="note warn small">Пока не в комплекте: ' + wait.map(q => '«' + escHtml(q.name) + '»').join(', ') + ' — есть непереведённые шаги (шаг 1 → «Осталось перевести») или зависимость от них. Остальное работает уже сейчас.</div>' : '') +
     '<div class="row" style="gap:8px;margin-top:10px"><button class="btn pri" id="hzKitZip">⬇ Скачать комплект (.zip)</button>' + (window.showDirectoryPicker ? '<button class="btn" id="hzKitDir">📁 Записать в папку…</button>' : '') + '<button class="btn" id="hzKitXl"' + (HZ.run && S.book.family === 'excel' ? '' : ' disabled title="нужен прогон в шаге ② (типы столбцов) и книга Excel"') + '>⬇ Excel-витрина (.xlsx)</button></div>' +
     '<p class="small muted">Excel-витрина — копия книги, где итоговые запросы читают готовые таблицы из папки комплекта: «Обновить всё» занимает секунды. Оригинал с Power Query остаётся резервом и местом, где правят запросы.</p></div>';
   return kit + hzMaintHtml();
@@ -10061,19 +10313,23 @@ async function hzClaudeIn(){
 function hzWire(){
   const root = $('#view-hyper');
   root.addEventListener('click', async e => {
-    const t = e.target.closest('[data-hz-tab],[data-hz-q],[data-hz-man],[data-hz-scale],[data-hz-go],button[id^="hz"]'); if (!t) return;
-    if (t.dataset.hzTab){ HZ.tab = t.dataset.hzTab; renderHyper(); return; }
+    const t = e.target.closest('[data-hz-tab],[data-hz-q],[data-hz-man],[data-hz-scale],[data-hz-go],[data-hz-race],[data-hz-sqlall],[data-hz-scroll],button[id^="hz"]'); if (!t) return;
+    if (t.dataset.hzTab){ HZ.tab = t.dataset.hzTab; renderHyper(); $('#hzNav').scrollIntoView({ block: 'nearest' }); return; }
+    if (t.dataset.hzRace){ HZ.race = t.dataset.hzRace; renderHyper(); return; }
+    if (t.dataset.hzScroll){ e.preventDefault(); const el = document.getElementById(t.dataset.hzScroll); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    if (t.dataset.hzSqlall){ const q = HZ.plan.byName.get(t.dataset.hzSqlall); if (!q) return; const sql = hzQuerySql(HZ.plan, q); const r = await modal('<h2>SQL запроса «' + escHtml(q.name) + '»</h2><p class="small muted">Каждый шаг Power Query — блок с тем же именем; комментарий над ним — какая команда во что превратилась.</p><pre class="code">' + hzHl(sql) + '</pre>', [['copy', 'Копировать'], ['ok', 'Закрыть', 'pri']], { wide: true }); if (r === 'copy' && await copyText(sql)) toast('SQL скопирован', 'ok'); return; }
     if (t.dataset.hzMan){ e.preventDefault(); return hzManual(t.dataset.hzMan); }
     if (t.dataset.hzScale) return hzScale(+t.dataset.hzScale);
     if (t.dataset.hzGo){ e.preventDefault(); return showView(t.dataset.hzGo); }
-    if (t.dataset.hzQ != null && !t.id){ e.preventDefault(); HZ.selQ = t.dataset.hzQ; HZ.selStep = t.dataset.hzS || null; renderHyper(); const d = $('.hz-detail'); if (d && HZ.tab === 'plan' && t.dataset.hzS) d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+    if (t.dataset.hzQ != null && !t.id){ e.preventDefault();
+      if (HZ.selQ === t.dataset.hzQ && !t.dataset.hzS && HZ.tab === 'plan'){ HZ.selQ = null; HZ.selStep = null; } else { HZ.selQ = t.dataset.hzQ; HZ.selStep = t.dataset.hzS || null; }
+      renderHyper(); const d = $('.hz-inline'); if (d) d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
     switch (t.id){
       case 'hzRunBtn': return hzRun();
       case 'hzVz': HZ.vz = !HZ.vz; return renderHyper();
       case 'hzVzDl': if (!HZ.run || !DUCK.c) return; if (!(await hzLocalSave('витрину'))) return; download('Витрина — ' + HZ_SAFE(S.book.name.replace(/\.[^.]+$/, '')) + '.html', hzVitrinaHtml(hzVitrinaData(), S.book.name), 'text/html'); return;
       case 'hzClaude': return hzClaude();
       case 'hzClaudeIn': return hzClaudeIn();
-      case 'hzSqlAll': { const q = HZ.plan.byName.get(HZ.selQ); if (!q) return; const sql = hzQuerySql(HZ.plan, q); const r = await modal('<h2>SQL запроса «' + escHtml(q.name) + '»</h2><pre class="code">' + hzHl(sql) + '</pre>', [['copy', 'Копировать'], ['ok', 'Закрыть', 'pri']], { wide: true }); if (r === 'copy' && await copyText(sql)) toast('SQL скопирован', 'ok'); return; }
       case 'hzKitZip': return hzKitZip();
       case 'hzKitDir': return hzKitDir();
       case 'hzKitXl': return hzKitXl();
@@ -10731,6 +10987,16 @@ const HELP_HTML = `
 <li><b>Дальше — дорабатывайте</b>: в «Редакторе» с живыми данными шага под курсором или через ИИ — «Обезличивание» → «👁 Проверить глазами, что уйдёт» → пакет или задача для чата; ответ — в «Ответ ИИ» → «Сверить на данных» → «Принять и править». Наружу уходит только обезличенное.</li>
 </ol>
 <p class="small muted">Порядки ускорения дают не настройки, а код: поиск в справочнике для каждой строки → одно слияние, один расчёт тяжёлого промежуточного запроса вместо нескольких, ранние фильтры и отбор полей у источника (для OData 1С — $select и $filter). Настройки Excel и макрос убирают ожидание при открытии, двойные обновления и проверки конфиденциальности.</p></div>
+
+<div class="card"><h2>🚀 Гиперзум: Power Query → DuckDB</h2>
+<p><b>DuckDB</b> — бесплатная «машина для отчётов»: берёт таблицы (CSV, Excel, выгрузки 1С) и выполняет те же операции, что Power Query — фильтр, слияние, группировку, отмену свёртки, — но в десятки раз быстрее: связывает таблицы по хешу и считает большими пачками на всех ядрах. Работает на вашем компьютере, без сервера и без интернета. Язык запросов — SQL; учить его не нужно: Мастер переводит каждый шаг сам и подписывает, какая команда Power Query во что превратилась.</p>
+<ol>
+<li><b>1 · Оценка</b> — карта шагов как «Примененные шаги»: зелёные переводятся в SQL, синие — источники (комплект читает их сам), жёлтые — 1С или SQL Server (выгрузит загрузчик), красные — нужно перевести вручную или через Claude. Нажмите шаг — Power Query и SQL рядом.</li>
+<li><b>2 · Сверка и замер</b> — каждый запрос считается по логике Power Query и в DuckDB на ваших данных, прямо в браузере; результаты сравниваются построчно. На маленьких данных Мастер сам замерит обе стороны на объёме ≈ 200 тыс. строк. Калькулятор показывает экономию часов в месяц, витрина — итоги для руководителя.</li>
+<li><b>3 · Комплект</b> — папка для настоящего DuckDB: тот же SQL, скрипты Windows PowerShell, обновление по расписанию, Excel-витрина (книга читает готовые таблицы — «Обновить всё» за секунды). Раздел «Обслуживание» читает журнал запусков и подсказывает, что делать при ошибке.</li>
+</ol>
+<p class="small muted"><b>Что такое <code>__r</code></b> в SQL — номер строки: так DuckDB сохраняет порядок Power Query («Удалить дубликаты» оставляет первую строку, «Заполнить вниз» идёт сверху вниз). <b>Почему «Power Query остаётся источником истины»</b> — SQL строится заново из запросов книги: правите в Power Query, пересоздаёте комплект. <b>Приватность</b> — DuckDB работает в этой вкладке, сеть запрещена; комплект и витрины содержат ваши данные и сохраняются только на компьютер; в Claude уходит лишь обезличенный код.</p>
+</div>
 
 <div class="card"><h2>Горячие клавиши</h2>
 <table class="t"><tr><th>Клавиши</th><th>Действие</th></tr>

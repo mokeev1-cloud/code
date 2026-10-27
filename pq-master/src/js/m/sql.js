@@ -153,6 +153,9 @@ const HZ_FN = {
   'Date.ToText': (a, n) => { const o = n.length > 1 ? hzConst(n[1]) : null; if (o != null && typeof o !== 'string') hzNo('Date.ToText с записью параметров'); const f = hzDateFmt(o || 'yyyy-MM-dd'); return 'strftime(' + a[0] + ', ' + hzS(f) + ')'; },
   'DateTime.LocalNow': (a, n, cx) => { cx.risk('now'); return 'current_localtimestamp()'; }, 'DateTime.FixedLocalNow': (a, n, cx) => { cx.risk('now'); return 'current_localtimestamp()'; },
   'Date.IsInCurrentMonth': (a, n, cx) => { cx.risk('now'); return "(date_trunc('month', " + a[0] + ") = date_trunc('month', current_date))"; },
+  '#date': a => 'make_date(CAST(' + a[0] + ' AS BIGINT), CAST(' + a[1] + ' AS BIGINT), CAST(' + a[2] + ' AS BIGINT))',
+  '#datetime': a => 'make_timestamp(CAST(' + a[0] + ' AS BIGINT), CAST(' + a[1] + ' AS BIGINT), CAST(' + a[2] + ' AS BIGINT), CAST(' + a[3] + ' AS BIGINT), CAST(' + a[4] + ' AS BIGINT), CAST(' + a[5] + ' AS DOUBLE))',
+  '#duration': a => 'to_milliseconds(CAST(round(((' + a[0] + ') * 86400 + (' + a[1] + ') * 3600 + (' + a[2] + ') * 60 + (' + a[3] + ')) * 1000) AS BIGINT))',
   'List.Contains': (a, n, cx) => 'COALESCE(' + a[1] + ' IN ' + hzListSql(n[0], cx) + ', FALSE)',
   'List.ContainsAny': (a, n, cx) => 'len(list_intersect(' + hzListArr(n[0], cx) + ', ' + hzListArr(n[1], cx) + ')) > 0',
   'Value.Is': hzNoFn('Value.Is'), 'Record.Field': (a, n, cx) => { if (n[0].k === 'id' && n[0].n === cx.rowVar) return cx.col(hzStr(n[1])); return hzNo('Record.Field не по текущей строке'); }
@@ -463,6 +466,7 @@ function hzPlan(A, opts){
   for (const m of A.members) if (m.isParam){ try { let ast = mParse(A.text.slice(m.exprStart, m.exprEnd)); const v = deepForce(evalNode(ast, env)); if (v === null || ['string', 'number', 'boolean'].includes(typeof v) || v instanceof MDate) plan.params.set(m.name, v); } catch { /* параметр-выражение — вручную */ } }
   const qnames = new Set(A.members.map(m => m.name));
   for (const m of hzOrder(A.members)){ const q = hzQueryPlan(A, m, plan, env, qnames); plan.queries.push(q); plan.byName.set(q.name, q); }
+  plan.dims = new Set(plan.queries.flatMap(q => [...(q.rightRefs || [])]));   // справочники: правая сторона слияний и поиска
   const all = plan.queries.flatMap(q => q.steps.filter(s => s.kind !== 'helper'));
   const c = k => all.filter(s => s.kind === k).length;
   plan.stats = { steps: all.length, sql: c('sql') + c('claude'), source: c('source'), loader: c('loader'), manual: c('manual'), queries: plan.queries.filter(q => q.kind === 'table').length };
@@ -471,7 +475,7 @@ function hzPlan(A, opts){
   return plan;
 }
 function hzQueryPlan(A, m, plan, env, qnames){
-  const q = { name: m.name, kind: 'table', steps: [], deps: new Set(), load: m.load, out: !m.usedBy.length || !!(m.load && (m.load.sheet || m.load.model)), boundary: -1, mat: [], final: null, status: '', reason: '', risks: new Set(), kitReady: false };
+  const q = { name: m.name, kind: 'table', rightRefs: new Set(), steps: [], deps: new Set(), load: m.load, out: !m.usedBy.length || !!(m.load && (m.load.sheet || m.load.model)), boundary: -1, mat: [], final: null, status: '', reason: '', risks: new Set(), kitReady: false };
   if (m.isFn){ q.kind = 'fn'; q.status = 'manual'; q.reason = 'функция — вызывается из других запросов; такие вызовы переносятся вручную'; return q; }
   if (m.isParam){ q.kind = 'param'; q.status = plan.params.has(m.name) ? 'param' : 'manual'; q.reason = plan.params.has(m.name) ? 'параметр — подставляется в SQL значением' : 'параметр-выражение'; return q; }
   let ast; try { ast = mParse(A.text.slice(m.exprStart, m.exprEnd)); } catch (e){ q.status = 'manual'; q.reason = 'код не разбирается: ' + e.message; return q; }
@@ -497,6 +501,15 @@ function hzQueryPlan(A, m, plan, env, qnames){
     },
     consumers(name){ return binds.filter(([nm, ex]) => nm !== name && hzIds(ex, new Set()).has(name)).map(b => b[1]); }
   };
+  // кто справочник: правая таблица NestedJoin/Join, таблица поиска Т{[…]}, список List.Contains — через шаги-буферы до запроса
+  const bnode = new Map(binds);
+  const resolve = (n, depth) => { if (!n || depth > 8) return; if (n.k === 'id'){ if (bnode.has(n.n)) return resolve(bnode.get(n.n), depth + 1); if (A.byName.has(n.n)) q.rightRefs.add(n.n); return; }
+    if (n.k === 'call' && n.f.k === 'id' && /^(Table|List)\.(Buffer|Distinct|StopFolding)$/.test(n.f.n)) return resolve(n.args[0], depth + 1); if (n.k === 'field') return resolve(n.e, depth + 1); };
+  const walk = n => { if (!n || typeof n !== 'object') return; if (Array.isArray(n)) return n.forEach(walk);
+    if (n.k === 'call' && n.f.k === 'id'){ if (['Table.NestedJoin', 'Table.Join'].includes(n.f.n)) resolve(n.args[2], 0); if (n.f.n === 'List.Contains') resolve(n.args[0], 0); }
+    if (n.k === 'item' && n.ix && n.ix.k === 'rec') resolve(n.e, 0);
+    for (const k in n) if (k !== 'k' && n[k] && typeof n[k] === 'object') walk(n[k]); };
+  binds.forEach(([, node]) => walk(node));
   binds.forEach(([name, node], idx) => {
     const fn = node.k === 'call' && node.f.k === 'id' ? node.f.n : node.k === 'field' && node.e.k === 'item' ? '(навигация)' : node.k === 'id' ? '(ссылка)' : null;
     const s = { name, cte: hzCte(name, qnames), fn, op: HZ_OPS.get(fn) || null, kind: '', sql: null, reason: '', risks: [], refs: new Set(), hash: hzHash(JSON.stringify(node)), idx };
@@ -593,11 +606,14 @@ function hzCompare(a, b){
   const r = { rowsA: a.rows.length, rowsB: b.rows.length, miss: ca.filter(c => !cb.includes(c)), extra: cb.filter(c => !ca.includes(c)), colsDiff: [], errA: 0, same: false, exact: false, lost: 0, added: 0 };
   const cols = ca.filter(c => cb.includes(c)); const ia = cols.map(c => a.cols.indexOf(c)), ib = cols.map(c => b.cols.indexOf(c));
   for (const row of a.rows) for (const i of ia){ try { force(row[i]); } catch { r.errA++; } }
-  const kA = a.rows.map(row => ia.map(i => hzKey(row[i])).join('\u0001')), kB = b.rows.map(row => ib.map(i => hzKey(row[i])).join('\u0001'));
+  // столбец, который DuckDB хранит текстом (в Power Query там смешанные типы), сравнивается как текст
+  const txt = ib.map(i => { let any = false; for (const row of b.rows){ const v = row[i]; if (v === null || v === undefined) continue; if (typeof v !== 'string') return false; any = true; } return any; });
+  const keyA = (row, j) => { if (!txt[j]) return hzKey(row[ia[j]]); let v; try { v = force(row[ia[j]]); } catch { return 'n'; } return v === null ? 'n' : 's' + (typeof v === 'string' ? v : mToText(v)); };
+  const kA = a.rows.map(row => ia.map((_, j) => keyA(row, j)).join('\u0001')), kB = b.rows.map(row => ib.map(i => hzKey(row[i])).join('\u0001'));
   const cnt = new Map(); for (const k of kA) cnt.set(k, (cnt.get(k) || 0) + 1);
   for (const k of kB){ const c = cnt.get(k); if (c) cnt.set(k, c - 1); else r.added++; }
   for (const c of cnt.values()) r.lost += c;
-  cols.forEach((c, j) => { const m = new Map(); for (const row of a.rows){ const k = hzKey(row[ia[j]]); m.set(k, (m.get(k) || 0) + 1); } let d = 0; for (const row of b.rows){ const k = hzKey(row[ib[j]]); const x = m.get(k); if (x) m.set(k, x - 1); else d++; } if (d) r.colsDiff.push(c); });
+  cols.forEach((c, j) => { const m = new Map(); for (const row of a.rows){ const k = keyA(row, j); m.set(k, (m.get(k) || 0) + 1); } let d = 0; for (const row of b.rows){ const k = hzKey(row[ib[j]]); const x = m.get(k); if (x) m.set(k, x - 1); else d++; } if (d) r.colsDiff.push(c); });
   r.same = !r.miss.length && !r.extra.length && !r.lost && !r.added;
   r.exact = r.same && kA.every((k, i) => k === kB[i]);
   r.note = r.same ? (r.exact ? 'совпадает полностью' : 'совпадает (другой порядок строк)') : r.miss.length || r.extra.length ? 'другие столбцы' + (r.miss.length ? ': нет «' + r.miss.join('», «') + '»' : '') + (r.extra.length ? ': лишние «' + r.extra.join('», «') + '»' : '') : 'строк в PQ ' + r.rowsA + ', в DuckDB ' + r.rowsB + ' · не совпало ' + r.lost + (r.colsDiff.length ? ' · расходятся столбцы: «' + r.colsDiff.join('», «') + '»' : '');

@@ -64,6 +64,7 @@ node pq-master/build.mjs            # собрать ../pq-master.html
 node pq-master/build.mjs --check    # + разрезка восстанавливает все модули байт в байт
 node pq-master/test/e2e.mjs         # headless Chromium: самотест + сценарии UI (нужен playwright-core)
 node pq-master/test/stress.mjs      # фаззинг ядра, утечки, библиотека M, битые файлы, скорость (только Node)
+node pq-master/test/hyperzoom.mjs   # Гиперзум: перевод M → SQL против настоящего DuckDB (python3 + duckdb)
 ```
 
 Порядок модулей задаёт `MANIFEST` в `build.mjs`; новый файл добавляйте туда. Модули типов `js`,
@@ -256,14 +257,15 @@ JSON-патч) в «Ответе ИИ» → «Сверить на данных»
   хранит столбец `__r`. `null = null` истинно в M → `IS NOT DISTINCT FROM`. Типы — макросы `pq_num/pq_date/pq_text…` (ru-RU).
 - **Новый шаг M → SQL.** Функция в `HZ_T` (`m/sql.js`), скалярная — в `HZ_FN`; строка в `HZ_OPS_SRC` (словарь для пользователя:
   новичок в SQL видит «команда PQ → конструкция SQL»). Риски семантики — `HZ_RISKS`, они выводятся комментариями в SQL.
-  Проверка: дифф-тест интерпретатор ↔ настоящий DuckDB (python `duckdb`, см. примечание ниже).
+  Проверка: `test/hyperzoom.mjs` (интерпретатор ↔ настоящий DuckDB).
 - **Приватность.** DuckDB работает в памяти вкладки (CSP: только `wasm-unsafe-eval`, сети нет, автозагрузка расширений выключена).
   Комплект и витрины содержат данные/пути компании и создаются только явным действием (`hzLocalSave`). Наружу (Claude) — только
   обезличенный код через `gate()` (`hzClaude`); ответ возвращается через `restoreTokens`.
 - **Пересборка DuckDB.** `vendor/duckdb.entry.js` + `npm i @duckdb/duckdb-wasm@1.32.0 apache-arrow esbuild`;
   `esbuild … --format=iife --minify` → `vendor/duckdb.bundle.js`; ядро `dist/duckdb-eh.wasm` → `gzip -9` → base64 в `vendor/duckdb-eh.wasm.gz.b64`.
   Блок `Function`-кода Arrow запрещён CSP — векторы строятся через `makeData` (см. `duckLoad`), не `vectorFromArray`.
-- **Дифф-тест** (вне репозитория, 13 запросов, 0 расхождений на последнем прогоне): значения интерпретатора → таблицы настоящего
-  DuckDB (`pip install duckdb==1.4.3`) → тот же SQL → `hzCompare`. Эталон — интерпретатор, поэтому расхождение либо баг перевода, либо баг интерпретатора.
+- **Дифф-тест** `node pq-master/test/hyperzoom.mjs` (нужны python3 и `pip install duckdb==1.4.3`): 13 запросов с типичными операциями,
+  значения интерпретатора → таблицы настоящего DuckDB → тот же SQL → `hzCompare`. Эталон — интерпретатор, поэтому расхождение —
+  баг перевода или интерпретатора. Новую операцию в `HZ_T` добавляйте и сюда.
 - **Не проверено:** `scripts/*.ps1` в настоящем Windows PowerShell и расширение `excel` в `duckdb.exe` (в контейнере нет Windows);
   загрузчики 1С OData и SQL Server; чтение xlsx-справочников в комплекте (диапазоны таблиц).

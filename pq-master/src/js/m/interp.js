@@ -474,11 +474,13 @@ def('Character.ToNumber', nn(c => txt(c).codePointAt(0)));
 def('Number.From', (v, c) => { v = force(v); if (v === null) return null; if (typeof v === 'number') return v; if (typeof v === 'boolean') return v ? 1 : 0; if (typeof v === 'string') return numFromText(v, force(c)); if (v instanceof MDate) return v.ms / DAY + 25569; if (v instanceof MDur) return v.ms / DAY; throw new MErr('Expression.Error', 'Number.From: нельзя преобразовать ' + mTypeName(v)); });
 def('Number.FromText', nn((t, c) => numFromText(txt(t, 'Number.FromText'), force(c))));
 def('Number.ToText', nn((n, f, c) => fmtNumber(num(n), force(f), force(c))));
-def('Number.Round', nn((n, d, mode) => { n = num(n); d = force(d) || 0; mode = force(mode); const f = Math.pow(10, d); if (mode === 2) return Math.sign(n) * Math.round(Math.abs(n) * f) / f; if (mode === 0) return Math.ceil(n * f) / f; if (mode === 1) return Math.floor(n * f) / f; if (mode === 3) return Math.trunc(n * f) / f; return roundHalfEven(n, d); }));
+def('Number.Round', nn((n, d, mode) => { n = num(n); d = force(d) || 0; mode = force(mode); const f = Math.pow(10, d); const a = Math.abs(n) * f, sg = Math.sign(n);
+  // RoundingMode задаёт, куда округлять ровно половину: Up — вверх, Down — вниз, AwayFromZero — от нуля, TowardZero — к нулю, ToEven — к чётному
+  if (mode === 0) return Math.floor(n * f + 0.5) / f; if (mode === 1) return Math.ceil(n * f - 0.5) / f; if (mode === 2) return sg * Math.floor(a + 0.5) / f; if (mode === 3) return sg * Math.ceil(a - 0.5) / f; return roundHalfEven(n, d); }));
 def('Number.RoundUp', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.ceil(num(n) * f) / f; }));
 def('Number.RoundDown', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.floor(num(n) * f) / f; }));
 def('Number.RoundTowardZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.trunc(num(n) * f) / f; }));
-def('Number.RoundAwayFromZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); n = num(n); return Math.sign(n) * Math.round(Math.abs(n) * f) / f; }));
+def('Number.RoundAwayFromZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); n = num(n); return Math.sign(n) * Math.ceil(Math.abs(n) * f) / f; }));
 def('Number.Abs', nn(n => Math.abs(num(n))));
 def('Number.Sign', nn(n => Math.sign(num(n))));
 def('Number.Mod', nn((a, b) => { a = num(a); b = num(b); return a - b * Math.trunc(a / b); }));

@@ -257,7 +257,7 @@ const hz1 = await page.evaluate(() => { showView('hyper'); const P = hzEnsure();
 await page.waitForTimeout(150); await shot('30-hyper-plan');
 check('Гиперзум ①: оценка переносимости — доля шагов, карта переноса, словарь', hz1.pct >= 90 && hz1.steps >= 6 && hz1.html > 500 && (await page.$$('.hz-st')).length >= 6, JSON.stringify(hz1));
 await page.evaluate(() => { HZ.tab = 'run'; renderHyper(); });
-await page.click('#hzRunBtn'); await page.waitForFunction(() => HZ.run || !HZ.busy, null, { timeout: 120000 }); await page.waitForTimeout(300);
+await page.click('#hzRunBtn'); await page.waitForFunction(() => HZ.run && !HZ.busy, null, { timeout: 180000 }); await page.waitForTimeout(300);
 const hz2 = await page.evaluate(() => ({ items: HZ.run ? HZ.run.items.map(x => x.name + ':' + (x.skip ? 'skip' : x.sqlError ? 'ERR ' + x.sqlError.slice(0, 80) : x.cmp.same ? 'same' : 'DIFF ' + x.cmp.note)) : null, ver: DUCK.ver, ratio: HZ.run && HZ.run.ratio, scale: HZ.scale && { k: HZ.scale.k, rows: HZ.scale.rows, measured: HZ.scale.measured, ratio: +HZ.scale.ratio.toFixed(1), same: HZ.scale.items.every(i => i.pqRows == null || i.pqRows === i.rows) } }));
 await shot('31-hyper-run');
 check('Гиперзум ②: DuckDB запущен в браузере и результаты совпали с Power Query на ваших данных', hz2.items && hz2.items.every(x => /:same$/.test(x)) && /^v1\./.test(hz2.ver), JSON.stringify(hz2));
@@ -266,9 +266,9 @@ await page.evaluate(() => { HZ.vz = true; renderHyper(); }); await page.waitForT
 const vz = await page.evaluate(() => ({ charts: document.querySelectorAll('#hzVzBox svg').length, rows: document.querySelectorAll('#hzVzBox table tr').length }));
 check('Гиперзум: витрина для руководителя рисуется из DuckDB (плитки, графики, таблицы)', vz.rows >= 3, JSON.stringify(vz));
 const hz3 = await page.evaluate(async () => { HZ.tab = 'kit'; renderHyper(); const files = await hzKitFilesNow(); const all = files.map(f => f.text).join('\n');
-  return { n: files.length, names: files.map(f => f.path), ps: !!files.find(f => f.path === 'scripts/refresh.ps1' && /Sql 'sql\/20/.test(f.text)), sqlHas: /Шаг «Развернуть»/.test(all), leak: dataLeaks(all).length, bom: files.find(f => f.path === 'scripts/refresh.ps1').text.charCodeAt(0) === 0xFEFF }; });
+  return { n: files.length, names: files.map(f => f.path), ps: !!files.find(f => f.path === 'scripts/refresh.ps1' && /Sql 'sql\\20_01\.sql'/.test(f.text)), sqlHas: /Шаг «Развернуть»/.test(all), leak: dataLeaks(all).length, bom: files.find(f => f.path === 'scripts/refresh.ps1').text.charCodeAt(0) === 0xFEFF }; });
 await shot('33-hyper-kit');
-check('Гиперзум ③: комплект — SQL по запросам, скрипты PowerShell, инструкция, сверка', hz3.n >= 10 && hz3.ps && hz3.sqlHas && hz3.names.includes('ПРОЧТИ МЕНЯ.txt') && hz3.names.includes('sql/95_сверка.sql') && hz3.bom, JSON.stringify(hz3));
+check('Гиперзум ③: комплект — SQL по запросам, скрипты PowerShell, инструкция, сверка', hz3.n >= 10 && hz3.ps && hz3.sqlHas && hz3.names.includes('ПРОЧТИ МЕНЯ.txt') && hz3.names.includes('sql/95_check.sql') && hz3.bom, JSON.stringify(hz3));
 const hz4 = await page.evaluate(async () => { const o = hzKitOpts(); const sec = hzExcelSection(HZ.plan, o.types, o.kitDir); let ok = false; try { mParse(sec.text.slice(sec.text.indexOf('shared ОПиУ'))); ok = true; } catch { /* разберём ниже */ } return { count: sec.count, parsed: parseSection(sec.text).members.length, ok }; });
 check('Гиперзум: Excel-витрина — итоговые запросы переписаны на чтение CSV комплекта, код разбирается', hz4.count >= 1 && hz4.parsed >= 3, JSON.stringify(hz4));
 

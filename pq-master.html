@@ -37,56 +37,56 @@
     1331–1516   build.mjs
     1517–1796   test/e2e.mjs
     1797–2019   test/stress.mjs
-    2020–2172   test/hyperzoom.mjs
-    2173–2186   vendor/codemirror.entry.js
-    2187–2191   vendor/duckdb.entry.js
-    2194–2209   vendor/codemirror.bundle.js
-    2212–2298   vendor/duckdb.bundle.js
-    2301–2303   vendor/duckdb-eh.wasm.gz.b64
-    2307–2745   src/js/core/zip-mashup.js
-    2746–3090   src/js/core/vba.js
-    3091–3187   src/js/core/xlsx-data.js
-    3188–3460   src/js/m/lang.js
-    3461–3523   src/js/m/format.js
-    3524–3908   src/js/m/reference.js
-    3909–4794   src/js/m/interp.js
-    4795–5417   src/js/m/sql.js
-    5418–5938   src/js/nda/anon.js
-    5939–6075   src/js/nda/diag.js
-    6076–6496   src/js/opt/lint.js
-    6497–6807   src/js/opt/optimizer.js
-    6808–6894   src/js/opt/refactor.js
-    6895–7042   src/js/opt/snippets.js
-    7043–7111   src/js/app/state.js
-    7112–7204   src/js/app/data.js
-    7205–7288   src/js/app/duck.js
-    7289–7596   src/js/app/hzkit.js
-    7597–7834   src/js/nda/agent.js
-    7835–7926   src/js/app/ui-base.js
-    7927–8105   src/js/app/storage.js
-    8106–8143   src/js/app/hints.js
-    8144–8370   src/js/app/shell.js
-    8371–8464   src/js/views/home.js
-    8465–8892   src/js/views/editor.js
-    8893–9150   src/js/views/optimizer.js
-    9151–9234   src/js/views/graph.js
-    9235–9350   src/js/views/sandbox.js
-    9351–9572   src/js/views/data.js
-    9573–9773   src/js/views/model.js
-    9774–9888   src/js/views/speedup.js
-    9889–10348  src/js/views/hyper.js
-   10349–10379  src/js/views/reference.js
-   10380–10417  src/js/views/snippets.js
-   10418–10438  src/js/views/history.js
-   10439–10623  src/js/views/anon.js
-   10624–10690  src/js/views/diag.js
-   10691–10823  src/js/views/ai.js
-   10824–10887  src/js/views/agent.js
-   10888–10914  src/js/views/compare.js
-   10915–10972  src/js/views/docs.js
-   10973–11168  src/js/views/help.js
-   11169–11621  src/js/app/selftest.js
-   11622–11635  src/js/app/main.js
+    2020–2182   test/hyperzoom.mjs
+    2183–2196   vendor/codemirror.entry.js
+    2197–2201   vendor/duckdb.entry.js
+    2204–2219   vendor/codemirror.bundle.js
+    2222–2308   vendor/duckdb.bundle.js
+    2311–2313   vendor/duckdb-eh.wasm.gz.b64
+    2317–2755   src/js/core/zip-mashup.js
+    2756–3100   src/js/core/vba.js
+    3101–3197   src/js/core/xlsx-data.js
+    3198–3470   src/js/m/lang.js
+    3471–3533   src/js/m/format.js
+    3534–3918   src/js/m/reference.js
+    3919–4806   src/js/m/interp.js
+    4807–5440   src/js/m/sql.js
+    5441–5961   src/js/nda/anon.js
+    5962–6098   src/js/nda/diag.js
+    6099–6519   src/js/opt/lint.js
+    6520–6830   src/js/opt/optimizer.js
+    6831–6917   src/js/opt/refactor.js
+    6918–7065   src/js/opt/snippets.js
+    7066–7134   src/js/app/state.js
+    7135–7227   src/js/app/data.js
+    7228–7311   src/js/app/duck.js
+    7312–7687   src/js/app/hzkit.js
+    7688–7925   src/js/nda/agent.js
+    7926–8017   src/js/app/ui-base.js
+    8018–8196   src/js/app/storage.js
+    8197–8234   src/js/app/hints.js
+    8235–8461   src/js/app/shell.js
+    8462–8555   src/js/views/home.js
+    8556–8983   src/js/views/editor.js
+    8984–9241   src/js/views/optimizer.js
+    9242–9325   src/js/views/graph.js
+    9326–9441   src/js/views/sandbox.js
+    9442–9663   src/js/views/data.js
+    9664–9864   src/js/views/model.js
+    9865–9979   src/js/views/speedup.js
+    9980–10443  src/js/views/hyper.js
+   10444–10474  src/js/views/reference.js
+   10475–10512  src/js/views/snippets.js
+   10513–10533  src/js/views/history.js
+   10534–10718  src/js/views/anon.js
+   10719–10785  src/js/views/diag.js
+   10786–10918  src/js/views/ai.js
+   10919–10982  src/js/views/agent.js
+   10983–11009  src/js/views/compare.js
+   11010–11067  src/js/views/docs.js
+   11068–11263  src/js/views/help.js
+   11264–11716  src/js/app/selftest.js
+   11717–11730  src/js/app/main.js
 -->
 <!-- ===== BEGIN src/html/head.html ===== -->
 <html lang="ru">
@@ -1774,7 +1774,7 @@ const hz1 = await page.evaluate(() => { showView('hyper'); const P = hzEnsure();
 await page.waitForTimeout(150); await shot('30-hyper-plan');
 check('Гиперзум ①: оценка переносимости — доля шагов, карта переноса, словарь', hz1.pct >= 90 && hz1.steps >= 6 && hz1.html > 500 && (await page.$$('.hz-st')).length >= 6, JSON.stringify(hz1));
 await page.evaluate(() => { HZ.tab = 'run'; renderHyper(); });
-await page.click('#hzRunBtn'); await page.waitForFunction(() => HZ.run || !HZ.busy, null, { timeout: 120000 }); await page.waitForTimeout(300);
+await page.click('#hzRunBtn'); await page.waitForFunction(() => HZ.run && !HZ.busy, null, { timeout: 180000 }); await page.waitForTimeout(300);
 const hz2 = await page.evaluate(() => ({ items: HZ.run ? HZ.run.items.map(x => x.name + ':' + (x.skip ? 'skip' : x.sqlError ? 'ERR ' + x.sqlError.slice(0, 80) : x.cmp.same ? 'same' : 'DIFF ' + x.cmp.note)) : null, ver: DUCK.ver, ratio: HZ.run && HZ.run.ratio, scale: HZ.scale && { k: HZ.scale.k, rows: HZ.scale.rows, measured: HZ.scale.measured, ratio: +HZ.scale.ratio.toFixed(1), same: HZ.scale.items.every(i => i.pqRows == null || i.pqRows === i.rows) } }));
 await shot('31-hyper-run');
 check('Гиперзум ②: DuckDB запущен в браузере и результаты совпали с Power Query на ваших данных', hz2.items && hz2.items.every(x => /:same$/.test(x)) && /^v1\./.test(hz2.ver), JSON.stringify(hz2));
@@ -1783,9 +1783,9 @@ await page.evaluate(() => { HZ.vz = true; renderHyper(); }); await page.waitForT
 const vz = await page.evaluate(() => ({ charts: document.querySelectorAll('#hzVzBox svg').length, rows: document.querySelectorAll('#hzVzBox table tr').length }));
 check('Гиперзум: витрина для руководителя рисуется из DuckDB (плитки, графики, таблицы)', vz.rows >= 3, JSON.stringify(vz));
 const hz3 = await page.evaluate(async () => { HZ.tab = 'kit'; renderHyper(); const files = await hzKitFilesNow(); const all = files.map(f => f.text).join('\n');
-  return { n: files.length, names: files.map(f => f.path), ps: !!files.find(f => f.path === 'scripts/refresh.ps1' && /Sql 'sql\/20/.test(f.text)), sqlHas: /Шаг «Развернуть»/.test(all), leak: dataLeaks(all).length, bom: files.find(f => f.path === 'scripts/refresh.ps1').text.charCodeAt(0) === 0xFEFF }; });
+  return { n: files.length, names: files.map(f => f.path), ps: !!files.find(f => f.path === 'scripts/refresh.ps1' && /Sql 'sql\\20_01\.sql'/.test(f.text)), sqlHas: /Шаг «Развернуть»/.test(all), leak: dataLeaks(all).length, bom: files.find(f => f.path === 'scripts/refresh.ps1').text.charCodeAt(0) === 0xFEFF }; });
 await shot('33-hyper-kit');
-check('Гиперзум ③: комплект — SQL по запросам, скрипты PowerShell, инструкция, сверка', hz3.n >= 10 && hz3.ps && hz3.sqlHas && hz3.names.includes('ПРОЧТИ МЕНЯ.txt') && hz3.names.includes('sql/95_сверка.sql') && hz3.bom, JSON.stringify(hz3));
+check('Гиперзум ③: комплект — SQL по запросам, скрипты PowerShell, инструкция, сверка', hz3.n >= 10 && hz3.ps && hz3.sqlHas && hz3.names.includes('ПРОЧТИ МЕНЯ.txt') && hz3.names.includes('sql/95_check.sql') && hz3.bom, JSON.stringify(hz3));
 const hz4 = await page.evaluate(async () => { const o = hzKitOpts(); const sec = hzExcelSection(HZ.plan, o.types, o.kitDir); let ok = false; try { mParse(sec.text.slice(sec.text.indexOf('shared ОПиУ'))); ok = true; } catch { /* разберём ниже */ } return { count: sec.count, parsed: parseSection(sec.text).members.length, ok }; });
 check('Гиперзум: Excel-витрина — итоговые запросы переписаны на чтение CSV комплекта, код разбирается', hz4.count >= 1 && hz4.parsed >= 3, JSON.stringify(hz4));
 
@@ -2022,7 +2022,7 @@ process.exit(violations ? 1 : 0);
 /*
   Гиперзум: сравнительный тест «логика Power Query (интерпретатор Мастера) ↔ настоящий DuckDB».
   node pq-master/test/hyperzoom.mjs      (нужны python3 и пакет duckdb: pip install duckdb==1.4.3)
-  13 запросов с типичными операциями (типы, фильтры, слияния, группировки, сведение и отмена свёртки,
+  14 запросов с типичными операциями (типы, фильтры, слияния, группировки, сведение и отмена свёртки,
   «Заполнить вниз», поиск в справочнике, объединение…): значения шагов до перевода считает интерпретатор,
   они грузятся в DuckDB, затем выполняется переведённый SQL (hzQuerySql) и результат сверяется (hzCompare).
   Эталон — интерпретатор: расхождение — это баг перевода или интерпретатора. Код возврата 1 при расхождении.
@@ -2137,6 +2137,16 @@ shared Объединение = let
 in
     Вместе;
 shared Итог = Table.Group(Проводки, {}, {{"Всего", each List.Sum([Сумма])}, {"Строк", each Table.RowCount(_)}});
+shared Округление = let
+    Источник = Table.SelectColumns(Проводки, {"Сумма", "Контрагент"}),
+    Режимы = Table.AddColumn(Источник, "Вверх", each Number.Round([Сумма] / 7, 1, RoundingMode.Up)),
+    Р2 = Table.AddColumn(Режимы, "Вниз", each Number.Round([Сумма] / 7, 1, RoundingMode.Down)),
+    Р3 = Table.AddColumn(Р2, "К нулю", each Number.Round([Сумма] / 7, 1, RoundingMode.TowardZero)),
+    Р4 = Table.AddColumn(Р3, "От нуля", each Number.RoundAwayFromZero([Сумма] / 7, 1)),
+    Р5 = Table.AddColumn(Р4, "Половины", each Number.Round([Сумма] / 4, 1)),
+    Код = Table.AddColumn(Р5, "Код", each Text.PadStart(Text.From(Number.Abs(Number.RoundDown([Сумма]))), 3, "0"))
+in
+    Код;
 `;
 
 X.setData({ currentWorkbook: () => wb, file: () => null, folder: () => null });
@@ -3178,7 +3188,7 @@ async function readXlsxData(zip, opts){
     const g = xlsxParseSheet(xml, ss, kinds, date1904, opts.maxRows); if (g.truncated) out.truncated = true;
     if (opts.only !== 'objects'){ const ok = g.r1 >= 0; out.sheets.push({ name: sd.name, hidden: sd.hidden, cols: xlsxColumns(ok ? g.c1 - g.c0 + 1 : 0), rows: ok ? xlsxSlice(g.grid, g) : [] }); }
     for (const t of tdefs){ if (!t.range) continue; const rg = { r0: t.range.r0 + t.header, c0: t.range.c0, r1: Math.min(t.range.r1 - t.totals, g.r1), c1: t.range.c1 } /* не дальше прочитанных строк (лимит) */; const w = rg.c1 - rg.c0 + 1;
-      out.tables.push({ name: t.name, sheet: sd.name, cols: t.cols.length === w ? t.cols : xlsxColumns(w), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
+      out.tables.push({ name: t.name, sheet: sd.name, range: t.range, header: t.header, totals: t.totals, cols: t.cols.length === w ? t.cols : xlsxColumns(w), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
     for (const n of myNames) if (n.range){ const rg = Object.assign({}, n.range, { r1: Math.min(n.range.r1, g.r1), c1: Math.min(n.range.c1, Math.max(g.c1, n.range.c0)) });   // «A1:C1048576» — до последней заполненной строки
       out.names.push({ name: n.name, cols: xlsxColumns(rg.c1 - rg.c0 + 1), rows: rg.r1 >= rg.r0 ? xlsxSlice(g.grid, rg) : [] }); }
   }
@@ -4383,11 +4393,13 @@ def('Character.ToNumber', nn(c => txt(c).codePointAt(0)));
 def('Number.From', (v, c) => { v = force(v); if (v === null) return null; if (typeof v === 'number') return v; if (typeof v === 'boolean') return v ? 1 : 0; if (typeof v === 'string') return numFromText(v, force(c)); if (v instanceof MDate) return v.ms / DAY + 25569; if (v instanceof MDur) return v.ms / DAY; throw new MErr('Expression.Error', 'Number.From: нельзя преобразовать ' + mTypeName(v)); });
 def('Number.FromText', nn((t, c) => numFromText(txt(t, 'Number.FromText'), force(c))));
 def('Number.ToText', nn((n, f, c) => fmtNumber(num(n), force(f), force(c))));
-def('Number.Round', nn((n, d, mode) => { n = num(n); d = force(d) || 0; mode = force(mode); const f = Math.pow(10, d); if (mode === 2) return Math.sign(n) * Math.round(Math.abs(n) * f) / f; if (mode === 0) return Math.ceil(n * f) / f; if (mode === 1) return Math.floor(n * f) / f; if (mode === 3) return Math.trunc(n * f) / f; return roundHalfEven(n, d); }));
+def('Number.Round', nn((n, d, mode) => { n = num(n); d = force(d) || 0; mode = force(mode); const f = Math.pow(10, d); const a = Math.abs(n) * f, sg = Math.sign(n);
+  // RoundingMode задаёт, куда округлять ровно половину: Up — вверх, Down — вниз, AwayFromZero — от нуля, TowardZero — к нулю, ToEven — к чётному
+  if (mode === 0) return Math.floor(n * f + 0.5) / f; if (mode === 1) return Math.ceil(n * f - 0.5) / f; if (mode === 2) return sg * Math.floor(a + 0.5) / f; if (mode === 3) return sg * Math.ceil(a - 0.5) / f; return roundHalfEven(n, d); }));
 def('Number.RoundUp', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.ceil(num(n) * f) / f; }));
 def('Number.RoundDown', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.floor(num(n) * f) / f; }));
 def('Number.RoundTowardZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); return Math.trunc(num(n) * f) / f; }));
-def('Number.RoundAwayFromZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); n = num(n); return Math.sign(n) * Math.round(Math.abs(n) * f) / f; }));
+def('Number.RoundAwayFromZero', nn((n, d) => { const f = Math.pow(10, force(d) || 0); n = num(n); return Math.sign(n) * Math.ceil(Math.abs(n) * f) / f; }));
 def('Number.Abs', nn(n => Math.abs(num(n))));
 def('Number.Sign', nn(n => Math.sign(num(n))));
 def('Number.Mod', nn((a, b) => { a = num(a); b = num(b); return a - b * Math.trunc(a / b); }));
@@ -4903,7 +4915,7 @@ function hzConv(x, ty, cu, cx){
   if (k === 'any') return x;
   if (k === 'num') return 'pq_num' + cu + '(' + x + ')';
   if (k === 'int') return 'round_even(pq_num' + cu + '(' + x + '), 0)';
-  if (k === 'cur') return 'round_even(pq_num' + cu + '(' + x + '), 4)';
+  if (k === 'cur') return 'round_even(pq_num' + cu + '(' + x + ') * 10000, 0) / 10000';
   if (k === 'text'){ cx.risk('text'); return 'pq_text(' + x + ')'; }
   if (k === 'date') return 'pq_date' + cu + '(' + x + ')';
   if (k === 'datetime') return 'pq_datetime' + cu + '(' + x + ')';
@@ -4911,8 +4923,12 @@ function hzConv(x, ty, cu, cx){
 }
 const HZ_AGG = { 'List.Sum': 'sum', 'List.Average': 'avg', 'List.Min': 'min', 'List.Max': 'max', 'List.Median': 'median', 'List.StandardDeviation': 'stddev_samp', 'List.NonNullCount': 'count', 'List.Count': 'count(*)', 'List.First': 'first', 'List.Last': 'last', 'List.Product': 'product', 'List.Mode': 'mode' };
 const HZ_LISTFN = { 'List.Sum': 'list_sum', 'List.Min': 'list_min', 'List.Max': 'list_max', 'List.Average': 'list_avg', 'List.Count': 'len', 'List.NonNullCount': 'list_count' };
-const hzRound = (x, d, mode) => { const f = d === '0' ? '' : ', ' + d; const p = 'power(10, ' + d + ')';
-  return mode === 0 ? (d === '0' ? 'ceil(' + x + ')' : 'ceil(' + x + ' * ' + p + ') / ' + p) : mode === 1 ? (d === '0' ? 'floor(' + x + ')' : 'floor(' + x + ' * ' + p + ') / ' + p) : mode === 2 ? 'round(' + x + f + ')' : mode === 3 ? (d === '0' ? 'trunc(' + x + ')' : 'trunc(' + x + ' * ' + p + ') / ' + p) : 'round_even(' + x + (d === '0' ? ', 0' : f) + ')'; };
+/** Number.Round: режим — куда идёт ровно половина (Up/Down/AwayFromZero/TowardZero/ToEven); как в Power Query */
+const hzRound = (x, d, mode) => { const p = 'power(10, ' + d + ')';
+  // как Power Query (.NET): сначала умножить на 10^d, округлить целое, разделить — иначе 19.65 → 19.7 вместо 19.6
+  return mode === 0 ? 'floor(' + x + ' * ' + p + ' + 0.5) / ' + p : mode === 1 ? 'ceil(' + x + ' * ' + p + ' - 0.5) / ' + p : mode === 2 ? 'round(' + x + ' * ' + p + ') / ' + p : mode === 3 ? 'sign(' + x + ') * ceil(abs(' + x + ') * ' + p + ' - 0.5) / ' + p : 'round_even(' + x + ' * ' + p + ', 0) / ' + p; };
+/** Number.RoundUp/Down/TowardZero/AwayFromZero — направленное округление (не только половины) */
+const hzRoundDir = (x, d, k) => { const p = 'power(10, ' + d + ')'; return k === 'up' ? 'ceil(' + x + ' * ' + p + ') / ' + p : k === 'down' ? 'floor(' + x + ' * ' + p + ') / ' + p : k === 'zero' ? 'trunc(' + x + ' * ' + p + ') / ' + p : 'sign(' + x + ') * ceil(abs(' + x + ') * ' + p + ') / ' + p; };
 /** Скалярные функции: имя → (a — SQL аргументов, n — узлы, cx) => SQL */
 const HZ_FN = {
   'Text.Upper': a => 'upper(' + a[0] + ')', 'Text.Lower': a => 'lower(' + a[0] + ')', 'Text.Proper': a => 'list_aggregate(list_transform(string_split(lower(' + a[0] + "), ' '), w -> upper(left(w, 1)) || substr(w, 2)), 'string_agg', ' ')",
@@ -4924,7 +4940,8 @@ const HZ_FN = {
   'Text.StartsWith': (a, n) => hzIgnoreCase(n[2]) ? 'starts_with(lower(' + a[0] + '), lower(' + a[1] + '))' : 'starts_with(' + a[0] + ', ' + a[1] + ')',
   'Text.EndsWith': (a, n) => hzIgnoreCase(n[2]) ? 'ends_with(lower(' + a[0] + '), lower(' + a[1] + '))' : 'ends_with(' + a[0] + ', ' + a[1] + ')',
   'Text.Replace': a => 'replace(' + a[0] + ', ' + a[1] + ', ' + a[2] + ')', 'Text.Repeat': a => 'repeat(' + a[0] + ', ' + a[1] + ')', 'Text.Reverse': a => 'reverse(' + a[0] + ')',
-  'Text.PadStart': (a, n) => 'lpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ')', 'Text.PadEnd': (a, n) => 'rpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ')',
+  // lpad/rpad в DuckDB обрезают длинный текст, Text.PadStart/PadEnd — нет
+  'Text.PadStart': (a, n) => 'CASE WHEN length(' + a[0] + ') >= ' + a[1] + ' THEN ' + a[0] + ' ELSE lpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ') END', 'Text.PadEnd': (a, n) => 'CASE WHEN length(' + a[0] + ') >= ' + a[1] + ' THEN ' + a[0] + ' ELSE rpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ') END',
   'Text.PositionOf': (a, n) => n.length > 2 ? hzNo('Text.PositionOf с вхождением') : '(strpos(' + a[0] + ', ' + a[1] + ') - 1)',
   'Text.BeforeDelimiter': (a, n) => n.length > 2 ? hzNo('Text.BeforeDelimiter с номером вхождения') : 'CASE WHEN strpos(' + a[0] + ', ' + a[1] + ') > 0 THEN split_part(' + a[0] + ', ' + a[1] + ', 1) ELSE ' + a[0] + ' END',
   'Text.AfterDelimiter': (a, n) => n.length > 2 ? hzNo('Text.AfterDelimiter с номером вхождения') : "CASE WHEN strpos(" + a[0] + ', ' + a[1] + ') > 0 THEN substr(' + a[0] + ', strpos(' + a[0] + ', ' + a[1] + ') + length(' + a[1] + ")) ELSE '' END",
@@ -4932,9 +4949,9 @@ const HZ_FN = {
   'Text.From': (a, n) => n.length > 1 && hzCulture(n[1]) === '' && hzConst(n[1]) ? 'pq_text_ru(' + a[0] + ')' : 'pq_text(' + a[0] + ')',
   'Text.ToText': a => 'pq_text(' + a[0] + ')', 'Number.ToText': (a, n) => n.length > 1 ? hzNo('Number.ToText с форматом') : 'pq_text(' + a[0] + ')',
   'Number.From': (a, n) => 'pq_num' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')', 'Number.FromText': (a, n) => 'pq_num' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')',
-  'Int64.From': a => 'round_even(pq_num(' + a[0] + '), 0)', 'Currency.From': a => 'round_even(pq_num(' + a[0] + '), 4)', 'Decimal.From': a => 'pq_num(' + a[0] + ')', 'Logical.From': a => 'pq_bool(' + a[0] + ')',
+  'Int64.From': a => 'round_even(pq_num(' + a[0] + '), 0)', 'Currency.From': a => 'round_even(pq_num(' + a[0] + ') * 10000, 0) / 10000', 'Decimal.From': a => 'pq_num(' + a[0] + ')', 'Logical.From': a => 'pq_bool(' + a[0] + ')',
   'Number.Round': (a, n) => hzRound(a[0], n.length > 1 && hzConst(n[1]) !== null ? a[1] : '0', hzEnum(n[2], 4)),
-  'Number.RoundUp': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 0), 'Number.RoundDown': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 1), 'Number.RoundTowardZero': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 3), 'Number.RoundAwayFromZero': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 2),
+  'Number.RoundUp': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'up'), 'Number.RoundDown': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'down'), 'Number.RoundTowardZero': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'zero'), 'Number.RoundAwayFromZero': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'away'),
   'Number.Abs': a => 'abs(' + a[0] + ')', 'Number.Sign': a => 'sign(' + a[0] + ')', 'Number.Power': a => 'power(' + a[0] + ', ' + a[1] + ')', 'Number.Sqrt': a => 'sqrt(' + a[0] + ')',
   'Number.IntegerDivide': a => 'trunc((' + a[0] + ') / (' + a[1] + '))', 'Number.Mod': a => '((' + a[0] + ') - (' + a[1] + ') * trunc((' + a[0] + ') / (' + a[1] + ')))',
   'Date.From': (a, n) => 'pq_date' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')', 'Date.FromText': (a, n) => 'pq_date' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')',
@@ -5158,7 +5175,7 @@ const HZ_T = {
   'Table.Pivot': (a, cx) => {
     const an = hzStr(a[2]), vn = hzStr(a[3]); const AG = { 'List.Sum': 'sum', 'List.Count': 'count', 'List.Min': 'min', 'List.Max': 'max', 'List.Average': 'avg', 'List.NonNullCount': 'count' };
     let ag = 'first'; if (a[4] && hzConst(a[4]) !== null){ if (a[4].k !== 'id' || !AG[a[4].n]) hzNo('агрегат сведения ' + (a[4].n || 'выражением')); ag = AG[a[4].n]; } else cx.risk('pivot-first');
-    let vals = ''; const v = a[1]; if (v.k === 'list') vals = ' IN (' + v.items.map(x => hzS(String(hzConst(x)))).join(', ') + ')'; else if (!(v.k === 'call' && v.f.n === 'List.Distinct')) cx.risk('pivot-vals');
+    let vals = ''; const v = a[1]; if (v.k === 'list') vals = ' IN (' + v.items.map(x => { const c = hzConst(x); if (c === undefined || c === null) hzNo('значения сведения заданы выражением'); return hzS(String(c)); }).join(', ') + ')'; else if (!(v.k === 'call' && v.f.n === 'List.Distinct')) cx.risk('pivot-vals');
     cx.risk('order');
     return 'SELECT *, row_number() OVER () AS ' + HZ_R + ' FROM (PIVOT (SELECT * EXCLUDE (' + HZ_R + ') FROM ' + cx.st.tref(a[0]) + ') ON ' + hzQ(an) + vals + ' USING ' + ag + '(' + hzQ(vn) + '))';
   },
@@ -5208,7 +5225,7 @@ function hzSource(n, st){
       if (o instanceof MRec){ const g = k => o.has(k) ? o.get(k) : null; delim = g('Delimiter'); enc = g('Encoding'); cols = g('Columns'); } else cols = o;
       return { kind: 'csv', path: b.path, delim: typeof delim === 'string' && delim ? delim : ',', enc: enc == null ? 65001 : enc, ncols: typeof cols === 'number' ? cols : Array.isArray(cols) ? cols.length : null, names: Array.isArray(cols) ? cols.map(String) : null, header: false, skip: 0, stage: 'table' };
     }
-    if (fn === 'Excel.Workbook'){ const b = hzSource(a[0], st); if (!b || b.kind !== 'file') return null; return { kind: 'xlsx', path: b.path, headers: a[2] ? st.val(a[2]) === true : false, stage: 'nav' }; }
+    if (fn === 'Excel.Workbook'){ const b = hzSource(a[0], st); if (!b || b.kind !== 'file') return null; return { kind: 'xlsx', path: b.path, headers: a[1] ? st.val(a[1]) === true : false, stage: 'nav' }; }   // (книга, useHeaders, delayTypes)
     if (fn === 'Folder.Files' || fn === 'Folder.Contents') return { kind: 'folder', path: String(st.val(a[0])), stage: 'table', loader: true };
     if (fn === 'OData.Feed') return { kind: 'odata', url: String(st.val(a[0])), stage: 'nav', loader: true };
     if (fn === 'Sql.Database'){ const o = a[2] ? st.val(a[2]) : null; const qy = o instanceof MRec && o.has('Query') ? o.get('Query') : null; return { kind: 'sqldb', server: String(st.val(a[0])), db: String(st.val(a[1])), query: qy, stage: qy ? 'table' : 'nav', loader: true }; }
@@ -5341,6 +5358,12 @@ function hzQueryPlan(A, m, plan, env, qnames){
   const need = new Set(); if (q.boundary >= 0 && (finStep.idx <= q.boundary || q.steps.slice(q.boundary + 1).some(s => s.kind === 'sql' || s.kind === 'claude'))) need.add(q.steps[q.boundary].name);
   for (const s of q.steps.slice(q.boundary + 1)) for (const r of s.refs){ const t = q.steps.find(x => x.name === r); if (t && t.idx <= q.boundary) need.add(r); }
   if (finStep.idx <= q.boundary) need.add(fin);
+  if (finStep.kind === 'helper'){   // итог запроса — значение (текст, число, список), а не таблица
+    q.kind = 'value'; q.status = 'param'; q.reason = 'значение, а не таблица — подставляется в SQL';
+    try { const v = deepForce(evalNode(ast.k === 'let' ? ast.body : ast, ast.k === 'let' ? e2 : env)); if (v === null || ['string', 'number', 'boolean'].includes(typeof v) || v instanceof MDate) plan.params.set(m.name, v); else { q.status = 'manual'; q.reason = 'значение-список или запись: в SQL подставляются только текст, число, дата'; } }
+    catch (e){ q.status = 'manual'; q.reason = 'значение не вычисляется: ' + (e.message || e); }
+    q.manualSteps = []; q.gain = { level: 0, text: 'значение — выигрыша нет' }; return q;
+  }
   q.mat = q.steps.filter(s => need.has(s.name)).map(s => s.name);
   q.final = fin;
   // перевод держится на шагах после границы; шаги до неё в браузере считает интерпретатор
@@ -7299,171 +7322,238 @@ function duckTab(name, limit){
    API: hzKitFiles(plan, o) → [{ path, text }]; hzVitrinaHtml(data | null); hzVitrinaRender(root, data);
         hzExcelSection(plan, types, kitDir) → текст Section1 для Excel-витрины.
    ===================================================================== */
-const HZ_SAFE = s => String(s).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 80) || 'запрос';
-const hzPs = s => "'" + String(s).replace(/'/g, "''") + "'";
+// имена файлов и папок: без символов, запрещённых в Windows и особых для PowerShell ([ ] — шаблоны путей)
+const HZ_SAFE = s => String(s).replace(/[\\/:*?"<>|\[\]`‘-‛\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 80) || 'запрос';
+// строка PowerShell в одинарных кавычках: кавычки ' ‘ ’ ‚ ‛ удваиваются (PowerShell считает их все одинарными)
+const hzPs = s => "'" + String(s).replace(/['‘-‛]/g, c => c + c) + "'";
 const HZ_BOM = '﻿';
-/** Запросы, которые комплект может считать: перевод есть, источники читаются, зависимости тоже готовы */
-function hzKitQueries(plan){
+const HZ_DB = 'base.duckdb';
+/** Почему источник шага нельзя прочитать в комплекте (пусто — можно) */
+function hzReaderIssue(q, s, o){
+  const r = s.reader; if (!r || r.stage !== 'table') return 'источник без готового чтения';
+  if (!['wb', 'csv', 'xlsx', 'odata', 'sqldb'].includes(r.kind)) return r.kind === 'folder' ? 'объединение файлов папки — переведите вручную' : 'источник «' + (r.fn || r.kind) + '» — загрузчика нет';
+  const cols = o && o.matCols && o.matCols.get(hzMatName(q.name, s.name));
+  if (r.kind === 'csv' && !r.header && !r.names && !r.ncols && !cols) return 'CSV без заголовков и без числа столбцов — посчитайте шаг 2, чтобы Мастер узнал столбцы';
+  if (r.kind === 'xlsx' && r.objKind !== 'Sheet') return 'объект книги «' + r.objKind + '» (не лист)';
+  if (r.kind === 'xlsx' && !r.header && !cols) return 'лист без заголовков — посчитайте шаг 2, чтобы Мастер узнал столбцы';
+  return '';
+}
+/** Запросы, которые комплект может считать: перевод есть, источники читаются, зависимости тоже готовы. o — для столбцов из шага 2 */
+function hzKitQueries(plan, o){
   const ok = new Map();
   for (const q of plan.queries){
-    if (q.kind !== 'table'){ ok.set(q.name, q.kind === 'param'); continue; }
-    const srcOk = q.mat.every(n => { const s = q.steps.find(x => x.name === n); return s.reader && s.reader.stage === 'table' && ['wb', 'csv', 'xlsx', 'folder', 'odata', 'sqldb'].includes(s.reader.kind); });
+    if (q.kind !== 'table'){ ok.set(q.name, (q.kind === 'param' || q.kind === 'value') && plan.params.has(q.name)); continue; }
+    const srcOk = q.mat.every(n => !hzReaderIssue(q, q.steps.find(x => x.name === n), o));
     ok.set(q.name, srcOk && q.kitReady && [...q.deps].every(d => ok.get(d)));
   }
   return ok;
 }
 const hzColLetter = c => { let s = ''; c++; while (c > 0){ const m = (c - 1) % 26; s = String.fromCharCode(65 + m) + s; c = Math.floor((c - 1) / 26); } return s; };
+/** Выбор столбцов по номерам: #1 AS "Column1"… (как Power Query называет столбцы без заголовков) */
+const hzPosCols = (names, rename) => names.map((n, i) => '#' + (i + 1) + (rename ? ' AS ' + hzQ(n) : '')).join(', ');
 /** SQL чтения источника для готовой таблицы «Запрос · Шаг» и (если нужно) задача подготовки для PowerShell */
 function hzReader(q, s, o){
   const r = s.reader; const out = hzQ(hzMatName(q.name, s.name)); const file = HZ_SAFE(q.name + ' · ' + s.name);
+  const cols = o && o.matCols && o.matCols.get(hzMatName(q.name, s.name));
   const tbl = sql => 'CREATE OR REPLACE TABLE ' + out + ' AS ' + sql + ';';
   if (r.kind === 'csv'){
     const utf = !r.enc || r.enc === 65001; const path = utf ? r.path : 'кэш/' + file + '.csv';
-    const names = r.header ? '' : r.names ? ', names = [' + r.names.map(hzS).join(', ') + ']' : r.ncols ? ', names = [' + Array.from({ length: r.ncols }, (_, i) => hzS('Column' + (i + 1))).join(', ') + ']' : '';
-    return { sql: tbl("SELECT * FROM read_csv(" + hzS(path) + ", delim = " + hzS(r.delim) + ", header = " + (r.header ? 'true' : 'false') + (r.skip ? ', skip = ' + r.skip : '') + names + ", all_varchar = true, nullstr = '\\x01', quote = '\"', escape = '\"', null_padding = true, strict_mode = false)"),
-      prep: utf ? null : { kind: 'recode', src: r.path, dst: path, cp: r.enc }, note: 'CSV-файл' + (utf ? '' : ' (кодировка ' + (HZ_ENC[r.enc] || r.enc) + ' → UTF-8 перед чтением)') };
+    // Csv.Document: все значения — текст, пустая ячейка — пустой текст (не null); Columns = N — ровно N столбцов
+    const src = "read_csv(" + hzS(path) + ", delim = " + hzS(r.delim) + ", header = " + (r.header ? 'true' : 'false') + (r.skip ? ', skip = ' + r.skip : '') + ", all_varchar = true, nullstr = '\\x01', quote = '\"', escape = '\"', null_padding = true, strict_mode = false)";
+    const names = r.names || (r.ncols ? Array.from({ length: r.ncols }, (_, i) => 'Column' + (i + 1)) : null) || (!r.header && cols) || null;
+    const sel = r.header ? (r.ncols ? hzPosCols(Array(r.ncols).fill(''), false) : '*') : names ? hzPosCols(names, true) : '*';
+    return { sql: tbl('SELECT ' + sel + ' FROM ' + src), prep: utf ? null : { kind: 'recode', src: r.path, dst: path, cp: r.enc }, note: 'CSV-файл' + (utf ? '' : ' (кодировка ' + (HZ_ENC[r.enc] || r.enc) + ' → UTF-8 перед чтением)') };
   }
-  if (r.kind === 'xlsx') return { sql: tbl('SELECT * FROM read_xlsx(' + hzS(r.path) + ', sheet = ' + hzS(r.sheet) + ', header = ' + (r.header ? 'true' : 'false') + ', stop_at_empty = true)'), ext: 'excel', note: 'лист книги Excel' + (r.objKind !== 'Sheet' ? ' (⚠ объект «' + r.objKind + '» читается как лист — проверьте)' : '') };
+  if (r.kind === 'xlsx'){
+    const dst = 'кэш/' + file + '.xlsx';   // копия: книгу может держать открытой Excel
+    const sel = r.header ? '*' : cols ? hzPosCols(cols, true) : '*';
+    return { sql: tbl('SELECT ' + sel + ' FROM read_xlsx(' + hzS(dst) + ', sheet = ' + hzS(r.sheet) + ', header = ' + (r.header ? 'true' : 'false') + ', stop_at_empty = false)'), ext: 'excel', prep: { kind: 'copy', src: r.path, dst }, note: 'лист «' + r.sheet + '» книги Excel (читается копия)' };
+  }
   if (r.kind === 'wb'){
-    const w = o.wb && o.wb.get(r.table);
-    const rng = w && w.range ? hzColLetter(w.range.c0) + (w.range.r0 + 1) + ':' + hzColLetter(w.range.c1) + '1048576' : null;
-    return { sql: tbl('SELECT * FROM read_xlsx(' + hzS(o.bookPath || 'КНИГА.xlsx') + (w ? ', sheet = ' + hzS(w.sheet) : '') + (rng ? ', range = ' + hzS(rng) : '') + ', header = true, stop_at_empty = true)'), ext: 'excel', note: 'таблица «' + r.table + '» этой книги' + (w ? ' (лист «' + w.sheet + '»)' : ' (⚠ лист не найден — откройте «Проверку на данных» и пересоздайте комплект)') };
+    const w = o && o.wb && o.wb.get(r.table);
+    // диапазон таблицы: при каждом обновлении PowerShell берёт его из самой книги (таблица могла вырасти); после | — диапазон на момент создания комплекта
+    const rg = w && w.range ? hzColLetter(w.range.c0) + (w.range.r0 + 1) + ':' + hzColLetter(w.range.c1) + (w.range.r1 + 1 - (w.totals || 0)) : '';
+    return { sql: tbl('SELECT * FROM read_xlsx(' + hzS('кэш/book.xlsx') + (w ? ', sheet = ' + hzS(w.sheet) : '') + ", range = '{{XL:" + r.table.replace(/'/g, "''") + '|' + rg + "}}', header = " + (w && w.header === 0 ? 'false' : 'true') + ', stop_at_empty = false)'), ext: 'excel', prep: { kind: 'book' }, note: 'таблица «' + r.table + '» этой книги' + (w ? ' (лист «' + w.sheet + '»)' : ' (⚠ лист не найден — посчитайте шаг 2 и пересоздайте комплект)') };
   }
-  if (r.kind === 'folder'){
-    const delim = (/Delimiter\s*=\s*"([^"]+)"/.exec(plan_text(o)) || [, ';'])[1];
-    return { sql: tbl("SELECT * FROM read_csv(" + hzS(r.path.replace(/[\\/]+$/, '') + '/*.csv') + ", delim = " + hzS(delim) + ", header = true, union_by_name = true, all_varchar = true, nullstr = '\\x01')"), note: '⚠ все CSV папки одной таблицей — сверьте с объединением файлов в Power Query (кодировка, заголовки, фильтр по имени файла)' };
-  }
-  if (r.kind === 'odata'){ const path = 'данные/' + file + '.csv'; return { sql: tbl('SELECT * FROM read_csv(' + hzS(path) + ', header = true)'), prep: { kind: 'odata', url: r.url, entity: r.entity, dst: path }, note: '1С OData: «' + r.entity + '» — загрузчик PowerShell' }; }
-  if (r.kind === 'sqldb'){ const path = 'данные/' + file + '.csv'; return { sql: tbl('SELECT * FROM read_csv(' + hzS(path) + ', header = true)'), prep: { kind: 'sql', server: r.server, db: r.db, query: r.query || 'SELECT * FROM [' + (r.schema || 'dbo') + '].[' + r.table + ']', dst: path }, note: 'SQL Server «' + r.server + '» — загрузчик PowerShell' }; }
+  // выгрузки загрузчиков: пустой текст в кавычках остаётся текстом; типы — по всему файлу
+  const lcsv = path => "read_csv(" + hzS(path) + ", header = true, delim = ',', quote = '\"', escape = '\"', allow_quoted_nulls = false, sample_size = -1)";
+  if (r.kind === 'odata'){ const path = 'данные/' + file + '.csv'; return { sql: tbl('SELECT * FROM ' + lcsv(path)), prep: { kind: 'odata', url: r.url, entity: r.entity, dst: path }, note: '1С OData: «' + r.entity + '» — загрузчик PowerShell' }; }
+  if (r.kind === 'sqldb'){ const path = 'данные/' + file + '.csv'; return { sql: tbl('SELECT * FROM ' + lcsv(path)), prep: { kind: 'sql', server: r.server, db: r.db, query: r.query || 'SELECT * FROM [' + (r.schema || 'dbo') + '].[' + r.table + ']', dst: path }, note: 'SQL Server «' + r.server + '» — загрузчик PowerShell' }; }
   return null;
 }
-function plan_text(o){ return o.text || ''; }
-/** Эталон для сверки при первом запуске: строки и суммы числовых столбцов итоговых запросов (из «Проверки на данных») */
+/** Эталон для сверки при первом запуске: [запрос, показатель, значение, столбец] — строки и суммы числовых столбцов итоговых запросов */
 function hzEtalon(plan, run){
   const rows = [];
   if (!run) return rows;
   for (const q of plan.queries){
     if (!q.out || q.kind !== 'table') continue; const r = run.queries.find(x => x.name === q.name); if (!r || !(r.value instanceof MTab)) continue;
-    rows.push([q.name, 'строк', r.value.rows.length]);
-    r.value.cols.forEach((c, i) => { let s = 0, n = 0, other = 0; for (const row of r.value.rows){ let v; try { v = force(row[i]); } catch { other++; continue; } if (typeof v === 'number'){ s += v; n++; } else if (v !== null) other++; } if (n && !other) rows.push([q.name, 'сумма «' + c + '»', s]); });
+    rows.push([q.name, 'строк', r.value.rows.length, null]);
+    r.value.cols.forEach((c, i) => { let s = 0, n = 0, other = 0; for (const row of r.value.rows){ let v; try { v = force(row[i]); } catch { other++; continue; } if (typeof v === 'number'){ s += v; n++; } else if (v !== null) other++; } if (n && !other) rows.push([q.name, 'сумма «' + c + '»', s, c]); });
   }
   return rows;
 }
-/** Все файлы комплекта. o: { book, bookPath, kitDir, wb: Map(таблица → {sheet, range}), run (DATA.run), schedule ('06:30' или ''), types: Map(запрос → [[столбец, тип DuckDB]]), now } */
+/** Все файлы комплекта. o: { book, bookPath, kitDir, wb: Map(таблица → {sheet, range, header, totals}), run (DATA.run), schedule ('06:30' или ''), matCols: Map(готовая таблица → столбцы), now } */
 function hzKitFiles(plan, o){
   const files = []; const add = (path, text) => files.push({ path, text });
-  const ok = hzKitQueries(plan); const outs = plan.queries.filter(q => q.kind === 'table' && q.out && ok.get(q.name));
+  const ok = hzKitQueries(plan, o); const outs = plan.queries.filter(q => q.kind === 'table' && q.out && ok.get(q.name));
   const prep = []; const src = []; const exts = new Set(); const qfiles = []; let k = 0;
   for (const q of plan.queries){
     if (q.kind !== 'table' || !ok.get(q.name)) continue;
-    for (const n of q.mat){ const s = q.steps.find(x => x.name === n); const r = hzReader(q, s, Object.assign({ text: plan.text }, o)); src.push('-- «' + q.name + '», шаг «' + s.name + '»: ' + r.note + (s.op ? ' (Power Query: ' + s.op.ui + ')' : '') + '\n' + r.sql); if (r.prep) prep.push(Object.assign({ name: q.name + ' · ' + s.name }, r.prep)); if (r.ext) exts.add(r.ext); }
-    const f = 'sql/20_' + String(++k).padStart(2, '0') + ' ' + HZ_SAFE(q.name) + '.sql'; qfiles.push([q.name, f]);
-    add(f, '-- Создано Мастером PQ (Гиперзум) ' + o.now + '. Не правьте вручную: измените запрос в Power Query и пересоздайте комплект.\n-- Этот же текст проверен в браузере: результат совпал с Power Query (см. «Гиперзум → В браузере»).\n\n' + hzQuerySql(plan, q) + '\n');
+    for (const n of q.mat){ const s = q.steps.find(x => x.name === n); const r = hzReader(q, s, o); src.push('-- «' + q.name + '», шаг «' + s.name + '»: ' + r.note + (s.op ? ' (Power Query: ' + s.op.ui + ')' : '') + '\n' + r.sql); if (r.prep && !(r.prep.kind === 'book' && prep.some(p => p.kind === 'book'))) prep.push(Object.assign({ name: q.name + ' · ' + s.name }, r.prep)); if (r.ext) exts.add(r.ext); }
+    const f = 'sql/20_' + String(++k).padStart(2, '0') + '.sql'; qfiles.push([q.name, f]);
+    add(f, '-- Запрос «' + q.name + '». Создано Мастером PQ (Гиперзум) ' + o.now + '. Не правьте вручную: измените запрос в Power Query и пересоздайте комплект.\n-- Этот же текст проверен в браузере: результат совпал с Power Query (шаг 2 «Сверка и замер»).\n\n' + hzQuerySql(plan, q) + '\n');
   }
-  add('sql/00_помощники.sql', '-- Создано Мастером PQ (Гиперзум) ' + o.now + '\n-- Помощники преобразования типов (как в Power Query) и настройки DuckDB.\nSET preserve_insertion_order = true;\n' + (exts.has('excel') ? 'LOAD excel;\n' : '') + HZ_MACROS + '\n');
-  add('sql/10_источники.sql', '-- Источники: каждая таблица «Запрос · Шаг» — результат шагов Power Query до перевода в SQL.\n-- Пути — как в запросах книги. Поменялся путь — исправьте запрос в Power Query и пересоздайте комплект.\n\n' + (src.join('\n\n') || '-- источников нет') + '\n');
+  add('sql/00_helpers.sql', '-- Создано Мастером PQ (Гиперзум) ' + o.now + '\n-- Помощники преобразования типов (как в Power Query) и настройки DuckDB.\nSET preserve_insertion_order = true;\n' + (exts.has('excel') ? 'LOAD excel;\n' : '') + HZ_MACROS + '\n');
+  add('sql/10_sources.sql', '-- Источники: каждая таблица «Запрос · Шаг» — результат шагов Power Query до перевода в SQL.\n-- Пути — как в запросах книги. Поменялся путь — исправьте запрос в Power Query и пересоздайте комплект.\n-- {{XL:Таблица|диапазон}} — диапазон таблицы Excel: при обновлении берётся из книги (после | — запасной).\n\n' + (src.join('\n\n') || '-- источников нет') + '\n');
   const copy = outs.map(q => { const fn = HZ_SAFE(q.name); return '-- «' + q.name + '»\nCOPY (SELECT * EXCLUDE (' + HZ_R + ') FROM ' + hzQ(q.name) + ' ORDER BY ' + HZ_R + ") TO 'витрина/данные/" + fn + ".csv' (HEADER, DELIMITER ',');\nCOPY (SELECT * EXCLUDE (" + HZ_R + ') FROM ' + hzQ(q.name) + ' ORDER BY ' + HZ_R + " LIMIT 50000) TO 'витрина/html/" + fn + ".csv' (HEADER, DELIMITER ',');"; });
   const counts = plan.queries.filter(q => q.kind === 'table' && ok.get(q.name)).map(q => 'SELECT ' + hzS(q.name) + ' AS запрос, count(*) AS строк FROM ' + hzQ(q.name));
-  add('sql/90_витрины.sql', '-- Итоговые таблицы → CSV для Excel-витрины (полностью) и HTML-витрины (до 50 000 строк).\n' + copy.join('\n') + '\n-- Строки по запросам — для журнала\nCOPY (' + (counts.join(' UNION ALL ') || "SELECT '' AS запрос, 0 AS строк") + ") TO 'журнал/строки.csv' (HEADER, DELIMITER ';');\n");
+  add('sql/90_outputs.sql', '-- Итоговые таблицы → CSV для Excel-витрины (полностью) и HTML-витрины (до 50 000 строк).\n' + copy.join('\n') + '\n-- Строки по запросам — для журнала\nCOPY (' + (counts.join(' UNION ALL ') || "SELECT '' AS запрос, 0 AS строк") + ") TO 'журнал/строки.csv' (HEADER, DELIMITER ';');\n");
   const et = hzEtalon(plan, o.run).filter(([qn]) => ok.get(qn));
   if (et.length){
-    const fact = et.map(([qn, m]) => m === 'строк' ? 'SELECT ' + hzS(qn) + ', ' + hzS(m) + ', CAST(count(*) AS DOUBLE) FROM ' + hzQ(qn) : 'SELECT ' + hzS(qn) + ', ' + hzS(m) + ', CAST(sum(' + hzQ(m.slice(8, -1)) + ') AS DOUBLE) FROM ' + hzQ(qn));
-    add('sql/95_сверка.sql', '-- Сверка с Power Query: строки и суммы итоговых запросов на момент создания комплекта (данные из «Проверки на данных»).\n-- Имеет смысл при первом запуске на тех же исходных данных; дальше данные меняются — расхождения ожидаемы.\nCREATE OR REPLACE TABLE _эталон AS SELECT * FROM (VALUES ' + et.map(([qn, m, v]) => '(' + hzS(qn) + ', ' + hzS(m) + ', ' + (isFinite(v) ? v : 0) + ')').join(', ') + ') AS v(запрос, показатель, power_query);\n' +
+    const fact = et.map(([qn, m, , c]) => 'SELECT ' + hzS(qn) + ', ' + hzS(m) + ', ' + (c == null ? 'CAST(count(*) AS DOUBLE)' : 'CAST(sum(' + hzQ(c) + ') AS DOUBLE)') + ' FROM ' + hzQ(qn));
+    add('sql/95_check.sql', '-- Сверка с Power Query: строки и суммы итоговых запросов на момент создания комплекта (шаг 2 «Сверка и замер»).\n-- Имеет смысл при первом запуске на тех же исходных данных; дальше данные меняются — расхождения ожидаемы.\nCREATE OR REPLACE TABLE _эталон AS SELECT * FROM (VALUES ' + et.map(([qn, m, v]) => '(' + hzS(qn) + ', ' + hzS(m) + ', ' + (isFinite(v) ? v : 0) + ')').join(', ') + ') AS v(запрос, показатель, power_query);\n' +
       'CREATE OR REPLACE TABLE _сверка AS SELECT e.запрос, e.показатель, e.power_query, f.duckdb, abs(e.power_query - f.duckdb) <= 1e-6 * greatest(1, abs(e.power_query)) AS совпало FROM _эталон e LEFT JOIN (' + fact.join(' UNION ALL ') + ') AS f(запрос, показатель, duckdb) USING (запрос, показатель);\n' +
       "COPY _сверка TO 'журнал/сверка.csv' (HEADER, DELIMITER ';');\n");
   }
-  const sqlOrder = ['sql/00_помощники.sql', 'sql/10_источники.sql', ...qfiles.map(x => x[1]), 'sql/90_витрины.sql'].concat(et.length ? ['sql/95_сверка.sql'] : []);
+  const sqlOrder = ['sql/00_helpers.sql', 'sql/10_sources.sql', ...qfiles.map(x => x[1]), 'sql/90_outputs.sql'].concat(et.length ? ['sql/95_check.sql'] : []);
   add('scripts/refresh.ps1', HZ_BOM + hzRefreshPs(prep, sqlOrder, qfiles, o));
   add('scripts/setup.ps1', HZ_BOM + hzSetupPs(exts, o));
+  // .bat в UTF-8: кириллица в командах читается только после chcp 65001
   add('Обновить.bat', '@echo off\r\nchcp 65001 >nul\r\npowershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\refresh.ps1"\r\npause\r\n');
   add('Установить.bat', '@echo off\r\nchcp 65001 >nul\r\npowershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\setup.ps1"\r\npause\r\n');
-  add('Открыть витрину.bat', '@echo off\r\nstart "" "%~dp0витрина\\Витрина.html"\r\n');
+  add('Открыть витрину.bat', '@echo off\r\nchcp 65001 >nul\r\nstart "" "%~dp0витрина\\Витрина.html"\r\n');
   add('витрина/шаблон.html', hzVitrinaHtml(null, o.book));
   const man = { generator: 'Мастер PQ — Гиперзум', created: o.now, book: o.book, kitDir: o.kitDir || '', duckdb: 'duckdb.exe (1.4 или новее)',
     queries: plan.queries.filter(q => q.kind === 'table').map(q => ({ name: q.name, kit: !!ok.get(q.name), out: q.out, status: q.status, file: (qfiles.find(x => x[0] === q.name) || [])[1] || null, steps: q.steps.length, manual: q.manualSteps.map(s => s.name + ': ' + s.reason) })),
-    loaders: prep.map(p => ({ name: p.name, kind: p.kind })), stats: plan.stats };
+    loaders: prep.filter(p => p.kind === 'odata' || p.kind === 'sql').map(p => ({ name: p.name, kind: p.kind })), stats: plan.stats };
   add('manifest.json', JSON.stringify(man, null, 2));
-  add('ПРОЧТИ МЕНЯ.txt', HZ_BOM + hzReadme(plan, ok, prep, exts, o).replace(/\n/g, '\r\n'));
+  add('ПРОЧТИ МЕНЯ.txt', HZ_BOM + hzReadme(plan, ok, prep, exts, o, qfiles).replace(/\n/g, '\r\n'));
   return files;
 }
-function hzRefreshPs(prep, sqlOrder, qfiles, o){
-  const L = [
-    '# Гиперзум: обновление данных. Создано Мастером PQ ' + o.now + ' для книги «' + o.book + '».',
-    '# Не правьте вручную — измените запросы в Power Query и пересоздайте комплект в Мастере.',
-    "$ErrorActionPreference = 'Stop'",
-    '$Root = Split-Path -Parent $PSScriptRoot; Set-Location $Root',
-    "$Duck = Join-Path $Root 'duckdb.exe'",
-    "if (-not (Test-Path $Duck)) { $c = Get-Command duckdb -ErrorAction SilentlyContinue; if ($c) { $Duck = $c.Source } else { Write-Host 'Нет duckdb.exe: положите его в папку комплекта (см. ПРОЧТИ МЕНЯ.txt).' -ForegroundColor Red; exit 2 } }",
-    "$Db = Join-Path $Root 'база.duckdb'",
-    "foreach ($d in 'журнал','данные','кэш','витрина\\данные','витрина\\html') { New-Item -ItemType Directory -Force (Join-Path $Root $d) | Out-Null }",
-    '$Run = [ordered]@{ start = (Get-Date).ToString(\'s\'); steps = @(); status = \'ok\'; error = \'\'; seconds = 0 }',
-    '$All = [Diagnostics.Stopwatch]::StartNew()',
-    'function Step($Name, [scriptblock]$Body) {',
-    '  Write-Host ("→ " + $Name) -NoNewline; $t = [Diagnostics.Stopwatch]::StartNew()',
-    '  try { & $Body; $Run.steps += [ordered]@{ name = $Name; ms = $t.ElapsedMilliseconds; ok = $true }; Write-Host ("  " + [math]::Round($t.Elapsed.TotalSeconds, 1) + " с") -ForegroundColor Green }',
-    '  catch { $Run.steps += [ordered]@{ name = $Name; ms = $t.ElapsedMilliseconds; ok = $false; error = "$_" }; Write-Host "  ошибка" -ForegroundColor Red; throw }',
-    '}',
-    'function Sql($File) { $out = & $Duck $Db -bail -f $File 2>&1; if ($LASTEXITCODE -ne 0) { throw (($out | Out-String).Trim()) } }',
-    "function Csv($v) { if ($null -eq $v -or $v -is [DBNull]) { return '' }; if ($v -is [datetime]) { return $v.ToString('yyyy-MM-ddTHH:mm:ss') }; $s = [Convert]::ToString($v, [Globalization.CultureInfo]::InvariantCulture); if ($s -match '[\",\\r\\n]') { return '\"' + $s.Replace('\"', '\"\"') + '\"' }; return $s }",
-    'function Recode($Src, $Dst, $Cp) { $r = New-Object IO.StreamReader($Src, [Text.Encoding]::GetEncoding($Cp)); $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false)); try { while (($l = $r.ReadLine()) -ne $null) { $w.WriteLine($l) } } finally { $r.Close(); $w.Close() } }',
-    '# 1С OData: логин и пароль спрашиваются один раз и хранятся зашифрованными для этого пользователя Windows (журнал\\*.cred)',
-    'function Cred($Key) { $f = Join-Path $Root (\'журнал\\\' + $Key + \'.cred\'); if (Test-Path $f) { return Import-Clixml $f }; $c = Get-Credential -Message (\'Логин 1С для \' + $Key); $c | Export-Clixml $f; return $c }',
-    'function Load-OData($Url, $Entity, $Dst) {',
-    "  $cred = Cred (($Url -replace '[^\\w]', '_')); $base = $Url.TrimEnd('/') + '/' + $Entity; $skip = 0; $page = 5000; $cols = $null",
-    '  $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false))',
-    '  try { do {',
-    "    $r = Invoke-RestMethod -Uri ($base + '?$format=json&$top=' + $page + '&$skip=' + $skip) -Credential $cred -UseBasicParsing; $rows = @($r.value)",
-    "    foreach ($row in $rows) { if (-not $cols) { $cols = @($row.PSObject.Properties | Where-Object { $_.Name -notmatch '@|_Key$|Navigation' -and ($_.Value -isnot [array]) -and ($_.Value -isnot [psobject] -or $_.Value -is [string]) } | ForEach-Object { $_.Name }); $w.WriteLine((($cols | ForEach-Object { Csv $_ }) -join ',')) }; $w.WriteLine((($cols | ForEach-Object { Csv $row.$_ }) -join ',')) }",
-    '    $skip += $page } while ($rows.Count -eq $page) } finally { $w.Close() }',
-    '}',
-    'function Load-Sql($Server, $Database, $Query, $Dst) {',
-    '  $cn = New-Object System.Data.SqlClient.SqlConnection("Server=$Server;Database=$Database;Integrated Security=True"); $cn.Open()',
-    '  $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false))',
-    '  try { $cmd = $cn.CreateCommand(); $cmd.CommandText = $Query; $cmd.CommandTimeout = 0; $rd = $cmd.ExecuteReader()',
-    "    $w.WriteLine(((0..($rd.FieldCount - 1) | ForEach-Object { Csv $rd.GetName($_) }) -join ','))",
-    "    while ($rd.Read()) { $w.WriteLine(((0..($rd.FieldCount - 1) | ForEach-Object { Csv $rd.GetValue($_) }) -join ',')) } } finally { $w.Close(); $cn.Close() }",
-    '}',
-    'try {'
-  ];
-  for (const p of prep){
-    if (p.kind === 'recode') L.push('  Step ' + hzPs('Перекодировка: ' + p.name) + ' { Recode ' + hzPs(p.src) + ' ' + hzPs(p.dst) + ' ' + p.cp + ' }');
-    if (p.kind === 'odata') L.push('  Step ' + hzPs('1С OData: ' + p.name) + ' { Load-OData ' + hzPs(p.url) + ' ' + hzPs(p.entity) + ' ' + hzPs(p.dst) + ' }');
-    if (p.kind === 'sql') L.push('  Step ' + hzPs('SQL Server: ' + p.name) + ' { Load-Sql ' + hzPs(p.server) + ' ' + hzPs(p.db) + ' ' + hzPs(p.query) + ' ' + hzPs(p.dst) + ' }');
+/* Библиотека refresh.ps1 (Windows PowerShell 5.1). Без обратных кавычек и ${ — текст вставляется как есть.
+   Аргументы duckdb.exe — только ASCII и относительные пути (папка комплекта может быть с кириллицей). */
+const HZ_PS_LIB = String.raw`$ErrorActionPreference = 'Stop'
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+$Root = Split-Path -Parent $PSScriptRoot; Set-Location -LiteralPath $Root
+$Duck = Join-Path $Root 'duckdb.exe'
+if (-not (Test-Path -LiteralPath $Duck)) { $c = Get-Command duckdb -ErrorAction SilentlyContinue; if ($c) { $Duck = $c.Source } else { Write-Host 'Нет duckdb.exe: положите его в папку комплекта (см. ПРОЧТИ МЕНЯ.txt).' -ForegroundColor Red; exit 2 } }
+$NL = [Environment]::NewLine
+foreach ($d in 'журнал','данные','кэш','витрина\данные','витрина\html') { [void][IO.Directory]::CreateDirectory((Join-Path $Root $d)) }
+$Run = [ordered]@{ start = (Get-Date).ToString('s'); steps = @(); status = 'ok'; error = ''; seconds = 0 }
+$All = [Diagnostics.Stopwatch]::StartNew()
+$XL = @{}
+function Step($Name, [scriptblock]$Body) {
+  Write-Host ('→ ' + $Name) -NoNewline; $t = [Diagnostics.Stopwatch]::StartNew()
+  try { & $Body; $Run.steps += [ordered]@{ name = $Name; ms = $t.ElapsedMilliseconds; ok = $true }; Write-Host ('  ' + [math]::Round($t.Elapsed.TotalSeconds, 1) + ' с') -ForegroundColor Green }
+  catch { $Run.steps += [ordered]@{ name = $Name; ms = $t.ElapsedMilliseconds; ok = $false; error = "$_" }; Write-Host '  ошибка' -ForegroundColor Red; throw }
+}
+# SQL-файл: диапазоны таблиц книги {{XL:Имя|запасной}} подставляются перед запуском; сообщения duckdb.exe — целиком
+function Sql($File) {
+  $text = [IO.File]::ReadAllText((Join-Path $Root $File), [Text.Encoding]::UTF8)
+  if ($text.Contains('{{XL:')) {
+    $text = [regex]::Replace($text, '\{\{XL:([^|}]+)\|([^}]*)\}\}', { param($m) $n = $m.Groups[1].Value.Replace("''", "'"); if ($XL.ContainsKey($n)) { $XL[$n] } else { $m.Groups[2].Value } })
+    $File = 'sql\_run.sql'; [IO.File]::WriteAllText((Join-Path $Root $File), $text, (New-Object Text.UTF8Encoding $false))
   }
-  const label = f => { const q = qfiles.find(x => x[1] === f); return q ? 'Запрос «' + q[0] + '»' : ({ 'sql/00_помощники.sql': 'Помощники', 'sql/10_источники.sql': 'Чтение источников', 'sql/90_витрины.sql': 'Выгрузка витрин', 'sql/95_сверка.sql': 'Сверка с Power Query' })[f] || f; };
-  for (const f of sqlOrder) L.push('  Step ' + hzPs(label(f)) + ' { Sql ' + hzPs(f) + ' }');
-  L.push(
-    "  Step 'HTML-витрина' {",
-    "    $t = [IO.File]::ReadAllText((Join-Path $Root 'витрина\\шаблон.html'), [Text.Encoding]::UTF8)",
-    "    $tabs = @(Get-ChildItem (Join-Path $Root 'витрина\\html') -Filter *.csv | ForEach-Object { [ordered]@{ name = $_.BaseName; csv = [IO.File]::ReadAllText($_.FullName, [Text.Encoding]::UTF8) } })",
-    "    $json = (ConvertTo-Json -Compress -Depth 4 ([ordered]@{ built = (Get-Date).ToString('dd.MM.yyyy HH:mm'); tables = $tabs })).Replace('</', '<\\/')",
-    "    [IO.File]::WriteAllText((Join-Path $Root 'витрина\\Витрина.html'), $t.Replace('__PQM_DATA__', $json), (New-Object Text.UTF8Encoding $false))",
-    '  }',
-    '} catch { $Run.status = \'error\'; $Run.error = "$_" }',
-    '$Run.seconds = [math]::Round($All.Elapsed.TotalSeconds, 1)',
-    "$line = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + ';' + $Run.seconds.ToString([Globalization.CultureInfo]::InvariantCulture) + ';' + $Run.status + ';' + ($Run.error -replace '[;\\r\\n]', ' ')",
-    "$log = Join-Path $Root 'журнал\\журнал.csv'; if (-not (Test-Path $log)) { [IO.File]::WriteAllText($log, \"время;секунд;статус;ошибка`r`n\", (New-Object Text.UTF8Encoding $true)) }",
-    '[IO.File]::AppendAllText($log, $line + "`r`n", (New-Object Text.UTF8Encoding $false))',
-    "[IO.File]::WriteAllText((Join-Path $Root 'журнал\\последний.json'), (ConvertTo-Json -Depth 5 $Run), (New-Object Text.UTF8Encoding $false))",
-    "if ($Run.status -eq 'ok') { Write-Host ('Готово за ' + $Run.seconds + ' с. Витрина: витрина\\Витрина.html') -ForegroundColor Green; exit 0 } else { Write-Host ('Ошибка: ' + $Run.error) -ForegroundColor Red; Write-Host 'Подробности — журнал\\последний.json; откройте его в Мастере PQ → Гиперзум → Обслуживание.'; exit 1 }"
-  );
-  return L.join('\r\n') + '\r\n';
+  $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+  try { $out = @(& $Duck 'base.duckdb' -bail -f $File 2>&1 | ForEach-Object { "$_" }) } finally { $ErrorActionPreference = $prev }
+  if ($LASTEXITCODE -ne 0) { throw (($out -join $NL).Trim()) }
+}
+function Csv($v) {
+  if ($null -eq $v -or $v -is [DBNull]) { return '' }
+  if ($v -is [datetime]) { return $v.ToString('yyyy-MM-ddTHH:mm:ss', [Globalization.CultureInfo]::InvariantCulture) }
+  if ($v -is [bool]) { if ($v) { return 'true' } else { return 'false' } }
+  $s = [Convert]::ToString($v, [Globalization.CultureInfo]::InvariantCulture)
+  if ($s.Length -eq 0) { return '""' }
+  if ($s.IndexOfAny([char[]]@([char]34, [char]44, [char]13, [char]10)) -ge 0) { return '"' + $s.Replace('"', '""') + '"' }
+  return $s
+}
+# Файлы открываются с разрешением «другие тоже пишут» — книгу или выгрузку может держать открытой Excel
+function Open-Shared($Path) { [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::ReadWrite) }
+function Copy-Shared($Src, $Dst) { $i = Open-Shared $Src; try { $o = [IO.File]::Create((Join-Path $Root $Dst)); try { $i.CopyTo($o) } finally { $o.Close() } } finally { $i.Close() } }
+function Recode($Src, $Dst, $Cp) { $r = New-Object IO.StreamReader((Open-Shared $Src), [Text.Encoding]::GetEncoding($Cp)); $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false)); try { while ($null -ne ($l = $r.ReadLine())) { $w.WriteLine($l) } } finally { $r.Close(); $w.Close() } }
+# Копия этой книги и текущие диапазоны её таблиц (таблица могла вырасти после создания комплекта)
+function Book($Src) {
+  Copy-Shared $Src 'кэш\book.xlsx'
+  Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+  $z = [IO.Compression.ZipFile]::OpenRead((Join-Path $Root 'кэш\book.xlsx'))
+  try { foreach ($e in $z.Entries) { if ($e.FullName -notlike 'xl/tables/*.xml') { continue }
+      $rd = New-Object IO.StreamReader($e.Open()); $x = $rd.ReadToEnd(); $rd.Close()
+      $h = [regex]::Match($x, '<table\b[^>]*>').Value; $nm = [regex]::Match($h, '\bdisplayName="([^"]*)"'); $rf = [regex]::Match($h, '\bref="([A-Z]+)(\d+):([A-Z]+)(\d+)"')
+      if (-not $nm.Success -or -not $rf.Success) { continue }
+      $tot = [regex]::Match($h, '\btotalsRowCount="(\d+)"'); $last = [int]$rf.Groups[4].Value - $(if ($tot.Success) { [int]$tot.Groups[1].Value } else { 0 })
+      $XL[[Net.WebUtility]::HtmlDecode($nm.Groups[1].Value)] = $rf.Groups[1].Value + $rf.Groups[2].Value + ':' + $rf.Groups[3].Value + $last } }
+  finally { $z.Dispose() }
+}
+# 1С OData: логин и пароль спрашиваются один раз и хранятся зашифрованными для этого пользователя Windows (журнал\*.cred)
+function Cred($Key) { $f = Join-Path $Root ('журнал\' + $Key + '.cred'); if (Test-Path -LiteralPath $f) { return Import-Clixml -LiteralPath $f }; $c = Get-Credential -Message ('Логин 1С для ' + $Key); $c | Export-Clixml -LiteralPath $f; return $c }
+function Load-OData($Url, $Entity, $Dst) {
+  $cred = Cred ($Url -replace '[^\w]', '_'); $base = $Url.TrimEnd('/') + '/' + $Entity; $skip = 0; $page = 5000; $cols = $null
+  $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false))
+  try { do {
+    $r = Invoke-RestMethod -Uri ($base + '?$format=json&$top=' + $page + '&$skip=' + $skip) -Credential $cred -UseBasicParsing; $rows = @($r.value)
+    foreach ($row in $rows) {
+      if ($null -eq $cols) { $cols = @(foreach ($p in $row.PSObject.Properties) { if ($p.Name -notmatch '@' -and ($null -eq $p.Value -or $p.Value -is [string] -or $p.Value -is [ValueType])) { $p.Name } }); $w.WriteLine((@(foreach ($c in $cols) { Csv $c }) -join ',')) }
+      $w.WriteLine((@(foreach ($c in $cols) { Csv $row.$c }) -join ','))
+    }
+    $skip += $page } while ($rows.Count -eq $page) } finally { $w.Close() }
+}
+function Load-Sql($Server, $Database, $Query, $Dst) {
+  $cn = New-Object System.Data.SqlClient.SqlConnection("Server=$Server;Database=$Database;Integrated Security=True"); $cn.Open()
+  $w = New-Object IO.StreamWriter((Join-Path $Root $Dst), $false, (New-Object Text.UTF8Encoding $false))
+  try { $cmd = $cn.CreateCommand(); $cmd.CommandText = $Query; $cmd.CommandTimeout = 0; $rd = $cmd.ExecuteReader(); $n = $rd.FieldCount; $vals = New-Object object[] $n
+    $w.WriteLine((@(for ($i = 0; $i -lt $n; $i++) { Csv $rd.GetName($i) }) -join ','))
+    while ($rd.Read()) { [void]$rd.GetValues($vals); $w.WriteLine((@(foreach ($v in $vals) { Csv $v }) -join ',')) } }
+  finally { $w.Close(); $cn.Close() }
+}
+try {`;
+const HZ_PS_END = String.raw`  Step 'HTML-витрина' {
+    $t = [IO.File]::ReadAllText((Join-Path $Root 'витрина\шаблон.html'), [Text.Encoding]::UTF8)
+    # JSON собирается вручную: ConvertTo-Json в Windows PowerShell 5.1 медленный и ограничен по размеру; < экранируется (\u003c)
+    Add-Type -AssemblyName System.Web
+    $sb = New-Object Text.StringBuilder; [void]$sb.Append('{"built":"' + (Get-Date).ToString('dd.MM.yyyy HH:mm') + '","tables":[')
+    $i = 0; foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $Root 'витрина\html') -Filter *.csv)) { if ($i++) { [void]$sb.Append(',') }; [void]$sb.Append('{"name":"' + [Web.HttpUtility]::JavaScriptStringEncode($f.BaseName) + '","csv":"' + [Web.HttpUtility]::JavaScriptStringEncode([IO.File]::ReadAllText($f.FullName, [Text.Encoding]::UTF8)) + '"}') }
+    [void]$sb.Append(']}')
+    [IO.File]::WriteAllText((Join-Path $Root 'витрина\Витрина.html'), $t.Replace('__PQM_DATA__', $sb.ToString()), (New-Object Text.UTF8Encoding $false))
+  }
+} catch { $Run.status = 'error'; $Run.error = "$_" }
+$Run.seconds = [math]::Round($All.Elapsed.TotalSeconds, 1)
+$line = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + ';' + $Run.seconds.ToString([Globalization.CultureInfo]::InvariantCulture) + ';' + $Run.status + ';' + ($Run.error -replace '[;\r\n]+', ' ')
+$log = Join-Path $Root 'журнал\журнал.csv'
+if (-not (Test-Path -LiteralPath $log)) { [IO.File]::WriteAllText($log, 'время;секунд;статус;ошибка' + $NL, (New-Object Text.UTF8Encoding $true)) }
+[IO.File]::AppendAllText($log, $line + $NL, (New-Object Text.UTF8Encoding $false))
+[IO.File]::WriteAllText((Join-Path $Root 'журнал\последний.json'), (ConvertTo-Json -Depth 5 $Run), (New-Object Text.UTF8Encoding $false))
+if ($Run.status -eq 'ok') { Write-Host ('Готово за ' + $Run.seconds + ' с. Витрина: витрина\Витрина.html') -ForegroundColor Green; exit 0 }
+Write-Host ('Ошибка: ' + $Run.error) -ForegroundColor Red; Write-Host 'Подробности — журнал\последний.json; откройте папку комплекта в Мастере PQ → Гиперзум → Комплект → Обслуживание.'; exit 1`;
+function hzRefreshPs(prep, sqlOrder, qfiles, o){
+  const L = ['# Гиперзум: обновление данных. Создано Мастером PQ ' + o.now + ' для книги «' + o.book + '».', '# Не правьте вручную — измените запросы в Power Query и пересоздайте комплект в Мастере.', HZ_PS_LIB];
+  for (const p of prep){
+    if (p.kind === 'book') L.push('  Step ' + hzPs('Копия книги и диапазоны таблиц') + ' { Book ' + hzPs(o.bookPath) + ' }');
+    if (p.kind === 'copy') L.push('  Step ' + hzPs('Копия книги: ' + p.name) + ' { Copy-Shared ' + hzPs(p.src) + ' ' + hzPs(p.dst.replace(/\//g, '\\')) + ' }');
+    if (p.kind === 'recode') L.push('  Step ' + hzPs('Перекодировка: ' + p.name) + ' { Recode ' + hzPs(p.src) + ' ' + hzPs(p.dst.replace(/\//g, '\\')) + ' ' + p.cp + ' }');
+    if (p.kind === 'odata') L.push('  Step ' + hzPs('1С OData: ' + p.name) + ' { Load-OData ' + hzPs(p.url) + ' ' + hzPs(p.entity) + ' ' + hzPs(p.dst.replace(/\//g, '\\')) + ' }');
+    if (p.kind === 'sql') L.push('  Step ' + hzPs('SQL Server: ' + p.name) + ' { Load-Sql ' + hzPs(p.server) + ' ' + hzPs(p.db) + ' ' + hzPs(p.query) + ' ' + hzPs(p.dst.replace(/\//g, '\\')) + ' }');
+  }
+  const label = f => { const q = qfiles.find(x => x[1] === f); return q ? 'Запрос «' + q[0] + '»' : ({ 'sql/00_helpers.sql': 'Помощники', 'sql/10_sources.sql': 'Чтение источников', 'sql/90_outputs.sql': 'Выгрузка витрин', 'sql/95_check.sql': 'Сверка с Power Query' })[f] || f; };
+  for (const f of sqlOrder) L.push('  Step ' + hzPs(label(f)) + ' { Sql ' + hzPs(f.replace(/\//g, '\\')) + ' }');
+  L.push(HZ_PS_END);
+  return L.join('\n').replace(/\r?\n/g, '\r\n') + '\r\n';
 }
 function hzSetupPs(exts, o){
   return [
     '# Гиперзум: установка. Создано Мастером PQ ' + o.now + '.',
     "$ErrorActionPreference = 'Stop'",
-    '$Root = Split-Path -Parent $PSScriptRoot; Set-Location $Root',
+    '$Root = Split-Path -Parent $PSScriptRoot; Set-Location -LiteralPath $Root',
     "$Duck = Join-Path $Root 'duckdb.exe'",
-    "if (-not (Test-Path $Duck)) { Write-Host 'Нет duckdb.exe в папке комплекта.' -ForegroundColor Red; Write-Host 'Скачайте DuckDB CLI для Windows (файл duckdb_cli-windows-amd64.zip) с сайта duckdb.org — раздел Installation,'; Write-Host 'распакуйте duckdb.exe в эту папку и запустите «Установить.bat» ещё раз. Если скачивать нельзя — попросите ИТ.'; exit 2 }",
-    "& $Duck -c \"SELECT 'DuckDB ' || version() AS проверка\"; if ($LASTEXITCODE -ne 0) { Write-Host 'duckdb.exe не запускается (антивирус или политика ИТ).' -ForegroundColor Red; exit 2 }",
-    exts.has('excel') ? "Write-Host 'Расширение excel (чтение .xlsx; нужен интернет один раз)…'; & $Duck -c 'INSTALL excel; LOAD excel;'; if ($LASTEXITCODE -ne 0) { Write-Host 'Не удалось установить excel: без интернета скачайте файл excel.duckdb_extension на другом компьютере и выполните duckdb.exe -c \"INSTALL ''путь\\excel.duckdb_extension''\"' -ForegroundColor Yellow }" : '',
-    "foreach ($d in 'журнал','данные','кэш','витрина\\данные','витрина\\html') { New-Item -ItemType Directory -Force (Join-Path $Root $d) | Out-Null }",
+    "if (-not (Test-Path -LiteralPath $Duck)) { Write-Host 'Нет duckdb.exe в папке комплекта.' -ForegroundColor Red; Write-Host 'Скачайте DuckDB CLI для Windows (файл duckdb_cli-windows-amd64.zip) с сайта duckdb.org — раздел Installation,'; Write-Host 'распакуйте duckdb.exe в эту папку и запустите «Установить.bat» ещё раз. Если скачивать нельзя — попросите ИТ.'; exit 2 }",
+    "$ErrorActionPreference = 'Continue'",
+    "& $Duck -c \"SELECT 'DuckDB ' || version() AS duckdb_version\"; if ($LASTEXITCODE -ne 0) { Write-Host 'duckdb.exe не запускается (антивирус или политика ИТ).' -ForegroundColor Red; exit 2 }",
+    exts.has('excel') ? "Write-Host 'Расширение excel (чтение .xlsx; нужен интернет один раз)…'; & $Duck -c 'INSTALL excel; LOAD excel;'; if ($LASTEXITCODE -ne 0) { Write-Host 'Не удалось установить excel. Без интернета: скачайте файл excel.duckdb_extension на другом компьютере и выполните в этой папке: duckdb.exe -c \"INSTALL ''excel.duckdb_extension''\"' -ForegroundColor Yellow }" : '',
+    "foreach ($d in 'журнал','данные','кэш','витрина\\данные','витрина\\html') { [void][IO.Directory]::CreateDirectory((Join-Path $Root $d)) }",
     o.schedule ? "$a = Read-Host 'Обновлять каждый день в " + o.schedule + "? (д/н)'; if ($a -match '^[дДyY]') { $act = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoProfile -ExecutionPolicy Bypass -File \"' + (Join-Path $PSScriptRoot 'refresh.ps1') + '\"') -WorkingDirectory $Root; $tr = New-ScheduledTaskTrigger -Daily -At " + hzPs(o.schedule) + "; Register-ScheduledTask -TaskName " + hzPs('Гиперзум — ' + HZ_SAFE(o.book)) + " -Action $act -Trigger $tr -Description 'Мастер PQ: обновление данных DuckDB' -Force | Out-Null; Write-Host 'Задание в Планировщике Windows создано.' -ForegroundColor Green }" : '',
     "Write-Host 'Первое обновление…'; & (Join-Path $PSScriptRoot 'refresh.ps1')"
   ].filter(Boolean).join('\r\n') + '\r\n';
 }
-function hzReadme(plan, ok, prep, exts, o){
+function hzReadme(plan, ok, prep, exts, o, qfiles){
   const qs = plan.queries.filter(q => q.kind === 'table');
   const ready = qs.filter(q => ok.get(q.name)), wait = qs.filter(q => !ok.get(q.name));
   return [
@@ -7481,7 +7571,7 @@ function hzReadme(plan, ok, prep, exts, o){
     exts.has('excel') ? '2. Расширение excel для чтения .xlsx — «Установить.bat» поставит его сам (нужен интернет один раз).' : '2. Больше ничего: PowerShell уже есть в Windows.',
     '',
     'УСТАНОВКА',
-    '1. Распакуйте комплект в папку' + (o.kitDir ? ': ' + o.kitDir + ' (этот путь записан в Excel-витрину)' : '') + '.',
+    '1. Распакуйте архив так, чтобы получилась папка ' + (o.kitDir || 'комплекта') + (o.kitDir ? ' (этот путь записан в Excel-витрину)' : '') + '.',
     '2. Положите туда duckdb.exe.',
     '3. Запустите «Установить.bat»: проверка DuckDB, ' + (exts.has('excel') ? 'расширение excel, ' : '') + (o.schedule ? 'расписание (каждый день в ' + o.schedule + '), ' : '') + 'первое обновление.',
     '',
@@ -7496,13 +7586,13 @@ function hzReadme(plan, ok, prep, exts, o){
     '• Резерв всегда есть: исходная книга с Power Query работает как раньше.',
     '',
     'ЗАПРОСЫ',
-    ...ready.map(q => '✓ «' + q.name + '» — ' + (q.out ? 'итоговый' : 'промежуточный') + ', шагов ' + q.steps.length),
+    ...ready.map(q => '✓ «' + q.name + '» — ' + (q.out ? 'итоговый' : 'промежуточный') + ', шагов ' + q.steps.length + ' · ' + ((qfiles || []).find(x => x[0] === q.name) || [, ''])[1].replace(/\//g, '\\')),
     ...wait.map(q => '… «' + q.name + '» — пока не в комплекте: ' + (q.manualSteps.length ? q.manualSteps.map(s => '«' + s.name + '» (' + s.reason + ')').join('; ') : 'зависит от непереведённого запроса') + '. Переведите в Мастере (Гиперзум → Оценка → «Задача для Claude») и пересоздайте комплект.'),
     prep.length ? '' : null, prep.length ? 'ЗАГРУЗЧИКИ' : null,
-    ...prep.map(p => '• ' + p.name + ': ' + ({ recode: 'перекодировка ' + p.src + ' в UTF-8', odata: '1С OData ' + p.url + ' / ' + p.entity + ' (логин спросят при первом запуске и сохранят зашифрованным для вашей учётной записи Windows)', sql: 'SQL Server ' + p.server + ' (вход Windows)' })[p.kind]),
+    ...prep.map(p => '• ' + ({ book: 'копия этой книги (' + o.bookPath + ') и текущие диапазоны её таблиц', copy: 'копия книги ' + p.src + ' (её может держать открытой Excel)', recode: 'перекодировка ' + p.src + ' в UTF-8', odata: '1С OData ' + p.url + ' / ' + p.entity + ' (логин спросят при первом запуске и сохранят зашифрованным для вашей учётной записи Windows)', sql: 'SQL Server ' + p.server + ' (вход Windows)' })[p.kind]),
     '',
     'ВАЖНО О ДАННЫХ',
-    'Комплект содержит пути к файлам и базам компании, а после запуска — сами данные (база.duckdb, витрины).',
+    'Комплект содержит пути к файлам и базам компании, а после запуска — сами данные (base.duckdb, витрины).',
     'Храните его там же, где книгу; не пересылайте наружу. В сеть обращаются только загрузчики — к вашим же 1С и SQL Server — и «Установить.bat» один раз за расширением excel.'
   ].filter(x => x !== null).join('\n') + '\n';
 }
@@ -7513,7 +7603,7 @@ const HZ_VZ_CSS = `.vz{--vz-bg:#f6f7fb;--vz-card:#fff;--vz-ink:#1d2433;--vz-mut:
 .vz *{box-sizing:border-box}.vz svg,.vz svg *{stroke:none}.vz svg line{stroke:currentColor}.vz svg text{font-weight:400}.vz-wrap{max-width:1200px;margin:0 auto;padding:20px 16px}.vz h1{font-size:22px;margin:0 0 2px}.vz .vz-sub{color:var(--vz-mut);margin-bottom:16px}
 .vz-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}.vz-tile{background:var(--vz-card);border:1px solid var(--vz-line);border-radius:10px;padding:12px 14px}.vz-tile b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.vz-tile span{color:var(--vz-mut);font-size:12px}
 .vz-sec{background:var(--vz-card);border:1px solid var(--vz-line);border-radius:12px;padding:14px 16px;margin-bottom:16px}.vz-sec h2{font-size:17px;margin:0 0 8px}.vz-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-bottom:10px}
-.vz-chart h3{font-size:13px;color:var(--vz-mut);font-weight:600;margin:0 0 4px}.vz svg{width:100%;height:auto;display:block}.vz svg text{fill:var(--vz-mut);font-size:11px}.vz svg .v{fill:var(--vz-ink)}
+.vz-chart{max-width:640px}.vz-chart h3{font-size:13px;color:var(--vz-mut);font-weight:600;margin:0 0 4px}.vz svg{width:100%;height:auto;display:block}.vz svg text{fill:var(--vz-mut);font-size:11px}.vz svg .v{fill:var(--vz-ink)}
 .vz-tools{display:flex;gap:8px;align-items:center;margin:6px 0}.vz-tools input{flex:1;max-width:320px;padding:6px 10px;border:1px solid var(--vz-line);border-radius:8px;background:var(--vz-bg);color:var(--vz-ink)}.vz-tools span{color:var(--vz-mut);font-size:12px}
 .vz-tbl{overflow:auto;max-height:480px;border:1px solid var(--vz-line);border-radius:8px}.vz table{border-collapse:collapse;width:100%;font-size:13px}.vz th,.vz td{padding:5px 9px;border-bottom:1px solid var(--vz-line);white-space:nowrap;text-align:left}.vz th{position:sticky;top:0;background:var(--vz-card);cursor:pointer;user-select:none}.vz td.vz-n,.vz th.vz-n{text-align:right;font-variant-numeric:tabular-nums;color:inherit}.vz tr.vz-tot td{font-weight:700;background:var(--vz-bg)}.vz td.vz-neg{color:var(--vz-neg)}`;
 /** Рисует витрину: плитки-итоги, по каждой таблице — динамика по датам, крупнейшие категории, таблица с поиском и итогами.
@@ -7570,6 +7660,7 @@ function hzVitrinaRender(root, data){
 }
 /** Файл витрины: data — готовые данные (скачать сейчас) или null — шаблон с меткой __PQM_DATA__ для обновления комплектом */
 function hzVitrinaHtml(data, title){
+  title = String(title || '').replace(/\.(xlsx|xlsm|xlsb|xls|pbix|pbit|m|txt)$/i, '');
   const LT = '<'; const json = data ? JSON.stringify(data).replace(/</g, '\\u003c') : '__PQM_DATA__';
   return LT + '!doctype html>\n' + LT + 'html lang="ru">' + LT + 'head>' + LT + 'meta charset="utf-8">' + LT + 'meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data:">' + LT + 'meta name="viewport" content="width=device-width, initial-scale=1">' +
     LT + 'title>' + escHtml('Витрина — ' + (title || '')) + LT + '/title>' + LT + 'style>body{margin:0}' + HZ_VZ_CSS + LT + '/style>' + LT + '/head>' + LT + 'body class="vz">' + LT + 'div id="root">' + LT + '/div>' +
@@ -7578,11 +7669,11 @@ function hzVitrinaHtml(data, title){
 
 /* ---------- Excel-витрина: копия книги, где итоговые запросы читают готовые CSV из комплекта ---------- */
 const HZ_MTYPE = ty => /^DATE$/.test(ty) ? 'type date' : /^TIMESTAMP/.test(ty) ? 'type datetime' : /^(BIGINT|INTEGER|SMALLINT|TINYINT|HUGEINT|UBIGINT|UINTEGER)/.test(ty) ? 'Int64.Type' : /^(DOUBLE|FLOAT|DECIMAL)/.test(ty) ? 'type number' : ty === 'BOOLEAN' ? 'type logical' : 'type text';
-function hzExcelSection(plan, types, kitDir){
+function hzExcelSection(plan, types, kitDir, opts){
   const sec = parseSection(plan.text); let text = plan.text; const dir = String(kitDir || '').replace(/[\\/]+$/, '');
-  const reps = [];
+  const reps = []; const ok = hzKitQueries(plan, opts);
   for (const m of sec.members){
-    const q = plan.byName.get(m.name); const ty = types.get(m.name); if (!q || !q.out || !ty) continue;
+    const q = plan.byName.get(m.name); const ty = types.get(m.name); if (!q || !q.out || !ty || !ok.get(m.name)) continue;   // CSV пишет только комплект
     const path = dir + '\\витрина\\данные\\' + HZ_SAFE(m.name) + '.csv';
     const code = ' let\r\n    // Гиперзум: данные считает DuckDB (комплект «' + dir + '»). Исходный запрос — в книге-оригинале.\r\n' +
       '    Источник = Csv.Document(File.Contents(' + mQuoteString(path) + '), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),\r\n' +
@@ -9990,7 +10081,7 @@ const hzPlural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1
 function hzQBadge(q){ const s = HZ_QST[q.status] || ['', q.status]; return '<span class="badge ' + s[0] + '">' + s[1] + '</span>'; }
 function hzStepSqlHtml(q, s){
   if (s.kind === 'sql' || s.kind === 'claude'){ if (s.fused) return '<p class="small muted">Слияние выполняется вместе со следующим шагом («Развернуть» или «Агрегировать») — одним JOIN. Нажмите следующий шаг.</p>'; return '<pre class="code wrap">' + hzHl('-- ' + (s.op ? s.op.ui + ' → ' + s.op.sql : 'перевод вручную') + '\n' + hzQ(s.cte) + ' AS (\n  ' + hzPretty(s.sql) + '\n)') + '</pre>'; }
-  if (s.reader){ const r = hzReader(q, s, { wb: hzWbInfo(), bookPath: HZ.kit.book || 'КНИГА.xlsx', text: S.work }); return r ? '<pre class="code wrap">' + hzHl('-- ' + r.note + '\n' + r.sql) + '</pre><p class="small muted">' + (r.prep ? 'Перед чтением: ' + escHtml(r.prep.kind === 'recode' ? 'перекодировка в UTF-8 (PowerShell)' : r.prep.kind === 'odata' ? 'выгрузка из 1С OData в CSV (PowerShell)' : 'выгрузка из SQL Server в CSV (PowerShell)') + '. ' : '') + 'В браузере этот шаг считает Мастер, в комплекте — DuckDB читает источник сам.</p>' : '<p class="small muted">Источник без готового чтения в комплекте.</p>'; }
+  if (s.reader){ const iss = hzReaderIssue(q, s, hzKitOpts()); const r = iss ? null : hzReader(q, s, hzKitOpts()); if (iss) return '<div class="note warn small"><b>В комплекте не читается:</b> ' + escHtml(iss) + '</div><p class="small muted">В браузере этот шаг считает Мастер — сверке это не мешает.</p>'; return r ? '<pre class="code wrap">' + hzHl('-- ' + r.note + '\n' + r.sql) + '</pre><p class="small muted">' + (r.prep ? 'Перед чтением: ' + escHtml(r.prep.kind === 'recode' ? 'перекодировка в UTF-8 (PowerShell)' : r.prep.kind === 'odata' ? 'выгрузка из 1С OData в CSV (PowerShell)' : 'выгрузка из SQL Server в CSV (PowerShell)') + '. ' : '') + 'В браузере этот шаг считает Мастер, в комплекте — DuckDB читает источник сам.</p>' : '<p class="small muted">Источник без готового чтения в комплекте.</p>'; }
   if (s.kind === 'helper') return '<p class="small muted">Значение или список — DuckDB подставит его прямо в те шаги, где оно используется.</p>';
   return '<div class="note bad small"><b>Не переводится автоматически:</b> ' + escHtml(s.reason) + '</div><p class="small muted">В браузере этот шаг посчитает Мастер по логике Power Query, всё после него — DuckDB. Для комплекта нужен SQL: <button class="btn sm" data-hz-man="' + escHtml(q.name + '\u0001' + s.name) + '">✍ Перевести</button></p>';
 }
@@ -10005,7 +10096,7 @@ function hzDetailBody(q){
 /** Таблицы книги: имя → лист и диапазон (для чтения в комплекте) */
 function hzWbInfo(){
   const m = new Map(); if (!DATA.wb || !S.book || !S.book.zip) return m;
-  for (const t of DATA.wb.tables) if (t.sheet) m.set(t.name, { sheet: t.sheet, range: t.range || null });
+  for (const t of DATA.wb.tables) if (t.sheet) m.set(t.name, { sheet: t.sheet, range: t.range || null, header: t.header, totals: t.totals || 0 });
   return m;
 }
 
@@ -10013,9 +10104,10 @@ function hzWbInfo(){
 const hzProgFn = () => t => { HZ.progress = t; const el = $('#hzProg'); if (el) el.textContent = t; };
 async function hzRun(){
   if (HZ.busy || !S.A) return;
-  HZ.busy = true; HZ.progress = ''; HZ.scale = null; renderHyper();
+  HZ.busy = true; HZ.progress = ''; HZ.scale = null; HZ.counts = new Map();
   const prog = hzProgFn();
   try {
+    renderHyper();
     const P = hzEnsure();
     await duckOpen(prog);
     if (!dataRunValid()){ prog('Эталон: запросы по логике Power Query…'); await tick(); await dataRunAll(); }
@@ -10062,9 +10154,10 @@ const hzRepeat = (t, k) => { const rows = new Array(t.rows.length * k); let o = 
 async function hzScale(k, auto){
   if (!HZ.run || (HZ.busy && !auto)) return;
   const prog = hzProgFn();
-  if (!auto){ HZ.busy = true; renderHyper(); }
-  const P = HZ.plan;
+  if (!auto){ HZ.busy = true; }
+  const P = HZ.plan; HZ.counts = new Map();
   try {
+    if (!auto) renderHyper();
     const items = HZ.run.items.filter(it => it.duckMs != null && !it.sqlError && !it.fallback);
     const cand = []; for (const it of items) for (const [n, v] of it.vals || []) cand.push({ q: it.name, name: hzMatName(it.name, n), rows: v.rows.length, dim: P.dims.has(it.name) });
     let facts = cand.filter(c => !c.dim && c.rows); if (!facts.length) facts = cand.filter(c => c.rows);
@@ -10153,7 +10246,7 @@ function hzRunHtml(){
 }
 /** Шаги запроса: строки в Power Query и в DuckDB по каждому шагу — первое расхождение видно сразу */
 function hzStepsCmpHtml(q, it){
-  const ref = DATA.run.queries.find(x => x.name === q.name); const P = HZ.plan; const parts = hzQueryParts(P, q); const real = parts.ctes.filter(c => !c.fused);
+  if (!DATA.run) return ''; const ref = DATA.run.queries.find(x => x.name === q.name); const P = HZ.plan; const parts = hzQueryParts(P, q); const real = parts.ctes.filter(c => !c.fused);
   let counts = HZ.counts.get(q.name);
   if (!counts && DUCK.c && !it.sqlError){ counts = new Map(); real.forEach((c, i) => { try { counts.set(c.step, duckCount(hzWith(parts, i) + ' SELECT * FROM ' + c.name)); } catch { counts.set(c.step, null); } }); HZ.counts.set(q.name, counts); }
   let first = null;
@@ -10179,10 +10272,11 @@ async function hzLocalSave(what){
 function hzKitOpts(){
   const base = S.book.name.replace(/\.[^.]+$/, '');
   const types = new Map(); if (HZ.run) for (const it of HZ.run.items) if (it.types) types.set(it.name, it.types);
-  return { book: S.book.name, bookPath: HZ.kit.book || 'C:\\Отчёты\\' + S.book.name, kitDir: HZ.kit.dir || 'C:\\Гиперзум\\' + HZ_SAFE(base), wb: hzWbInfo(), run: dataRunValid() ? DATA.run : null, schedule: HZ.kit.sched ? HZ.kit.time : '', types, now: new Date().toLocaleString('ru-RU'), text: S.work };
+  const matCols = new Map(); if (HZ.run) for (const it of HZ.run.items) for (const [n, v] of it.vals || []) matCols.set(hzMatName(it.name, n), v.cols);
+  return { book: S.book.name, bookPath: HZ.kit.book || 'C:\\Отчёты\\' + S.book.name, kitDir: HZ.kit.dir || 'C:\\Гиперзум\\' + HZ_SAFE(base), wb: hzWbInfo(), run: dataRunValid() ? DATA.run : null, schedule: HZ.kit.sched ? HZ.kit.time : '', types, matCols, now: new Date().toLocaleString('ru-RU'), text: S.work };
 }
 function hzKitHtml(){
-  const P = HZ.plan; const ok = hzKitQueries(P); const tq = P.queries.filter(q => q.kind === 'table'); const o = hzKitOpts();
+  const P = HZ.plan; const o = hzKitOpts(); const ok = hzKitQueries(P, o); const tq = P.queries.filter(q => q.kind === 'table');
   const srcs = []; const loaders = []; let xl = false;
   for (const q of tq) for (const n of q.mat){ const s = q.steps.find(x => x.name === n); if (!s.reader) continue; const r = s.reader; if (r.kind === 'wb' || r.kind === 'xlsx') xl = true; (r.loader ? loaders : srcs).push(r.kind === 'wb' ? 'таблица «' + r.table + '»' : r.kind === 'csv' ? 'CSV ' + r.path.replace(/^.*[\\/]/, '') : r.kind === 'xlsx' ? 'лист «' + r.sheet + '»' : r.kind === 'odata' ? '1С: ' + r.entity : r.kind === 'sqldb' ? 'SQL: ' + (r.table || 'запрос') : r.kind === 'folder' ? 'папка ' + r.path.replace(/^.*[\\/]/, '') : r.kind); }
   const box = (t, items, cls) => '<div class="hz-fbox ' + (cls || '') + '"><b>' + t + '</b>' + items.slice(0, 7).map(x => '<span>' + escHtml(x) + '</span>').join('') + (items.length > 7 ? '<span class="muted">…ещё ' + (items.length - 7) + '</span>' : '') + '</div>';
@@ -10245,7 +10339,7 @@ function hzMaintHtml(){
 async function hzKitFilesNow(){ const P = hzEnsure(); return hzKitFiles(P, hzKitOpts()); }
 async function hzKitZip(){
   if (!(await hzLocalSave('комплект'))) return;
-  const files = await hzKitFilesNow(); const root = 'Гиперзум — ' + HZ_SAFE(S.book.name.replace(/\.[^.]+$/, ''));
+  const files = await hzKitFilesNow(); const root = HZ_SAFE(hzKitOpts().kitDir.split(/[\\/]/).filter(Boolean).pop() || 'Гиперзум');   // корень архива = последняя папка пути комплекта
   const entries = []; for (const f of files) entries.push(await zipFinalizeNew(zipNewEntry(root + '/' + f.path, te.encode(f.text), true)));
   download(root + '.zip', zipWrite(entries), 'application/zip'); toast('Комплект: ' + files.length + ' файлов. Распакуйте, положите duckdb.exe и запустите «Установить.bat».', 'ok', 8000);
 }
@@ -10259,7 +10353,7 @@ async function hzKitDir(){
 async function hzKitXl(){
   if (!HZ.run || S.book.family !== 'excel') return;
   if (!(await hzLocalSave('Excel-витрину'))) return;
-  const o = hzKitOpts(); const sec = hzExcelSection(HZ.plan, o.types, o.kitDir);
+  const o = hzKitOpts(); const sec = hzExcelSection(HZ.plan, o.types, o.kitDir, o);
   if (!sec.count) return toast('Нет итоговых запросов, посчитанных в DuckDB.', 'warn');
   const bytes = await buildBookWithSection(S.book, sec.text, {});
   download(S.book.name.replace(/(\.[^.]+)$/, ' — витрина Гиперзум$1'), bytes);
@@ -10343,7 +10437,8 @@ function hzWire(){
   });
 }
 registerView('hyper', { render: () => renderHyper(), onShow: () => renderHyper() });
-onState(reason => { if (reason === 'book'){ HZ.plan = null; HZ.planKey = ''; HZ.run = null; HZ.over = new Map(); HZ.selQ = null; HZ.selStep = null; HZ.maint = null; HZ.scale = null; HZ.vz = false; HZ.kit.book = ''; HZ.kit.dir = ''; } });
+onState(reason => { if (reason === 'data' && HZ.run && !HZ.busy){ HZ.run = null; HZ.scale = null; HZ.counts = new Map(); }   // данные изменились — сверку нужно повторить
+  if (reason === 'book'){ HZ.plan = null; HZ.planKey = ''; HZ.run = null; HZ.over = new Map(); HZ.selQ = null; HZ.selStep = null; HZ.maint = null; HZ.scale = null; HZ.vz = false; HZ.kit.book = ''; HZ.kit.dir = ''; } });
 hzWire();
 /* ===== END src/js/views/hyper.js ===== */
 /* ===== BEGIN src/js/views/reference.js ===== */
@@ -11599,7 +11694,7 @@ async function runSelfTest(){
       '    С = Table.NestedJoin(Т, {"Счёт"}, Спр, {"Код"}, "М", JoinKind.LeftOuter),', '    Р = Table.ExpandTableColumn(С, "М", {"ЦФО"}),', '    Г = Table.Group(Р, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}}),', '    Ф = Table.Buffer(Table.FromList({1}, null))', 'in', '    Г;', ''].join('\r\n');
     const pl = hzPlan(analyzeSection(sec, {})); const q = pl.byName.get('П'); const sql = hzQuerySql(pl, q);
     ok('Гиперзум: M → SQL — источники и шаги классифицированы, слияние+развёртка = один JOIN, группировка = GROUP BY', q.steps.find(x => x.name === 'И').kind === 'source' && q.steps.find(x => x.name === 'З').reader.header && q.steps.find(x => x.name === 'Р').kind === 'sql' && /LEFT JOIN/.test(sql) && /GROUP BY/.test(sql) && /Power Query: Группировать по → SQL: GROUP BY/.test(sql) && q.steps.find(x => x.name === 'Ф').dead && hzPlan(analyzeSection('section Section1;\r\nshared Т = let A = #table({"a"}, {{1}}), B = Table.Transpose(A) in B;\r\n', {})).stats.manual >= 1, JSON.stringify(pl.stats));
-    const files = hzKitFiles(pl, { book: 'К.xlsx', bookPath: 'C:\\К.xlsx', kitDir: 'C:\\Kit', wb: new Map(), run: null, schedule: '06:30', types: new Map(), now: 'сейчас', text: sec });
+    const files = hzKitFiles(pl, { book: 'К.xlsx', bookPath: 'C:\\К.xlsx', kitDir: 'C:\\Kit', wb: new Map(), run: null, schedule: '06:30', types: new Map(), matCols: new Map(), now: 'сейчас', text: sec });
     const ps = files.find(f => f.path === 'scripts/refresh.ps1').text;
     ok('Гиперзум: комплект — SQL, PowerShell с BOM и перекодировкой cp1251, расписание, инструкция, без значений данных', files.length >= 9 && ps.charCodeAt(0) === 0xFEFF && /Recode/.test(ps) && /1251/.test(ps) && /Register-ScheduledTask/.test(files.find(f => f.path === 'scripts/setup.ps1').text) && files.some(f => f.path === 'ПРОЧТИ МЕНЯ.txt'), files.map(f => f.path).join(', '));
     const same = hzCompare(new MTab(['a', 'b'], [[1, 'x'], [2, null]]), new MTab(['b', 'a', HZ_R], [[null, 2, 1], ['x', 1, 2]]));

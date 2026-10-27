@@ -108,7 +108,7 @@ function hzConv(x, ty, cu, cx){
   if (k === 'any') return x;
   if (k === 'num') return 'pq_num' + cu + '(' + x + ')';
   if (k === 'int') return 'round_even(pq_num' + cu + '(' + x + '), 0)';
-  if (k === 'cur') return 'round_even(pq_num' + cu + '(' + x + '), 4)';
+  if (k === 'cur') return 'round_even(pq_num' + cu + '(' + x + ') * 10000, 0) / 10000';
   if (k === 'text'){ cx.risk('text'); return 'pq_text(' + x + ')'; }
   if (k === 'date') return 'pq_date' + cu + '(' + x + ')';
   if (k === 'datetime') return 'pq_datetime' + cu + '(' + x + ')';
@@ -116,8 +116,12 @@ function hzConv(x, ty, cu, cx){
 }
 const HZ_AGG = { 'List.Sum': 'sum', 'List.Average': 'avg', 'List.Min': 'min', 'List.Max': 'max', 'List.Median': 'median', 'List.StandardDeviation': 'stddev_samp', 'List.NonNullCount': 'count', 'List.Count': 'count(*)', 'List.First': 'first', 'List.Last': 'last', 'List.Product': 'product', 'List.Mode': 'mode' };
 const HZ_LISTFN = { 'List.Sum': 'list_sum', 'List.Min': 'list_min', 'List.Max': 'list_max', 'List.Average': 'list_avg', 'List.Count': 'len', 'List.NonNullCount': 'list_count' };
-const hzRound = (x, d, mode) => { const f = d === '0' ? '' : ', ' + d; const p = 'power(10, ' + d + ')';
-  return mode === 0 ? (d === '0' ? 'ceil(' + x + ')' : 'ceil(' + x + ' * ' + p + ') / ' + p) : mode === 1 ? (d === '0' ? 'floor(' + x + ')' : 'floor(' + x + ' * ' + p + ') / ' + p) : mode === 2 ? 'round(' + x + f + ')' : mode === 3 ? (d === '0' ? 'trunc(' + x + ')' : 'trunc(' + x + ' * ' + p + ') / ' + p) : 'round_even(' + x + (d === '0' ? ', 0' : f) + ')'; };
+/** Number.Round: режим — куда идёт ровно половина (Up/Down/AwayFromZero/TowardZero/ToEven); как в Power Query */
+const hzRound = (x, d, mode) => { const p = 'power(10, ' + d + ')';
+  // как Power Query (.NET): сначала умножить на 10^d, округлить целое, разделить — иначе 19.65 → 19.7 вместо 19.6
+  return mode === 0 ? 'floor(' + x + ' * ' + p + ' + 0.5) / ' + p : mode === 1 ? 'ceil(' + x + ' * ' + p + ' - 0.5) / ' + p : mode === 2 ? 'round(' + x + ' * ' + p + ') / ' + p : mode === 3 ? 'sign(' + x + ') * ceil(abs(' + x + ') * ' + p + ' - 0.5) / ' + p : 'round_even(' + x + ' * ' + p + ', 0) / ' + p; };
+/** Number.RoundUp/Down/TowardZero/AwayFromZero — направленное округление (не только половины) */
+const hzRoundDir = (x, d, k) => { const p = 'power(10, ' + d + ')'; return k === 'up' ? 'ceil(' + x + ' * ' + p + ') / ' + p : k === 'down' ? 'floor(' + x + ' * ' + p + ') / ' + p : k === 'zero' ? 'trunc(' + x + ' * ' + p + ') / ' + p : 'sign(' + x + ') * ceil(abs(' + x + ') * ' + p + ') / ' + p; };
 /** Скалярные функции: имя → (a — SQL аргументов, n — узлы, cx) => SQL */
 const HZ_FN = {
   'Text.Upper': a => 'upper(' + a[0] + ')', 'Text.Lower': a => 'lower(' + a[0] + ')', 'Text.Proper': a => 'list_aggregate(list_transform(string_split(lower(' + a[0] + "), ' '), w -> upper(left(w, 1)) || substr(w, 2)), 'string_agg', ' ')",
@@ -129,7 +133,8 @@ const HZ_FN = {
   'Text.StartsWith': (a, n) => hzIgnoreCase(n[2]) ? 'starts_with(lower(' + a[0] + '), lower(' + a[1] + '))' : 'starts_with(' + a[0] + ', ' + a[1] + ')',
   'Text.EndsWith': (a, n) => hzIgnoreCase(n[2]) ? 'ends_with(lower(' + a[0] + '), lower(' + a[1] + '))' : 'ends_with(' + a[0] + ', ' + a[1] + ')',
   'Text.Replace': a => 'replace(' + a[0] + ', ' + a[1] + ', ' + a[2] + ')', 'Text.Repeat': a => 'repeat(' + a[0] + ', ' + a[1] + ')', 'Text.Reverse': a => 'reverse(' + a[0] + ')',
-  'Text.PadStart': (a, n) => 'lpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ')', 'Text.PadEnd': (a, n) => 'rpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ')',
+  // lpad/rpad в DuckDB обрезают длинный текст, Text.PadStart/PadEnd — нет
+  'Text.PadStart': (a, n) => 'CASE WHEN length(' + a[0] + ') >= ' + a[1] + ' THEN ' + a[0] + ' ELSE lpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ') END', 'Text.PadEnd': (a, n) => 'CASE WHEN length(' + a[0] + ') >= ' + a[1] + ' THEN ' + a[0] + ' ELSE rpad(' + a[0] + ', ' + a[1] + ', ' + (n.length > 2 ? a[2] : "' '") + ') END',
   'Text.PositionOf': (a, n) => n.length > 2 ? hzNo('Text.PositionOf с вхождением') : '(strpos(' + a[0] + ', ' + a[1] + ') - 1)',
   'Text.BeforeDelimiter': (a, n) => n.length > 2 ? hzNo('Text.BeforeDelimiter с номером вхождения') : 'CASE WHEN strpos(' + a[0] + ', ' + a[1] + ') > 0 THEN split_part(' + a[0] + ', ' + a[1] + ', 1) ELSE ' + a[0] + ' END',
   'Text.AfterDelimiter': (a, n) => n.length > 2 ? hzNo('Text.AfterDelimiter с номером вхождения') : "CASE WHEN strpos(" + a[0] + ', ' + a[1] + ') > 0 THEN substr(' + a[0] + ', strpos(' + a[0] + ', ' + a[1] + ') + length(' + a[1] + ")) ELSE '' END",
@@ -137,9 +142,9 @@ const HZ_FN = {
   'Text.From': (a, n) => n.length > 1 && hzCulture(n[1]) === '' && hzConst(n[1]) ? 'pq_text_ru(' + a[0] + ')' : 'pq_text(' + a[0] + ')',
   'Text.ToText': a => 'pq_text(' + a[0] + ')', 'Number.ToText': (a, n) => n.length > 1 ? hzNo('Number.ToText с форматом') : 'pq_text(' + a[0] + ')',
   'Number.From': (a, n) => 'pq_num' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')', 'Number.FromText': (a, n) => 'pq_num' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')',
-  'Int64.From': a => 'round_even(pq_num(' + a[0] + '), 0)', 'Currency.From': a => 'round_even(pq_num(' + a[0] + '), 4)', 'Decimal.From': a => 'pq_num(' + a[0] + ')', 'Logical.From': a => 'pq_bool(' + a[0] + ')',
+  'Int64.From': a => 'round_even(pq_num(' + a[0] + '), 0)', 'Currency.From': a => 'round_even(pq_num(' + a[0] + ') * 10000, 0) / 10000', 'Decimal.From': a => 'pq_num(' + a[0] + ')', 'Logical.From': a => 'pq_bool(' + a[0] + ')',
   'Number.Round': (a, n) => hzRound(a[0], n.length > 1 && hzConst(n[1]) !== null ? a[1] : '0', hzEnum(n[2], 4)),
-  'Number.RoundUp': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 0), 'Number.RoundDown': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 1), 'Number.RoundTowardZero': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 3), 'Number.RoundAwayFromZero': (a, n) => hzRound(a[0], n.length > 1 ? a[1] : '0', 2),
+  'Number.RoundUp': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'up'), 'Number.RoundDown': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'down'), 'Number.RoundTowardZero': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'zero'), 'Number.RoundAwayFromZero': (a, n) => hzRoundDir(a[0], n.length > 1 ? a[1] : '0', 'away'),
   'Number.Abs': a => 'abs(' + a[0] + ')', 'Number.Sign': a => 'sign(' + a[0] + ')', 'Number.Power': a => 'power(' + a[0] + ', ' + a[1] + ')', 'Number.Sqrt': a => 'sqrt(' + a[0] + ')',
   'Number.IntegerDivide': a => 'trunc((' + a[0] + ') / (' + a[1] + '))', 'Number.Mod': a => '((' + a[0] + ') - (' + a[1] + ') * trunc((' + a[0] + ') / (' + a[1] + ')))',
   'Date.From': (a, n) => 'pq_date' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')', 'Date.FromText': (a, n) => 'pq_date' + (n.length > 1 ? hzCulture(n[1]) : '') + '(' + a[0] + ')',
@@ -363,7 +368,7 @@ const HZ_T = {
   'Table.Pivot': (a, cx) => {
     const an = hzStr(a[2]), vn = hzStr(a[3]); const AG = { 'List.Sum': 'sum', 'List.Count': 'count', 'List.Min': 'min', 'List.Max': 'max', 'List.Average': 'avg', 'List.NonNullCount': 'count' };
     let ag = 'first'; if (a[4] && hzConst(a[4]) !== null){ if (a[4].k !== 'id' || !AG[a[4].n]) hzNo('агрегат сведения ' + (a[4].n || 'выражением')); ag = AG[a[4].n]; } else cx.risk('pivot-first');
-    let vals = ''; const v = a[1]; if (v.k === 'list') vals = ' IN (' + v.items.map(x => hzS(String(hzConst(x)))).join(', ') + ')'; else if (!(v.k === 'call' && v.f.n === 'List.Distinct')) cx.risk('pivot-vals');
+    let vals = ''; const v = a[1]; if (v.k === 'list') vals = ' IN (' + v.items.map(x => { const c = hzConst(x); if (c === undefined || c === null) hzNo('значения сведения заданы выражением'); return hzS(String(c)); }).join(', ') + ')'; else if (!(v.k === 'call' && v.f.n === 'List.Distinct')) cx.risk('pivot-vals');
     cx.risk('order');
     return 'SELECT *, row_number() OVER () AS ' + HZ_R + ' FROM (PIVOT (SELECT * EXCLUDE (' + HZ_R + ') FROM ' + cx.st.tref(a[0]) + ') ON ' + hzQ(an) + vals + ' USING ' + ag + '(' + hzQ(vn) + '))';
   },
@@ -413,7 +418,7 @@ function hzSource(n, st){
       if (o instanceof MRec){ const g = k => o.has(k) ? o.get(k) : null; delim = g('Delimiter'); enc = g('Encoding'); cols = g('Columns'); } else cols = o;
       return { kind: 'csv', path: b.path, delim: typeof delim === 'string' && delim ? delim : ',', enc: enc == null ? 65001 : enc, ncols: typeof cols === 'number' ? cols : Array.isArray(cols) ? cols.length : null, names: Array.isArray(cols) ? cols.map(String) : null, header: false, skip: 0, stage: 'table' };
     }
-    if (fn === 'Excel.Workbook'){ const b = hzSource(a[0], st); if (!b || b.kind !== 'file') return null; return { kind: 'xlsx', path: b.path, headers: a[2] ? st.val(a[2]) === true : false, stage: 'nav' }; }
+    if (fn === 'Excel.Workbook'){ const b = hzSource(a[0], st); if (!b || b.kind !== 'file') return null; return { kind: 'xlsx', path: b.path, headers: a[1] ? st.val(a[1]) === true : false, stage: 'nav' }; }   // (книга, useHeaders, delayTypes)
     if (fn === 'Folder.Files' || fn === 'Folder.Contents') return { kind: 'folder', path: String(st.val(a[0])), stage: 'table', loader: true };
     if (fn === 'OData.Feed') return { kind: 'odata', url: String(st.val(a[0])), stage: 'nav', loader: true };
     if (fn === 'Sql.Database'){ const o = a[2] ? st.val(a[2]) : null; const qy = o instanceof MRec && o.has('Query') ? o.get('Query') : null; return { kind: 'sqldb', server: String(st.val(a[0])), db: String(st.val(a[1])), query: qy, stage: qy ? 'table' : 'nav', loader: true }; }
@@ -546,6 +551,12 @@ function hzQueryPlan(A, m, plan, env, qnames){
   const need = new Set(); if (q.boundary >= 0 && (finStep.idx <= q.boundary || q.steps.slice(q.boundary + 1).some(s => s.kind === 'sql' || s.kind === 'claude'))) need.add(q.steps[q.boundary].name);
   for (const s of q.steps.slice(q.boundary + 1)) for (const r of s.refs){ const t = q.steps.find(x => x.name === r); if (t && t.idx <= q.boundary) need.add(r); }
   if (finStep.idx <= q.boundary) need.add(fin);
+  if (finStep.kind === 'helper'){   // итог запроса — значение (текст, число, список), а не таблица
+    q.kind = 'value'; q.status = 'param'; q.reason = 'значение, а не таблица — подставляется в SQL';
+    try { const v = deepForce(evalNode(ast.k === 'let' ? ast.body : ast, ast.k === 'let' ? e2 : env)); if (v === null || ['string', 'number', 'boolean'].includes(typeof v) || v instanceof MDate) plan.params.set(m.name, v); else { q.status = 'manual'; q.reason = 'значение-список или запись: в SQL подставляются только текст, число, дата'; } }
+    catch (e){ q.status = 'manual'; q.reason = 'значение не вычисляется: ' + (e.message || e); }
+    q.manualSteps = []; q.gain = { level: 0, text: 'значение — выигрыша нет' }; return q;
+  }
   q.mat = q.steps.filter(s => need.has(s.name)).map(s => s.name);
   q.final = fin;
   // перевод держится на шагах после границы; шаги до неё в браузере считает интерпретатор

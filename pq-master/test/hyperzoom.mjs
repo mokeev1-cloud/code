@@ -2,7 +2,7 @@
 /*
   Гиперзум: сравнительный тест «логика Power Query (интерпретатор Мастера) ↔ настоящий DuckDB».
   node pq-master/test/hyperzoom.mjs      (нужны python3 и пакет duckdb: pip install duckdb==1.4.3)
-  13 запросов с типичными операциями (типы, фильтры, слияния, группировки, сведение и отмена свёртки,
+  14 запросов с типичными операциями (типы, фильтры, слияния, группировки, сведение и отмена свёртки,
   «Заполнить вниз», поиск в справочнике, объединение…): значения шагов до перевода считает интерпретатор,
   они грузятся в DuckDB, затем выполняется переведённый SQL (hzQuerySql) и результат сверяется (hzCompare).
   Эталон — интерпретатор: расхождение — это баг перевода или интерпретатора. Код возврата 1 при расхождении.
@@ -117,6 +117,16 @@ shared Объединение = let
 in
     Вместе;
 shared Итог = Table.Group(Проводки, {}, {{"Всего", each List.Sum([Сумма])}, {"Строк", each Table.RowCount(_)}});
+shared Округление = let
+    Источник = Table.SelectColumns(Проводки, {"Сумма", "Контрагент"}),
+    Режимы = Table.AddColumn(Источник, "Вверх", each Number.Round([Сумма] / 7, 1, RoundingMode.Up)),
+    Р2 = Table.AddColumn(Режимы, "Вниз", each Number.Round([Сумма] / 7, 1, RoundingMode.Down)),
+    Р3 = Table.AddColumn(Р2, "К нулю", each Number.Round([Сумма] / 7, 1, RoundingMode.TowardZero)),
+    Р4 = Table.AddColumn(Р3, "От нуля", each Number.RoundAwayFromZero([Сумма] / 7, 1)),
+    Р5 = Table.AddColumn(Р4, "Половины", each Number.Round([Сумма] / 4, 1)),
+    Код = Table.AddColumn(Р5, "Код", each Text.PadStart(Text.From(Number.Abs(Number.RoundDown([Сумма]))), 3, "0"))
+in
+    Код;
 `;
 
 X.setData({ currentWorkbook: () => wb, file: () => null, folder: () => null });

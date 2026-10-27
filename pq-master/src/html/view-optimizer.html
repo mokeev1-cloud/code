@@ -1,0 +1,27 @@
+<section class="view" id="view-optimizer">
+  <div class="needbook-msg">Откройте книгу, чтобы увидеть советы оптимизатора.</div>
+  <div class="hasbook">
+    <div class="page-h"><h1>Оптимизатор</h1><span class="sp"></span>
+      <button class="btn pri" id="optSpeedup" title="Всё автоматическое одной кнопкой: проверенные на данных ускорения, безопасные исправления, настройки подключений — и отчёт">⚡ Ускорить книгу</button>
+      <button class="btn" id="optApplySafe">Применить все безопасные</button>
+      <button class="btn" id="optReport" title="Скопировать советы списком">Отчёт</button></div>
+    <div class="opt-top">
+      <div class="card dash-score" id="optScore"></div>
+      <div class="card" id="optBreakdown"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Карта тяжести шагов</h2><span class="sp"></span><span class="small muted" id="heatNote"></span></div>
+      <div id="optHeat"></div>
+    </div>
+    <div class="card hidden" id="optBook">
+      <div class="card-h"><h2>Как обновляется книга</h2><span class="small muted">макросы и свойства подключений — на оценку не влияют</span><span class="sp"></span><b class="small" id="optBookPending" style="color:var(--warn)"></b><button class="btn sm pri" id="optSettings">⚙ Настройки PQ и Excel</button></div>
+      <div id="optBookList" class="book-issues"></div>
+    </div>
+    <div class="filters">
+      <div class="seg" id="optSafety"><button data-v="" class="on">Все</button><button data-v="safe">Безопасные</button><button data-v="check">Проверить</button><button data-v="manual">Вручную</button></div>
+      <select id="optQuery"><option value="">все запросы</option></select>
+      <select id="optImpact"><option value="">любое влияние</option><option value="speed">скорость</option><option value="reliability">надёжность</option><option value="portability">переносимость</option><option value="clarity">читаемость</option></select>
+    </div>
+    <div id="optCards" class="opt-cards"></div>
+  </div>
+</section>

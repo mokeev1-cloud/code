@@ -1,0 +1,26 @@
+<section class="view" id="view-sandbox">
+  <div class="page-h"><h1>Песочница</h1><span class="small muted">Вычисление M прямо в браузере — на таблицах книги и прикреплённых выгрузках. Базы и веб недоступны (сети нет) — подменяйте их образцами.</span></div>
+  <div class="seg big" id="sbMode"><button data-m="expr" class="on">Выражение</button><button data-m="query">Пошаговый прогон запроса</button></div>
+  <div id="sbExpr">
+    <div class="sb-grid">
+      <div class="card">
+        <div class="card-h"><h2>Выражение M</h2><span class="sp"></span><select id="sbExamples"><option value="">примеры…</option></select></div>
+        <div id="sbExprHost" class="ed-mini"></div>
+        <div class="row"><button class="btn pri" id="sbEval">Вычислить <kbd>Ctrl</kbd>+<kbd>Enter</kbd></button><span class="small muted">Запросы книги доступны по имени — если они не обращаются к источникам.</span></div>
+      </div>
+      <div class="card"><div class="card-h"><h2>Результат</h2><span class="sp"></span><span class="small muted" id="sbExprTime"></span></div><div id="sbExprOut" class="sb-out"></div></div>
+    </div>
+  </div>
+  <div id="sbQuery" class="hidden">
+    <div class="needbook-msg">Откройте книгу, чтобы прогонять запросы.</div>
+    <div class="hasbook">
+      <div class="card">
+        <div class="row"><label>Запрос: <select id="sbQSel"></select></label><button class="btn pri" id="sbQRun">▶ Прогнать</button><span class="sp"></span><span class="small muted">Шаг с источником подмените данными: образец CSV/XLSX или таблица вручную.</span></div>
+      </div>
+      <div class="sb-steps">
+        <div class="card" id="sbStepList"></div>
+        <div class="card" id="sbStepOut"></div>
+      </div>
+    </div>
+  </div>
+</section>

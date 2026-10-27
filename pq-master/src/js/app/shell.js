@@ -12,6 +12,7 @@ const ICONS = {
   puzzle: '<path d="M10 3h4v3a2 2 0 104 0V3h3v7h-3a2 2 0 100 4h3v7h-7v-3a2 2 0 10-4 0v3H3v-7h3a2 2 0 100-4H3V3z"/>', doc: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h8"/>',
   diff: '<path d="M6 3v12M3 6h6M15 18h6M18 9v12"/><circle cx="18" cy="5" r="2"/><circle cx="6" cy="19" r="2"/>', shield: '<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
   pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>', reply: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v4"/>', robot: '<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/>',
+  rocket: '<path d="M12 2c3 2 5 6 5 10l-2 4H9l-2-4c0-4 2-8 5-10z"/><circle cx="12" cy="9" r="1.6"/><path d="M9 16l-2 4 3-1M15 16l2 4-3-1"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 2-2.5 2-2.5 4M12 17h.01"/>', check: '<path d="M4 12l5 5L20 6"/>', map: '<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>', table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'
 };
 const icon = n => '<svg viewBox="0 0 24 24">' + (ICONS[n] || '') + '</svg>';
@@ -19,6 +20,7 @@ const NAV = [
   { g: 'Книга' },
   { id: 'home', icon: 'home', label: 'Обзор', hk: 'Alt+1' },
   { id: 'model', icon: 'map', label: 'Карта модели' },
+  { id: 'hyper', icon: 'rocket', label: 'Гиперзум', cls: () => 'acc' },
   { id: 'data', icon: 'table', label: 'Проверка на данных', cnt: () => dataRunValid() ? DATA.run.findings.filter(f => f.sev !== 'info').length : 0 },
   { id: 'optimizer', icon: 'bolt', label: 'Оптимизатор', hk: 'Alt+3', cnt: () => S.opt ? S.opt.findings.filter(f => f.sev === 'err' || f.sev === 'warn').length : 0, cls: () => S.opt && S.opt.findings.some(f => f.sev === 'err') ? 'bad' : 'warn' },
   { id: 'editor', icon: 'code', label: 'Редактор', hk: 'Alt+2', cnt: () => S.A ? S.A.members.length : 0 },

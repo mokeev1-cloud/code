@@ -11,6 +11,7 @@
    типы проверяются упрощённо, часть функций отсутствует (будет понятная ошибка).
    API: mParse(text) → AST; mEval(text, sectionText?) → значение;
         mRunSteps(sectionText, member, overrides) → результаты по шагам;
+        mStepValues(sectionText, member, names, overrides) → значения выбранных шагов;
         mRender(value) → HTML.
    Зависит от: lexM, isSig, nameOf, M_KEYWORDS, SOURCE_FNS (m/lang.js), M_ENUMS (m/reference.js).
    ===================================================================== */
@@ -711,6 +712,8 @@ def('Table.ExpandTableColumn', (t, c, names, newNames) => { t = tab(t, 'Table.Ex
     if (sub === null || !tab(sub).rows.length){ put(names.map(() => null)); continue; }
     for (const s2 of sub.rows) put(names.map(n => { const k = sub.cols.indexOf(n); return k < 0 ? null : s2[k]; })); }
   return new MTab(cols, out); });
+def('Table.AggregateTableColumn', (t, col, aggs) => { t = tab(t, 'Table.AggregateTableColumn'); const ci = colIdx(t, txt(col)); let ag = lst(aggs); if (ag.length && typeof ag[0] === 'string') ag = [ag]; ag = ag.map(a => lst(a));
+  return new MTab(t.cols.filter((_, i) => i !== ci).concat(ag.map(a => txt(a[2]))), t.rows.map(r => r.filter((_, i) => i !== ci).concat(ag.map(a => cellOf(() => { const nt = tab(r[ci], 'Table.AggregateTableColumn'); const k = colIdx(nt, txt(a[0])); return callFn(a[1], [nt.rows.map(x => x[k])]); }))))); });
 def('Table.ExpandRecordColumn', (t, c, names, newNames) => { t = tab(t); const ci = colIdx(t, txt(c)); names = lst(names); const nn2 = force(newNames) == null ? names : lst(newNames); const cols = t.cols.slice(); cols.splice(ci, 1, ...nn2); return new MTab(cols, t.rows.map(r => { const rv = force(r[ci]); const vals = names.map(n => rv === null ? null : (rec(rv).has(n) ? rv.get(n) : null)); const x = r.slice(); x.splice(ci, 1, ...vals); return x; })); });
 def('Table.ExpandListColumn', (t, c) => { t = tab(t); const ci = colIdx(t, txt(c)); const out = []; for (const r of t.rows){ const l = force(r[ci]); if (l === null || !l.length){ const x = r.slice(); x[ci] = null; out.push(x); continue; } for (const v of lst(l)){ const x = r.slice(); x[ci] = v; out.push(x); } } return new MTab(t.cols.slice(), out); });
 def('Table.SplitColumn', (t, c, sp, names) => { t = tab(t); const ci = colIdx(t, txt(c)); const parts = t.rows.map(r => lst(callFn(sp, [r[ci]]))); names = force(names); const n = typeof names === 'number' ? names : names == null ? Math.max(1, ...parts.map(p => p.length)) : lst(names).length; const nm = Array.isArray(names) ? names.map(force) : Array.from({ length: n }, (_, i) => t.cols[ci] + '.' + (i + 1)); const cols = t.cols.slice(); cols.splice(ci, 1, ...nm); return new MTab(cols, t.rows.map((r, k) => { const x = r.slice(); x.splice(ci, 1, ...nm.map((_, i) => i < parts[k].length ? parts[k][i] : null)); return x; })); });
@@ -847,6 +850,20 @@ function mRunSteps(sectionText, member, overrides){
   if (overrides.onStep) overrides.onStep('in → результат');
   const t0 = performance.now(); let fv, fe = null; try { fv = deepForce(evalNode(ast.body, e2)); } catch (e){ fe = toMErr(e); }
   out.push({ name: 'in → результат', value: fv, error: fe, ms: performance.now() - t0, final: true });
+  return out;
+}
+/** Значения только нужных шагов запроса (ленивые: считается лишь то, от чего они зависят). Одиночное выражение — шаг с именем запроса */
+function mStepValues(sectionText, member, names, overrides){
+  overrides = overrides || {};
+  const m = parseSection(sectionText).members.find(x => x.name === member);
+  if (!m) throw new MErr('Expression.Error', 'Запрос «' + member + '» не найден');
+  const env = sectionEnv(sectionText, overrides); let ast = mParse(sectionText.slice(m.exprStart, m.exprEnd)); if (ast.k === 'bin' && ast.o === 'meta') ast = ast.l;
+  const out = new Map();
+  if (ast.k !== 'let'){ for (const n of names) out.set(n, deepForce(evalNode(ast, env))); return out; }
+  const vars = new Map(); const e2 = new Env(vars, env);
+  for (const [nm, ex] of ast.binds){ const ov = overrides.steps && overrides.steps.get(nm); vars.set(nm, ov !== undefined ? new Thunk(() => ov) : new Thunk(() => evalNode(ex, e2))); }
+  if (!ast.binds.some(b => b[0] === '(результат)')) vars.set('(результат)', new Thunk(() => evalNode(ast.body, e2)));
+  for (const n of names) out.set(n, deepForce(force(vars.get(n))));
   return out;
 }
 /** Таблица из строк CSV/XLSX (первая строка — заголовки), числа распознаются */

@@ -34,9 +34,11 @@ export const MANIFEST = [
   ['css', 'src/css/layout.css'],
   ['css', 'src/css/components.css'],
   ['css', 'src/css/editor.css'],
+  ['css', 'src/css/hyper.css'],
   ['html', 'src/html/shell-top.html'],
   ['html', 'src/html/view-home.html'],
   ['html', 'src/html/view-model.html'],
+  ['html', 'src/html/view-hyper.html'],
   ['html', 'src/html/view-editor.html'],
   ['html', 'src/html/view-optimizer.html'],
   ['html', 'src/html/view-graph.html'],
@@ -59,7 +61,10 @@ export const MANIFEST = [
   ['file', 'test/e2e.mjs'],
   ['file', 'test/stress.mjs'],
   ['file', 'vendor/codemirror.entry.js'],
+  ['file', 'vendor/duckdb.entry.js'],
   ['vendor', 'vendor/codemirror.bundle.js'],
+  ['duckjs', 'vendor/duckdb.bundle.js'],
+  ['duckwasm', 'vendor/duckdb-eh.wasm.gz.b64'],
   ['js', 'src/js/core/zip-mashup.js'],
   ['js', 'src/js/core/vba.js'],
   ['js', 'src/js/core/xlsx-data.js'],
@@ -67,6 +72,7 @@ export const MANIFEST = [
   ['js', 'src/js/m/format.js'],
   ['js', 'src/js/m/reference.js'],
   ['js', 'src/js/m/interp.js'],
+  ['js', 'src/js/m/sql.js'],
   ['js', 'src/js/nda/anon.js'],
   ['js', 'src/js/nda/diag.js'],
   ['js', 'src/js/opt/lint.js'],
@@ -75,6 +81,8 @@ export const MANIFEST = [
   ['js', 'src/js/opt/snippets.js'],
   ['js', 'src/js/app/state.js'],
   ['js', 'src/js/app/data.js'],
+  ['js', 'src/js/app/duck.js'],
+  ['js', 'src/js/app/hzkit.js'],
   ['js', 'src/js/nda/agent.js'],
   ['js', 'src/js/app/ui-base.js'],
   ['js', 'src/js/app/storage.js'],
@@ -88,6 +96,7 @@ export const MANIFEST = [
   ['js', 'src/js/views/data.js'],
   ['js', 'src/js/views/model.js'],
   ['js', 'src/js/views/speedup.js'],
+  ['js', 'src/js/views/hyper.js'],
   ['js', 'src/js/views/reference.js'],
   ['js', 'src/js/views/snippets.js'],
   ['js', 'src/js/views/history.js'],
@@ -111,12 +120,12 @@ const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8').replace(/\n$/, '')
 const MARK = (kind, name) => new RegExp('^(?:\\/\\* |\\x3c!-- )===== ' + kind + ' (' + (name || '\\S+') + ') =====(?: \\*\\/| -->)$');
 
 export function build(){
-  const parts = { html: [], css: [], bottom: [], md: [], file: [], vendor: [], js: [] };
+  const parts = { html: [], css: [], bottom: [], md: [], file: [], vendor: [], duckjs: [], duckwasm: [], js: [] };
   let seenShellBottom = false;
   for (const [type, p] of MANIFEST){
     const body = read(p);
     if (type === 'md' && /<\/?script/i.test(body)) throw new Error(p + ': в Markdown не должно быть тегов script (ломает разбор HTML)');
-    if ((type === 'js' || type === 'vendor' || type === 'file') && (/<\/script/i.test(body) || body.includes(HC[0].trim()))) throw new Error(p + ': в коде не должно быть закрывающего тега script и начала HTML-комментария — соберите строку из частей: "<" + "/script>"');
+    if ((type === 'js' || type === 'vendor' || type === 'file' || type === 'duckjs' || type === 'duckwasm') && (/<\/script/i.test(body) || body.includes(HC[0].trim()))) throw new Error(p + ': в коде не должно быть закрывающего тега script и начала HTML-комментария — соберите строку из частей: "<" + "/script>"');
     const w = wrap(type, p, body);
     if (type === 'html'){ if (p.endsWith('shell-bottom.html')) seenShellBottom = true; (seenShellBottom ? parts.bottom : parts.html).push(w); }
     else parts[type].push(w);
@@ -127,6 +136,8 @@ export function build(){
     block('type="text/markdown" id="pqm-dev-docs"', parts.md) +
     block('type="text/plain" id="pqm-dev-files"', parts.file) +
     block('id="pqm-vendor"', parts.vendor) +
+    block('type="text/plain" id="pqm-duckdb-js"', parts.duckjs) +
+    block('type="application/octet-stream" id="pqm-duckdb-wasm"', parts.duckwasm) +
     block('id="pqm-app"', ["'use strict';", ...parts.js]) + '\n' + LT + '/body>\n' + LT + '/html>\n';
   // оглавление с номерами строк (номера считаются с учётом самого оглавления)
   const tocFor = text => {

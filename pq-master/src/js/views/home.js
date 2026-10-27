@@ -49,6 +49,7 @@ function renderHome(){
     '<span>Запись</span><span>' + (b.handle ? '<span class="badge ok">можно «В оригинал»</span>' : b.container === 'text' ? 'текст — только копия кода' : '<span class="badge">только копия</span>') + '</span></div>' +
     (b.warnings || []).map(x => '<div class="note warn small">' + escHtml(x) + '</div>').join('');
   const next = [];
+  if (b.family !== 'text') next.push(['bolt', 'Гиперзум — перенос запросов в DuckDB: оценка, сверка на данных, комплект и витрина', 'hyper']);
   if (b.family !== 'text') next.push(['graph', 'Карта модели — источники, объёмы, время и ускорение с одного взгляда', 'model']);
   if (b.family === 'excel') next.push(['play', 'Проверить запросы на данных книги и выгрузок (локально)', 'data']);
   next.push(['bolt', '⚡ Ускорить книгу — всё автоматическое одной кнопкой и отчёт', 'speedup']);

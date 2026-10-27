@@ -424,6 +424,19 @@ async function runSelfTest(){
     let idbOk = false; try { await idbTx('readwrite', st => st.put({ id: '__selftest', name: 'x', lastOpened: 0 })); idbOk = (await recentList()).some(e => e.id === '__selftest'); await recentDelete('__selftest'); idbOk = idbOk && !(await recentList()).some(e => e.id === '__selftest'); } catch (e){ idbOk = 'нет IndexedDB: ' + e.message; }
     ok('Недавние файлы: IndexedDB доступна, запись и удаление работают', idbOk === true, idbOk === true ? '' : String(idbOk));
   } catch (err){ console.error(err); ok('Исключение во время самотеста', false, err.stack || String(err)); }
+  // Гиперзум: перевод M → SQL (чистые функции), классы шагов, источники, комплект и защита от утечки данных
+  { const sec = ['section Section1;', 'shared Спр = Excel.CurrentWorkbook(){[Name="Спр"]}[Content];',
+      'shared П = let', '    И = Csv.Document(File.Contents("C:\\X\\п.csv"), [Delimiter=";", Encoding=1251]),', '    З = Table.PromoteHeaders(И),', '    Т = Table.TransformColumnTypes(З, {{"Счёт", Int64.Type}, {"Сумма", type number}}),',
+      '    С = Table.NestedJoin(Т, {"Счёт"}, Спр, {"Код"}, "М", JoinKind.LeftOuter),', '    Р = Table.ExpandTableColumn(С, "М", {"ЦФО"}),', '    Г = Table.Group(Р, {"ЦФО"}, {{"Сумма", each List.Sum([Сумма]), type number}}),', '    Ф = Table.Buffer(Table.FromList({1}, null))', 'in', '    Г;', ''].join('\r\n');
+    const pl = hzPlan(analyzeSection(sec, {})); const q = pl.byName.get('П'); const sql = hzQuerySql(pl, q);
+    ok('Гиперзум: M → SQL — источники и шаги классифицированы, слияние+развёртка = один JOIN, группировка = GROUP BY', q.steps.find(x => x.name === 'И').kind === 'source' && q.steps.find(x => x.name === 'З').reader.header && q.steps.find(x => x.name === 'Р').kind === 'sql' && /LEFT JOIN/.test(sql) && /GROUP BY/.test(sql) && /Power Query: Группировать по → SQL: GROUP BY/.test(sql) && q.steps.find(x => x.name === 'Ф').dead && hzPlan(analyzeSection('section Section1;\r\nshared Т = let A = #table({"a"}, {{1}}), B = Table.Transpose(A) in B;\r\n', {})).stats.manual >= 1, JSON.stringify(pl.stats));
+    const files = hzKitFiles(pl, { book: 'К.xlsx', bookPath: 'C:\\К.xlsx', kitDir: 'C:\\Kit', wb: new Map(), run: null, schedule: '06:30', types: new Map(), now: 'сейчас', text: sec });
+    const ps = files.find(f => f.path === 'scripts/refresh.ps1').text;
+    ok('Гиперзум: комплект — SQL, PowerShell с BOM и перекодировкой cp1251, расписание, инструкция, без значений данных', files.length >= 9 && ps.charCodeAt(0) === 0xFEFF && /Recode/.test(ps) && /1251/.test(ps) && /Register-ScheduledTask/.test(files.find(f => f.path === 'scripts/setup.ps1').text) && files.some(f => f.path === 'ПРОЧТИ МЕНЯ.txt'), files.map(f => f.path).join(', '));
+    const same = hzCompare(new MTab(['a', 'b'], [[1, 'x'], [2, null]]), new MTab(['b', 'a', HZ_R], [[null, 2, 1], ['x', 1, 2]]));
+    ok('Гиперзум: сверка результатов — порядок строк и столбцов не важен, различия находятся', same.same && !same.exact && !hzCompare(new MTab(['a'], [[1]]), new MTab(['a'], [[2]])).same, same.note);
+    ok('Гиперзум: DuckDB встроен в файл (движок и ядро WebAssembly)', typeof duckAvailable === 'function' && duckAvailable() && !!document.getElementById('pqm-duckdb-js'));
+  }
   const passed = R.filter(r => r.pass).length;
   return { R, passed, total: R.length, ms: Math.round(performance.now() - t0) };
 }

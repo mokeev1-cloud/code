@@ -109,6 +109,10 @@ npx esbuild vendor/codemirror.entry.js --bundle --format=iife --minify --target=
 | `app/state.js` | состояние `S`, история, события | `setWork`, `histGo`, `reanalyze`, `onState/emitState`, `initBookState` |
 | `app/data.js` | данные этого компьютера: таблицы книги, прикреплённые файлы и папки, `M_DATA` для интерпретатора, защита от утечки | `DATA`, `dataPrepare`, `attachFiles`, `dataLeaks` |
 | `views/model.js` | «Карта модели»: плитки, поток источники → запросы → лист/модель, объём и скорость, строки по шагам, оценка ускорения (`mdlSpeedups`: операции Power Query до/после по объёмам) | `renderModel`, `mdlFlow`, `mdlSpeedups` |
+| `m/sql.js` | «Гиперзум»: перевод M → SQL DuckDB (CTE на шаг, комментарии «команда PQ → SQL», служебный `__r` — порядок строк PQ), классы шагов, источники, сверка результатов | `hzPlan`, `hzQuerySql`, `hzQueryParts`, `hzCompare`, `HZ_T`, `HZ_FN`, `HZ_OPS`, `HZ_MACROS` |
+| `app/duck.js` | DuckDB-WASM 1.32 в браузере (блоки `pqm-duckdb-js`, `pqm-duckdb-wasm`; запуск по кнопке; без сети и расширений) | `duckOpen`, `duckLoad`, `duckQuery`, `duckTab` |
+| `app/hzkit.js` | комплект для настоящего DuckDB (SQL, PowerShell, bat, README, сверка), HTML-витрина, Excel-витрина | `hzKitFiles`, `hzVitrinaRender`, `hzVitrinaHtml`, `hzExcelSection` |
+| `views/hyper.js` | раздел «Гиперзум»: ① оценка, ② DuckDB в браузере и сверка, ③ комплект и обслуживание | `renderHyper`, `hzRun`, `hzScale` |
 | `views/speedup.js` | «⚡ Ускорить книгу» и «Отчёт об ускорении» (окно и HTML-файл) | `openSpeedup`, `runSpeedup`, `spdReport` |
 | `app/ui-base.js` | `$`, toast, modal, askText, download, **gate**, **audit**, gauge | |
 | `app/storage.js` | настройки, IndexedDB «недавние», открыть/сохранить копию/в оригинал | `openBookDialog`, `saveCopy`, `saveToOriginal`, `pqmSettings` |
@@ -240,3 +244,26 @@ JSON-патч) в «Ответе ИИ» → «Сверить на данных»
   метаданных, листов и таблиц запросов; правка кода макросов в книге (p-code, риск «VBA stomping»).
 - Идеи: перенос фильтров выше точки разрыва свёртки (нужен анализ используемых столбцов);
   разбор `Value.NativeQuery` для свёртки; типы столбцов по шагам (вывод схемы) — для автодополнения.
+
+## Гиперзум (Power Query → DuckDB)
+
+Путь: «Гиперзум» → ① оценка (`hzPlan`: что переводится, прогноз выигрыша) → ② DuckDB-WASM считает тот же SQL на данных
+(`DATA`), результат сверяется с интерпретатором (`hzCompare`) → ③ комплект для настоящего DuckDB + витрины + разбор журнала.
+- **Power Query — источник истины.** SQL всегда строится заново из кода запросов; ручные переводы шагов (`HZ.over`) привязаны
+  к хешу шага и отбрасываются при его изменении.
+- **Устройство SQL.** Запрос = `CREATE TABLE … AS WITH` по шагам после «границы» (последний источник/ручной шаг); всё до
+  границы — готовые таблицы «Запрос · Шаг» (в браузере их считает интерпретатор, в комплекте — читает файл). Порядок строк PQ
+  хранит столбец `__r`. `null = null` истинно в M → `IS NOT DISTINCT FROM`. Типы — макросы `pq_num/pq_date/pq_text…` (ru-RU).
+- **Новый шаг M → SQL.** Функция в `HZ_T` (`m/sql.js`), скалярная — в `HZ_FN`; строка в `HZ_OPS_SRC` (словарь для пользователя:
+  новичок в SQL видит «команда PQ → конструкция SQL»). Риски семантики — `HZ_RISKS`, они выводятся комментариями в SQL.
+  Проверка: дифф-тест интерпретатор ↔ настоящий DuckDB (python `duckdb`, см. примечание ниже).
+- **Приватность.** DuckDB работает в памяти вкладки (CSP: только `wasm-unsafe-eval`, сети нет, автозагрузка расширений выключена).
+  Комплект и витрины содержат данные/пути компании и создаются только явным действием (`hzLocalSave`). Наружу (Claude) — только
+  обезличенный код через `gate()` (`hzClaude`); ответ возвращается через `restoreTokens`.
+- **Пересборка DuckDB.** `vendor/duckdb.entry.js` + `npm i @duckdb/duckdb-wasm@1.32.0 apache-arrow esbuild`;
+  `esbuild … --format=iife --minify` → `vendor/duckdb.bundle.js`; ядро `dist/duckdb-eh.wasm` → `gzip -9` → base64 в `vendor/duckdb-eh.wasm.gz.b64`.
+  Блок `Function`-кода Arrow запрещён CSP — векторы строятся через `makeData` (см. `duckLoad`), не `vectorFromArray`.
+- **Дифф-тест** (вне репозитория, 13 запросов, 0 расхождений на последнем прогоне): значения интерпретатора → таблицы настоящего
+  DuckDB (`pip install duckdb==1.4.3`) → тот же SQL → `hzCompare`. Эталон — интерпретатор, поэтому расхождение либо баг перевода, либо баг интерпретатора.
+- **Не проверено:** `scripts/*.ps1` в настоящем Windows PowerShell и расширение `excel` в `duckdb.exe` (в контейнере нет Windows);
+  загрузчики 1С OData и SQL Server; чтение xlsx-справочников в комплекте (диапазоны таблиц).

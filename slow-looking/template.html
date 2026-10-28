@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Над вечным покоем — медленный взгляд</title>
+<style>
+:root{--fg:#ece8df;--mut:#a29e95;--acc:#e3cc92;--ui:rgba(10,10,11,.0)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#000;color:var(--fg);font-family:Georgia,"PT Serif","Times New Roman",serif;overflow:hidden;overscroll-behavior:none}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block}
+body.idle,body.idle canvas{cursor:none}
+
+/* название главы — появляется на несколько секунд */
+.chap{position:fixed;left:max(20px,env(safe-area-inset-left));top:max(18px,env(safe-area-inset-top));
+ font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);opacity:0;transition:opacity 2.2s;pointer-events:none;text-shadow:0 1px 8px #000}
+.chap.on{opacity:.85}
+
+/* субтитры */
+.subs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(46px + env(safe-area-inset-bottom));width:min(92vw,40em);
+ text-align:center;font-size:clamp(16px,2.2vw,22px);line-height:1.5;color:#f4f0e8;text-shadow:0 0 6px #000,0 1px 3px #000,0 0 20px #000c;
+ opacity:0;transition:opacity .9s,bottom .4s;pointer-events:none;text-wrap:balance}
+.subs.on{opacity:1}
+body.ui .subs{bottom:calc(112px + env(safe-area-inset-bottom))}
+
+/* панель управления — скрыта, пока не нужна */
+.ctl{position:fixed;left:0;right:0;bottom:0;padding:40px max(16px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+ background:linear-gradient(transparent,rgba(0,0,0,.75));opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s;pointer-events:none}
+body.ui .ctl{opacity:1;transform:none;pointer-events:auto}
+.bar{position:relative;height:22px;cursor:pointer;touch-action:none}
+.bar::before{content:"";position:absolute;left:0;right:0;top:10px;height:2px;background:rgba(255,255,255,.18)}
+.bar i{position:absolute;left:0;top:10px;height:2px;background:var(--acc);width:0}
+.bar b{position:absolute;top:8px;width:1px;height:6px;background:rgba(255,255,255,.35)}
+.row{display:flex;align-items:center;gap:6px;margin-top:2px}
+.row .sp{flex:1}
+.ib{background:none;border:0;color:var(--fg);width:44px;height:44px;display:grid;place-items:center;border-radius:50%;cursor:pointer;opacity:.85;padding:0}
+.ib:hover{opacity:1;background:rgba(255,255,255,.08)}
+.ib svg{width:22px;height:22px;fill:currentColor}
+.ib.off{opacity:.4}
+.time{white-space:nowrap;font:13px/1 ui-monospace,"JetBrains Mono",monospace;color:var(--mut);font-variant-numeric:tabular-nums;margin-left:4px}
+.ctitle{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:10px}
+.file{display:none}
+
+/* заставка */
+.start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;
+ background:radial-gradient(ellipse at center,rgba(0,0,0,.45),rgba(0,0,0,.82));transition:opacity 1.6s;z-index:5}
+.start.gone{opacity:0;pointer-events:none}
+.start h1{margin:0;font-weight:normal;font-size:clamp(28px,5vw,52px);letter-spacing:.02em}
+.start .by{color:#cfcabf;font-size:clamp(14px,1.8vw,17px);letter-spacing:.06em}
+.start .hint{color:var(--mut);font-size:14px;max-width:26em;line-height:1.5}
+.go{margin-top:8px;width:84px;height:84px;border-radius:50%;border:1px solid rgba(227,204,146,.7);background:rgba(0,0,0,.25);color:var(--acc);cursor:pointer;display:grid;place-items:center;transition:transform .3s,background .3s}
+.go:hover{transform:scale(1.05);background:rgba(227,204,146,.1)}
+.go svg{width:30px;height:30px;fill:currentColor;margin-left:5px}
+
+@media (max-width:600px){
+ .ctitle{display:none}
+ .subs{font-size:17px}
+}
+@media (hover:none){ .ib{width:48px;height:48px} }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div class="chap" id="chap"></div>
+<div class="subs" id="subs"></div>
+
+<div class="ctl" id="ctl">
+ <div class="bar" id="bar"><i id="prog"></i></div>
+ <div class="row">
+  <button class="ib" id="pp" aria-label="Пауза"><svg viewBox="0 0 24 24" id="ppIcon"></svg></button>
+  <button class="ib" id="back" aria-label="Назад 15 секунд"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg></button>
+  <span class="time" id="time">0:00</span>
+  <span class="ctitle" id="ctitle"></span>
+  <span class="sp"></span>
+  <button class="ib off" id="cc" aria-label="Субтитры"><svg viewBox="0 0 24 24"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v10h16V7H4zm2 3h5v1.6H7.6v.8H11V14H6v-4zm7 0h5v1.6h-3.4v.8H18V14h-5v-4z"/></svg></button>
+  <label class="ib" id="scan" title="Подставить скан лучшего качества" aria-label="Свой скан"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4V5zm2 2v8l4-4 3 3 2-2 3 3V7H6zm9 1.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg><input type="file" class="file" id="file" accept="image/*"></label>
+  <button class="ib" id="fs" aria-label="Во весь экран"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg></button>
+ </div>
+</div>
+
+<div class="start" id="start">
+ <h1>Над вечным покоем</h1>
+ <div class="by">Исаак Левитан · 1894</div>
+ <button class="go" id="go" aria-label="Начать"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></button>
+ <div class="hint">Около одиннадцати минут. Наушники, тишина, полумрак.</div>
+</div>
+
+<img id="src" src="__IMG__" alt="" hidden>
+<audio id="au" src="__AUDIO__" preload="auto"></audio>
+<script>
+const TL="__TIMELINE__";
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d'),au=$('au');
+let img=$('src');
+
+/* ---------- камера как функция времени ----------
+   moves: {t, f:[cx,cy,z,rx,ry], ms}. Положение камеры однозначно вычисляется из
+   currentTime аудио — поэтому пауза, перемотка и звук не могут разойтись. */
+const ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+const target=(f,prev)=>({cx:f[0],cy:f[1],z:f[2],rx:f[3]>0?f[3]:prev.rx,ry:f[3]>0?f[4]:prev.ry,sp:f[3]>0?1:0});
+const lerp=(a,b,k)=>{const o={};for(const p in a)o[p]=a[p]+(b[p]-a[p])*k;return o};
+const M=TL.moves;let st0={cx:.5,cy:.5,z:1,rx:.3,ry:.3,sp:0};
+for(let k=0;k<M.length;k++){
+ M[k].from=st0;M[k].to=target(M[k].f,st0);
+ const next=M[k+1];
+ st0=next?lerp(M[k].from,M[k].to,ease(Math.min(1,(next.t-M[k].t)/(M[k].ms/1000)))):M[k].to;
+}
+function camAt(t){
+ let k=-1;for(let i=0;i<M.length&&M[i].t<=t;i++)k=i;
+ if(k<0)return {cx:.5,cy:.5,z:1,rx:.3,ry:.3,sp:0};
+ const m=M[k];return lerp(m.from,m.to,ease(Math.min(1,(t-m.t)/(m.ms/1000))));
+}
+
+/* ---------- отрисовка ---------- */
+let DPR=1;
+function size(){DPR=Math.min(2,devicePixelRatio||1);cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR)}
+function draw(c){
+ if(!img.naturalWidth)return;
+ const W=cv.width,H=cv.height,iw=img.naturalWidth,ih=img.naturalHeight;
+ const portrait=H>W*1.1;
+ const base=Math.min(W/iw,H/ih)*(portrait?1:.94);
+ // в портрете на деталях приближаем сильнее: иначе кадр — высокая узкая полоса и деталь уезжает к краю
+ const s=portrait?Math.max(base*c.z,H/ih*c.z*.55):base*c.z,vw=W/s,vh=H/s;
+ let sx=c.cx*iw-vw/2,sy=c.cy*ih-vh/2;
+ sx=vw>=iw?(iw-vw)/2:Math.max(0,Math.min(iw-vw,sx));
+ sy=vh>=ih?(ih-vh)/2:Math.max(0,Math.min(ih-vh,sy));
+ ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+ ctx.imageSmoothingQuality='high';
+ ctx.drawImage(img,-sx*s,-sy*s,iw*s,ih*s);
+ if(c.sp>.01){
+  const px=(c.cx*iw-sx)*s,py=(c.cy*ih-sy)*s;
+  const ex=Math.max(6,c.rx*iw*s*1.35),ey=Math.max(6,c.ry*ih*s*1.35);
+  ctx.save();ctx.translate(px,py);ctx.scale(1,ey/ex);
+  const g=ctx.createRadialGradient(0,0,0,0,0,ex),a=.8*c.sp;
+  g.addColorStop(0,'rgba(5,6,7,0)');g.addColorStop(.55,'rgba(5,6,7,0)');g.addColorStop(1,`rgba(5,6,7,${a})`);
+  ctx.fillStyle=g;const R=(W+H)*4;ctx.fillRect(-R,-R*ex/ey,2*R,2*R*ex/ey);ctx.restore();
+ }
+}
+
+/* ---------- субтитры, главы, прогресс ---------- */
+const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const D=TL.duration;
+TL.chapters.forEach(c=>{if(c.t>1){const b=document.createElement('b');b.style.left=(c.t/D*100)+'%';$('bar').appendChild(b)}});
+let lastCue=null,lastChap=-1,chapTimer;
+function chapAt(t){let k=0;TL.chapters.forEach((c,i)=>{if(c.t<=t+.05)k=i});return k}
+function hud(t){
+ const cue=TL.cues.find(c=>t>=c.t0&&t<c.t1+.6)||null;
+ if(cue!==lastCue){lastCue=cue;const el=$('subs');
+  if(cue){el.textContent=cue.text;el.classList.toggle('on',subsOn)}else el.classList.remove('on')}
+ const k=chapAt(t);
+ if(k!==lastChap){lastChap=k;$('ctitle').textContent=TL.chapters[k].title;
+  if(started&&k>0){const el=$('chap');el.textContent=TL.chapters[k].title;el.classList.add('on');
+   clearTimeout(chapTimer);chapTimer=setTimeout(()=>el.classList.remove('on'),4500)}}
+ $('prog').style.width=(t/D*100)+'%';$('time').textContent=fmt(t)+' / '+fmt(D);
+}
+function loop(){const t=au.currentTime||0;draw(camAt(t));hud(t);requestAnimationFrame(loop)}
+
+/* ---------- управление ---------- */
+let started=false,subsOn=false;
+try{subsOn=localStorage.getItem('nvp-subs')==='1'}catch(e){}
+$('cc').classList.toggle('off',!subsOn);
+const PLAY='<path d="M7 4l13 8-13 8z"/>',PAUSE='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
+function setIcon(){$('ppIcon').innerHTML=au.paused?PLAY:PAUSE}
+au.addEventListener('play',()=>{setIcon();wake(true);poke()});
+au.addEventListener('pause',()=>{setIcon();showUI()});
+au.addEventListener('ended',()=>{$('start').querySelector('h1').textContent='Над вечным покоем';
+ $('start').querySelector('.hint').textContent='Смотреть ещё раз';$('start').classList.remove('gone');started=false;wake(false)});
+
+let uiTimer;
+function showUI(){document.body.classList.add('ui');document.body.classList.remove('idle')}
+function poke(){showUI();clearTimeout(uiTimer);if(!au.paused)uiTimer=setTimeout(()=>{document.body.classList.remove('ui');document.body.classList.add('idle')},2600)}
+addEventListener('mousemove',()=>started&&poke());
+cv.addEventListener('click',()=>{if(!started)return;
+ if(document.body.classList.contains('ui')&&matchMedia('(hover:none)').matches){document.body.classList.remove('ui')}else poke()});
+
+function start(){
+ started=true;$('start').classList.add('gone');
+ if(au.ended||au.currentTime>=D-1)au.currentTime=0;
+ au.play();poke();
+ if(matchMedia('(hover:none)').matches)fullscreen(true);
+}
+$('go').onclick=start;
+$('pp').onclick=()=>{au.paused?au.play():au.pause();poke()};
+$('back').onclick=()=>{au.currentTime=Math.max(0,au.currentTime-15);poke()};
+$('cc').onclick=()=>{subsOn=!subsOn;$('cc').classList.toggle('off',!subsOn);try{localStorage.setItem('nvp-subs',subsOn?'1':'0')}catch(e){}
+ lastCue=undefined;poke()};
+function fullscreen(on){const d=document.documentElement;
+ if(on&&!document.fullscreenElement)(d.requestFullscreen||d.webkitRequestFullscreen||(()=>{})).call(d)?.catch?.(()=>{});
+ else if(!on&&document.fullscreenElement)document.exitFullscreen()}
+$('fs').onclick=()=>{fullscreen(!document.fullscreenElement);poke()};
+$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const n=new Image();n.onload=()=>{img=n};n.src=URL.createObjectURL(f)};
+const seek=e=>{const r=$('bar').getBoundingClientRect();au.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*D;
+ if(!started){started=true;$('start').classList.add('gone');au.play()}poke()};
+$('bar').addEventListener('pointerdown',e=>{seek(e);const mv=ev=>seek(ev);$('bar').setPointerCapture(e.pointerId);
+ $('bar').addEventListener('pointermove',mv);$('bar').addEventListener('pointerup',()=>$('bar').removeEventListener('pointermove',mv),{once:true})});
+addEventListener('keydown',e=>{
+ if(e.code==='Space'||e.code==='Enter'){e.preventDefault();started?$('pp').click():start()}
+ else if(e.code==='ArrowLeft'){const k=chapAt(au.currentTime);const c=TL.chapters[k];au.currentTime=(au.currentTime-c.t>3||k===0)?c.t:TL.chapters[k-1].t;poke()}
+ else if(e.code==='ArrowRight'){const k=chapAt(au.currentTime);if(k+1<TL.chapters.length)au.currentTime=TL.chapters[k+1].t;poke()}
+ else if(e.key==='f'||e.key==='а')$('fs').click();
+ else if(e.key==='c'||e.key==='с')$('cc').click();
+});
+
+/* экран не гаснет, пока идёт рассказ */
+let lock=null;
+async function wake(on){try{if(on&&!lock&&navigator.wakeLock){lock=await navigator.wakeLock.request('screen');lock.addEventListener('release',()=>lock=null)}
+ else if(!on&&lock){lock.release();lock=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!au.paused)wake(true)});
+if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:'Над вечным покоем',artist:'Медленный взгляд · Исаак Левитан'});
+ navigator.mediaSession.setActionHandler('play',()=>au.play());navigator.mediaSession.setActionHandler('pause',()=>au.pause())}
+
+addEventListener('resize',size);setIcon();
+const boot=()=>{size();requestAnimationFrame(loop)};img.complete?boot():img.onload=boot;
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Медленный взгляд: «Над вечным покоем»</title>
+<style>
+:root{--bg:#0e0f10;--fg:#e9e6df;--mut:#9a978f;--acc:#d9c79a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:Georgia,"PT Serif",serif}
+.app{display:flex;flex-direction:column;height:100%}
+.view{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:12px 12px 0}
+.frame{position:relative;overflow:hidden;aspect-ratio:1280/918;max-width:100%;max-height:100%;width:min(100%,calc((100vh - 230px)*1.394));background:#000;box-shadow:0 10px 40px #000a}
+.cam{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+.cam img{width:100%;height:100%;display:block}
+.dim{position:absolute;inset:0;pointer-events:none}
+.panel{padding:14px 18px 18px;max-width:900px;margin:0 auto;width:100%}
+.cap{min-height:5.2em;font-size:clamp(16px,2.2vw,20px);line-height:1.5;color:var(--fg);transition:opacity .6s}
+.title{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.bar{height:3px;background:#2a2b2c;margin:10px 0;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);width:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--mut)}
+button{background:#1d1e1f;color:var(--fg);border:1px solid #3a3b3c;border-radius:6px;padding:8px 14px;font:inherit;cursor:pointer}
+button:hover{border-color:var(--acc)}
+select{background:#1d1e1f;color:var(--fg);border:1px solid #3a3b3c;border-radius:6px;padding:7px;font:inherit;max-width:230px}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots b{width:9px;height:9px;border-radius:50%;background:#333;cursor:pointer}
+.dots b.on{background:var(--acc)}
+.start{position:absolute;inset:0;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#000b;text-align:center;padding:20px;z-index:3}
+.start h1{margin:0;font-weight:normal;font-size:clamp(22px,4vw,36px)}
+.start p{margin:0;color:var(--mut);max-width:30em}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="view"><div class="frame" id="frame">
+  <div class="cam" id="cam"><img id="img" src="__IMG__" alt="Исаак Левитан. Над вечным покоем. 1894"><div class="dim" id="dim"></div></div>
+  <div class="start" id="start"><h1>Над вечным покоем</h1><p>Исаак Левитан, 1894. Холст, масло, 150 × 206 см, Государственная Третьяковская галерея. Слушайте и смотрите — около десяти минут. Лучше в наушниках.</p><button id="go">Начать</button></div>
+ </div></div>
+ <div class="panel">
+  <div class="title" id="ttl">&nbsp;</div>
+  <div class="cap" id="cap"></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="row">
+   <button id="pp">Пауза</button><button id="prev">←</button><button id="next">→</button>
+   <label>Голос <select id="voice"></select></label>
+   <span id="time"></span>
+   <div class="dots" id="dots"></div>
+  </div>
+ </div>
+</div>
+<script>
+// Фокус: cx, cy — центр, rx, ry — полуоси подсветки (доли ширины/высоты картины); z — приближение камеры.
+const SEG=[
+{t:"Смотрим вместе",f:[.5,.5,.9,.9,1],pause:6,s:[
+"Не торопитесь. Эта картина написана для того, чтобы на неё долго смотреть.",
+"Пока я молчу, просто окиньте её взглядом целиком. Где задержался глаз? Скорее всего, на маленькой церкви внизу слева — и потом он ушёл вверх, в небо, или вправо, на воду.",
+"Над вечным покоем — так называется эта вещь. Левитан написал её в тысяча восемьсот девяносто четвёртом году. Большой холст, больше двух метров в ширину, почти как окно."]},
+{t:"Небо: свет сквозь облака",f:[.42,.2,.5,.2,1.25],pause:4,s:[
+"Начнём с неба, потому что его здесь больше половины. Посмотрите на светлую прореху слева, над серой тучей. Там тёплая, почти лимонная бледность — свет, который не светит, а как будто просачивается.",
+"Мазки в небе лёгкие, вытянутые по горизонтали. Облака не стоят, их несёт. Левитан писал ветер, но не рисовал его линиями: он оставил его в направлении мазка.",
+"Задержитесь на этом светлом пятне. Оно — единственный источник тепла во всей картине."]},
+{t:"Тёмная туча",f:[.78,.17,.26,.2,1.3],pause:4,s:[
+"Теперь справа. Тёмная туча — тяжёлая, почти монументальная. Она не грозовая, из неё не бьёт молния. Она просто огромна.",
+"Края её размыты, а середина плотная и холодная, серо-стальная. Рядом с ней всё остальное кажется хрупким.",
+"Вспомните: в то время Левитан был уже тяжело болен, у него было больное сердце. Критики любили видеть в туче предчувствие. Может быть. Но смотрите сами: она угрожает или она просто величественна?"]},
+{t:"Белое облако",f:[.62,.27,.17,.14,1.4],pause:4,s:[
+"Посередине — самое светлое место неба: белая клубящаяся громада, подсвеченная сбоку.",
+"Она вырастает из серого, как мысль из тревоги. Тёмное справа и светлое в центре — это спор, который в картине ведётся без слов.",
+"А слева от неё вытянулась длинная тонкая полоса — облако как мазок, как росчерк. Проследите за ней глазами слева направо. Это дорога взгляда: она ведёт вас вдоль всей картины."]},
+{t:"Горизонт",f:[.5,.55,.5,.08,1.5],pause:4,s:[
+"Теперь опустим глаза к горизонту. Он здесь очень низкий и очень тонкий — едва заметная синеватая полоска, где заканчивается земля.",
+"Обратите внимание: земля занимает совсем немного места. Это не пейзаж с землёй и небом, это скорее воздух, в котором земля — только краешек.",
+"Так мы чувствуем простор. Не потому, что нарисовано далеко, а потому, что между вами и горизонтом нет ни одной преграды."]},
+{t:"Вода",f:[.68,.72,.34,.2,1.2],pause:4,s:[
+"И вот вода. Огромная, плоская, молочно-светлая. Почти без деталей, без бликов, без волн.",
+"Левитан сознательно лишил её рельефа. Вода отражает небо — но не повторяет его, а обобщает, как тихая память. Холодные серые и розоватые оттенки перетекают друг в друга.",
+"Попробуйте задержать дыхание и посмотреть на эту гладь секунд десять. Заметьте, как она замедляет вас."]},
+{t:"Остров",f:[.7,.6,.15,.05,2.0],pause:4,s:[
+"В глубине воды лежит узкий остров — низкая полоска земли, с кустами и несколькими деревьями.",
+"Это точка, которая показывает масштаб. Если остров так мал, значит, река огромна. Если река огромна, значит, и мы — совсем маленькие.",
+"Он далеко, до него не добраться. Но он есть. Как у человека есть что-то, что видно, но недостижимо."]},
+{t:"Церковь",f:[.37,.72,.1,.12,1.8],pause:4,s:[
+"Теперь самое важное, ради чего, наверное, и написана вся картина. Маленькая деревянная церковь на обрыве.",
+"Посмотрите на её крышу — тёплая, охристая, почти золотистая. Это единственный по-настоящему тёплый цвет внизу картины. Над куполом — крошечный крест. Окно тёмное, и там, кажется, ни огня, ни жизни.",
+"Церковь стоит на самом краю. Позади — обрыв и бескрайняя вода. Она одна. Но она не выглядит несчастной. Скорее — стоящей на своём месте."]},
+{t:"Деревья на ветру",f:[.22,.75,.12,.15,1.8],pause:4,s:[
+"Рядом с церковью — деревья, ветви которых прижаты к земле. Здесь — движение. Единственное резкое движение во всей картине.",
+"Ветер гнёт их, треплет листву. Внизу на земле — шум и борьба, а в вышине над водой — величавый покой. Вот в чём смысл названия: покой — вечный, а жизнь — под ветром.",
+"Смотрите, как листва набрана тёмным, густым, почти чёрным зелёным. Это самые тёмные пятна внизу. Они удерживают композицию, как якорь."]},
+{t:"Кресты",f:[.09,.84,.1,.07,2.4],pause:4,s:[
+"А теперь — самое тихое место. Левее, у края холста, на склоне едва заметны несколько маленьких крестов. Деревенское кладбище.",
+"Их можно не заметить вовсе. Многие и не замечают при первом взгляде. А когда заметишь — меняется всё: и церковь, и вода, и небо. Картина вдруг становится о тех, кто здесь лежит.",
+"Вечный покой — это и есть покой тех, кто уже не слышит ветра. А те, кто стоит рядом, на обрыве, ещё слышат."]},
+{t:"Склон",f:[.4,.93,.45,.14,1.4],pause:4,s:[
+"И наконец — зелёный склон на переднем плане. Трава мягкая, сочная, написана широко. Это мост между нами и картиной: мы как будто стоим на этом холме.",
+"Заметьте перспективу: мы смотрим сверху вниз и вдаль. Это точка зрения человека, который поднялся на обрыв и замолчал.",
+"Левитан сказал об этой картине, что в ней он весь — со всем своим умом и со всем своим чувством. Это не пейзаж. Это автопортрет."]},
+{t:"Вернёмся ко всему",f:[.5,.5,.9,.9,1],pause:5,s:[
+"Отступим на шаг. Теперь смотрим на всю картину сразу.",
+"Тёмное и светлое, ветер и покой, живая церковь и тихие кресты, крошечный человек и огромное небо. Всё это держится вместе. И нигде нет ответа, есть только присутствие.",
+"Если хотите, побудьте с ней ещё минуту в тишине. Просто смотрите. Картина не торопит."]}
+];
+const $=id=>document.getElementById(id);
+const cam=$('cam'),dim=$('dim'),cap=$('cap'),ttl=$('ttl'),prog=$('prog'),pp=$('pp'),sel=$('voice');
+const ss=window.speechSynthesis;let voices=[];
+let cur={cx:.5,cy:.5,rx:.9,ry:.9,z:1},tgt=null;
+function fw(){return $('frame').clientWidth}function fh(){return $('frame').clientHeight}
+function apply(){
+ const W=fw(),H=fh(),{cx,cy,rx,ry,z}=cur;
+ let tx=W/2-cx*W*z,ty=H/2-cy*H*z;
+ tx=Math.min(0,Math.max(W-W*z,tx));ty=Math.min(0,Math.max(H-H*z,ty));
+ cam.style.width=W+'px';cam.style.height=H+'px';
+ cam.style.transform=`translate(${tx}px,${ty}px) scale(${z})`;
+ const full=rx>=.85;
+ dim.style.background=full?'transparent':`radial-gradient(ellipse ${rx*W*1.35}px ${ry*H*1.35}px at ${cx*100}% ${cy*100}%,rgba(8,9,10,0) 55%,rgba(8,9,10,.78) 100%)`;
+}
+let raf;
+function glide(to,ms=3500){
+ cancelAnimationFrame(raf);const from={...cur},t0=performance.now();
+ const e=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+ (function step(now){const k=Math.min(1,(now-t0)/ms),v=e(k);
+  for(const p in to)cur[p]=from[p]+(to[p]-from[p])*v;apply();
+  if(k<1)raf=requestAnimationFrame(step)})(t0);
+}
+let idx=-1,token=0,paused=false,timer=null;
+const total=SEG.reduce((a,s)=>a+s.s.join(' ').length,0);
+const dots=$('dots');SEG.forEach((_,i)=>{const b=document.createElement('b');b.onclick=()=>goto(i);dots.appendChild(b)});
+function loadVoices(){
+ voices=(ss?ss.getVoices():[]).filter(v=>/^ru/i.test(v.lang));
+ sel.innerHTML='';
+ if(!voices.length){sel.innerHTML='<option>нет русского голоса — идёт по таймеру</option>';return}
+ voices.forEach((v,i)=>{const o=document.createElement('option');o.value=i;o.textContent=v.name;sel.appendChild(o)});
+ const best=voices.findIndex(v=>/natural|google|milena|yuri|katya|irina/i.test(v.name));
+ sel.value=best>=0?best:0;
+}
+if(ss){loadVoices();ss.onvoiceschanged=loadVoices}else sel.innerHTML='<option>голос недоступен</option>';
+function say(text,tk){
+ return new Promise(res=>{
+  if(tk!==token)return res();
+  if(ss&&voices.length){
+   const u=new SpeechSynthesisUtterance(text);u.lang='ru-RU';u.rate=.92;
+   u.voice=voices[+sel.value]||voices[0];
+   u.onend=u.onerror=()=>res();ss.speak(u);
+  }else timer=setTimeout(res,text.length*75+400);
+ });
+}
+const wait=(ms,tk)=>new Promise(r=>{timer=setTimeout(r,ms)});
+async function goto(i){
+ if(i<0||i>=SEG.length)return;
+ token++;const tk=token;idx=i;paused=false;pp.textContent='Пауза';
+ if(ss)ss.cancel();clearTimeout(timer);
+ const S=SEG[i];ttl.textContent=(i+1)+' / '+SEG.length+' · '+S.t;
+ [...dots.children].forEach((b,j)=>b.classList.toggle('on',j===i));
+ cap.style.opacity=0;cap.textContent='';
+ const [cx,cy,rx,ry,z]=S.f;glide({cx,cy,rx,ry,z});
+ await wait(S.pause*1000,tk);if(tk!==token)return;
+ cap.style.opacity=1;
+ let done=SEG.slice(0,i).reduce((a,s)=>a+s.s.join(' ').length,0);
+ for(const sentence of S.s){
+  if(tk!==token)return;cap.textContent=sentence;
+  await say(sentence,tk);done+=sentence.length;prog.style.width=(done/total*100)+'%';
+  if(tk!==token)return;await wait(900,tk);
+ }
+ if(tk===token){await wait(1500,tk);if(tk===token)i+1<SEG.length?goto(i+1):(ttl.textContent='Конец',cap.textContent='Спасибо, что смотрели.')}
+}
+$('go').onclick=()=>{$('start').remove();goto(0)};
+$('next').onclick=()=>goto(Math.min(SEG.length-1,idx+1));
+$('prev').onclick=()=>goto(Math.max(0,idx-1));
+pp.onclick=()=>{
+ if(idx<0)return;paused=!paused;pp.textContent=paused?'Дальше':'Пауза';
+ if(ss&&voices.length){paused?ss.pause():ss.resume()}
+ else if(paused){clearTimeout(timer)}else goto(idx);
+};
+addEventListener('resize',apply);apply();
+</script>
+</body>
+</html>

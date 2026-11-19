@@ -2,3 +2,4 @@ corpus/ryzhy/
 corpus/pushkin/html/
 audio_check/*.mp3
 *.zip
+__pycache__/
